@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.LocalDate;
 import java.util.Date;
 
 @Entity
@@ -20,10 +21,11 @@ public class Usuario {
     private String correo;
     private String contrasenia;
     private String direccion;
-    private int dni;
-    private int numCelular;
+    private Integer dni;
+    private Integer numCelular;
     @ManyToOne
+    @JoinColumn(name = "idRol")
     private Rol rol;
     private boolean isBaneado;
-    private Date fechaNacimiento;
+    private LocalDate fechaNacimiento;
 }

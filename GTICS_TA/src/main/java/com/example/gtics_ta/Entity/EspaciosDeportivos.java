@@ -18,6 +18,7 @@ public class EspaciosDeportivos {
     private String nombre;
     private String ubicacion;
     @ManyToOne
+    @JoinColumn(name = "idTipoEspacio")
     private TipoEspacio tipoEspacio;
     @Column(name = "descripcion_corta")
     private String descripcionCorta;

@@ -13,5 +13,6 @@ public class Pagos {
     private int id;
     private float cantidad;
     @ManyToOne
+    @JoinColumn(name = "idMediosPago")
     private MediosPago medioPago;
 }

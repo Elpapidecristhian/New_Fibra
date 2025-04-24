@@ -1,21 +1,21 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
     <head>
         <meta charset="utf-8">
           <meta http-equiv="X-UA-Compatible" content="IE=edge">
           <meta name="viewport" content="width=device-width, initial-scale=1">
           <meta name="description" content="">
           <meta name="author" content="">
-          <link rel="icon" th:ref="@{/images/san_miguel_logo.ico}">
+          <link rel="icon" th:ref="@{}">
       
           <title>Reservar un Espacio </title>
         
           <!-- Vendors Style-->
-          <link rel="stylesheet" th:ref="@{/main/css/vendors_css.css}">
+          <link rel="stylesheet" th:ref="@{../main/css/vendors_css.css}">
             
           <!-- Style-->  
-          <link rel="stylesheet" th:ref="@{/main/css/style.css}">
-          <link rel="stylesheet" th:ref="@{/main/css/skin_color.css}">
+          <link rel="stylesheet" th:ref="@{../main/css/style.css}">
+          <link rel="stylesheet" th:ref="@{../main/css/skin_color.css}">
       </head>
 <body class="hold-transition light-skin sidebar-mini theme-success fixed">
 	
@@ -28,12 +28,12 @@
             <a href="index.html" class="logo">
               <!-- logo-->
               <div class="logo-mini w-50">
-                  <span class="light-logo"><img th:src="@{templates/images/san_miguel_logo.png}" alt="logo"></span>
-                  <span class="dark-logo"><img th:src="@{templates/images/san_miguel_logo.png}" alt="logo"></span>
+                  <span class="light-logo"><img th:src="@{../images/san_miguel_logo.png}" alt="logo"></span>
+                  <span class="dark-logo"><img th:src="@{../images/san_miguel_logo.png}" alt="logo"></span>
               </div>
               <div class="logo-lg">
-                  <span class="light-logo"><img th:src="@{templates/images/san_miguel.png}" alt="logo"></span>
-                  <span class="dark-logo"><img th:src="@{templates/images/san_miguel.png}" alt="logo"></span>
+                  <span class="light-logo"><img th:src="@{../images/san_miguel.png}" alt="logo"></span>
+                  <span class="dark-logo"><img th:src="@{../images/san_miguel.png}" alt="logo"></span>
               </div>
             </a>	
         </div>  
@@ -126,7 +126,7 @@
                             <p class="pt-5 fs-14 mb-0 fw-700 text-primary">Johen Doe</p>
                             <small class="fs-10 mb-0 text-uppercase text-mute">Vecino</small>
                         </div>
-                        <img src="../images/avatar/avatar-1.png" class="avatar rounded-10 bg-primary-light h-40 w-40" alt="" />
+                        <img th:src="@{/images/avatar/avatar-1.png}" class="avatar rounded-10 bg-primary-light h-40 w-40" alt="" />
                     </div>
                 </a>
                 <ul class="dropdown-menu animated flipInX">
@@ -201,7 +201,7 @@
                 </div>
                 <!-- /.box-header -->
                 <div class="box-body wizard-content">
-                    <form method="post" th:action="@{/vecino/save}" th:object class="validation-wizard wizard-circle">
+                    <form method="post" th:action="@{/vecino/save}" class="validation-wizard wizard-circle">
                         <!-- Step 1 -->
                         <h6>Información Personal</h6>
                         <section>
@@ -583,17 +583,17 @@
 	
 	
 	<!-- Vendor JS -->
-	<script src="js/vendors.min.js"></script>
-	<script src="js/pages/chat-popup.js"></script>
-    <script src="../assets/icons/feather-icons/feather.min.js"></script>	<script src="../assets/vendor_components/jquery-steps-master/build/jquery.steps.js"></script>
-    <script src="../assets/vendor_components/jquery-validation-1.17.0/dist/jquery.validate.min.js"></script>
-    <script th:src="@{/assets/vendor_components/sweetalert/sweetalert.min.js}"></script>
+	<script th:src="@{../main/js/vendors.min.js}"></script>
+	<script th:src="@{../main/js/pages/chat-popup.js}"></script>
+    <script th:src="@{../assets/icons/feather-icons/feather.min.js}"></script>	<script th:src="@{../assets/vendor_components/jquery-steps-master/build/jquery.steps.js}"></script>
+    <script th:src="@{../assets/vendor_components/jquery-validation-1.17.0/dist/jquery.validate.min.js}"></script>
+    <script th:src="@{../assets/vendor_components/sweetalert/sweetalert.min.js}"></script>
 	
 	<!-- Rhythm Admin App -->
-	<script src="js/template.js"></script>
-    <script th:src="@{/main/js/pages/ste}"></script>
+	<script th:src="@{../main/js/template.js}"></script>
+    <script th:src="@{../main/js/pages/ste}"></script>
 	
-	<script th:src="@{/main/js/pages/advanced-form-element.js}"></script>
+	<script th:src="@{../main/js/pages/advanced-form-element.js}"></script>
 	
 
 

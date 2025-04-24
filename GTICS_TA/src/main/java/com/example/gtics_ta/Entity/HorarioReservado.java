@@ -13,5 +13,6 @@ public class HorarioReservado {
     private int id;
     private Date fecha;
     @ManyToOne
+    @JoinColumn(name = "idHorarios")
     private Horarios horario;
 }

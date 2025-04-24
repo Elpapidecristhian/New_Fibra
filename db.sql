@@ -163,6 +163,22 @@ DEFAULT CHARACTER SET = utf8mb3;
 
 
 -- -----------------------------------------------------
+-- Table `gtics`.`horarioreservado`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `gtics`.`horarioreservado` (
+  `idHorarioReservado` INT NOT NULL,
+  `fecha` DATE NOT NULL,
+  `idHorarios` INT NOT NULL,
+  PRIMARY KEY (`idHorarioReservado`),
+  INDEX `fk_HorarioReservado_Horarios1_idx` (`idHorarios` ASC) VISIBLE,
+  CONSTRAINT `fk_HorarioReservado_Horarios1`
+    FOREIGN KEY (`idHorarios`)
+    REFERENCES `gtics`.`horarios` (`idHorarios`))
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb3;
+
+
+-- -----------------------------------------------------
 -- Table `gtics`.`mediospago`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `gtics`.`mediospago` (
@@ -197,12 +213,14 @@ CREATE TABLE IF NOT EXISTS `gtics`.`reservas` (
   `idUsuario` INT NOT NULL,
   `idEspacio` INT NOT NULL,
   `Pagos_idPagos` INT NOT NULL,
+  `idHorarioReservado` INT NOT NULL,
   `registroTimestamp` TIMESTAMP NOT NULL,
   `fechaReserva` DATE NOT NULL,
   PRIMARY KEY (`idReservas`),
   INDEX `fk_Reservas_Usuario1_idx` (`idUsuario` ASC) VISIBLE,
   INDEX `fk_Reservas_EspaciosDeportivos1_idx` (`idEspacio` ASC) VISIBLE,
   INDEX `fk_Reservas_Pagos1_idx` (`Pagos_idPagos` ASC) VISIBLE,
+  INDEX `fk_reservas_horarioreservado1_idx` (`idHorarioReservado` ASC) VISIBLE,
   CONSTRAINT `fk_Reservas_EspaciosDeportivos1`
     FOREIGN KEY (`idEspacio`)
     REFERENCES `gtics`.`espaciosdeportivos` (`idEspacio`),
@@ -211,28 +229,12 @@ CREATE TABLE IF NOT EXISTS `gtics`.`reservas` (
     REFERENCES `gtics`.`pagos` (`idPagos`),
   CONSTRAINT `fk_Reservas_Usuario1`
     FOREIGN KEY (`idUsuario`)
-    REFERENCES `gtics`.`usuario` (`idUsuario`))
-ENGINE = InnoDB
-DEFAULT CHARACTER SET = utf8mb3;
-
-
--- -----------------------------------------------------
--- Table `gtics`.`horarioreservado`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `gtics`.`horarioreservado` (
-  `idHorarioReservado` INT NOT NULL,
-  `fecha` DATE NOT NULL,
-  `idReservas` INT NOT NULL,
-  `idHorarios` INT NOT NULL,
-  PRIMARY KEY (`idHorarioReservado`, `idReservas`),
-  INDEX `fk_HorarioReservado_Reservas1_idx` (`idReservas` ASC) VISIBLE,
-  INDEX `fk_HorarioReservado_Horarios1_idx` (`idHorarios` ASC) VISIBLE,
-  CONSTRAINT `fk_HorarioReservado_Horarios1`
-    FOREIGN KEY (`idHorarios`)
-    REFERENCES `gtics`.`horarios` (`idHorarios`),
-  CONSTRAINT `fk_HorarioReservado_Reservas1`
-    FOREIGN KEY (`idReservas`)
-    REFERENCES `gtics`.`reservas` (`idReservas`))
+    REFERENCES `gtics`.`usuario` (`idUsuario`),
+  CONSTRAINT `fk_reservas_horarioreservado1`
+    FOREIGN KEY (`idHorarioReservado`)
+    REFERENCES `gtics`.`horarioreservado` (`idHorarioReservado`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8mb3;
 
