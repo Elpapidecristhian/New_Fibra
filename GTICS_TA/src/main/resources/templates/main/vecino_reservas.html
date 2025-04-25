@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es">
+<html xmlns:th="http://www.thymeleaf.org">
     <head>
         <meta charset="utf-8">
           <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -43,20 +43,6 @@
 						<a href="#" class="waves-effect waves-light nav-link push-btn btn-primary-light" data-toggle="push-menu" role="button">
 							<i data-feather="align-left"></i>
 						</a>
-					</li>
-					<li class="btn-group d-lg-inline-flex d-none">
-						<div class="app-menu">
-							<div class="search-bx mx-5">
-								<form>
-									<div class="input-group">
-										<input type="search" class="form-control" placeholder="Search" aria-label="Search" aria-describedby="button-addon2">
-										<div class="input-group-append">
-											<button class="btn" type="submit" id="button-addon3"><i data-feather="search"></i></button>
-										</div>
-									</div>
-								</form>
-							</div>
-						</div>
 					</li>
 				</ul>
 			</div>
@@ -163,19 +149,19 @@
 				  <!-- sidebar menu-->
 				  <ul class="sidebar-menu" data-widget="tree">			
 					<li>
-						<a href="#">
+						<a href="/vecino_perfil">
 						  <i data-feather="user"></i>
 						  <span>Mi Perfil</span>
 						</a>
 					  </li>	
 					<li>
-					  <a href="#">
+					  <a href="/vecino_reservas">
 						<i data-feather="calendar"></i>
 						<span>Mis Reservas</span>
 					  </a>
 					</li>		
 					<li>
-						<a href="#">
+						<a href="/vecino_espacios_deportivos">
 						  <i data-feather="grid"></i>
 						  <span>Espacios Deportivos</span>
 						</a>
@@ -237,7 +223,7 @@
                                                   
                                                   <td>
                                                     <!-- Acción: Ojo -->
-                                                    <a href="#" class="btn btn-primary btn-sm">
+                                                    <a href="vecino_reservas_detalles.html" class="btn btn-primary btn-sm">
                                                         <i class="mdi mdi-eye"></i> <!-- Icono del ojo -->
                                                     </a>
                                                 </td>
@@ -348,7 +334,14 @@
 			<a href="javascript:void(0)" class="text-end text-grey"><i class="ti-plus"></i></a>
 		  </div>
 		  <div class="lookup lookup-sm lookup-right d-none d-lg-block">
-			<input type="text" name="s" placeholder="Search" class="w-p100">
+			  <form>
+				  <div class="input-group">
+					  <input type="search" class="form-control" placeholder="Search" aria-label="Search" aria-describedby="button-addon2">
+					  <div class="input-group-append">
+						  <button class="btn" type="submit" id="button-addon3"><i data-feather="search"></i></button>
+					  </div>
+				  </div>
+			  </form>
 		  </div>
           <div class="media-list media-list-hover mt-20">
 			<div class="media py-10 px-0">
@@ -614,7 +607,7 @@
 	<script src="js/template.js"></script>
 	
 	<script src="js/pages/data-table.js"></script>
-	
+
 
 </body>
 </html>
