@@ -6,6 +6,7 @@ import java.util.Date;
 
 @Entity
 @Getter
+@Setter
 @Table(name = "horarioreservado")
 public class HorarioReservado {
     @Id
@@ -15,4 +16,5 @@ public class HorarioReservado {
     @ManyToOne
     @JoinColumn(name = "idHorarios")
     private Horarios horario;
+    private boolean isReservado;
 }

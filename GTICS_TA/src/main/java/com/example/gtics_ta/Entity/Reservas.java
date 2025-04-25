@@ -2,6 +2,7 @@ package com.example.gtics_ta.Entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
@@ -29,5 +30,6 @@ public class Reservas {
     private HorarioReservado horarioReservado;
     @Column(name = "registroTimestamp")
     private Timestamp fechaRegistro;
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date fechaReserva;
 }
