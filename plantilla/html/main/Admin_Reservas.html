@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="../images/favicon.ico">
+
+    <title>Rhythm Admin - Dashboard</title>
+    
+	<!-- Vendors Style-->
+	<link rel="stylesheet" href="css/vendors_css.css">
+	  
+	<!-- Style-->  
+	<link rel="stylesheet" href="css/style.css">
+	<link rel="stylesheet" href="css/skin_color.css">
+
+    <!-- DataTables CSS -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <!-- DataTables JS -->
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+
+
+    
+
+    <style>
+    
+        .dataTables_filter {
+            margin-bottom: 20px; /* Separación */
+            float: right; /* Puedes quitar esto si lo quieres alineado a la izquierda */
+        }
+    </style>
+
+  </head>
+
+<body class="hold-transition light-skin sidebar-mini theme-success fixed">
+	
+<div class="wrapper">
+	<div id="loader"></div>
+	
+  <header class="main-header">
+    
+    <div class="d-flex align-items-center logo-box justify-content-center">	
+      <!-- Logo -->
+      <a href="principal.html" class="logo">
+        <!-- logo-->
+        <div class="logo-mini w-150 text-center">
+          <span class="light-logo"><img src="../images/logo-sanMiguel.png" alt="logo"></span>
+        </div>
+      </a>	
+    </div>
+    <!-- Header Navbar -->
+    <nav class="navbar navbar-static-top">
+      <!-- Sidebar toggle button-->
+	  <div class="app-menu">
+		<ul class="header-megamenu nav">
+			<li class="btn-group nav-item">
+				<a href="#" class="waves-effect waves-light nav-link push-btn btn-primary-light" data-toggle="push-menu" role="button">
+					<i data-feather="align-left"></i>
+			    </a>
+			</li>
+			
+		</ul> 
+	  </div>
+		
+      <div class="navbar-custom-menu r-side">
+        <ul class="nav navbar-nav">	
+			
+            <!-- Notifications -->
+            
+            
+            <!-- User Account-->
+            <li class="dropdown user user-menu">
+              <a href="#" class="waves-effect waves-light dropdown-toggle w-auto l-h-12 bg-transparent py-0 no-shadow" data-bs-toggle="dropdown" title="User">
+                  <div class="d-flex pt-5">
+                      <div class="text-end me-10">
+                          <p class="pt-5 fs-14 mb-0 fw-700 text-primary">Luis Joaquin</p>
+                          <small class="fs-10 mb-0 text-uppercase text-mute">Administrador</small>
+                      </div>
+                      <img src="../images/avatar/avatar-1.png" class="avatar rounded-10 bg-primary-light h-40 w-40" alt="" />
+                  </div>
+              </a>
+              <ul class="dropdown-menu animated flipInX">
+                <li class="user-body">
+                   <a class="dropdown-item" href="#"><i class="ti-user text-muted me-2"></i> Profile</a>
+                   <a class="dropdown-item" href="#"><i class="ti-wallet text-muted me-2"></i> My Wallet</a>
+                   <a class="dropdown-item" href="#"><i class="ti-settings text-muted me-2"></i> Settings</a>
+                   <div class="dropdown-divider"></div>
+                   <a class="dropdown-item" href="#"><i class="ti-lock text-muted me-2"></i> Logout</a>
+                </li>
+              </ul>
+            </li>	
+              
+          </ul>
+      </div>
+    </nav>
+  </header>
+  
+  <aside class="main-sidebar">
+    <!-- sidebar-->
+    <section class="sidebar position-relative">
+		
+		
+		  
+		  
+	  	<div class="multinav">
+		  <div class="multinav-scroll" style="height: 100%;">	
+			  <!-- sidebar menu-->
+			  <ul class="sidebar-menu" data-widget="tree">			
+				<li>
+                    <a href="Admin_Dashboard.html">
+                      <i data-feather="monitor"></i>
+                      <span>Dashboard</span>
+                    </a>
+                  </li>
+                  
+                  <li>
+                    <a href="Admin_Reservas.html">
+                      <i data-feather="calendar"></i>
+                      <span>Reservas</span>
+                    </a>
+                  </li>
+                  
+                  <li>
+                    <a href="Admin_Servicios.html">
+                      <i data-feather="target"></i>
+                      <span>Servicios</span>
+                    </a>
+                  </li>
+                  
+				   
+				
+				<li>
+					<a href="ajustes.html">
+					  <i data-feather="settings"></i>
+					  <span>Ajustes</span>
+					</a>
+				</li>	 	     
+			  </ul>
+			  
+			  
+		  </div>
+		</div>
+    </section>
+  </aside>
+
+  <!-- Content Wrapper. Contains page content -->
+  <div class="content-wrapper">
+	  <div class="container-full">
+		<!-- Content Header (Page header) -->	  
+		<div class="content-header">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <h2 class="fw-bold mb-0 me-3">Reservas</h2>
+                
+              </div>
+          </div>
+		  
+		<!-- Main content -->
+		<section class="content">
+			<div class="row mt-2">
+                <div class="col-12">
+                  <div class="box">
+                    
+                    <div class="box-body">
+                      <div class="table-responsive">
+                        <table class="table table-bordered table-striped" id="tablaServicios">
+                          <thead>
+                            <tr>
+                              <th>Servicio ID</th>
+                              <th>Tipo de servicio</th>
+                              <th>Nombre del complejo</th>
+                              <th>Dirección</th>
+                              <th>Fecha</th>
+                              <th>Hora</th>
+                              <th>Estado</th>
+                              
+
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td>#p22435366</td>
+                              <td>Piscina</td>
+                              <td>Diego Ferré</td>
+                              <td>Av. Universitaria 1812</td>
+                              <td>14-11-2025</td>
+                              <td>11:00 am</td>
+                              <td>
+                                <button class="btn btn-sm estado-btn" style="background-color: #22c55e; color: white;">Disponible</button>
+                                <button class="btn btn-sm btn-warning btn-mantenimiento" data-servicio="#p22435366">🛠️</button>
+                            </td>
+                              
+                              
+                              
+                            </tr>
+
+                            
+  
+                            <tr>
+                              <td>#p22435366</td>
+                              <td>Cancha</td>
+                              <td>Felipe Olivares</td>
+                              <td>Av. Las Flores 151</td>
+                              <td>20-11-2025</td>
+                              <td>14:00 pm</td>
+                              <td>
+                                <button class="btn btn-sm estado-btn" style="background-color: #22c55e; color: white;">Disponible</button>
+                                <button class="btn btn-sm btn-warning btn-mantenimiento" data-servicio="#p22435366">🛠️</button>
+                            </td>
+                              
+                              
+                              
+                            </tr>
+
+                            
+                            <!-- FILAS ADICIONALES -->
+                            <tr><td>#p22435367</td><td>Piscina</td><td>Lucía Torres</td><td>Av. Brasil 1500</td><td>15-11-2025</td><td>09:00 am</td>
+                                <td>
+                                    <button class="btn btn-sm estado-btn" style="background-color: #22c55e; color: white;">Disponible</button>
+                                    <button class="btn btn-sm btn-warning btn-mantenimiento" data-servicio="#p22435366">🛠️</button>
+
+                                </td>
+                                  
+                                  
+                            </tr>
+                            
+
+                            <tr><td>#p22435368</td><td>Gimnasio</td><td>Marco Ruiz</td><td>Av. Universitaria 2000</td><td>15-11-2025</td><td>08:00 am</td>
+                                <td>
+                                    <button class="btn btn-sm estado-btn" style="background-color: #22c55e; color: white;">Disponible</button>
+                                    <button class="btn btn-sm btn-warning btn-mantenimiento" data-servicio="#p22435366">🛠️</button>
+
+                                </td>
+                                  
+                                  
+                            </tr>
+                            
+                        
+
+                            
+                            <tr><td>#p22435369</td><td>Cancha</td><td>Juan Rivera</td><td>Av. Libertad 303</td><td>16-11-2025</td><td>10:00 am</td>
+                                <td>
+                                    <button class="btn btn-sm estado-btn" style="background-color: #ef4444; color: white;">Reservado</button>
+                                    <button class="btn btn-sm btn-warning btn-mantenimiento" data-servicio="#p22435366">🛠️</button>
+  
+                                </td>
+                                  
+                              </tr>
+                            <tr><td>#p22435370</td><td>Piscina</td><td>Sandra Gálvez</td><td>Av. Perú 505</td><td>17-11-2025</td><td>11:30 am</td>
+                                <td>
+                                    <button class="btn btn-sm estado-btn" style="background-color: #facc15; color: white;">En mantenimiento</button>
+                                    <button class="btn btn-sm btn-warning btn-mantenimiento" data-servicio="#p22435366">🛠️</button>
+  
+                                </td>
+                              </tr>
+                            <tr><td>#p22435371</td><td>Pista</td><td>Pedro León</td><td>Av. Marina 777</td><td>18-11-2025</td><td>17:00 pm</td>
+                                <td>
+                                    <button class="btn btn-sm estado-btn" style="background-color: #22c55e; color: white;">Disponible</button>
+                                    <button class="btn btn-sm btn-warning btn-mantenimiento" data-servicio="#p22435366">🛠️</button>
+  
+                                </td>
+                              </tr>
+                            <tr><td>#p22435372</td><td>Gimnasio</td><td>Ana López</td><td>Av. Costanera 100</td><td>18-11-2025</td><td>19:00 pm</td>
+                                <td>
+                                    <button class="btn btn-sm estado-btn" style="background-color: #22c55e; color: white;">Disponible</button>
+                                    <button class="btn btn-sm btn-warning btn-mantenimiento" data-servicio="#p22435366">🛠️</button>
+  
+                                </td>
+                              </tr>
+                            <tr><td>#p22435373</td><td>Cancha</td><td>Mario Cáceres</td><td>Av. Arequipa 1812</td><td>19-11-2025</td><td>20:00 pm</td>
+                                <td>
+                                    <button class="btn btn-sm estado-btn" style="background-color: #22c55e; color: white;">Disponible</button>
+                                    <button class="btn btn-sm btn-warning btn-mantenimiento" data-servicio="#p22435366">🛠️</button>
+  
+                                </td>
+                              </tr>
+                            
+                            <tr><td>#p22435375</td><td>Gimnasio</td><td>Renzo Salazar</td><td>Av. Héroes 720</td><td>20-11-2025</td><td>06:00 am</td>
+                                <td>
+                                    <button class="btn btn-sm estado-btn" style="background-color: #22c55e; color: white;">Disponible</button>
+                                    <button class="btn btn-sm btn-warning btn-mantenimiento" data-servicio="#p22435366">🛠️</button>
+  
+                                </td>
+                              </tr>
+                          </tbody>
+                          
+                        </table>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>		
+		</section>
+		<!-- /.content -->
+	  </div>
+  </div>
+  <!-- /.content-wrapper -->
+  <footer class="main-footer">
+    <div class="pull-right d-none d-sm-inline-block">
+        <ul class="nav nav-primary nav-dotted nav-dot-separated justify-content-center justify-content-md-end">
+		  <li class="nav-item">
+			<a class="nav-link" href="javascript:void(0)">Contáctanos</a>
+		  </li>
+		  <li class="nav-item">
+			<a class="nav-link" href="#">FAQ</a>
+		  </li>
+		</ul>
+    </div>
+	  &copy; <script>document.write(new Date().getFullYear())</script> <a href="https://www.munisanmiguel.gob.pe/">Municipalidad de San Miguel</a>. Todos los derechos reservados.
+  </footer>
+
+  <!-- Modal de Mantenimiento -->
+<div class="modal fade" id="modalMantenimiento" tabindex="-1" aria-labelledby="modalMantenimientoLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <form id="formMantenimiento">
+          <div class="modal-header bg-warning text-white">
+            <h5 class="modal-title" id="modalMantenimientoLabel">Programar Mantenimiento</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+          </div>
+          <div class="modal-body">
+            <input type="hidden" id="mantenimientoServicioId">
+            <div class="mb-3">
+              <label for="mantenimientoFecha" class="form-label">Fecha</label>
+              <input type="date" class="form-control" id="mantenimientoFecha" required>
+            </div>
+            <div class="mb-3">
+              <label for="mantenimientoHoraInicio" class="form-label">Hora de inicio</label>
+              <input type="time" class="form-control" id="mantenimientoHoraInicio" required>
+            </div>
+            <div class="mb-3">
+              <label for="mantenimientoHoraFin" class="form-label">Hora de fin</label>
+              <input type="time" class="form-control" id="mantenimientoHoraFin" required>
+            </div>
+            <div class="mb-3">
+              <label for="mantenimientoMotivo" class="form-label">Motivo (opcional)</label>
+              <textarea class="form-control" id="mantenimientoMotivo" placeholder="Ejm: Revisión de luminarias, limpieza..."></textarea>
+            </div>
+            <div class="alert alert-danger d-none" id="mantenimientoError">⚠️ El horario seleccionado ya está ocupado.</div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+            <button type="submit" class="btn btn-warning">Guardar</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+  
+  <!-- /.control-sidebar -->
+  
+  <!-- Add the sidebar's background. This div must be placed immediately after the control sidebar -->
+  <div class="control-sidebar-bg"></div>
+  
+</div>
+<!-- ./wrapper -->
+	
+	<!-- ./side demo panel -->
+	
+	<!-- Sidebar -->
+		
+	
+	
+	<!-- Page Content overlay -->
+	<!-- Script de DataTables si no está activado -->
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <!-- DataTables JS -->
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+
+    <!-- Inicialización de DataTables -->
+    
+    <script>
+        // Simulamos reservas existentes (esto luego vendría de tu base de datos)
+        const reservasExistentes = [
+          { servicioId: "#p22435366", fecha: "2025-11-14", inicio: "11:00", fin: "12:00" },
+          { servicioId: "#p22435369", fecha: "2025-11-16", inicio: "10:00", fin: "11:00" },
+          { servicioId: "#p22435370", fecha: "2025-11-17", inicio: "11:30", fin: "12:30", mantenimiento: true }
+        ];
+      
+        // Abrir modal con el ID del servicio
+        $(document).on('click', '.btn-mantenimiento', function () {
+          const servicioId = $(this).data('servicio');
+          $('#mantenimientoServicioId').val(servicioId);
+          $('#mantenimientoError').addClass('d-none');
+          $('#formMantenimiento')[0].reset();
+          $('#modalMantenimiento').modal('show');
+        });
+      
+        // Validar si se solapan horarios
+        function hayColision(servicioId, fecha, inicio, fin) {
+          return reservasExistentes.some(evento => {
+            if (evento.servicioId !== servicioId || evento.fecha !== fecha) return false;
+      
+            const inicioEvento = evento.inicio;
+            const finEvento = evento.fin;
+      
+            return (inicio < finEvento && fin > inicioEvento); // true si hay solapamiento
+          });
+        }
+      
+        // Manejar envío del formulario
+        $('#formMantenimiento').on('submit', function (e) {
+          e.preventDefault();
+      
+          const servicioId = $('#mantenimientoServicioId').val();
+          const fecha = $('#mantenimientoFecha').val();
+          const horaInicio = $('#mantenimientoHoraInicio').val();
+          const horaFin = $('#mantenimientoHoraFin').val();
+          const motivo = $('#mantenimientoMotivo').val();
+      
+          if (horaFin <= horaInicio) {
+            $('#mantenimientoError').text("⚠️ La hora de fin debe ser posterior a la de inicio.").removeClass('d-none');
+            return;
+          }
+      
+          if (hayColision(servicioId, fecha, horaInicio, horaFin)) {
+            $('#mantenimientoError').text("⚠️ El horario seleccionado ya está ocupado.").removeClass('d-none');
+            return;
+          }
+      
+          // Aquí podrías enviar los datos a tu backend (POST via AJAX)
+          reservasExistentes.push({
+            servicioId,
+            fecha,
+            inicio: horaInicio,
+            fin: horaFin,
+            mantenimiento: true
+          });
+      
+          alert(`✅ Mantenimiento programado para ${servicioId} el ${fecha} de ${horaInicio} a ${horaFin}`);
+      
+          $('#modalMantenimiento').modal('hide');
+        });
+      </script>
+      
+    <script>
+        $(document).ready(function () {
+          $('#tablaServicios').DataTable({
+            pageLength: 5,
+            lengthChange: false,
+            info: false,
+            language: {
+              url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json",
+              search: "Buscar:",
+              paginate: {
+                previous: "Anterior",
+                next: "Siguiente"
+              }
+            },
+            dom: '<"datatable-header"f>rt<"datatable-footer"p><"clear">'
+          });
+        });
+      </script>
+      
+      <script>
+        feather.replace();
+      </script>
+      
+    
+      <script>
+        // Redirige a la página de edición
+        document.querySelectorAll(".edit-btn").forEach(btn => {
+          btn.addEventListener("click", () => {
+            window.location.href = "editar_servicio.html";
+          });
+        });
+      
+        // Muestra modal de eliminación
+        document.querySelectorAll(".delete-btn").forEach(btn => {
+          btn.addEventListener("click", () => {
+            const modal = new bootstrap.Modal(document.getElementById('deleteModal'));
+            modal.show();
+          });
+        });
+      
+        // Simula descarga PDF
+        document.querySelectorAll(".download-btn").forEach(btn => {
+          btn.addEventListener("click", () => {
+            window.location.href = "documento_servicio.pdf"; // Reemplaza con la URL real del PDF
+          });
+        });
+      </script>
+      
+
+	<!-- Vendor JS -->
+	<script src="js/vendors.min.js"></script>
+	<script src="js/pages/chat-popup.js"></script>
+    <script src="../assets/icons/feather-icons/feather.min.js"></script>
+	
+	<script src="../assets/vendor_components/datatable/datatables.min.js"></script>
+	
+	<!-- Rhythm Admin App -->
+	<script src="js/template.js"></script>
+	<script src="js/pages/patients.js"></script>
+	
+</body>
+</html>
