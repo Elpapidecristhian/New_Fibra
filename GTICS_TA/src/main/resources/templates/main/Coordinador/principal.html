@@ -6,16 +6,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="">
   <meta name="author" content="">
-  <link rel="icon" href="../../images/logo-solo.png">
+  <link rel="icon" th:href="@{/images/logo-solo.png}">
 
   <title>Página principal - Coordinador</title>
 
   <!-- Vendors Style-->
-  <link rel="stylesheet" href="../css/vendors_css.css">
+  <link rel="stylesheet" th:href="@{/css/vendors_css.css}" >
 
   <!-- Style-->
-  <link rel="stylesheet" href="../css/style.css">
-  <link rel="stylesheet" href="../css/skin_color.css">
+  <link rel="stylesheet" th:href="@{/css/style.css}">
+  <link rel="stylesheet" th:href="@{/css/skin_color.css}">
   <style>
 
     #recuadro {
@@ -55,7 +55,7 @@
       <a href="principal.html" class="logo">
         <!-- logo-->
         <div class="logo-mini w-150 text-center">
-          <span class="light-logo"><img src="../../images/logo-sanMiguel.png" alt="logo"></span>
+          <span class="light-logo"><img th:src="@{/images/logo-sanMiguel.png}" alt="logo"></span>
         </div>
       </a>
     </div>
@@ -447,15 +447,15 @@
 
 
 <!-- Vendor JS -->
-<script src="../js/vendors.min.js"></script>
-<script src="../js/pages/chat-popup.js"></script>
+<script src="../../../static/js/vendors.min.js"></script>
+<script src="../../../static/js/pages/chat-popup.js"></script>
 <script src="../../assets/icons/feather-icons/feather.min.js"></script>
 <script src="../../assets/vendor_components/c3/d3.min.js"></script>
 <script src="../../assets/vendor_components/c3/c3.min.js"></script>
 
 <!-- Rhythm Admin App -->
-<script src="../js/template.js"></script>
-<script src="../js/pages/c3-data.js"></script>
+<script src="../../../static/js/template.js"></script>
+<script src="../../../static/js/pages/c3-data.js"></script>
 
 
 
