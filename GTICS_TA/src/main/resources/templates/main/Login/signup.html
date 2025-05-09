@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="../../images/logo-solo.png">
+
+    <title>Sign Up</title>
+
+    <!-- Vendors Style-->
+    <link rel="stylesheet" href="../css/vendors_css.css">
+
+    <!-- Style-->
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/skin_color.css">
+
+</head>
+
+<body class="hold-transition theme-primary bg-img" style="background-image: url(../images/auth-bg/background.png)">
+
+<div class="container h-p100">
+    <div class="row align-items-center justify-content-md-center h-p100">
+
+        <div class="col-12">
+            <div class="row justify-content-center g-0">
+                <div class="col-lg-5 col-md-5 col-12">
+                    <div class="bg-white rounded10 shadow-lg">
+                        <div class="content-top-agile p-20 pb-0">
+                            <h2 class="text-primary">Crear una nueva cuenta</h2>
+                            <div><img src="../../images/logo-sanMiguel.png" alt="Logo Municipalidad"  width="150" style="margin-bottom: 5px;"></div>
+                            <p class="mb-0">¡Únete y se parte de nuestra comunidad en San Miguel!</p>
+                        </div>
+                        <div class="p-20">
+                            <form action="../coordinador/principal.html" method="post">
+                                <div class="form-group">
+                                    <div class="input-group mb-3">
+                                        <span class="input-group-text bg-transparent"><i class="ti-user"></i></span>
+                                        <input type="text" class="form-control ps-15 bg-transparent" placeholder="Nombres completos" required>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="input-group mb-3">
+                                        <span class="input-group-text bg-transparent"><i class="ti-user"></i></span>
+                                        <input type="text" class="form-control ps-15 bg-transparent" placeholder="Apellidos completos" required>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <div class="input-group mb-3">
+                                                <span class="input-group-text bg-transparent"><i class="ti-calendar"></i></span>
+                                                <input type="date" class="form-control ps-15 bg-transparent" placeholder="Fecha de nacimiento" required>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <div class="input-group mb-3">
+                                                <span class="input-group-text bg-transparent"><i class="ti-receipt"></i></span>
+                                                <input type="number" class="form-control ps-15 bg-transparent" placeholder="DNI" required>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+
+                                <div class="form-group">
+                                    <div class="input-group mb-3">
+                                        <span class="input-group-text bg-transparent"><i class="ti-home"></i></span>
+                                        <input type="text" class="form-control ps-15 bg-transparent" placeholder="Ingrese su dirección" required>
+                                    </div>
+                                </div>
+
+
+                                <div class="form-group">
+                                    <div class="input-group mb-3">
+                                        <span class="input-group-text bg-transparent"><i class="ti-mobile"></i></span>
+                                        <input type="number" class="form-control ps-15 bg-transparent" placeholder="Número telefónico" required>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <div class="input-group mb-3">
+                                        <span class="input-group-text bg-transparent"><i class="ti-email"></i></span>
+                                        <input type="email" class="form-control ps-15 bg-transparent" placeholder="Email" required>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="input-group mb-3">
+                                        <span class="input-group-text bg-transparent"><i class="ti-lock"></i></span>
+                                        <input type="password" class="form-control ps-15 bg-transparent" placeholder="Contraseña" required>
+                                    </div>
+                                </div>
+                                <div class="row" style="margin-top: 10px;">
+                                    <!-- /.col -->
+                                    <div class="col-12 text-center" style="margin-top: 10px;">
+                                        <button type="submit" class="btn btn-info margin-top-10">Ingresar</button>
+                                    </div>
+                                    <!-- /.col -->
+                                </div>
+                            </form>
+                            <div class="text-center">
+                                <p class="mt-15 mb-0">¿Ya tiene una cuenta?<a href="login.html" class="text-danger ms-5">Inicie sesión</a></p>
+                            </div>
+                        </div>
+                    </div>
+                    <!--ESCALABILIDAD DE LA PÁGINA
+                    <div class="text-center">
+                      <p class="mt-20 text-white">- Register With -</p>
+                      <p class="gap-items-2 mb-20">
+                          <a class="btn btn-social-icon btn-round btn-facebook" href="#"><i class="fa fa-facebook"></i></a>
+                          <a class="btn btn-social-icon btn-round btn-twitter" href="#"><i class="fa fa-twitter"></i></a>
+                          <a class="btn btn-social-icon btn-round btn-instagram" href="#"><i class="fa fa-instagram"></i></a>
+                        </p>
+                    </div>-->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Vendor JS -->
+<script src="../js/vendors.min.js"></script>
+<script src="../js/pages/chat-popup.js"></script>
+<script src="../../assets/icons/feather-icons/feather.min.js"></script>
+
+
+</body>
+</html>

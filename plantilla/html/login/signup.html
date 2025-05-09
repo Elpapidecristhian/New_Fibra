@@ -30,8 +30,7 @@
 						<div class="bg-white rounded10 shadow-lg">
 							<div class="content-top-agile p-20 pb-0">
 								<h2 class="text-primary">Crear una nueva cuenta</h2>
-                                <div><img src="/html/images/logo-sanMiguel.png" alt="Logo Municipalidad"  width="150"></div>
-								<br>
+								<div><img src="/html/images/logo-sanMiguel.png" alt="Logo Municipalidad"  width="150" style="margin-bottom: 5px;"></div>
 								<p class="mb-0">¡Únete y se parte de nuestra comunidad en San Miguel!</p>							
 							</div>
 							<div class="p-20">
@@ -39,40 +38,63 @@
 									<div class="form-group">
 										<div class="input-group mb-3">
 											<span class="input-group-text bg-transparent"><i class="ti-user"></i></span>
-											<input type="text" class="form-control ps-15 bg-transparent" placeholder="Nombres">
+											<input type="text" class="form-control ps-15 bg-transparent" placeholder="Nombres completos" required>
 										</div>
 									</div>
 									<div class="form-group">
 										<div class="input-group mb-3">
 											<span class="input-group-text bg-transparent"><i class="ti-user"></i></span>
-											<input type="text" class="form-control ps-15 bg-transparent" placeholder="Apellidos completos">
+											<input type="text" class="form-control ps-15 bg-transparent" placeholder="Apellidos completos" required>
 										</div>
 									</div>
+									<div class="row">
+										<div class="col-md-6">
+											<div class="form-group">
+												<div class="input-group mb-3">
+													<span class="input-group-text bg-transparent"><i class="ti-calendar"></i></span>
+													<input type="date" class="form-control ps-15 bg-transparent" placeholder="Fecha de nacimiento" required>
+												</div>
+											</div>
+										</div>
+										<div class="col-md-6">
+											<div class="form-group">
+												<div class="input-group mb-3">
+													<span class="input-group-text bg-transparent"><i class="ti-receipt"></i></span>
+													<input type="number" class="form-control ps-15 bg-transparent" placeholder="DNI" required>
+												</div>
+											</div>
+										</div>
+									</div>
+
+								
+									<div class="form-group">
+										<div class="input-group mb-3">
+											<span class="input-group-text bg-transparent"><i class="ti-home"></i></span>
+											<input type="text" class="form-control ps-15 bg-transparent" placeholder="Ingrese su dirección" required>
+										</div>
+									</div>
+									
+
+									<div class="form-group">
+										<div class="input-group mb-3">
+											<span class="input-group-text bg-transparent"><i class="ti-mobile"></i></span>
+											<input type="number" class="form-control ps-15 bg-transparent" placeholder="Número telefónico" required>
+										</div>
+									</div>
+									
 									<div class="form-group">
 										<div class="input-group mb-3">
 											<span class="input-group-text bg-transparent"><i class="ti-email"></i></span>
-											<input type="email" class="form-control ps-15 bg-transparent" placeholder="Email">
+											<input type="email" class="form-control ps-15 bg-transparent" placeholder="Email" required>
 										</div>
 									</div>
 									<div class="form-group">
 										<div class="input-group mb-3">
 											<span class="input-group-text bg-transparent"><i class="ti-lock"></i></span>
-											<input type="password" class="form-control ps-15 bg-transparent" placeholder="Contraseña">
-										</div>
-									</div>
-									<div class="form-group">
-										<div class="input-group mb-3">
-											<span class="input-group-text bg-transparent"><i class="ti-lock"></i></span>
-											<input type="password" class="form-control ps-15 bg-transparent" placeholder="Confirme la contraseña">
+											<input type="password" class="form-control ps-15 bg-transparent" placeholder="Contraseña" required>
 										</div>
 									</div>
 									<div class="row" style="margin-top: 10px;">
-										<div class="col-12">
-										  <div class="checkbox">
-											<input type="checkbox" id="basic_checkbox_1" >
-											<label for="basic_checkbox_1">Estoy de acuerdo con los <a href="#" class="text-warning"><b>Términos de uso</b></a></label>
-										  </div>
-										</div>
 										<!-- /.col -->
 										<div class="col-12 text-center" style="margin-top: 10px;">
 										  <button type="submit" class="btn btn-info margin-top-10">Ingresar</button>
