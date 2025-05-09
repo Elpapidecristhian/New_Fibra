@@ -3,6 +3,9 @@ INSERT INTO roles (idRol, rolNombre) VALUES (1, "Vecino");
 INSERT INTO usuario (idUsuario, nombres, apellidos, correo, contrasenia, direccion, dni, numCelular, idRol, isBaneado, fechaNacimiento) VALUES (1, 'Sebastian', 'Ramirez', 'dhannysebas@hotmail.com', 'sebas2401', 'CATO', 72519702, 111999222,1, FALSE, '1990-01-01');
 
 INSERT INTO tipoespacio (idTipoEspacio, nombreTipo) VALUES (1, 'Piscina');
+INSERT INTO tipoespacio (idTipoEspacio, nombreTipo) VALUES (2, 'Canchas Fútbol');
+INSERT INTO tipoespacio (idTipoEspacio, nombreTipo) VALUES (3, 'Pistas de Atletismo');
+INSERT INTO tipoespacio (idTipoEspacio, nombreTipo) VALUES (4, 'Estadios');
 
 INSERT INTO listafotos (idListaFotos) VALUES (1);
 
