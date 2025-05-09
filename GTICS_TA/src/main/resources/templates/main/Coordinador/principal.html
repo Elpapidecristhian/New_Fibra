@@ -149,7 +149,7 @@
                   <p class="pt-5 fs-14 mb-0 fw-700 text-primary">Johen Doe</p>
                   <small class="fs-10 mb-0 text-uppercase text-mute">Coordinador</small>
                 </div>
-                <img src="../../images/avatar/avatar-1.png" class="avatar rounded-10 bg-primary-light h-40 w-40" alt="" />
+                <img th:src="@{/images/avatar/avatar-1.png}" class="avatar rounded-10 bg-primary-light h-40 w-40" alt="" />
               </div>
             </a>
           </li>
@@ -187,7 +187,7 @@
               </a>
             </li>-->
             <li>
-              <a href="/html/login/login.html">
+              <a href="/login/login.html">
                 <i data-feather="log-out"></i>
                 <span>Cerrar sesión</span>
               </a>
@@ -447,15 +447,15 @@
 
 
 <!-- Vendor JS -->
-<script src="../../../static/js/vendors.min.js"></script>
-<script src="../../../static/js/pages/chat-popup.js"></script>
-<script src="../../assets/icons/feather-icons/feather.min.js"></script>
-<script src="../../assets/vendor_components/c3/d3.min.js"></script>
-<script src="../../assets/vendor_components/c3/c3.min.js"></script>
+<script  th:src="@{/js/vendors.min.js}"></script>
+<script th:src="@{/js/pages/chat-popup.js}"></script>
+<script th:src="@{/assets/icons/feather-icons/feather.min.js}"></script>
+<script th:src="@{/assets/vendor_components/c3/d3.min.js}"></script>
+<script th:src="@{/assets/vendor_components/c3/c3.min.js}"></script>
 
 <!-- Rhythm Admin App -->
-<script src="../../../static/js/template.js"></script>
-<script src="../../../static/js/pages/c3-data.js"></script>
+<script th:src="@{/js/template.js}"></script>
+<script th:src="@{/js/pages/c3-data.js}"></script>
 
 
 

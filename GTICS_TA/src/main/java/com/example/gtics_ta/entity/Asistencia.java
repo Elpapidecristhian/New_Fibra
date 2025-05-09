@@ -51,6 +51,13 @@ public class Asistencia {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int idAsistencia;
+    //Agregar después
+    // @Column(name = "fecha_entrada", nullable = false)
+    // private LocalDateTime fechaEntrada;
+
+    // @Column(name = "fecha_salida")
+    // private LocalDateTime fechaSalida;
+
     private LocalDate fecha;
     private LocalDateTime hora;
     @ManyToOne
