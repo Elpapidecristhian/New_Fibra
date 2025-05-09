@@ -26,11 +26,11 @@ public class ReservaController {
         List<Reservas> reservas= (nombre == null || nombre.isEmpty()) ?
                 reservaRepository.findAll() :
                 reservaRepository.findByIdEspacioNombreContainingIgnoreCase(nombre);
-        model.addAttribute("reservas", reservas);
+        model.addAttribute("listaReservas", reservas);
         return "vecino_reservas";
     }
 
-    @GetMapping("/detalles")
+    @GetMapping("/detalles/{id}")
     public String verReserva(@PathVariable("id") Integer id, Model model) {
         Reservas reserva = reservaRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Reserva no encontrada con ID: " + id));

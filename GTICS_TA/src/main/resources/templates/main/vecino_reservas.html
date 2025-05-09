@@ -212,83 +212,24 @@
                                                     <th>Acciones</th>
                                                 </tr>
                                             </thead>
-                                            <tbody>
-                                                <tr>
-                                                  <td>2</td>
-                                                  <td>Piscina Diego Ferré</td>
-                                                  <td>14/05/2025</td>
-                                                  <td>11:00-12:00</td>
-                                                  <td>Efectivo</td>
-                                                  <td>12/05/2025 13:04:54</td>
-                                                  
-                                                  <td>
-                                                    <!-- Acción: Ojo -->
-                                                    <a href="vecino_reservas_detalles.html" class="btn btn-primary btn-sm">
-                                                        <i class="mdi mdi-eye"></i> <!-- Icono del ojo -->
-                                                    </a>
-                                                </td>
-                                                
-                                                  
-                                                </td>
-                                                </tr>
-                                                <tr>
-													<td>3</td>
-													<td>Piscina Diego Ferré</td>
-													<td>14/05/2025</td>
-													<td>11:00-12:00</td>
-													<td>Visa</td>
-													<td>12/05/2025 13:04:54</td>
-													
+											<tbody>
+												<tr th:if="${#lists.isEmpty(listaReservas)}">
+													<td colspan="7" class="text-center">No hay reservas disponibles.</td>
+												</tr>
+												<tr th:each="reserva, iterStat : ${listaReservas}">
+													<td th:text="${iterStat.count}"></td>
+													<td th:text="${reserva.idEspacio.nombre}"></td>
+													<td th:text="${#dates.format(reserva.fechaReserva, 'dd/MM/yyyy')}"></td>
+													<td th:text="${reserva.horario}"></td>
+													<td th:text="${reserva.pagos_idPagos.metodoPago}"></td>
+													<td th:text="${#dates.format(reserva.pagos_idPagos.fechaPago, 'dd/MM/yyyy HH:mm:ss')}"></td>
 													<td>
-													  <!-- Acción: Ojo -->
-													  <a href="#" class="btn btn-primary btn-sm">
-														  <i class="mdi mdi-eye"></i> <!-- Icono del ojo -->
-													  </a>
-												  </td>
-												  
-													
-												  </td>
-												  </tr>
-												  <tr>
-													<td>4</td>
-													<td>Piscina Diego Ferré</td>
-													<td>14/05/2025</td>
-													<td>11:00-12:00</td>
-													<td>Master Card</td>
-													<td>12/05/2025 13:04:54</td>
-													
-													<td>
-													  <!-- Acción: Ojo -->
-													  <a href="#" class="btn btn-primary btn-sm">
-														  <i class="mdi mdi-eye"></i> <!-- Icono del ojo -->
-													  </a>
-												  </td>
-												  
-													
-												  </td>
-												  </tr>
-
-												  <tr>
-													<td>5</td>
-													<td>Piscina Diego Ferré</td>
-													<td>14/05/2025</td>
-													<td>11:00-12:00</td>
-													<td>Plin</td>
-													<td>12/05/2025 13:04:54</td>
-													
-													<td>
-													  <!-- Acción: Ojo -->
-													  <a href="#" class="btn btn-primary btn-sm">
-														  <i class="mdi mdi-eye"></i> <!-- Icono del ojo -->
-													  </a>
-												  </td>
-												  
-													
-												  </td>
-												  </tr>
-                                                <!-- Más filas -->
-                                              </tbody>
-                                              
+														<a th:href="@{'/misReservas/detalles/' + ${reserva.idReservas}}" class="btn btn-primary btn-sm">
+															<i class="mdi mdi-eye"></i>
+														</a>
+													</td>
+												</tr>
+											</tbody>
                                         </table>
                                     </div>
                                 </div>   
