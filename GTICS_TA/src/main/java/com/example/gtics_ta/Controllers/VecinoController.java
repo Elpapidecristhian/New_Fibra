@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -34,6 +35,11 @@ public class VecinoController {
     @GetMapping(value = {"","/"})
     public String index(Model model) {
         return "vecino/index";
+    }
+
+    @GetMapping("/vecino1")
+    public String vecino1(Model model) {
+        return "vecino/vecino1";
     }
 
     @GetMapping("/reservar")
@@ -69,6 +75,12 @@ public class VecinoController {
         EspaciosDeportivos espacio = reserva.getEspacioDeportivo();
         HorarioReservado horarioReservado = reserva.getHorarioReservado();
         horarioReservado.setReservado(true);
+        Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+        reserva.setFechaRegistro(timestamp);
+
+        Pagos pago = new Pagos();
+        pago.setId(1);
+        reserva.setPago(pago);
 
 
         horarioReservadoRepository.save(horarioReservado);

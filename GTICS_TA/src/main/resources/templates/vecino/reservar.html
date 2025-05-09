@@ -6,16 +6,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="">
     <meta name="author" content="">
-    <link rel="icon" th:ref="@{images/san_miguel_logo.ico}">
+    <link rel="icon" href="/images/san_miguel_logo.ico">
 
     <title>Reservar un Espacio </title>
 
     <!-- Vendors Style-->
-    <link rel="stylesheet" href="css/vendors_css.css">
+    <link rel="stylesheet" href="/css/vendors_css.css">
 
     <!-- Style-->
-    <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="css/skin_color.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/skin_color.css">
 </head>
 <body class="hold-transition light-skin sidebar-mini theme-success fixed">
 
@@ -28,7 +28,7 @@
             <a href="principal.html" class="logo">
                 <!-- logo-->
                 <div class="logo-mini w-150 text-center">
-                    <span class="light-logo"><img src="../images/logo-sanMiguel.png" alt="logo"></span>
+                    <span class="light-logo"><img src="/images/logo-sanMiguel.png" alt="logo"></span>
                 </div>
             </a>
         </div>
@@ -210,6 +210,8 @@
                 <!-- /.box-header -->
                 <div class="box-body wizard-content">
                     <form th:action="@{/vecino/guardarreserva}" th:object="${reserva}" method="post" class="validation-wizard wizard-circle">
+                        <input type="hidden" th:value="${reserva.getUsuario().getId()}" th:field="*{usuario}">
+                        <input type="hidden" th:value="${reserva.getEspacioDeportivo().getId()}" th:field="*{espacioDeportivo}">
                         <!-- Step 1 -->
                         <h6>Información Personal</h6>
                         <section>
@@ -264,8 +266,24 @@
                                 <div class="col-md-6">
                                     <h5>Elija el horario de su reserva</h5>
                                     <div class="clearfix">
-                                        <button th:each="horarios : ${listaHorarios}" th:text="${horarios.getHorario().getHoraInicio()}" type="button" disabled class="waves-effect waves-light btn btn-primary-light mb-5"></button>
+                                        <th:block th:each="horarios, idx : ${listaHorarios}" >
+                                            <input  type="radio"
+                                                    class="btn-check"
+                                                    th:field="*{horarioReservado}"
+                                                    th:value="${horarios.getId()}"
+                                                    th:id="'btn-check-' + ${idx.index}"
+                                                    autocomplete="off"
+                                                    th:disabled="${horarios.isReservado()}"
+                                                    />
+                                            <label
+                                                    th:for="'btn-check-' + ${idx.index}"
+                                                    th:text="${horarios.getHorario().getHoraInicio()} + '-' + ${horarios.getHorario().getHoraFin()}"
+                                                    th:class="${horarios.isReservado()} ? 'waves-effect waves-light btn btn-danger-light' : 'waves-effect waves-light btn btn-primary-light'">
 
+                                            </label>
+
+                                            <span th:if="${((idx.index + 1) % 3 == 0)}"><br/></span>
+                                        </th:block>
                                     </div>
                                 </div>
                             </div>
@@ -275,7 +293,7 @@
                         <section>
                             <div class="row">
                                 <div class="col-md-6">
-                                    <button type="button" class="waves-effect waves-light btn btn-dark btn-lg">Abrir Plataforma de Pago</button>
+                                    <button type="submit" class="waves-effect waves-light btn btn-dark btn-lg">Abrir Plataforma de Pago</button>
 
                                 </div>
 
@@ -565,17 +583,17 @@
 
 
 <!-- Vendor JS -->
-<script src="js/vendors.min.js"></script>
-<script src="js/pages/chat-popup.js"></script>
-<script src="../assets/icons/feather-icons/feather.min.js"></script>	<script src="../assets/vendor_components/jquery-steps-master/build/jquery.steps.js"></script>
-<script src="../assets/vendor_components/jquery-validation-1.17.0/dist/jquery.validate.min.js"></script>
-<script src="../assets/vendor_components/sweetalert/sweetalert.min.js"></script>
+<script src="/js/vendors.min.js"></script>
+<script src="/js/pages/chat-popup.js"></script>
+<script src="/assets/icons/feather-icons/feather.min.js"></script>	<script src="/assets/vendor_components/jquery-steps-master/build/jquery.steps.js"></script>
+<script src="/assets/vendor_components/jquery-validation-1.17.0/dist/jquery.validate.min.js"></script>
+<script src="/assets/vendor_components/sweetalert/sweetalert.min.js"></script>
 
 <!-- Rhythm Admin App -->
-<script src="js/template.js"></script>
-<script src="js/pages/steps.js"></script>
+<script src="/js/template.js"></script>
+<script src="/js/pages/steps.js"></script>
 
-<script src="js/pages/advanced-form-element.js"></script>
+<script src="/js/pages/advanced-form-element.js"></script>
 
 
 
