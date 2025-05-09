@@ -6,16 +6,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="">
     <meta name="author" content="">
-    <link rel="icon" href="../images/san_miguel_logo.ico">
+    <link rel="icon" href="/images/san_miguel_logo.ico">
 
     <title>Espacios Deportivos - Detalles </title>
   
 	<!-- Vendors Style-->
-	<link rel="stylesheet" href="css/vendors_css.css">
+	<link rel="stylesheet" href="/css/vendors_css.css">
 	  
 	<!-- Style-->  
-	<link rel="stylesheet" href="css/style.css">
-	<link rel="stylesheet" href="css/skin_color.css">
+	<link rel="stylesheet" href="/css/style.css">
+	<link rel="stylesheet" href="/css/skin_color.css">
 	
 </head>
 
@@ -25,36 +25,41 @@
 	<div id="loader"></div>
 
   <header class="main-header">
-	<div class="d-flex align-items-center logo-box justify-content-start">	
-		<!-- Logo -->
-		<a href="index.html" class="logo">
-		  <!-- logo-->
-		  <div class="logo-mini w-50">
-			  <span class="light-logo"><img src="../images/san_miguel_logo.png" alt="logo"></span>
-			  <span class="dark-logo"><img src="../images/san_miguel_logo.png" alt="logo"></span>
-		  </div>
-		  <div class="logo-lg">
-			  <span class="light-logo"><img src="../images/san_miguel.png" alt="logo"></span>
-			  <span class="dark-logo"><img src="../images/san_miguel.png" alt="logo"></span>
-		  </div>
-		</a>	
-	</div>  
+	  <div class="d-flex align-items-center logo-box justify-content-center">
+		  <!-- Logo -->
+		  <a href="principal.html" class="logo">
+			  <!-- logo-->
+			  <div class="logo-mini w-150 text-center">
+				  <span class="light-logo"><img src="/images/logo-sanMiguel.png" alt="logo"></span>
+			  </div>
+		  </a>
+	  </div>
     <!-- Header Navbar -->
     <nav class="navbar navbar-static-top">
-      <!-- Sidebar toggle button-->
-	  <div class="app-menu">
-		<ul class="header-megamenu nav">
-			<li class="btn-group nav-item">
-				<a href="#" class="waves-effect waves-light nav-link push-btn btn-primary-light" data-toggle="push-menu" role="button">
-					<i data-feather="align-left"></i>
-			    </a>
-			</li>
-			<li class="btn-group d-lg-inline-flex d-none">
-				<div class="app-menu">
-				</div>
-			</li>
-		</ul> 
-	  </div>
+		<!-- Sidebar toggle button-->
+		<div class="app-menu">
+			<ul class="header-megamenu nav">
+				<li class="btn-group nav-item">
+					<a href="#" class="waves-effect waves-light nav-link push-btn btn-primary-light" data-toggle="push-menu" role="button">
+						<i data-feather="align-left"></i>
+					</a>
+				</li>
+				<li class="btn-group d-lg-inline-flex d-none">
+					<div class="app-menu">
+						<div class="search-bx mx-5">
+							<form>
+								<div class="input-group">
+									<input type="search" class="form-control" placeholder="Search" aria-label="Search" aria-describedby="button-addon2">
+									<div class="input-group-append">
+										<button class="btn" type="submit" id="button-addon3"><i data-feather="search"></i></button>
+									</div>
+								</div>
+							</form>
+						</div>
+					</div>
+				</li>
+			</ul>
+		</div>
 		
       <div class="navbar-custom-menu r-side">
         <ul class="nav navbar-nav">	
@@ -132,7 +137,7 @@
 						<p class="pt-5 fs-14 mb-0 fw-700 text-primary">Johen Doe</p>
 						<small class="fs-10 mb-0 text-uppercase text-mute">Vecino</small>
 					</div>
-					<img src="../images/avatar/avatar-1.png" class="avatar rounded-10 bg-primary-light h-40 w-40" alt="" />
+					<img src="/images/avatar/avatar-1.png" class="avatar rounded-10 bg-primary-light h-40 w-40" alt="" />
 				</div>
             </a>
             <ul class="dropdown-menu animated flipInX">
@@ -152,38 +157,7 @@
   </header>
   
   <!-- Left side column. contains the logo and sidebar -->
-  <aside class="main-sidebar">
-    <!-- sidebar-->
-    <section class="sidebar position-relative">
-	  	<div class="multinav">
-		  <div class="multinav-scroll" style="height: 100%;">	
-			  <!-- sidebar menu-->
-			  <ul class="sidebar-menu" data-widget="tree">			
-				<li>
-                    <a href="#">
-                      <i data-feather="user"></i>
-                      <span>Mi Perfil</span>
-                    </a>
-                  </li>	
-				<li>
-				  <a href="#">
-					<i data-feather="calendar"></i>
-					<span>Mis Reservas</span>
-				  </a>
-				</li>		
-                <li>
-                    <a href="#">
-                      <i data-feather="grid"></i>
-                      <span>Espacios Deportivos</span>
-                    </a>
-                  </li>					 	 	     
-			  </ul>
-		
-			  </div>
-		  
-		</div>
-    </section>
-  </aside>
+  <aside th:replace="fragments :: sidebarFragment"></aside>
   
   <!-- Content Wrapper. Contains page content -->
   <div class="content-wrapper">
@@ -197,7 +171,7 @@
 				<div class="card bg-dark text-white">
 				  <img class="card-img" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRzzuCP3cOsY_IqKeLxrY-KQOCiUabgxyZqHw&s" alt="Card image">
 				  <div class="card-img-overlay">
-					<h4 class="card-title">Piscina Diego Ferré</h4>
+					<h4 class="card-title" th:text="${espacio.getNombre()}"></h4>
 				  </div>
 				</div>
 			</div>
@@ -205,14 +179,12 @@
 			<div class="col-md-4 col-12">
 				<div class="card box-info">
 					<div class="card-header align-content-center">
-					  <h3>Piscina Diego Ferré</h4>
+					  <h3 th:text="${espacio.getNombre()}"></h3>
 					</div>
 				  </div>
 				<div class="card">
 				  <div class="card-body">
-					<p class="card-text">¡Celebramos con alegría la reapertura de nuestro espacio acuático tras un exhaustivo mantenimiento integral!En la Municipalidad de San Miguel, nos enorgullece presentar una Piscina Municipal completamente renovada para el disfrute de todos los vecinos.
-						¿Por qué elegir nuestra Piscina Municipal Temperada?• Bienestar durante todo el año: Gracias a su temperatura controlada, nuestra piscina ofrece un ambiente agradable y cómodo, ideal para la práctica de la natación en cualquier temporada.• Salud y ejercicios completos: La natación es un ejercicio completo que beneficia la salud cardiovascular, fortalece músculos, mejora la resistencia y contribuye al bienestar general.• Clases y actividades: Ofrecemos una variedad de clases y actividades acuáticas para todos los niveles, desde los 3 años. Nuestros instructores capacitados están listos para acompañarte en tu experiencia de aprendizaje.• Horario Libre: Brindamos momentos de relajación y ejercicio con horarios específicos para piscina libre, así puedes disfrutar de sus beneficios sin importar tu agenda diaria.
-						</p>
+					<p class="card-text" th:text="${espacio.getDescripcionLarga()}" ></p>
 				  </div>
 				</div>
 				<div class="card">
@@ -226,7 +198,7 @@
 					</div>
 				  </div>
 				<button type="button" class="waves-effect waves-light btn btn-dark mb-5"><i class="fa fa-map-marker"></i> Ver Ubicacion</button>
-				<button type="button" class="waves-effect waves-light btn btn-primary mb-5">Reservar</button>
+				<a th:href="@{/vecino/reservar(idUsuario=1, idEspacio=${espacio.id}, fecha='2025-04-25')}" class="waves-effect waves-light btn btn-primary mb-5">Reservar</a>
 			  <!-- /.card -->
 			</div>
 			<!-- /.col -->
@@ -268,7 +240,7 @@
           <div class="media-list media-list-hover mt-20">
 			<div class="media py-10 px-0">
 			  <a class="avatar avatar-lg status-success" href="#">
-				<img src="../images/avatar/1.jpg" alt="...">
+				<img src="/images/avatar/1.jpg" alt="...">
 			  </a>
 			  <div class="media-body">
 				<p class="fs-16">
@@ -281,7 +253,7 @@
 
 			<div class="media py-10 px-0">
 			  <a class="avatar avatar-lg status-danger" href="#">
-				<img src="../images/avatar/2.jpg" alt="...">
+				<img src="/images/avatar/2.jpg" alt="...">
 			  </a>
 			  <div class="media-body">
 				<p class="fs-16">
@@ -294,7 +266,7 @@
 
 			<div class="media py-10 px-0">
 			  <a class="avatar avatar-lg status-warning" href="#">
-				<img src="../images/avatar/3.jpg" alt="...">
+				<img src="/images/avatar/3.jpg" alt="...">
 			  </a>
 			  <div class="media-body">
 				<p class="fs-16">
@@ -307,7 +279,7 @@
 
 			<div class="media py-10 px-0">
 			  <a class="avatar avatar-lg status-primary" href="#">
-				<img src="../images/avatar/4.jpg" alt="...">
+				<img src="/images/avatar/4.jpg" alt="...">
 			  </a>
 			  <div class="media-body">
 				<p class="fs-16">
@@ -320,7 +292,7 @@
 			
 			<div class="media py-10 px-0">
 			  <a class="avatar avatar-lg status-success" href="#">
-				<img src="../images/avatar/1.jpg" alt="...">
+				<img src="/images/avatar/1.jpg" alt="...">
 			  </a>
 			  <div class="media-body">
 				<p class="fs-16">
@@ -333,7 +305,7 @@
 
 			<div class="media py-10 px-0">
 			  <a class="avatar avatar-lg status-danger" href="#">
-				<img src="../images/avatar/2.jpg" alt="...">
+				<img src="/images/avatar/2.jpg" alt="...">
 			  </a>
 			  <div class="media-body">
 				<p class="fs-16">
@@ -346,7 +318,7 @@
 
 			<div class="media py-10 px-0">
 			  <a class="avatar avatar-lg status-warning" href="#">
-				<img src="../images/avatar/3.jpg" alt="...">
+				<img src="/images/avatar/3.jpg" alt="...">
 			  </a>
 			  <div class="media-body">
 				<p class="fs-16">
@@ -359,7 +331,7 @@
 
 			<div class="media py-10 px-0">
 			  <a class="avatar avatar-lg status-primary" href="#">
-				<img src="../images/avatar/4.jpg" alt="...">
+				<img src="/images/avatar/4.jpg" alt="...">
 			  </a>
 			  <div class="media-body">
 				<p class="fs-16">
@@ -516,13 +488,13 @@
 	
 	
 	<!-- Vendor JS -->
-	<script src="js/vendors.min.js"></script>
-	<script src="js/pages/chat-popup.js"></script>
-    <script src="../assets/icons/feather-icons/feather.min.js"></script>	<script src="../assets/vendor_components/Magnific-Popup-master/dist/jquery.magnific-popup.min.js"></script>
-    <script src="../assets/vendor_components/Magnific-Popup-master/dist/jquery.magnific-popup-init.js"></script>
+	<script src="/js/vendors.min.js"></script>
+	<script src="/js/pages/chat-popup.js"></script>
+    <script src="/assets/icons/feather-icons/feather.min.js"></script>	<script src="/assets/vendor_components/Magnific-Popup-master/dist/jquery.magnific-popup.min.js"></script>
+    <script src="/assets/vendor_components/Magnific-Popup-master/dist/jquery.magnific-popup-init.js"></script>
 	
 	<!-- Rhythm Admin App -->
-	<script src="js/template.js"></script>
+	<script src="/js/template.js"></script>
 	
 	
 	

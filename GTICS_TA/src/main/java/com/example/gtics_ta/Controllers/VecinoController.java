@@ -6,9 +6,7 @@ import com.example.gtics_ta.Repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
 import java.sql.Timestamp;
 import java.text.ParseException;
@@ -33,17 +31,38 @@ public class VecinoController {
     ReservasRepository reservasRepository;
 
     @GetMapping(value = {"","/"})
-    public String index(Model model) {
-        return "vecino/index";
+    public String listaEspacios(@RequestParam(name = "tipo", required = false) String id,
+                                @RequestParam(name = "fecha", required = false) String fecha,
+                                Model model
+    ) {
+        List<EspaciosDeportivos> espacios;
+
+        if (id != null) {
+            espacios = espaciosDeportivosRepository.findByTipoEspacio_Id(Integer.parseInt(id));
+        } else {
+            espacios = espaciosDeportivosRepository.findAll();
+        }
+
+        model.addAttribute("espacios", espacios);
+        model.addAttribute("tipoSeleccionado", id);
+        model.addAttribute("fechaSeleccionada", fecha);
+
+        return "vecino/espacios";  // nombre del HTML
     }
 
-    @GetMapping("/vecino1")
-    public String vecino1(Model model) {
-        return "vecino/vecino1";
+    @GetMapping("/detalles")
+    public String espacioDetalles(Model model, @RequestParam(name = "idEspacio") int id) {
+        Optional<EspaciosDeportivos> optEspacio = espaciosDeportivosRepository.findById(id);
+
+        if(optEspacio.isPresent()) {
+            EspaciosDeportivos espacio = optEspacio.get();
+            model.addAttribute("espacio", espacio);
+        }
+        return "vecino/detalles";
     }
 
     @GetMapping("/reservar")
-    public String reservar(Model model, int idUsuario, int idEspacio, String fecha) throws ParseException {
+    public String reservar(Model model, @RequestParam(name = "idUsuario") int idUsuario, @RequestParam(name = "idEspacio") int idEspacio, @RequestParam(name = "fecha") String fecha) throws ParseException {
 
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
         Date fechaconv = format.parse(fecha);
@@ -86,5 +105,22 @@ public class VecinoController {
         horarioReservadoRepository.save(horarioReservado);
         reservasRepository.save(reserva);
         return "redirect:/vecino/";
+    }
+
+    @GetMapping("/reservas")
+    public String listarReservas(@RequestParam(value = "nombre", required = false) String nombre, Model model) {
+        List<Reservas> reservas= (nombre == null || nombre.isEmpty()) ?
+                reservasRepository.findAll() :
+                reservasRepository.findByEspacioDeportivo_NombreContainingIgnoreCase(nombre);
+        model.addAttribute("listaReservas", reservas);
+        return "vecino/reservas";
+    }
+
+    @GetMapping("/reservas/detalles/{id}")
+    public String verReserva(@PathVariable("id") Integer id, Model model) {
+        Reservas reserva = reservasRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Reserva no encontrada con ID: " + id));
+        model.addAttribute("reserva", reserva);
+        return "vecino_reserva_detalles";
     }
 }

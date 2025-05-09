@@ -154,38 +154,7 @@
     </header>
 
     <!-- Left side column. contains the logo and sidebar -->
-    <aside class="main-sidebar">
-        <!-- sidebar-->
-        <section class="sidebar position-relative">
-            <div class="multinav">
-                <div class="multinav-scroll" style="height: 100%;">
-                    <!-- sidebar menu-->
-                    <ul class="sidebar-menu" data-widget="tree">
-                        <li>
-                            <a href="#">
-                                <i data-feather="user"></i>
-                                <span>Mi Perfil</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="#">
-                                <i data-feather="calendar"></i>
-                                <span>Mis Reservas</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="#">
-                                <i data-feather="grid"></i>
-                                <span>Espacios Deportivos</span>
-                            </a>
-                        </li>
-                    </ul>
-
-                </div>
-
-            </div>
-        </section>
-    </aside>
+    <aside th:replace="fragments :: sidebarFragment"></aside>
 
     <!-- Content Wrapper. Contains page content -->
     <div class="content-wrapper">
@@ -273,6 +242,7 @@
                                                     th:value="${horarios.getId()}"
                                                     th:id="'btn-check-' + ${idx.index}"
                                                     autocomplete="off"
+                                                    required
                                                     th:disabled="${horarios.isReservado()}"
                                                     />
                                             <label

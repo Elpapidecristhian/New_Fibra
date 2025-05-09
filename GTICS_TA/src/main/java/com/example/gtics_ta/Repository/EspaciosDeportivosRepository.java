@@ -10,5 +10,6 @@ import java.util.Optional;
 @Repository
 public interface EspaciosDeportivosRepository extends JpaRepository<EspaciosDeportivos, Integer> {
     List<EspaciosDeportivos> findAll();
+    List<EspaciosDeportivos> findByTipoEspacio_Id(int id);
 
 }
