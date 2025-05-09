@@ -52,7 +52,7 @@
   <header class="main-header">
     <div class="d-flex align-items-center logo-box justify-content-center">
       <!-- Logo -->
-      <a href="principal.html" class="logo">
+      <a th:href="@{/coordinador/principal}" class="logo">
         <!-- logo-->
         <div class="logo-mini w-150 text-center">
           <span class="light-logo"><img th:src="@{/images/logo-sanMiguel.png}" alt="logo"></span>
@@ -143,7 +143,7 @@
 
           <!-- User Account-->
           <li>
-            <a href="perfil.html" class="waves-effect waves-light dropdown-toggle w-auto l-h-12 bg-transparent py-0 no-shadow" data-bs-toggle="dropdown" title="User">
+            <a th:href="@{/perfil}" class="waves-effect waves-light dropdown-toggle w-auto l-h-12 bg-transparent py-0 no-shadow" data-bs-toggle="dropdown" title="User">
               <div class="d-flex pt-5">
                 <div class="text-end me-10">
                   <p class="pt-5 fs-14 mb-0 fw-700 text-primary">Johen Doe</p>
@@ -168,13 +168,13 @@
           <!-- sidebar menu-->
           <ul class="sidebar-menu" data-widget="tree">
             <li>
-              <a href="perfil.html">
+              <a th:href="@{/perfil}">
                 <i data-feather="user"></i>
                 <span>Perfil</span>
               </a>
             </li>
             <li>
-              <a href="principal.html">
+              <a th:href="@{/principal}">
                 <i data-feather="clock"></i>
                 <span>Marcar asistencia</span>
               </a>
@@ -187,7 +187,7 @@
               </a>
             </li>-->
             <li>
-              <a href="/login/login.html">
+              <a th:href="@{/Login/login}">
                 <i data-feather="log-out"></i>
                 <span>Cerrar sesión</span>
               </a>

@@ -9,6 +9,6 @@ public class AsistenciaController {
 
     @GetMapping("/principal")
     public String mostrarPaginaPrincipal() {
-        return "main/coordinador/principal";
+        return "/coordinador/principal";
     }
 }
