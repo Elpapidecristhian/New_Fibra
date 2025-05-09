@@ -222,33 +222,34 @@
 				<!-- Mostrar los espacios deportivos -->
 				<div class="row">
 					<div class="col-md-12 col-lg-4" th:each="espacio : ${espacios}">
-						<div class="card">
-							<!-- Imagen base64 -->
-							<img th:if="${espacio.listaFotos.fotos.size() > 0}"
-								 th:src="'data:image/jpeg;base64,' + ${#strings.bytesToBase64(espacio.listaFotos.fotos[0].foto)}"
-								 alt="Imagen de espacio deportivo"
-								 class="img-fluid" />
+						<div th:each="foto : ${espacio.listaFotos.fotos}">
+							<div class="card mb-4">
+								<img th:src="@{'/imagen/' + ${foto.idFoto}}"
+									 alt="Imagen de espacio deportivo"
+									 class="img-fluid" />
 
-							<div class="card-body">
-								<h4 class="card-title" th:text="${espacio.nombre}">Nombre espacio</h4>
-								<p class="card-text" th:text="${espacio.descripcionCorta}">Descripción corta...</p>
-							</div>
+								<div class="card-body">
+									<h4 class="card-title" th:text="${espacio.nombre}">Nombre espacio</h4>
+									<p class="card-text" th:text="${espacio.descripcionCorta}">Descripción corta...</p>
+								</div>
 
-							<div class="card-footer justify-content-between d-flex">
-								<a href="#" class="btn btn-primary">Detalles</a>
-								<a href="#" class="btn btn-info">Reservar</a>
-								<span>
-									<i class="fa fa-star text-warning"></i>
-									<i class="fa fa-star text-warning"></i>
-									<i class="fa fa-star text-warning"></i>
-									<i class="fa fa-star text-warning"></i>
-									<i class="fa fa-star-half text-warning"></i>
-									<span class="text-muted ms-2">(99)</span>
-								</span>
+								<div class="card-footer justify-content-between d-flex">
+									<a href="#" class="btn btn-primary">Detalles</a>
+									<a href="#" class="btn btn-info">Reservar</a>
+									<span>
+                        <i class="fa fa-star text-warning"></i>
+                        <i class="fa fa-star text-warning"></i>
+                        <i class="fa fa-star text-warning"></i>
+                        <i class="fa fa-star text-warning"></i>
+                        <i class="fa fa-star-half text-warning"></i>
+                        <span class="text-muted ms-2">(99)</span>
+                    </span>
+								</div>
 							</div>
 						</div>
 					</div>
 				</div>
+
 
 			</section>
 		</div>
