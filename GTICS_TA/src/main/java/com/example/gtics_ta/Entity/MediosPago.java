@@ -8,7 +8,7 @@ import lombok.*;
 @Table(name = "mediospago")
 public class MediosPago {
     @Id
-    @Column(name = "idMediosPago")
+    @Column(name = "id_medios_pago")
     private int id;
-    private String medioPago;
+    private String nombre;
 }

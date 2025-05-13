@@ -11,9 +11,13 @@ import java.sql.Time;
 @Table(name = "horarios")
 public class Horarios {
     @Id
-    @Column(name = "idHorarios")
+    @Column(name = "id_horarios")
     private int id;
+    @Column(name = "hora_inicio")
     private Time horaInicio;
+    @Column(name = "hora_fin")
     private Time horaFin;
-    private int idEspacio;
+    @ManyToOne
+    @JoinColumn(name = "id_espacio")
+    private EspaciosDeportivos espacio;
 }

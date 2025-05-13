@@ -14,22 +14,23 @@ import java.util.Date;
 @Table(name = "reservas")
 public class Reservas {
     @Id
-    @Column(name = "idReservas")
+    @Column(name = "id_reservas")
     private int id;
     @ManyToOne
-    @JoinColumn(name = "idUsuario")
+    @JoinColumn(name = "id_usuario")
     private Usuario usuario;
     @ManyToOne
-    @JoinColumn(name = "idEspacio")
+    @JoinColumn(name = "id_espacio")
     private EspaciosDeportivos espacioDeportivo;
     @ManyToOne
-    @JoinColumn(name = "Pagos_idPagos")
+    @JoinColumn(name = "id_pagos")
     private Pagos pago;
     @ManyToOne
-    @JoinColumn(name = "idHorarioReservado")
+    @JoinColumn(name = "id_horario_reservado")
     private HorarioReservado horarioReservado;
-    @Column(name = "registroTimestamp")
+    @Column(name = "registro_timestamp")
     private Timestamp fechaRegistro;
     @DateTimeFormat(pattern = "yyyy-MM-dd")
+    @Column(name = "fecha_reserva")
     private Date fechaReserva;
 }

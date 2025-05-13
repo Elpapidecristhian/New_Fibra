@@ -9,10 +9,10 @@ import lombok.*;
 @Table(name = "pagos")
 public class Pagos {
     @Id
-    @Column(name = "idPagos")
+    @Column(name = "id_pagos")
     private int id;
     private float cantidad;
     @ManyToOne
-    @JoinColumn(name = "idMediosPago")
+    @JoinColumn(name = "id_medios_pago")
     private MediosPago medioPago;
 }

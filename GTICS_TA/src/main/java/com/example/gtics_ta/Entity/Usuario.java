@@ -15,7 +15,7 @@ import java.util.Date;
 public class Usuario {
 
     @Id
-    @Column(name = "idUsuario")
+    @Column(name = "id_usuario")
     private int id;
     private String nombres;
     private String apellidos;
@@ -23,11 +23,14 @@ public class Usuario {
     private String contrasenia;
     private String direccion;
     private Integer dni;
+    @Column(name = "num_celular")
     private Integer numCelular;
     @ManyToOne
-    @JoinColumn(name = "idRol")
+    @JoinColumn(name = "id_rol")
     private Rol rol;
+    @Column(name = "is_baneado")
     private boolean isBaneado;
     @DateTimeFormat(pattern = "yyyy-MM-dd")
+    @Column(name = "fecha_nacimiento")
     private LocalDate fechaNacimiento;
 }

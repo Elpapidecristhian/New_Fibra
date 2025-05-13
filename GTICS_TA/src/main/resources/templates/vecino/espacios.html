@@ -170,11 +170,11 @@
 							<h4 class="card-title">Espacios Deportivos</h4>
 
 							<label class="form-label" for="date-filter">Fecha</label>
-							<input type="date" class="form-control" id="date-filter" name="fecha">
+							<input type="date" class="form-control" id="date-filter" th:value="${fechaSeleccionada}" name="fecha">
 
 							<label class="form-label" for="type-filter">Filtros</label>
 							<select class="form-select" id="type-filter" name="tipo">
-								<option selected disabled>Seleccione</option>
+								<option th:selected="${tipoSeleccionado==null}" disabled>Seleccione</option>
 								<option th:selected="${tipoSeleccionado==2}" value="2">Canchas de Fútbol</option>
 								<option th:selected="${tipoSeleccionado==1}" value="1">Piscinas</option>
 								<option th:selected="${tipoSeleccionado==3}" value="3">Pistas de Atletismo</option>
@@ -204,7 +204,7 @@
 
 								<div class="card-footer justify-content-between d-flex">
 									<a th:href="@{/vecino/detalles(idEspacio=${espacio.id})}" class="btn btn-primary">Detalles</a>
-									<a th:href="@{/vecino/reservar(idUsuario=1, idEspacio=${espacio.id}, fecha='2025-04-25')}" class="btn btn-info">Reservar</a>
+									<a th:href="@{/vecino/reservar(idUsuario=1, idEspacio=${espacio.id}, fecha=${fechaSeleccionada})}" class="btn btn-info">Reservar</a>
 									<span>
                         <i class="fa fa-star text-warning"></i>
                         <i class="fa fa-star text-warning"></i>

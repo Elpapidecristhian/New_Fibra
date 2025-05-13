@@ -1,6 +1,5 @@
 package com.example.gtics_ta.Controllers;
 
-import com.example.gtics_ta.DTO.ReservasDTO;
 import com.example.gtics_ta.Entity.*;
 import com.example.gtics_ta.Repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,11 +32,15 @@ public class VecinoController {
     @GetMapping(value = {"","/"})
     public String listaEspacios(@RequestParam(name = "tipo", required = false) String id,
                                 @RequestParam(name = "fecha", required = false) String fecha,
+                                @RequestParam(name = "nombre", required = false) String nombre,
                                 Model model
     ) {
         List<EspaciosDeportivos> espacios;
 
         if (id != null) {
+            if(nombre != null) {
+                espacios = espaciosDeportivosRepository.
+            }
             espacios = espaciosDeportivosRepository.findByTipoEspacio_Id(Integer.parseInt(id));
         } else {
             espacios = espaciosDeportivosRepository.findAll();
@@ -46,6 +49,7 @@ public class VecinoController {
         model.addAttribute("espacios", espacios);
         model.addAttribute("tipoSeleccionado", id);
         model.addAttribute("fechaSeleccionada", fecha);
+        model.addAttribute("nombreSeleccionado", nombre);
 
         return "vecino/espacios";  // nombre del HTML
     }

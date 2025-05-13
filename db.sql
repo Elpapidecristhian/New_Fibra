@@ -15,69 +15,17 @@ SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,N
 -- Schema gtics
 -- -----------------------------------------------------
 CREATE SCHEMA IF NOT EXISTS `gtics` DEFAULT CHARACTER SET utf8mb3 ;
--- -----------------------------------------------------
--- Schema hr
--- -----------------------------------------------------
-
--- -----------------------------------------------------
--- Schema hr
--- -----------------------------------------------------
-CREATE SCHEMA IF NOT EXISTS `hr` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci ;
 USE `gtics` ;
-
--- -----------------------------------------------------
--- Table `gtics`.`listafotos`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `gtics`.`listafotos` (
-  `idListaFotos` INT NOT NULL AUTO_INCREMENT,
-  PRIMARY KEY (`idListaFotos`))
-ENGINE = InnoDB
-DEFAULT CHARACTER SET = utf8mb3;
-
-
--- -----------------------------------------------------
--- Table `gtics`.`tipoespacio`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `gtics`.`tipoespacio` (
-  `idTipoEspacio` INT NOT NULL AUTO_INCREMENT,
-  `nombreTipo` VARCHAR(45) NOT NULL,
-  PRIMARY KEY (`idTipoEspacio`))
-ENGINE = InnoDB
-DEFAULT CHARACTER SET = utf8mb3;
-
-
--- -----------------------------------------------------
--- Table `gtics`.`espaciosdeportivos`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `gtics`.`espaciosdeportivos` (
-  `idEspacio` INT NOT NULL AUTO_INCREMENT,
-  `nombre` VARCHAR(45) NOT NULL,
-  `ubicacion` VARCHAR(45) NOT NULL,
-  `idTipoEspacio` INT NOT NULL,
-  `idListaFotos` INT NOT NULL,
-  `descripcion_corta` VARCHAR(255) NOT NULL,
-  `descripcion_larga` TEXT NOT NULL,
-  PRIMARY KEY (`idEspacio`, `idTipoEspacio`),
-  INDEX `fk_EspaciosDeportivos_TipoEspacio1_idx` (`idTipoEspacio` ASC) VISIBLE,
-  INDEX `fk_EspaciosDeportivos_ListaFotos1_idx` (`idListaFotos` ASC) VISIBLE,
-  CONSTRAINT `fk_EspaciosDeportivos_ListaFotos1`
-    FOREIGN KEY (`idListaFotos`)
-    REFERENCES `gtics`.`listafotos` (`idListaFotos`),
-  CONSTRAINT `fk_EspaciosDeportivos_TipoEspacio1`
-    FOREIGN KEY (`idTipoEspacio`)
-    REFERENCES `gtics`.`tipoespacio` (`idTipoEspacio`))
-ENGINE = InnoDB
-DEFAULT CHARACTER SET = utf8mb3;
-
 
 -- -----------------------------------------------------
 -- Table `gtics`.`roles`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `gtics`.`roles` (
-  `idRol` INT NOT NULL,
-  `rolNombre` VARCHAR(45) NOT NULL,
-  PRIMARY KEY (`idRol`))
+  `id_rol` INT NOT NULL AUTO_INCREMENT,
+  `nombre` VARCHAR(45) NOT NULL,
+  PRIMARY KEY (`id_rol`))
 ENGINE = InnoDB
+AUTO_INCREMENT = 2
 DEFAULT CHARACTER SET = utf8mb3;
 
 
@@ -85,154 +33,124 @@ DEFAULT CHARACTER SET = utf8mb3;
 -- Table `gtics`.`usuario`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `gtics`.`usuario` (
-  `idUsuario` INT NOT NULL AUTO_INCREMENT,
+  `id_usuario` INT NOT NULL AUTO_INCREMENT,
   `nombres` VARCHAR(45) NOT NULL,
   `apellidos` VARCHAR(45) NOT NULL,
   `correo` VARCHAR(45) NOT NULL,
   `contrasenia` VARCHAR(45) NOT NULL,
   `direccion` VARCHAR(90) NULL DEFAULT NULL,
   `dni` INT NOT NULL,
-  `numCelular` INT NULL DEFAULT NULL,
-  `idRol` INT NOT NULL,
-  `fotoPerfil` BLOB NULL DEFAULT NULL,
-  `isBaneado` TINYINT NOT NULL,
-  `fechaNacimiento` DATE NULL DEFAULT NULL,
-  PRIMARY KEY (`idUsuario`, `idRol`),
+  `num_celular` INT NULL DEFAULT NULL,
+  `id_rol` INT NOT NULL,
+  `foto_perfil` BLOB NULL DEFAULT NULL,
+  `is_baneado` TINYINT NOT NULL,
+  `fecha_nacimiento` DATE NULL DEFAULT NULL,
+  PRIMARY KEY (`id_usuario`, `id_rol`),
   UNIQUE INDEX `dni_UNIQUE` (`dni` ASC) VISIBLE,
-  INDEX `fk_Usuario_Roles_idx` (`idRol` ASC) VISIBLE,
+  INDEX `fk_Usuario_Roles_idx` (`id_rol` ASC) VISIBLE,
   CONSTRAINT `fk_Usuario_Roles`
-    FOREIGN KEY (`idRol`)
-    REFERENCES `gtics`.`roles` (`idRol`))
+    FOREIGN KEY (`id_rol`)
+    REFERENCES `gtics`.`roles` (`id_rol`))
 ENGINE = InnoDB
+AUTO_INCREMENT = 2
 DEFAULT CHARACTER SET = utf8mb3;
+
+
+-- -----------------------------------------------------
+-- Table `gtics`.`listafotos`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `gtics`.`listafotos` (
+  `id_lista_fotos` INT NOT NULL AUTO_INCREMENT,
+  PRIMARY KEY (`id_lista_fotos`))
+ENGINE = InnoDB
+AUTO_INCREMENT = 2
+DEFAULT CHARACTER SET = utf8mb3;
+
+
+-- -----------------------------------------------------
+-- Table `gtics`.`tipoespacio`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `gtics`.`tipoespacio` (
+  `id_tipo_espacio` INT NOT NULL AUTO_INCREMENT,
+  `nombre` VARCHAR(45) NOT NULL,
+  PRIMARY KEY (`id_tipo_espacio`))
+ENGINE = InnoDB
+AUTO_INCREMENT = 5
+DEFAULT CHARACTER SET = utf8mb3;
+
+
+-- -----------------------------------------------------
+-- Table `gtics`.`espaciosdeportivos`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `gtics`.`espaciosdeportivos` (
+  `id_espacio` INT NOT NULL AUTO_INCREMENT,
+  `nombre` VARCHAR(45) NOT NULL,
+  `ubicacion` VARCHAR(45) NOT NULL,
+  `id_tipo_espacio` INT NOT NULL,
+  `id_lista_fotos` INT NOT NULL,
+  `descripcion_corta` VARCHAR(255) NOT NULL,
+  `descripcion_larga` TEXT NOT NULL,
+  `num_contacto` INT NOT NULL,
+  `correo_contacto` VARCHAR(45) NOT NULL,
+  `aforo` INT NULL,
+  `operativo` TINYINT NOT NULL,
+  `costo_horario` FLOAT NOT NULL,
+  PRIMARY KEY (`id_espacio`, `id_tipo_espacio`),
+  INDEX `fk_EspaciosDeportivos_TipoEspacio1_idx` (`id_tipo_espacio` ASC) VISIBLE,
+  INDEX `fk_EspaciosDeportivos_ListaFotos1_idx` (`id_lista_fotos` ASC) VISIBLE,
+  CONSTRAINT `fk_EspaciosDeportivos_ListaFotos1`
+    FOREIGN KEY (`id_lista_fotos`)
+    REFERENCES `gtics`.`listafotos` (`id_lista_fotos`),
+  CONSTRAINT `fk_EspaciosDeportivos_TipoEspacio1`
+    FOREIGN KEY (`id_tipo_espacio`)
+    REFERENCES `gtics`.`tipoespacio` (`id_tipo_espacio`))
+ENGINE = InnoDB
+AUTO_INCREMENT = 2
+DEFAULT CHARACTER SET = utf8mb3;
+
+
+-- -----------------------------------------------------
+-- Table `gtics`.`horarioscoordinador`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `gtics`.`horarioscoordinador` (
+  `id_horarios_coordinador` INT NOT NULL AUTO_INCREMENT,
+  `id_usuario` INT NOT NULL,
+  `id_espacio` INT NOT NULL,
+  `hora_entrada` TIME NOT NULL,
+  `hora_salida` TIME NOT NULL,
+  `fecha_inicio` DATE NOT NULL,
+  `fecha_fin` DATE NOT NULL,
+  PRIMARY KEY (`id_horarios_coordinador`, `id_usuario`, `id_espacio`),
+  INDEX `fk_horarioscoordinador_usuario1_idx` (`id_usuario` ASC) VISIBLE,
+  INDEX `fk_horarioscoordinador_espaciosdeportivos1_idx` (`id_espacio` ASC) VISIBLE,
+  CONSTRAINT `fk_horarioscoordinador_usuario1`
+    FOREIGN KEY (`id_usuario`)
+    REFERENCES `gtics`.`usuario` (`id_usuario`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_horarioscoordinador_espaciosdeportivos1`
+    FOREIGN KEY (`id_espacio`)
+    REFERENCES `gtics`.`espaciosdeportivos` (`id_espacio`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
 -- Table `gtics`.`asistencia`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `gtics`.`asistencia` (
-  `idAsistencia` INT NOT NULL AUTO_INCREMENT,
+  `id_asistencia` INT NOT NULL AUTO_INCREMENT,
   `fecha` DATE NOT NULL,
-  `hora` TIME NOT NULL,
-  `idUsuario` INT NOT NULL,
-  `idEspacio` INT NOT NULL,
-  PRIMARY KEY (`idAsistencia`),
-  INDEX `fk_Asistencia_Usuario1_idx` (`idUsuario` ASC) VISIBLE,
-  INDEX `fk_Asistencia_EspaciosDeportivos1_idx` (`idEspacio` ASC) VISIBLE,
-  CONSTRAINT `fk_Asistencia_EspaciosDeportivos1`
-    FOREIGN KEY (`idEspacio`)
-    REFERENCES `gtics`.`espaciosdeportivos` (`idEspacio`),
-  CONSTRAINT `fk_Asistencia_Usuario1`
-    FOREIGN KEY (`idUsuario`)
-    REFERENCES `gtics`.`usuario` (`idUsuario`))
-ENGINE = InnoDB
-DEFAULT CHARACTER SET = utf8mb3;
-
-
--- -----------------------------------------------------
--- Table `gtics`.`fotos`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `gtics`.`fotos` (
-  `idFotos` INT NOT NULL,
-  `foto` BLOB NOT NULL,
-  `idListaFotos` INT NOT NULL,
-  PRIMARY KEY (`idFotos`),
-  INDEX `fk_Fotos_ListaFotos1_idx` (`idListaFotos` ASC) VISIBLE,
-  CONSTRAINT `fk_Fotos_ListaFotos1`
-    FOREIGN KEY (`idListaFotos`)
-    REFERENCES `gtics`.`listafotos` (`idListaFotos`))
-ENGINE = InnoDB
-DEFAULT CHARACTER SET = utf8mb3;
-
-
--- -----------------------------------------------------
--- Table `gtics`.`horarios`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `gtics`.`horarios` (
-  `idHorarios` INT NOT NULL,
-  `horaInicio` TIME NOT NULL,
-  `horaFin` TIME NOT NULL,
-  `idEspacio` INT NOT NULL,
-  PRIMARY KEY (`idHorarios`),
-  INDEX `fk_Horarios_EspaciosDeportivos1_idx` (`idEspacio` ASC) VISIBLE,
-  CONSTRAINT `fk_Horarios_EspaciosDeportivos1`
-    FOREIGN KEY (`idEspacio`)
-    REFERENCES `gtics`.`espaciosdeportivos` (`idEspacio`))
-ENGINE = InnoDB
-DEFAULT CHARACTER SET = utf8mb3;
-
-
--- -----------------------------------------------------
--- Table `gtics`.`horarioreservado`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `gtics`.`horarioreservado` (
-  `idHorarioReservado` INT NOT NULL,
-  `fecha` DATE NOT NULL,
-  `idHorarios` INT NOT NULL,
-  PRIMARY KEY (`idHorarioReservado`),
-  INDEX `fk_HorarioReservado_Horarios1_idx` (`idHorarios` ASC) VISIBLE,
-  CONSTRAINT `fk_HorarioReservado_Horarios1`
-    FOREIGN KEY (`idHorarios`)
-    REFERENCES `gtics`.`horarios` (`idHorarios`))
-ENGINE = InnoDB
-DEFAULT CHARACTER SET = utf8mb3;
-
-
--- -----------------------------------------------------
--- Table `gtics`.`mediospago`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `gtics`.`mediospago` (
-  `idMediosPago` INT NOT NULL AUTO_INCREMENT,
-  `medioPago` VARCHAR(45) NOT NULL,
-  PRIMARY KEY (`idMediosPago`))
-ENGINE = InnoDB
-DEFAULT CHARACTER SET = utf8mb3;
-
-
--- -----------------------------------------------------
--- Table `gtics`.`pagos`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `gtics`.`pagos` (
-  `idPagos` INT NOT NULL AUTO_INCREMENT,
-  `cantidad` FLOAT NOT NULL,
-  `idMediosPago` INT NOT NULL,
-  PRIMARY KEY (`idPagos`, `idMediosPago`),
-  INDEX `fk_Pagos_MediosPago1_idx` (`idMediosPago` ASC) VISIBLE,
-  CONSTRAINT `fk_Pagos_MediosPago1`
-    FOREIGN KEY (`idMediosPago`)
-    REFERENCES `gtics`.`mediospago` (`idMediosPago`))
-ENGINE = InnoDB
-DEFAULT CHARACTER SET = utf8mb3;
-
-
--- -----------------------------------------------------
--- Table `gtics`.`reservas`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `gtics`.`reservas` (
-  `idReservas` INT NOT NULL AUTO_INCREMENT,
-  `idUsuario` INT NOT NULL,
-  `idEspacio` INT NOT NULL,
-  `Pagos_idPagos` INT NOT NULL,
-  `idHorarioReservado` INT NOT NULL,
-  `registroTimestamp` TIMESTAMP NOT NULL,
-  `fechaReserva` DATE NOT NULL,
-  PRIMARY KEY (`idReservas`),
-  INDEX `fk_Reservas_Usuario1_idx` (`idUsuario` ASC) VISIBLE,
-  INDEX `fk_Reservas_EspaciosDeportivos1_idx` (`idEspacio` ASC) VISIBLE,
-  INDEX `fk_Reservas_Pagos1_idx` (`Pagos_idPagos` ASC) VISIBLE,
-  INDEX `fk_reservas_horarioreservado1_idx` (`idHorarioReservado` ASC) VISIBLE,
-  CONSTRAINT `fk_Reservas_EspaciosDeportivos1`
-    FOREIGN KEY (`idEspacio`)
-    REFERENCES `gtics`.`espaciosdeportivos` (`idEspacio`),
-  CONSTRAINT `fk_Reservas_Pagos1`
-    FOREIGN KEY (`Pagos_idPagos`)
-    REFERENCES `gtics`.`pagos` (`idPagos`),
-  CONSTRAINT `fk_Reservas_Usuario1`
-    FOREIGN KEY (`idUsuario`)
-    REFERENCES `gtics`.`usuario` (`idUsuario`),
-  CONSTRAINT `fk_reservas_horarioreservado1`
-    FOREIGN KEY (`idHorarioReservado`)
-    REFERENCES `gtics`.`horarioreservado` (`idHorarioReservado`)
+  `horas_trabajadas` VARCHAR(45) NOT NULL,
+  `hora_entrada` TIME NOT NULL,
+  `hora_salida` TIME NOT NULL,
+  `id_horarios_coordinador` INT NOT NULL,
+  PRIMARY KEY (`id_asistencia`),
+  INDEX `fk_asistencia_horarioscoordinador1_idx` (`id_horarios_coordinador` ASC) VISIBLE,
+  CONSTRAINT `fk_asistencia_horarioscoordinador1`
+    FOREIGN KEY (`id_horarios_coordinador`)
+    REFERENCES `gtics`.`horarioscoordinador` (`id_horarios_coordinador`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB
@@ -243,227 +161,227 @@ DEFAULT CHARACTER SET = utf8mb3;
 -- Table `gtics`.`canchasfutbol`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `gtics`.`canchasfutbol` (
-  `idEspacio` INT NOT NULL,
-  `tipoSuperficie` ENUM('Grass', 'Loza') NOT NULL,
-  `iluminacionNocturna` TINYINT NOT NULL,
-  `balonesDisponibles` TINYINT NOT NULL,
-  PRIMARY KEY (`idEspacio`),
-  INDEX `fk_canchasfutbol_espaciosdeportivos1_idx` (`idEspacio` ASC) VISIBLE,
+  `id_espacio` INT NOT NULL AUTO_INCREMENT,
+  `tipo_superficie` ENUM('Grass', 'Loza') NOT NULL,
+  `iluminacion_nocturna` TINYINT NOT NULL,
+  `balones_disponibles` TINYINT NOT NULL,
+  `ancho` FLOAT NOT NULL,
+  `alto` FLOAT NOT NULL,
+  PRIMARY KEY (`id_espacio`),
+  INDEX `fk_canchasfutbol_espaciosdeportivos1_idx` (`id_espacio` ASC) VISIBLE,
   CONSTRAINT `fk_canchasfutbol_espaciosdeportivos1`
-    FOREIGN KEY (`idEspacio`)
-    REFERENCES `gtics`.`espaciosdeportivos` (`idEspacio`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
-ENGINE = InnoDB;
-
-
--- -----------------------------------------------------
--- Table `gtics`.`piscinas`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `gtics`.`piscinas` (
-  `idEspacio` INT NOT NULL,
-  `tipoPiscina` ENUM('Olimpica', 'Publica') NOT NULL,
-  `profundidadMin` FLOAT NOT NULL,
-  `profundidadMax` FLOAT NOT NULL,
-  `isClimatizada` TINYINT NOT NULL,
-  `requisitos` VARCHAR(45) NOT NULL,
-  PRIMARY KEY (`idEspacio`),
-  CONSTRAINT `fk_piscinas_espaciosdeportivos1`
-    FOREIGN KEY (`idEspacio`)
-    REFERENCES `gtics`.`espaciosdeportivos` (`idEspacio`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
-ENGINE = InnoDB;
-
-
--- -----------------------------------------------------
--- Table `gtics`.`pistasatletismo`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `gtics`.`pistasatletismo` (
-  `idEspacio` INT NOT NULL,
-  `tipoSuperficie` ENUM('Tartan', 'Asfalto', 'Tierra') NOT NULL,
-  `longitud` FLOAT NOT NULL,
-  `implementos` VARCHAR(45) NOT NULL,
-  PRIMARY KEY (`idEspacio`),
-  CONSTRAINT `fk_pistasatletismo_espaciosdeportivos1`
-    FOREIGN KEY (`idEspacio`)
-    REFERENCES `gtics`.`espaciosdeportivos` (`idEspacio`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
-ENGINE = InnoDB;
+    FOREIGN KEY (`id_espacio`)
+    REFERENCES `gtics`.`espaciosdeportivos` (`id_espacio`))
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb3;
 
 
 -- -----------------------------------------------------
 -- Table `gtics`.`estadios`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `gtics`.`estadios` (
-  `idEspacio` INT NOT NULL,
+  `id_espacio` INT NOT NULL,
   `aforo` INT NOT NULL,
-  `usoPermitido` VARCHAR(45) NOT NULL,
-  `seguridadDisponible` TINYINT NOT NULL,
-  `sonidoPantallasDisponible` TINYINT NOT NULL,
-  `iluminacionProfesionalDisponible` TINYINT NOT NULL,
-  PRIMARY KEY (`idEspacio`),
+  `uso_permitido` VARCHAR(45) NOT NULL,
+  `seguridad_disponible` TINYINT NOT NULL,
+  `sonido_pantallas_disponible` TINYINT NOT NULL,
+  `iluminacion_profesional_disponible` TINYINT NOT NULL,
+  PRIMARY KEY (`id_espacio`),
   CONSTRAINT `fk_estadios_espaciosdeportivos1`
-    FOREIGN KEY (`idEspacio`)
-    REFERENCES `gtics`.`espaciosdeportivos` (`idEspacio`)
+    FOREIGN KEY (`id_espacio`)
+    REFERENCES `gtics`.`espaciosdeportivos` (`id_espacio`))
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb3;
+
+
+-- -----------------------------------------------------
+-- Table `gtics`.`fotos`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `gtics`.`fotos` (
+  `id_fotos` INT NOT NULL AUTO_INCREMENT,
+  `foto` BLOB NOT NULL,
+  `id_lista_fotos` INT NOT NULL,
+  PRIMARY KEY (`id_fotos`),
+  INDEX `fk_Fotos_ListaFotos1_idx` (`id_lista_fotos` ASC) VISIBLE,
+  CONSTRAINT `fk_Fotos_ListaFotos1`
+    FOREIGN KEY (`id_lista_fotos`)
+    REFERENCES `gtics`.`listafotos` (`id_lista_fotos`))
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb3;
+
+
+-- -----------------------------------------------------
+-- Table `gtics`.`horarios`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `gtics`.`horarios` (
+  `id_horarios` INT NOT NULL AUTO_INCREMENT,
+  `hora_inicio` TIME NOT NULL,
+  `hora_fin` TIME NOT NULL,
+  `id_espacio` INT NOT NULL,
+  PRIMARY KEY (`id_horarios`),
+  INDEX `fk_Horarios_EspaciosDeportivos1_idx` (`id_espacio` ASC) VISIBLE,
+  CONSTRAINT `fk_Horarios_EspaciosDeportivos1`
+    FOREIGN KEY (`id_espacio`)
+    REFERENCES `gtics`.`espaciosdeportivos` (`id_espacio`))
+ENGINE = InnoDB
+AUTO_INCREMENT = 13
+DEFAULT CHARACTER SET = utf8mb3;
+
+
+-- -----------------------------------------------------
+-- Table `gtics`.`horarioreservado`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `gtics`.`horarioreservado` (
+  `id_horario_reservado` INT NOT NULL AUTO_INCREMENT,
+  `fecha` DATE NOT NULL,
+  `is_reservado` TINYINT NOT NULL,
+  `id_horarios` INT NOT NULL,
+  PRIMARY KEY (`id_horario_reservado`),
+  INDEX `fk_HorarioReservado_Horarios1_idx` (`id_horarios` ASC) VISIBLE,
+  CONSTRAINT `fk_HorarioReservado_Horarios1`
+    FOREIGN KEY (`id_horarios`)
+    REFERENCES `gtics`.`horarios` (`id_horarios`))
+ENGINE = InnoDB
+AUTO_INCREMENT = 13
+DEFAULT CHARACTER SET = utf8mb3;
+
+
+-- -----------------------------------------------------
+-- Table `gtics`.`mediospago`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `gtics`.`mediospago` (
+  `id_medios_pago` INT NOT NULL AUTO_INCREMENT,
+  `nombre` VARCHAR(45) NOT NULL,
+  PRIMARY KEY (`id_medios_pago`))
+ENGINE = InnoDB
+AUTO_INCREMENT = 2
+DEFAULT CHARACTER SET = utf8mb3;
+
+
+-- -----------------------------------------------------
+-- Table `gtics`.`pagos`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `gtics`.`pagos` (
+  `id_pagos` INT NOT NULL AUTO_INCREMENT,
+  `cantidad` FLOAT NOT NULL,
+  `id_medios_pago` INT NOT NULL,
+  PRIMARY KEY (`id_pagos`, `id_medios_pago`),
+  INDEX `fk_Pagos_MediosPago1_idx` (`id_medios_pago` ASC) VISIBLE,
+  CONSTRAINT `fk_Pagos_MediosPago1`
+    FOREIGN KEY (`id_medios_pago`)
+    REFERENCES `gtics`.`mediospago` (`id_medios_pago`))
+ENGINE = InnoDB
+AUTO_INCREMENT = 2
+DEFAULT CHARACTER SET = utf8mb3;
+
+
+-- -----------------------------------------------------
+-- Table `gtics`.`piscinas`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `gtics`.`piscinas` (
+  `id_espacio` INT NOT NULL AUTO_INCREMENT,
+  `tipo_piscina` ENUM('Olimpica', 'Publica') NOT NULL,
+  `profundidad_min` FLOAT NOT NULL,
+  `profundidad_max` FLOAT NOT NULL,
+  `is_climatizada` TINYINT NOT NULL,
+  `requisitos` VARCHAR(45) NOT NULL,
+  `num_carril_max` INT NOT NULL,
+  PRIMARY KEY (`id_espacio`),
+  CONSTRAINT `fk_piscinas_espaciosdeportivos1`
+    FOREIGN KEY (`id_espacio`)
+    REFERENCES `gtics`.`espaciosdeportivos` (`id_espacio`))
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb3;
+
+
+-- -----------------------------------------------------
+-- Table `gtics`.`pistasatletismo`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `gtics`.`pistasatletismo` (
+  `id_espacio` INT NOT NULL,
+  `tipo_superficie` ENUM('Tartan', 'Asfalto', 'Tierra') NOT NULL,
+  `longitud` FLOAT NOT NULL,
+  `implementos` VARCHAR(45) NOT NULL,
+  PRIMARY KEY (`id_espacio`),
+  CONSTRAINT `fk_pistasatletismo_espaciosdeportivos1`
+    FOREIGN KEY (`id_espacio`)
+    REFERENCES `gtics`.`espaciosdeportivos` (`id_espacio`))
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb3;
+
+
+-- -----------------------------------------------------
+-- Table `gtics`.`reservas`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `gtics`.`reservas` (
+  `id_reservas` INT NOT NULL AUTO_INCREMENT,
+  `id_usuario` INT NOT NULL,
+  `id_espacio` INT NOT NULL,
+  `id_pagos` INT NOT NULL,
+  `id_horario_reservado` INT NOT NULL,
+  `registro_timestamp` TIMESTAMP NOT NULL,
+  `fecha_reserva` DATE NOT NULL,
+  PRIMARY KEY (`id_reservas`),
+  INDEX `fk_Reservas_Usuario1_idx` (`id_usuario` ASC) VISIBLE,
+  INDEX `fk_Reservas_EspaciosDeportivos1_idx` (`id_espacio` ASC) VISIBLE,
+  INDEX `fk_Reservas_Pagos1_idx` (`id_pagos` ASC) VISIBLE,
+  INDEX `fk_reservas_horarioreservado1_idx` (`id_horario_reservado` ASC) VISIBLE,
+  CONSTRAINT `fk_Reservas_EspaciosDeportivos1`
+    FOREIGN KEY (`id_espacio`)
+    REFERENCES `gtics`.`espaciosdeportivos` (`id_espacio`),
+  CONSTRAINT `fk_reservas_horarioreservado1`
+    FOREIGN KEY (`id_horario_reservado`)
+    REFERENCES `gtics`.`horarioreservado` (`id_horario_reservado`),
+  CONSTRAINT `fk_Reservas_Pagos1`
+    FOREIGN KEY (`id_pagos`)
+    REFERENCES `gtics`.`pagos` (`id_pagos`),
+  CONSTRAINT `fk_Reservas_Usuario1`
+    FOREIGN KEY (`id_usuario`)
+    REFERENCES `gtics`.`usuario` (`id_usuario`))
+ENGINE = InnoDB
+AUTO_INCREMENT = 2
+DEFAULT CHARACTER SET = utf8mb3;
+
+
+-- -----------------------------------------------------
+-- Table `gtics`.`tipocomentario`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `gtics`.`tipocomentario` (
+  `id_tipo_comentario` INT NOT NULL AUTO_INCREMENT,
+  `nombre` VARCHAR(45) NOT NULL,
+  PRIMARY KEY (`id_tipo_comentario`))
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `gtics`.`comentarios`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `gtics`.`comentarios` (
+  `id_comentarios` INT NOT NULL AUTO_INCREMENT,
+  `id_espacio` INT NOT NULL,
+  `id_usuario` INT NOT NULL,
+  `id_tipo_comentario` INT NOT NULL,
+  `contenido` VARCHAR(300) NOT NULL,
+  PRIMARY KEY (`id_comentarios`),
+  INDEX `fk_comentarios_espaciosdeportivos1_idx` (`id_espacio` ASC) VISIBLE,
+  INDEX `fk_comentarios_tipocomentario1_idx` (`id_tipo_comentario` ASC) VISIBLE,
+  INDEX `fk_comentarios_usuario1_idx` (`id_usuario` ASC) VISIBLE,
+  CONSTRAINT `fk_comentarios_espaciosdeportivos1`
+    FOREIGN KEY (`id_espacio`)
+    REFERENCES `gtics`.`espaciosdeportivos` (`id_espacio`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_comentarios_tipocomentario1`
+    FOREIGN KEY (`id_tipo_comentario`)
+    REFERENCES `gtics`.`tipocomentario` (`id_tipo_comentario`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_comentarios_usuario1`
+    FOREIGN KEY (`id_usuario`)
+    REFERENCES `gtics`.`usuario` (`id_usuario`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
-
-USE `hr` ;
-
--- -----------------------------------------------------
--- Table `hr`.`regions`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `hr`.`regions` (
-  `region_id` DECIMAL(22,0) NOT NULL,
-  `region_name` VARCHAR(25) CHARACTER SET 'latin1' COLLATE 'latin1_bin' NULL DEFAULT NULL,
-  PRIMARY KEY (`region_id`))
-ENGINE = InnoDB
-DEFAULT CHARACTER SET = utf8mb4
-COLLATE = utf8mb4_0900_ai_ci;
-
-
--- -----------------------------------------------------
--- Table `hr`.`countries`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `hr`.`countries` (
-  `country_id` CHAR(2) CHARACTER SET 'latin1' COLLATE 'latin1_bin' NOT NULL,
-  `country_name` VARCHAR(40) CHARACTER SET 'latin1' COLLATE 'latin1_bin' NULL DEFAULT NULL,
-  `region_id` DECIMAL(22,0) NULL DEFAULT NULL,
-  PRIMARY KEY (`country_id`),
-  INDEX `countr_reg_fk` (`region_id` ASC) VISIBLE,
-  CONSTRAINT `countr_reg_fk`
-    FOREIGN KEY (`region_id`)
-    REFERENCES `hr`.`regions` (`region_id`))
-ENGINE = InnoDB
-DEFAULT CHARACTER SET = utf8mb4
-COLLATE = utf8mb4_0900_ai_ci;
-
-
--- -----------------------------------------------------
--- Table `hr`.`locations`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `hr`.`locations` (
-  `location_id` INT NOT NULL,
-  `street_address` VARCHAR(40) CHARACTER SET 'latin1' COLLATE 'latin1_bin' NULL DEFAULT NULL,
-  `postal_code` VARCHAR(12) CHARACTER SET 'latin1' COLLATE 'latin1_bin' NULL DEFAULT NULL,
-  `city` VARCHAR(30) CHARACTER SET 'latin1' COLLATE 'latin1_bin' NOT NULL,
-  `state_province` VARCHAR(25) CHARACTER SET 'latin1' COLLATE 'latin1_bin' NULL DEFAULT NULL,
-  `country_id` CHAR(2) CHARACTER SET 'latin1' COLLATE 'latin1_bin' NULL DEFAULT NULL,
-  PRIMARY KEY (`location_id`),
-  INDEX `loc_city_ix` (`city` ASC) VISIBLE,
-  INDEX `loc_country_ix` (`country_id` ASC) VISIBLE,
-  INDEX `loc_state_province_ix` (`state_province` ASC) VISIBLE,
-  INDEX `loc_c_id_fk` (`country_id` ASC) VISIBLE,
-  CONSTRAINT `loc_c_id_fk`
-    FOREIGN KEY (`country_id`)
-    REFERENCES `hr`.`countries` (`country_id`))
-ENGINE = InnoDB
-DEFAULT CHARACTER SET = utf8mb4
-COLLATE = utf8mb4_0900_ai_ci;
-
-
--- -----------------------------------------------------
--- Table `hr`.`jobs`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `hr`.`jobs` (
-  `job_id` VARCHAR(10) CHARACTER SET 'latin1' COLLATE 'latin1_bin' NOT NULL,
-  `job_title` VARCHAR(35) CHARACTER SET 'latin1' COLLATE 'latin1_bin' NOT NULL,
-  `min_salary` INT NULL DEFAULT NULL,
-  `max_salary` INT NULL DEFAULT NULL,
-  PRIMARY KEY (`job_id`))
-ENGINE = InnoDB
-DEFAULT CHARACTER SET = utf8mb4
-COLLATE = utf8mb4_0900_ai_ci;
-
-
--- -----------------------------------------------------
--- Table `hr`.`employees`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `hr`.`employees` (
-  `employee_id` INT NOT NULL AUTO_INCREMENT,
-  `first_name` VARCHAR(20) CHARACTER SET 'latin1' COLLATE 'latin1_bin' NULL DEFAULT NULL,
-  `last_name` VARCHAR(25) CHARACTER SET 'latin1' COLLATE 'latin1_bin' NOT NULL,
-  `email` VARCHAR(25) CHARACTER SET 'latin1' COLLATE 'latin1_bin' NOT NULL,
-  `phone_number` VARCHAR(20) CHARACTER SET 'latin1' COLLATE 'latin1_bin' NULL DEFAULT NULL,
-  `hire_date` DATETIME NOT NULL,
-  `job_id` VARCHAR(10) CHARACTER SET 'latin1' COLLATE 'latin1_bin' NOT NULL,
-  `salary` DECIMAL(8,2) NULL DEFAULT NULL,
-  `commission_pct` DECIMAL(2,2) NULL DEFAULT NULL,
-  `manager_id` INT NULL DEFAULT NULL,
-  `department_id` INT NULL DEFAULT NULL,
-  PRIMARY KEY (`employee_id`),
-  UNIQUE INDEX `emp_email_uk` (`email` ASC) VISIBLE,
-  INDEX `emp_department_ix` (`department_id` ASC) VISIBLE,
-  INDEX `emp_job_ix` (`job_id` ASC) VISIBLE,
-  INDEX `emp_manager_ix` (`manager_id` ASC) VISIBLE,
-  INDEX `emp_name_ix` (`last_name` ASC, `first_name` ASC) VISIBLE,
-  INDEX `emp_job_fk` (`job_id` ASC) VISIBLE,
-  CONSTRAINT `emp_dept_fk`
-    FOREIGN KEY (`department_id`)
-    REFERENCES `hr`.`departments` (`department_id`),
-  CONSTRAINT `emp_job_fk`
-    FOREIGN KEY (`job_id`)
-    REFERENCES `hr`.`jobs` (`job_id`),
-  CONSTRAINT `emp_manager_fk`
-    FOREIGN KEY (`manager_id`)
-    REFERENCES `hr`.`employees` (`employee_id`))
-ENGINE = InnoDB
-AUTO_INCREMENT = 211
-DEFAULT CHARACTER SET = utf8mb4
-COLLATE = utf8mb4_0900_ai_ci;
-
-
--- -----------------------------------------------------
--- Table `hr`.`departments`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `hr`.`departments` (
-  `department_id` INT NOT NULL,
-  `department_name` VARCHAR(30) CHARACTER SET 'latin1' COLLATE 'latin1_bin' NOT NULL,
-  `manager_id` INT NULL DEFAULT NULL,
-  `location_id` INT NULL DEFAULT NULL,
-  PRIMARY KEY (`department_id`),
-  INDEX `dept_location_ix` (`location_id` ASC) VISIBLE,
-  INDEX `dept_mgr_fk` (`manager_id` ASC) VISIBLE,
-  CONSTRAINT `dept_loc_fk`
-    FOREIGN KEY (`location_id`)
-    REFERENCES `hr`.`locations` (`location_id`),
-  CONSTRAINT `dept_mgr_fk`
-    FOREIGN KEY (`manager_id`)
-    REFERENCES `hr`.`employees` (`employee_id`))
-ENGINE = InnoDB
-DEFAULT CHARACTER SET = utf8mb4
-COLLATE = utf8mb4_0900_ai_ci;
-
-
--- -----------------------------------------------------
--- Table `hr`.`job_history`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `hr`.`job_history` (
-  `employee_id` INT NOT NULL,
-  `start_date` DATETIME NOT NULL,
-  `end_date` DATETIME NOT NULL,
-  `job_id` VARCHAR(10) CHARACTER SET 'latin1' COLLATE 'latin1_bin' NOT NULL,
-  `department_id` INT NULL DEFAULT NULL,
-  PRIMARY KEY (`employee_id`, `start_date`),
-  INDEX `jhist_department_ix` (`department_id` ASC) VISIBLE,
-  INDEX `jhist_employee_ix` (`employee_id` ASC) VISIBLE,
-  INDEX `jhist_job_ix` (`job_id` ASC) VISIBLE,
-  INDEX `jhist_job_fk` (`job_id` ASC) VISIBLE,
-  CONSTRAINT `jhist_dept_fk`
-    FOREIGN KEY (`department_id`)
-    REFERENCES `hr`.`departments` (`department_id`),
-  CONSTRAINT `jhist_emp_fk`
-    FOREIGN KEY (`employee_id`)
-    REFERENCES `hr`.`employees` (`employee_id`),
-  CONSTRAINT `jhist_job_fk`
-    FOREIGN KEY (`job_id`)
-    REFERENCES `hr`.`jobs` (`job_id`))
-ENGINE = InnoDB
-DEFAULT CHARACTER SET = utf8mb4
-COLLATE = utf8mb4_0900_ai_ci;
 
 
 SET SQL_MODE=@OLD_SQL_MODE;

@@ -7,10 +7,11 @@ import lombok.Setter;
 @Entity
 @Getter
 @Setter
-@Table(name = "tipoespacio")
-public class TipoEspacio {
+@Table(name = "fotos")
+public class Fotos {
     @Id
-    @Column(name = "id_tipo_espacio")
+    @Column(name = "id_fotos")
     private int id;
-    private String nombre;
+    @Column(name = "id_lista_fotos")
+    private int idListaFotos;
 }
