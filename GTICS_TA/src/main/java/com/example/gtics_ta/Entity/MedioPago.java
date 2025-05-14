@@ -1,4 +1,4 @@
-package com.example.gtics_ta.entity;
+package com.example.gtics_ta.Entity;
 
 import jakarta.persistence.*;
 

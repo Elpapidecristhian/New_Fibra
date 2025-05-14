@@ -1,7 +1,7 @@
 package com.example.gtics_ta.controller;
 
 import org.springframework.ui.Model;
-import com.example.gtics_ta.entity.Reservas;
+import com.example.gtics_ta.Entity.Reservas;
 import com.example.gtics_ta.repository.ReservaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
