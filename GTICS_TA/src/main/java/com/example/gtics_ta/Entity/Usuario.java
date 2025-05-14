@@ -33,4 +33,7 @@ public class Usuario {
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     @Column(name = "fecha_nacimiento")
     private LocalDate fechaNacimiento;
+    @Lob
+    @Column(name = "foto")
+    private byte[] foto;
 }

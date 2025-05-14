@@ -16,7 +16,7 @@ public class CoordinadorController {
 
     @GetMapping("/perfil")
     public String perfilUsuario(Model model) {
-        Usuario usuario = usuarioRepository.findById(11).orElse(null);
+        Usuario usuario = usuarioRepository.findById(1).orElse(null);
 
         if (usuario == null) {
             return "redirect:/error";

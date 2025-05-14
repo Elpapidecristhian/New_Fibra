@@ -25,7 +25,7 @@ public class ReservaController {
     public String listarReservas(@RequestParam(value = "nombre", required = false) String nombre, Model model) {
         List<Reservas> reservas= (nombre == null || nombre.isEmpty()) ?
                 reservaRepository.findAll() :
-                reservaRepository.findByIdEspacioNombreContainingIgnoreCase(nombre);
+                reservaRepository.findByEspacioDeportivoNombreContainingIgnoreCase(nombre);
         model.addAttribute("listaReservas", reservas);
         return "vecino_reservas";
     }

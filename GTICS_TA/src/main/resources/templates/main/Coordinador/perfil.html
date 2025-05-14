@@ -108,7 +108,7 @@
                             <div class="d-flex pt-5">
                                 <div class="text-end me-10">
                                     <p class="pt-5 fs-14 mb-0 fw-700 text-primary" th:text="${usuario.nombres + ' ' + usuario.apellidos}"></p>
-                                    <small class="fs-10 mb-0 text-uppercase text-mute" th:value="${usuario.idRol.rolNombre}"></small>
+                                    <small class="fs-10 mb-0 text-uppercase text-mute" th:text="${usuario.rol.nombre}"></small>
                                 </div>
                                 <img th:src="@{/images/avatar/avatar-1.png}" class="avatar rounded-10 bg-primary-light h-40 w-40" alt="" />
                             </div>
@@ -265,7 +265,7 @@
                             <!-- Add the bg color to the header using any of the bg-* classes -->
                             <div class="widget-user-header bg-img bbsr-0 bber-0" style="background: url('../resources/static/images/gallery/full/10.jpg') center center;" data-overlay="5">
                                 <h3 class="widget-user-username text-white" th:text="${usuario.nombres + ' ' + usuario.apellidos}" ></h3>
-                                <h6 class="widget-user-desc text-white" th:text="${usuario.idRol.rolNombre}"></h6>
+                                <h6 class="widget-user-desc text-white" th:text="${usuario.rol.nombre}"></h6>
                             </div>
                             <div class="widget-user-image">
                                 <img class="rounded-circle"  th:src="@{/images/user3-128x128.jpg}" alt="User Avatar">
