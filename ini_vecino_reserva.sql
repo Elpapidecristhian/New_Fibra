@@ -1,6 +1,14 @@
 INSERT INTO roles (id_rol, nombre) VALUES (1, "Vecino");
+INSERT INTO roles (id_rol, nombre) VALUES (2, "Coordinador");
+INSERT INTO roles (id_rol, nombre) VALUES (3, "Admin");
+INSERT INTO roles (id_rol, nombre) VALUES (4, "SuperAdmin");
 
 INSERT INTO usuario (id_usuario, nombres, apellidos, correo, contrasenia, direccion, dni, num_celular, id_rol, is_baneado, fecha_nacimiento) VALUES (1, 'Sebastian', 'Ramirez', 'dhannysebas@hotmail.com', 'sebas2401', 'CATO', 72519702, 111999222,1, FALSE, '1990-01-01');
+INSERT INTO usuario (id_usuario, nombres, apellidos, correo, contrasenia, direccion, dni, num_celular, id_rol, is_baneado, fecha_nacimiento) VALUES (2, 'Ariana', 'Zuñiga', 'arianazuniga01@gmail.com', 'ariana0701', 'Av. Monte de los Olivos 286', 73992601, 992533648, 2, FALSE, '2000-05-08');
+INSERT INTO usuario (id_usuario, nombres, apellidos, correo, contrasenia, direccion, dni, num_celular, id_rol, is_baneado, fecha_nacimiento) VALUES (3, 'Joaquin', 'Arriarán', 'joaqui.arri23@gmail.com', 'mau33434', 'Av. Velazco Astete 2917', 66258978, 980012200,2, FALSE, '1993-01-15');
+INSERT INTO usuario (id_usuario, nombres, apellidos, correo, contrasenia, direccion, dni, num_celular, id_rol, is_baneado, fecha_nacimiento) VALUES (4, 'Samantha', 'Villanueva', 'sam.villa24@hotmail.com', 'sam234', 'Jr. Benito Juarez 342', 72699945, 978465111,3, FALSE, '2001-11-05');
+INSERT INTO usuario (id_usuario, nombres, apellidos, correo, contrasenia, direccion, dni, num_celular, id_rol, is_baneado, fecha_nacimiento) VALUES (5, 'Diego', 'Linares', 'linares.zeus87@gmail.com', 'zeus989', 'Av. El Sol 4655', 85237790, 978456178,3, FALSE, '2004-12-10');
+INSERT INTO usuario (id_usuario, nombres, apellidos, correo, contrasenia, direccion, dni, num_celular, id_rol, is_baneado, fecha_nacimiento) VALUES (6, 'Sebastian', 'Panez', 'saap2931@hotmail.com', 'saap9686', 'Av. Gregorio Escobedo 345', 72519881, 966945817,1, FALSE, '2007-08-25');
 
 INSERT INTO tipoespacio (id_tipo_espacio, nombre) VALUES (1, 'Piscina');
 INSERT INTO tipoespacio (id_tipo_espacio, nombre) VALUES (2, 'Canchas Fútbol');

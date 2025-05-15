@@ -19,8 +19,10 @@ public class Usuario {
     private int id;
     private String nombres;
     private String apellidos;
-    private String correo;
-    private String contrasenia;
+    @Column(name="correo")
+    private String username;
+    @Column(name="contrasenia")
+    private String password;
     private String direccion;
     private Integer dni;
     @Column(name = "num_celular")
