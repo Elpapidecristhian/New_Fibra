@@ -6,9 +6,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="">
     <meta name="author" content="">
-    <link rel="icon" href="../images/favicon.ico">
+    <link rel="icon" href="../images/san_miguel_logo.ico">
 
-    <title>Rhythm Admin - Dashboard</title>
+    <title>Admin - Servicios</title>
     
 	<!-- Vendors Style-->
 	<link rel="stylesheet" href="css/vendors_css.css">
@@ -18,19 +18,10 @@
 	<link rel="stylesheet" href="css/skin_color.css">
 
     <!-- DataTables CSS -->
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
 
-    <!-- jQuery -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
-    <!-- DataTables JS -->
-    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-
-
-    
 
     <style>
-    
+
         .dataTables_filter {
             margin-bottom: 20px; /* Separación */
             float: right; /* Puedes quitar esto si lo quieres alineado a la izquierda */
@@ -80,19 +71,18 @@
             <a href="#" class="waves-effect waves-light dropdown-toggle w-auto l-h-12 bg-transparent py-0 no-shadow" data-bs-toggle="dropdown" title="User">
 				<div class="d-flex pt-5">
 					<div class="text-end me-10">
-						<p class="pt-5 fs-14 mb-0 fw-700 text-primary">Johen Doe</p>
-						<small class="fs-10 mb-0 text-uppercase text-mute">Admin</small>
+						<p class="pt-5 fs-14 mb-0 fw-700 text-primary">Luis Joaquin</p>
+						<small class="fs-10 mb-0 text-uppercase text-mute">Administrador</small>
 					</div>
 					<img src="../images/avatar/avatar-1.png" class="avatar rounded-10 bg-primary-light h-40 w-40" alt="" />
 				</div>
             </a>
             <ul class="dropdown-menu animated flipInX">
               <li class="user-body">
-				 <a class="dropdown-item" href="#"><i class="ti-user text-muted me-2"></i> Profile</a>
-				 <a class="dropdown-item" href="#"><i class="ti-wallet text-muted me-2"></i> My Wallet</a>
-				 <a class="dropdown-item" href="#"><i class="ti-settings text-muted me-2"></i> Settings</a>
+				 <a class="dropdown-item" href="#"><i class="ti-user text-muted me-2"></i> Mi perfil</a>
+				 <a class="dropdown-item" href="#"><i class="ti-bell text-muted me-2"></i> Notificaciones</a>
 				 <div class="dropdown-divider"></div>
-				 <a class="dropdown-item" href="#"><i class="ti-lock text-muted me-2"></i> Logout</a>
+				 <a class="dropdown-item" href="#"><i class="ti-lock text-muted me-2"></i> Cerrar sesión</a>
               </li>
             </ul>
           </li>	
@@ -136,12 +126,7 @@
                   
 				   
 				
-				<li>
-					<a href="ajustes.html">
-					  <i data-feather="settings"></i>
-					  <span>Ajustes</span>
-					</a>
-				</li>	 	     
+
 			  </ul>
 			  
 			  
@@ -192,16 +177,19 @@
                               <td>100</td>
                               <td>diego.ferre@deportes.gob</td>
                               <td>
+                                <!-- Botón Editar con icono de Material Design -->
                                 <button class="btn btn-sm btn-warning" title="Editar" data-bs-toggle="modal" data-bs-target="#modalEditar" onclick="cargarDatosModal(this)">
-                                  <i data-feather="edit-3"></i>
+                                  <i class="mdi mdi-pencil"></i> <!-- Icono de lápiz (editar) -->
                                 </button>
-                                
+
+                                <!-- Botón Eliminar con icono de Material Design -->
                                 <button class="btn btn-sm btn-danger" title="Eliminar" data-bs-toggle="modal" data-bs-target="#modalEliminar">
-                                  <i data-feather="trash-2"></i>
+                                  <i class="mdi mdi-delete"></i> <!-- Icono de papelera (eliminar) -->
                                 </button>
                               </td>
-                              
-                              
+
+
+
                             </tr>
 
                             
@@ -214,16 +202,19 @@
                               <td>80</td>
                               <td>felipe.o@deportes.gob</td>
                               <td>
+                                <!-- Botón Editar con icono de Material Design -->
                                 <button class="btn btn-sm btn-warning" title="Editar" data-bs-toggle="modal" data-bs-target="#modalEditar" onclick="cargarDatosModal(this)">
-                                  <i data-feather="edit-3"></i>
+                                  <i class="mdi mdi-pencil"></i> <!-- Icono de lápiz (editar) -->
                                 </button>
-                                
+
+                                <!-- Botón Eliminar con icono de Material Design -->
                                 <button class="btn btn-sm btn-danger" title="Eliminar" data-bs-toggle="modal" data-bs-target="#modalEliminar">
-                                  <i data-feather="trash-2"></i>
+                                  <i class="mdi mdi-delete"></i> <!-- Icono de papelera (eliminar) -->
                                 </button>
                               </td>
-                              
-                              
+
+
+
                             </tr>
 
                       
@@ -233,15 +224,18 @@
                             <tr><td>#p22435367</td><td>Piscina</td><td>Lucía Torres</td><td>Av. Brasil 1500</td><td>120</td>
                               <td>lucia.torres@deportes.gob</td>
                               <td>
+                                <!-- Botón Editar con icono de Material Design -->
                                 <button class="btn btn-sm btn-warning" title="Editar" data-bs-toggle="modal" data-bs-target="#modalEditar" onclick="cargarDatosModal(this)">
-                                  <i data-feather="edit-3"></i>
+                                  <i class="mdi mdi-pencil"></i> <!-- Icono de lápiz (editar) -->
                                 </button>
-                                
+
+                                <!-- Botón Eliminar con icono de Material Design -->
                                 <button class="btn btn-sm btn-danger" title="Eliminar" data-bs-toggle="modal" data-bs-target="#modalEliminar">
-                                  <i data-feather="trash-2"></i>
+                                  <i class="mdi mdi-delete"></i> <!-- Icono de papelera (eliminar) -->
                                 </button>
                               </td>
-                                  
+
+
                             </tr>
                             
                           
@@ -250,15 +244,18 @@
                             <tr><td>#p22435368</td><td>Gimnasio</td><td>Marco Ruiz</td><td>Av. Universitaria 2000</td><td>60</td>
                               <td>marco.ruiz@deportes.gob</td>
                               <td>
+                                <!-- Botón Editar con icono de Material Design -->
                                 <button class="btn btn-sm btn-warning" title="Editar" data-bs-toggle="modal" data-bs-target="#modalEditar" onclick="cargarDatosModal(this)">
-                                  <i data-feather="edit-3"></i>
+                                  <i class="mdi mdi-pencil"></i> <!-- Icono de lápiz (editar) -->
                                 </button>
-                                
+
+                                <!-- Botón Eliminar con icono de Material Design -->
                                 <button class="btn btn-sm btn-danger" title="Eliminar" data-bs-toggle="modal" data-bs-target="#modalEliminar">
-                                  <i data-feather="trash-2"></i>
+                                  <i class="mdi mdi-delete"></i> <!-- Icono de papelera (eliminar) -->
                                 </button>
                               </td>
-                                  
+
+
                             </tr>
                           
   
@@ -267,76 +264,94 @@
                             <tr><td>#p22435369</td><td>Cancha</td><td>Juan Rivera</td><td>Av. Libertad 303</td><td>90</td>
                               <td>juan.rivera@deportes.gob</td>
                               <td>
+                                <!-- Botón Editar con icono de Material Design -->
                                 <button class="btn btn-sm btn-warning" title="Editar" data-bs-toggle="modal" data-bs-target="#modalEditar" onclick="cargarDatosModal(this)">
-                                  <i data-feather="edit-3"></i>
+                                  <i class="mdi mdi-pencil"></i> <!-- Icono de lápiz (editar) -->
                                 </button>
-                                
+
+                                <!-- Botón Eliminar con icono de Material Design -->
                                 <button class="btn btn-sm btn-danger" title="Eliminar" data-bs-toggle="modal" data-bs-target="#modalEliminar">
-                                  <i data-feather="trash-2"></i>
+                                  <i class="mdi mdi-delete"></i> <!-- Icono de papelera (eliminar) -->
                                 </button>
                               </td>
-                              </tr>
+
+                            </tr>
                             <tr><td>#p22435370</td><td>Piscina</td><td>Sandra Gálvez</td><td>Av. Perú 505</td><td>110</td>
                               <td>sandra.galvez@deportes.gob</td>
                               <td>
+                                <!-- Botón Editar con icono de Material Design -->
                                 <button class="btn btn-sm btn-warning" title="Editar" data-bs-toggle="modal" data-bs-target="#modalEditar" onclick="cargarDatosModal(this)">
-                                  <i data-feather="edit-3"></i>
+                                  <i class="mdi mdi-pencil"></i> <!-- Icono de lápiz (editar) -->
                                 </button>
-                                
+
+                                <!-- Botón Eliminar con icono de Material Design -->
                                 <button class="btn btn-sm btn-danger" title="Eliminar" data-bs-toggle="modal" data-bs-target="#modalEliminar">
-                                  <i data-feather="trash-2"></i>
+                                  <i class="mdi mdi-delete"></i> <!-- Icono de papelera (eliminar) -->
                                 </button>
                               </td>
-                              </tr>
+
+                            </tr>
                             <tr><td>#p22435371</td><td>Pista</td><td>Pedro León</td><td>Av. Marina 777</td><td>50</td>
                               <td>pedro.leon@deportes.gob</td>
                               <td>
+                                <!-- Botón Editar con icono de Material Design -->
                                 <button class="btn btn-sm btn-warning" title="Editar" data-bs-toggle="modal" data-bs-target="#modalEditar" onclick="cargarDatosModal(this)">
-                                  <i data-feather="edit-3"></i>
+                                  <i class="mdi mdi-pencil"></i> <!-- Icono de lápiz (editar) -->
                                 </button>
-                                
+
+                                <!-- Botón Eliminar con icono de Material Design -->
                                 <button class="btn btn-sm btn-danger" title="Eliminar" data-bs-toggle="modal" data-bs-target="#modalEliminar">
-                                  <i data-feather="trash-2"></i>
+                                  <i class="mdi mdi-delete"></i> <!-- Icono de papelera (eliminar) -->
                                 </button>
                               </td>
-                              </tr>
+
+                            </tr>
                             <tr><td>#p22435372</td><td>Gimnasio</td><td>Ana López</td><td>Av. Costanera 100</td><td>70</td>
                               <td>ana.lopez@deportes.gob</td>
                               <td>
+                                <!-- Botón Editar con icono de Material Design -->
                                 <button class="btn btn-sm btn-warning" title="Editar" data-bs-toggle="modal" data-bs-target="#modalEditar" onclick="cargarDatosModal(this)">
-                                  <i data-feather="edit-3"></i>
+                                  <i class="mdi mdi-pencil"></i> <!-- Icono de lápiz (editar) -->
                                 </button>
-                                
+
+                                <!-- Botón Eliminar con icono de Material Design -->
                                 <button class="btn btn-sm btn-danger" title="Eliminar" data-bs-toggle="modal" data-bs-target="#modalEliminar">
-                                  <i data-feather="trash-2"></i>
+                                  <i class="mdi mdi-delete"></i> <!-- Icono de papelera (eliminar) -->
                                 </button>
                               </td>
-                              </tr>
+
+                            </tr>
                             <tr><td>#p22435373</td><td>Cancha</td><td>Mario Cáceres</td><td>Av. Arequipa 1812</td><td>85</td>
                               <td>mario.caceres@deportes.gob</td>
                               <td>
+                                <!-- Botón Editar con icono de Material Design -->
                                 <button class="btn btn-sm btn-warning" title="Editar" data-bs-toggle="modal" data-bs-target="#modalEditar" onclick="cargarDatosModal(this)">
-                                  <i data-feather="edit-3"></i>
+                                  <i class="mdi mdi-pencil"></i> <!-- Icono de lápiz (editar) -->
                                 </button>
-                                
+
+                                <!-- Botón Eliminar con icono de Material Design -->
                                 <button class="btn btn-sm btn-danger" title="Eliminar" data-bs-toggle="modal" data-bs-target="#modalEliminar">
-                                  <i data-feather="trash-2"></i>
+                                  <i class="mdi mdi-delete"></i> <!-- Icono de papelera (eliminar) -->
                                 </button>
                               </td>
-                              </tr>
+
+                            </tr>
                             
                             <tr><td>#p22435375</td><td>Gimnasio</td><td>Renzo Salazar</td><td>Av. Héroes 720</td><td>65</td>
                               <td>renzo.salazar@deportes.gob</td>
                               <td>
+                                <!-- Botón Editar con icono de Material Design -->
                                 <button class="btn btn-sm btn-warning" title="Editar" data-bs-toggle="modal" data-bs-target="#modalEditar" onclick="cargarDatosModal(this)">
-                                  <i data-feather="edit-3"></i>
+                                  <i class="mdi mdi-pencil"></i> <!-- Icono de lápiz (editar) -->
                                 </button>
-                                
+
+                                <!-- Botón Eliminar con icono de Material Design -->
                                 <button class="btn btn-sm btn-danger" title="Eliminar" data-bs-toggle="modal" data-bs-target="#modalEliminar">
-                                  <i data-feather="trash-2"></i>
+                                  <i class="mdi mdi-delete"></i> <!-- Icono de papelera (eliminar) -->
                                 </button>
                               </td>
-                              </tr>
+
+                            </tr>
                           </tbody>
                           
                         </table>
@@ -432,7 +447,7 @@
 	<!-- ./side demo panel -->
 	
 	<!-- Sidebar -->
-		
+
 	<script>
     function cargarDatosModal(boton) {
       const fila = boton.closest('tr');
@@ -463,19 +478,26 @@
       modal.hide();
     }
   </script>
-  
-	
+
+
 	<!-- Page Content overlay -->
 	<!-- Script de DataTables si no está activado -->
     <!-- jQuery -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
-    <!-- DataTables JS -->
-    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
 
     <!-- Inicialización de DataTables -->
-    
-    
+
+    <!-- Vendor JS -->
+    <script src="js/vendors.min.js"></script>
+    <script src="js/pages/chat-popup.js"></script>
+    <script src="../assets/icons/feather-icons/feather.min.js"></script>
+
+    <script src="../assets/vendor_components/datatable/datatables.min.js"></script>
+
+    <!-- Rhythm Admin App -->
+    <script src="js/template.js"></script>
+    <script src="js/pages/patients.js"></script>
+
     <script>
         $(document).ready(function () {
           $('#tablaServicios').DataTable({
@@ -494,7 +516,7 @@
           });
         });
       </script>
-      
+
       <script>
         feather.replace();
       </script>
@@ -525,16 +547,8 @@
       </script>
       
 
-	<!-- Vendor JS -->
-	<script src="js/vendors.min.js"></script>
-	<script src="js/pages/chat-popup.js"></script>
-    <script src="../assets/icons/feather-icons/feather.min.js"></script>
-	
-	<script src="../assets/vendor_components/datatable/datatables.min.js"></script>
-	
-	<!-- Rhythm Admin App -->
-	<script src="js/template.js"></script>
-	<script src="js/pages/patients.js"></script>
+
+
 	
 </body>
 </html>
