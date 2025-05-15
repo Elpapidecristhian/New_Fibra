@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<html xmlns:th="http://www.thymeleaf.org"  xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="en">
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -35,17 +35,17 @@
                             <p class="mb-0">Ingresa tus credenciales para abrir sesión </p>
                         </div>
                         <div class="p-30">
-                            <form action="../coordinador/principal.html" method="post">
+                            <form th:action="@{/procesar-login}" method="post">
                                 <div class="form-group">
                                     <div class="input-group mb-3">
                                         <span class="input-group-text bg-transparent"><i class="ti-user"></i></span>
-                                        <input type="text" class="form-control ps-15 bg-transparent" placeholder="Correo electrónico">
+                                        <input type="text" class="form-control ps-15 bg-transparent" name="username" placeholder="Correo electrónico">
                                     </div>
                                 </div>
                                 <div class="form-group">
                                     <div class="input-group mb-3">
                                         <span class="input-group-text  bg-transparent"><i class="ti-lock"></i></span>
-                                        <input type="password" class="form-control ps-15 bg-transparent" placeholder="Contraseña">
+                                        <input type="password" class="form-control ps-15 bg-transparent" name="password" placeholder="Contraseña">
                                     </div>
                                 </div>
                                 <div class="row" style="margin-top: 10px;">
