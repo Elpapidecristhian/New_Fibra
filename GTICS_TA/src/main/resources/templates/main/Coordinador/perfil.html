@@ -205,7 +205,7 @@
 
                                     <div class="box no-shadow">
                                         <!-- Basic Forms -->
-                                        <form>
+                                        <form action="/coordinador/update/${usuario.id}" method="post" enctype="multipart/form-data">
                                             <div class="box-body">
                                                 <h4 class="mt-0 mb-20" style="color: rgb(90, 201, 221);"> 1. Información personal:</h4>
                                                 <div class="form-group">
@@ -226,7 +226,7 @@
                                                 </div>
                                                 <div class="form-group">
                                                     <label class="form-label">Celular:</label>
-                                                    <input type="tel" class="form-control" th:value="${usuario.numCelular}">
+                                                    <input type="tel" class="form-control" name="numCelular" th:value="${usuario.numCelular}" required>
                                                 </div>
                                                 <div class="form-group">
                                                     <label class="form-label">Fecha de nacimiento:</label>
@@ -241,7 +241,7 @@
                                                 <h4 class="mt-0 mb-20" style="color: rgb(90, 201, 221)";>2. Foto de perfil:</h4>
                                                 <div class="mb-3">
                                                     <label for="formFile" class="form-label">Adjunte su nueva foto</label>
-                                                    <input class="form-control" type="file" id="formFile">
+                                                    <input class="form-control" type="file" id="formFile" name="foto" accept="image/*">
                                                 </div>
                                             </div>
                                             <!-- /.box-body -->

@@ -27,6 +27,9 @@ public class WebSecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.authorizeHttpRequests( auth -> auth
+                //permitir recursos estaticos
+                .requestMatchers("/css/**", "/js/**", "/images/**", "/assets/**", "/front-ed/**", "/scss/**").permitAll()
+
                 .requestMatchers("/vecino/**").hasAnyAuthority("vecino", "admin", "superadmin")
                 .requestMatchers("/coordinador/**").hasAnyAuthority("coordinador","admin","superadmin")
                 .requestMatchers("/admin/**").hasAnyAuthority("admin","superadmin")
@@ -36,9 +39,10 @@ public class WebSecurityConfig {
         );
 
         http.formLogin(form -> form
-                .loginPage("/Login/login")
+                .loginPage("/login")
                 .loginProcessingUrl("/procesar-login")
                 .successHandler((request, response, authentication) -> {
+
                     RedirectStrategy redirectStrategy = new DefaultRedirectStrategy();
                     DefaultSavedRequest defaultSavedRequest=
                             (DefaultSavedRequest) request.getSession().getAttribute("SPRING_SECURITY_SAVED_REQUEST");
@@ -85,7 +89,7 @@ public class WebSecurityConfig {
     public UserDetailsManager users(DataSource dataSource){
         JdbcUserDetailsManager users =new JdbcUserDetailsManager(dataSource);
         users.setUsersByUsernameQuery("SELECT correo, contrasenia, is_baneado FROM gtics.usuario where correo = ?");
-        users.setAuthoritiesByUsernameQuery("SELECT u.correo, r.nombre FROM usuario u INNER JOIN roles r ON u.id_rol = r.id_rol WHERE u.correo = ? and u.is_baneado = 1");
+        users.setAuthoritiesByUsernameQuery("SELECT u.correo, r.nombre FROM usuario u INNER JOIN roles r ON u.id_rol = r.id_rol WHERE u.correo = ? and u.is_baneado = 0");
 
         return users;
     }

@@ -6,20 +6,21 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="">
   <meta name="author" content="">
-  <link rel="icon" href="../../images/logo-solo.png">
+  <link rel="icon" th:href="@{/images/logo-solo.png}">
 
   <title>Recuperar contraseña</title>
 
   <!-- Vendors Style-->
-  <link rel="stylesheet" href="../../../static/css/vendors_css.css">
+  <link rel="stylesheet" th:href="@{/css/vendors_css.css}">
 
   <!-- Style-->
-  <link rel="stylesheet" href="../../../static/css/style.css">
-  <link rel="stylesheet" href="../../../static/css/skin_color.css">
+  <link rel="stylesheet" th:href="@{/css/style.css}">
+  <link rel="stylesheet" th:href="@{/css/skin_color.css}">
 
 </head>
 
-<body class="hold-transition theme-primary bg-img" style="background-image: url(../../images/auth-bg/background.png)">
+<body class="hold-transition theme-primary bg-img"
+      th:style="|background-image: url('@{/images/auth-bg/background.png}')|">
 
 <div class="container h-p100">
   <div class="row align-items-center justify-content-md-center h-p100">
@@ -31,7 +32,7 @@
             <div class="content-top-agile p-20 pb-0">
               <h3 class="mb-0 text-primary">Recuperar contraseña</h3>
               <br>
-              <img src="../../images/logo-sanMiguel.png" alt="Logo Municipalidad"  width="150">
+              <img th:src="@{/images/logo-sanMiguel.png}" alt="Logo Municipalidad"  width="150">
             </div>
             <div class="p-40">
               <form action="login.html" method="post">
@@ -59,9 +60,9 @@
 
 
 <!-- Vendor JS -->
-<script src="../../../static/js/vendors.min.js"></script>
-<script src="../../../static/js/pages/chat-popup.js"></script>
-<script src="../../assets/icons/feather-icons/feather.min.js"></script>
+<script  th:src="@{/js/vendors.min.js}"></script>
+<script th:src="@{/js/pages/chat-popup.js}"></script>
+<script th:src="@{/assets/icons/feather-icons/feather.min.js}"></script>
 
 </body>
 </html>

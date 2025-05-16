@@ -6,20 +6,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="">
     <meta name="author" content="">
-    <link rel="icon" href="../../images/logo-solo.png">
+    <link rel="icon" th:href="@{/images/logo-solo.png}">
 
     <title>Log in </title>
 
     <!-- Vendors Style-->
-    <link rel="stylesheet" href="../../../static/css/vendors_css.css">
+    <link rel="stylesheet" th:href="@{/css/vendors_css.css}">
 
     <!-- Style-->
-    <link rel="stylesheet" href="../../../static/css/style.css">
-    <link rel="stylesheet" href="../../../static/css/skin_color.css">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" th:href="@{/css/skin_color.css}">
 
 </head>
 
-<body class="hold-transition theme-primary bg-img" style="background-image: url(../../images/auth-bg/background.png)">
+<body class="hold-transition theme-primary bg-img"
+      th:style="|background-image: url('@{/images/auth-bg/background.png}')|">
 
 <div class="container h-p100">
     <div class="row align-items-center justify-content-md-center h-p100">
@@ -30,7 +31,7 @@
                     <div class="bg-white rounded10 shadow-lg">
                         <div class="content-top-agile p-20 pb-0">
                             <h2 class="text-primary">Iniciar sesión</h2>
-                            <div><img src="../../images/logo-sanMiguel.png" alt="Logo Municipalidad"  width="150"></div>
+                            <div><img th:src="@{/images/logo-sanMiguel.png}" alt="Logo Municipalidad"  width="150"></div>
                             <br>
                             <p class="mb-0">Ingresa tus credenciales para abrir sesión </p>
                         </div>
@@ -58,7 +59,7 @@
                                     <!-- /.col -->
                                     <div class="col-6">
                                         <div class="fog-pwd text-end">
-                                            <a href="recoverpass.html" class="hover-warning"><i class="ion ion-locked"></i> ¿Olvido la contraseña?</a><br>
+                                            <a th:href="@{/recoverpass}" class="hover-warning"><i class="ion ion-locked"></i> ¿Olvido la contraseña?</a><br>
                                         </div>
                                     </div>
                                     <!-- /.col -->
@@ -69,7 +70,7 @@
                                 </div>
                             </form>
                             <div class="text-center">
-                                <p class="mt-15 mb-0">¿Aún no tiene una cuenta? <a href="signup.html" class="text-warning ms-5">Registrese</a></p>
+                                <p class="mt-15 mb-0">¿Aún no tiene una cuenta? <a th:href="@{/signup}" class="text-warning ms-5">Registrese</a></p>
                             </div>
                         </div>
                     </div>
@@ -89,9 +90,9 @@
 
 
 <!-- Vendor JS -->
-<script src="../../../static/js/vendors.min.js"></script>
-<script src="../../../static/js/pages/chat-popup.js"></script>
-<script src="../../assets/icons/feather-icons/feather.min.js"></script>
+<script  th:src="@{/js/vendors.min.js}"></script>
+<script th:src="@{/js/pages/chat-popup.js}"></script>
+<script th:src="@{/assets/icons/feather-icons/feather.min.js}"></script>
 
 </body>
 </html>

@@ -18,4 +18,14 @@ public class LoginController {
         return"main/Login/login";
     }
 
+    @GetMapping("/signup")
+    public String registrarse(){
+        return"main/Login/signup";
+    }
+
+    @GetMapping("/recoverpass")
+    public String recuperarContrasenia(){
+        return"main/Login/recoverpass";
+    }
+
 }
