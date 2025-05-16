@@ -185,20 +185,56 @@
 				<div class="card">
 				  <div class="card-body">
 					<p class="card-text" th:text="${espacio.getDescripcionLarga()}" ></p>
+					  <p class="card-title" th:text="'Número de Contacto: ' + ${espacio.getNumContacto()}"></p>
+					  <p class="card-title" th:text="'Correo de Contacto: ' + ${espacio.getCorreoContacto()}"></p>
+					  <p class="card-title" th:text="'Precio por Horario: S/.' + ${espacio.getCostoHorario()}"></p>
 				  </div>
 				</div>
-				<div class="card">
+				<div th:if="${espacio.getTipoEspacio().getId()==1}" class="card">
 					<div class="card-body">
-					  <p class="card-title">Profundidad: 1.5 m</p>
-					  <p class="card-title">Requisitos: DNI del encargado</p>
-					  <p class="card-title">Uso obligatorio: Lentes y gorro de natación</p>
-					  <p class="card-title">Precio:</p>
-					  <p class="card-text">Público general: S/25 la hora</p>
-					  <p class="card-text">Vecino de San Miguel: S/10 la hora</p>
+						<p class="card-title" th:text="'Tipo Piscina: ' + ${piscina.getTipoPiscina()}"></p>
+						<p class="card-title" th:text="'Profundidad Mínima: ' + ${piscina.getProfundidadMin()} + 'm'"></p>
+						<p class="card-title" th:text="'Profundidad Máxima: ' + ${piscina.getProfundidadMax()} + 'm'"></p>
+					  	<p class="card-title" th:if="${piscina.isClimatizada()}">Climatizada: Sí</p>
+						<p class="card-title" th:unless="${piscina.isClimatizada()}">Climatizada: No</p>
+						<p class="card-title" th:text="'Requisitos: ' + ${piscina.getRequisitos()}"></p>
+						<p class="card-title" th:text="'Número máximo de carriles: ' + ${piscina.getNumCarrilMax()}"></p>
 					</div>
-				  </div>
+				</div>
+				<div th:if="${espacio.getTipoEspacio().getId()==2}" class="card">
+					<div class="card-body">
+						<p class="card-title" th:text="'Tipo de Superficie: ' + ${canchaFutbol.getTipoSuperficie()}"></p>
+						<p class="card-title" th:if="${canchaFutbol.isIlumacionNocturna()}">Iluminación Nocturna: Sí</p>
+						<p class="card-title" th:unless="${canchaFutbol.isIlumacionNocturna()}">Iluminación Nocturna: No</p>
+						<p class="card-title" th:if="${canchaFutbol.isBalonesDisponibles()}">Balones Disponibles: Sí</p>
+						<p class="card-title" th:unless="${canchaFutbol.isBalonesDisponibles()}">Balones Disponibles: No</p>
+						<p class="card-title" th:text="'Ancho del Campo: ' + ${canchaFutbol.getAncho()}"></p>
+						<p class="card-title" th:text="'Alto del Campo: ' + ${canchaFutbol.getAlto()}"></p>
+						<p class="card-title" th:text="'Aforo: ' + ${espacio.getAforo()}"></p>
+					</div>
+				</div>
+				<div th:if="${espacio.getTipoEspacio().getId()==3}" class="card">
+					<div class="card-body">
+						<p class="card-title" th:text="'Tipo de Superficie: ' + ${pista.getTipoSuperficie()}"></p>
+						<p class="card-title" th:text="'Longitud: ' + ${pista.getLongitud()}"></p>
+						<p class="card-title" th:text="'Implementos: ' + ${pista.getImplementos()}"></p>
+						<p class="card-title" th:text="'Aforo: ' + ${espacio.getAforo()}"></p>
+					</div>
+				</div>
+				<div th:if="${espacio.getTipoEspacio().getId()==4}" class="card">
+					<div class="card-body">
+						<p class="card-title" th:text="'Aforo: ' + ${espacio.getAforo()}"></p>
+						<p class="card-title" th:text="'Uso Permitido: ' + ${estadio.getUsoPermitido()}"></p>
+						<p class="card-title" th:if="${estadio.isSeguridadDisponible()}">Seguridad Disponible: Sí</p>
+						<p class="card-title" th:unless="${estadio.isSeguridadDisponible()}">Seguridad Disponible: No</p>
+						<p class="card-title" th:if="${estadio.isSonidoPantallasDisponible()}">Sonido y Pantallas Disponibles: Sí</p>
+						<p class="card-title" th:unless="${estadio.isSonidoPantallasDisponible()}">Sonidos y Pantallas Disponibles: No</p>
+						<p class="card-title" th:if="${estadio.isIluminacionProfesionalDisponible()}">Iluminación Profesional Disponible: Sí</p>
+						<p class="card-title" th:unless="${estadio.isIluminacionProfesionalDisponible()}">Iluminación Profesional Disponible: No</p>
+					</div>
+				</div>
 				<button type="button" class="waves-effect waves-light btn btn-dark mb-5"><i class="fa fa-map-marker"></i> Ver Ubicacion</button>
-				<a th:href="@{/vecino/reservar(idUsuario=1, idEspacio=${espacio.id}, fecha='2025-04-25')}" class="waves-effect waves-light btn btn-primary mb-5">Reservar</a>
+				<a th:href="@{/vecino/reservar(idUsuario=1, idEspacio=${espacio.id}, fecha=${fecha})}" class="waves-effect waves-light btn btn-primary mb-5">Reservar</a>
 			  <!-- /.card -->
 			</div>
 			<!-- /.col -->

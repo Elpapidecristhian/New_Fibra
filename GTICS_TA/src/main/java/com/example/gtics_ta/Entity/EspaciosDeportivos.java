@@ -3,6 +3,7 @@ package com.example.gtics_ta.Entity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.lang.Nullable;
 
 import java.beans.ConstructorProperties;
 
@@ -28,7 +29,7 @@ public class EspaciosDeportivos {
     private int numContacto;
     @Column(name = "correo_contacto")
     private String correoContacto;
-    private int aforo;
+    private Integer aforo;
     private boolean operativo;
     @Column(name = "costo_horario")
     private float costoHorario;

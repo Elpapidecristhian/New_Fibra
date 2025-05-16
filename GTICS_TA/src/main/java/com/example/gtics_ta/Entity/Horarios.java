@@ -17,7 +17,6 @@ public class Horarios {
     private Time horaInicio;
     @Column(name = "hora_fin")
     private Time horaFin;
-    @ManyToOne
-    @JoinColumn(name = "id_espacio")
-    private EspaciosDeportivos espacio;
+    @Column(name = "id_espacio")
+    private int idEspacio;
 }

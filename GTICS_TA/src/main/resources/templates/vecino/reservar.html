@@ -229,32 +229,27 @@
                                     <h6>Elija la fecha de su reserva</h6>
                                         <div class="form-group">
                                             <label for="wdate2" class="form-label">Fecha :</label>
-                                            <input  type="date" th:field="*{fechaReserva}" class="form-control required" id="wdate2">
+                                            <input readonly th:attr="min=${minDate}" type="date" th:field="*{fechaReserva}" class="form-control required" id="wdate2">
                                         </div>
                                 </div>
-                                <div class="col-md-6">
+                                <div class="col-md-9">
                                     <h5>Elija el horario de su reserva</h5>
-                                    <div class="clearfix">
-                                        <th:block th:each="horarios, idx : ${listaHorarios}" >
-                                            <input  type="radio"
-                                                    class="btn-check"
-                                                    th:field="*{horarioReservado}"
-                                                    th:value="${horarios.getId()}"
-                                                    th:id="'btn-check-' + ${idx.index}"
-                                                    autocomplete="off"
-                                                    required
-                                                    th:disabled="${horarios.isReservado()}"
-                                                    />
-                                            <label
-                                                    th:for="'btn-check-' + ${idx.index}"
-                                                    th:text="${horarios.getHorario().getHoraInicio()} + '-' + ${horarios.getHorario().getHoraFin()}"
-                                                    th:class="${horarios.isReservado()} ? 'waves-effect waves-light btn btn-danger-light' : 'waves-effect waves-light btn btn-primary-light'">
-
-                                            </label>
-
+                                    <div id="horarios-container" class="clearfix" aria-label="Horarios">
+                                        <th:block th:each="horariosConsulta, idx : ${listaHorarios}">
+                                            <button type="button"
+                                                    class="waves-effect waves-light btn "
+                                                    th:id="'btn-horario-' + ${idx.index}"
+                                                    th:text="${horariosConsulta.getHoraInicio()} + '-' + ${horariosConsulta.getHoraFin()}"
+                                                    th:disabled="${horariosConsulta.getReservado() != null and horariosConsulta.getReservado() == 1}"
+                                                    th:classappend="${horariosConsulta.getReservado() != null and horariosConsulta.getReservado() == 1} ? ' btn-danger-light mb-5' : ' btn-primary-light mb-5'"
+                                                    th:onclick="'selectHorario(this, ' + ${horariosConsulta.getIdHorarios()} + ')'">
+                                            </button>
                                             <span th:if="${((idx.index + 1) % 3 == 0)}"><br/></span>
                                         </th:block>
                                     </div>
+
+                                    <!-- Campo hidden para enviar el horario seleccionado -->
+                                    <input type="hidden" id="horarioSeleccionado" th:field="*{horario}" required />
                                 </div>
                             </div>
                         </section>
@@ -263,7 +258,7 @@
                         <section>
                             <div class="row">
                                 <div class="col-md-6">
-                                    <button type="submit" class="waves-effect waves-light btn btn-dark btn-lg">Abrir Plataforma de Pago</button>
+                                    <button type="button" class="waves-effect waves-light btn btn-dark btn-lg">Abrir Plataforma de Pago</button>
 
                                 </div>
 
@@ -564,6 +559,19 @@
 <script src="/js/pages/steps.js"></script>
 
 <script src="/js/pages/advanced-form-element.js"></script>
+<script>
+    function selectHorario(button, horarioId) {
+        // Quitar clase 'active' de todos los botones
+        document.querySelectorAll('#horarios-container .btn').forEach(btn => btn.classList.remove('active'));
+
+        // Marcar el botón clickeado como activo
+        button.classList.add('active');
+
+        // Actualizar el valor del input hidden con el id del horario seleccionado
+        document.getElementById('horarioSeleccionado').value = horarioId;
+    }
+
+</script>
 
 
 

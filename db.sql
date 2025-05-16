@@ -37,13 +37,13 @@ CREATE TABLE IF NOT EXISTS `gtics`.`usuario` (
   `nombres` VARCHAR(45) NOT NULL,
   `apellidos` VARCHAR(45) NOT NULL,
   `correo` VARCHAR(45) NOT NULL,
-  `contrasenia` VARCHAR(45) NOT NULL,
+  `contrasenia` VARCHAR(60) NOT NULL,
   `direccion` VARCHAR(90) NULL DEFAULT NULL,
   `dni` INT NOT NULL,
   `num_celular` INT NULL DEFAULT NULL,
   `id_rol` INT NOT NULL,
   `foto_perfil` BLOB NULL DEFAULT NULL,
-  `is_baneado` TINYINT NOT NULL,
+  `activo` TINYINT NOT NULL,
   `fecha_nacimiento` DATE NULL DEFAULT NULL,
   PRIMARY KEY (`id_usuario`, `id_rol`),
   UNIQUE INDEX `dni_UNIQUE` (`dni` ASC) VISIBLE,
@@ -234,7 +234,6 @@ DEFAULT CHARACTER SET = utf8mb3;
 CREATE TABLE IF NOT EXISTS `gtics`.`horarioreservado` (
   `id_horario_reservado` INT NOT NULL AUTO_INCREMENT,
   `fecha` DATE NOT NULL,
-  `is_reservado` TINYINT NOT NULL,
   `id_horarios` INT NOT NULL,
   PRIMARY KEY (`id_horario_reservado`),
   INDEX `fk_HorarioReservado_Horarios1_idx` (`id_horarios` ASC) VISIBLE,
@@ -318,26 +317,28 @@ CREATE TABLE IF NOT EXISTS `gtics`.`reservas` (
   `id_usuario` INT NOT NULL,
   `id_espacio` INT NOT NULL,
   `id_pagos` INT NOT NULL,
-  `id_horario_reservado` INT NOT NULL,
+  `id_horarios` INT NOT NULL,
   `registro_timestamp` TIMESTAMP NOT NULL,
   `fecha_reserva` DATE NOT NULL,
   PRIMARY KEY (`id_reservas`),
   INDEX `fk_Reservas_Usuario1_idx` (`id_usuario` ASC) VISIBLE,
   INDEX `fk_Reservas_EspaciosDeportivos1_idx` (`id_espacio` ASC) VISIBLE,
   INDEX `fk_Reservas_Pagos1_idx` (`id_pagos` ASC) VISIBLE,
-  INDEX `fk_reservas_horarioreservado1_idx` (`id_horario_reservado` ASC) VISIBLE,
+  INDEX `fk_reservas_horarios1_idx` (`id_horarios` ASC) VISIBLE,
   CONSTRAINT `fk_Reservas_EspaciosDeportivos1`
     FOREIGN KEY (`id_espacio`)
     REFERENCES `gtics`.`espaciosdeportivos` (`id_espacio`),
-  CONSTRAINT `fk_reservas_horarioreservado1`
-    FOREIGN KEY (`id_horario_reservado`)
-    REFERENCES `gtics`.`horarioreservado` (`id_horario_reservado`),
   CONSTRAINT `fk_Reservas_Pagos1`
     FOREIGN KEY (`id_pagos`)
     REFERENCES `gtics`.`pagos` (`id_pagos`),
   CONSTRAINT `fk_Reservas_Usuario1`
     FOREIGN KEY (`id_usuario`)
-    REFERENCES `gtics`.`usuario` (`id_usuario`))
+    REFERENCES `gtics`.`usuario` (`id_usuario`),
+  CONSTRAINT `fk_reservas_horarios1`
+    FOREIGN KEY (`id_horarios`)
+    REFERENCES `gtics`.`horarios` (`id_horarios`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
 ENGINE = InnoDB
 AUTO_INCREMENT = 2
 DEFAULT CHARACTER SET = utf8mb3;

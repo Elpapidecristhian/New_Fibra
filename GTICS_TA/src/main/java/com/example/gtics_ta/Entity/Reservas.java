@@ -26,8 +26,8 @@ public class Reservas {
     @JoinColumn(name = "id_pagos")
     private Pagos pago;
     @ManyToOne
-    @JoinColumn(name = "id_horario_reservado")
-    private HorarioReservado horarioReservado;
+    @JoinColumn(name = "id_horarios")
+    private Horarios horario;
     @Column(name = "registro_timestamp")
     private Timestamp fechaRegistro;
     @DateTimeFormat(pattern = "yyyy-MM-dd")

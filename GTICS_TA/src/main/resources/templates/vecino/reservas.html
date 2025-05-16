@@ -166,7 +166,6 @@
                                 <div class="box-header with-border">
                                     <h3 class="box-title">Tabla de Reservas </h3> <!-- Título traducido -->
                                 </div>
-                                
                                 <div class="box-body">
                                     <div class="table-responsive">
                                         <table id="example1" class="table table-bordered table-striped">
@@ -182,22 +181,24 @@
                                                 </tr>
                                             </thead>
 											<tbody>
-												<tr th:if="${#lists.isEmpty(listaReservas)}">
-													<td colspan="7" class="text-center">No hay reservas disponibles.</td>
-												</tr>
-												<tr th:each="reserva, iterStat : ${listaReservas}">
-													<td th:text="${iterStat.count}"></td>
-													<td th:text="${reserva.espacioDeportivo.getNombre()}"></td>
-													<td th:text="${#dates.format(reserva.getFechaReserva(), 'dd/MM/yyyy')}"></td>
-													<td th:text="${reserva.getHorarioReservado().getHorario().getHoraInicio()} + '-' + ${reserva.getHorarioReservado().getHorario().getHoraFin()}"></td>
-													<td th:text="${reserva.getPago().getMedioPago().getMedioPago()}"></td>
-													<td th:text="${#dates.format(reserva.getFechaRegistro(), 'dd/MM/yyyy HH:mm:ss')}"></td>
-													<td>
-														<a th:href="@{'/vecino/reservas/detalles/' + ${reserva.getId()}}" class="btn btn-primary btn-sm">
-															<i class="mdi mdi-eye"></i>
-														</a>
-													</td>
-												</tr>
+												<th:block th:each="reserva : ${listaReservas}">
+													<tr th:if="${#lists.isEmpty(listaReservas)}">
+														<td colspan="7" class="text-center">No ha hecho ninguna reserva.</td>
+													</tr>
+													<tr>
+														<td th:text="${reserva.getId()}"></td>
+														<td th:text="${reserva.espacioDeportivo.getNombre()}"></td>
+														<td th:text="${#dates.format(reserva.getFechaReserva(), 'dd/MM/yyyy')}"></td>
+														<td th:text="${reserva.getHorario().getHoraInicio()} + '-' + ${reserva.getHorario().getHoraFin()}"></td>
+														<td th:text="${reserva.getPago().getMedioPago().getNombre()}"></td>
+														<td th:text="${#dates.format(reserva.getFechaRegistro(), 'dd/MM/yyyy HH:mm:ss')}"></td>
+														<td>
+															<button type="button" class="btn btn-primary" data-bs-toggle="modal" th:attr="data-bs-target=${'#modal-' + reserva.getId()}">
+																<i class="mdi mdi-eye"></i>
+															</button>
+														</td>
+													</tr>
+												</th:block>
 											</tbody>
                                         </table>
                                     </div>
@@ -220,7 +221,30 @@
 	  </div>
   </div>
   <!-- /.content-wrapper -->
-  
+		<div th:each="reserva : ${listaReservas}" class="modal center-modal fade" th:id="'modal-' + ${reserva.getId()}" tabindex="-1">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h5 th:utext="'Reserva ' + ${reserva.getId()}" class="modal-title"></h5>
+						<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+					</div>
+					<div class="modal-body">
+						<p><strong>Espacio: </strong><span th:text="${reserva.getEspacioDeportivo().getNombre()}"></span></p>
+						<p><strong>Fecha de Reserva: </strong><span th:text="${#dates.format(reserva.getFechaReserva(), 'dd/MM/yyyy')}"></span></p>
+						<p><strong>Horario Reservado: </strong><span th:text="${reserva.getHorario().getHoraInicio()} + '-' + ${reserva.getHorario().getHoraFin()}"></span></p>
+						<p><strong>Id Pago: </strong><span th:text="${reserva.getPago().getId()}"></span></p>
+						<p><strong>Monto Pagado: </strong><span th:text="${reserva.getPago().getCantidad()}"></span></p>
+						<p><strong>Medio de Pago: </strong><span th:text="${reserva.getPago().getMedioPago().getNombre()}"></span></p>
+						<p><strong>Fecha de Pago: </strong><span th:text="${reserva.getFechaRegistro()}"></span></p>
+					</div>
+					<div class="modal-footer modal-footer-uniform">
+						<button type="button" class="btn btn-success" data-bs-dismiss="modal">Cerrar</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- /.modal -->
+
   <footer class="main-footer">
 	&copy; <script>document.write(new Date().getFullYear())</script> <a href="https://munisanmiguel.gob.pe/">Municipalidad de San Miguel</a>. Todos los derechos reservados.
 </footer>

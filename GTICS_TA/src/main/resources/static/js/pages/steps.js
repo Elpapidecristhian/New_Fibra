@@ -30,7 +30,8 @@ $(".validation-wizard").steps({
         return form.validate().settings.ignore = ":disabled", form.valid()
     }
     , onFinished: function (event, currentIndex) {
-         swal("Reserva Realizada!", "Puedes ingresar al apartado Mis Reservas para observar los datos de tus reservas.");
+         //swal("Reserva Realizada!", "Puedes ingresar al apartado Mis Reservas para observar los datos de tus reservas.");
+        $(".validation-wizard").submit();
     }
 }), $(".validation-wizard").validate({
     ignore: "input[type=hidden]"

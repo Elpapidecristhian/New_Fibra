@@ -1,6 +1,8 @@
 package com.example.gtics_ta.Entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Digits;
+import jakarta.validation.constraints.Positive;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -24,12 +26,13 @@ public class Usuario {
     private String direccion;
     private Integer dni;
     @Column(name = "num_celular")
+    @Positive
+    @Digits(integer = 9, fraction = 0, message = "Debe ingresar un número de 9 dígitos")
     private Integer numCelular;
     @ManyToOne
     @JoinColumn(name = "id_rol")
     private Rol rol;
-    @Column(name = "is_baneado")
-    private boolean isBaneado;
+    private boolean activo;
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     @Column(name = "fecha_nacimiento")
     private LocalDate fechaNacimiento;

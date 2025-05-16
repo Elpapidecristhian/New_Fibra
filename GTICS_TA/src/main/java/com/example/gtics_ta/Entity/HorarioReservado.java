@@ -19,6 +19,4 @@ public class HorarioReservado {
     @ManyToOne
     @JoinColumn(name = "id_horarios")
     private Horarios horario;
-    @Column(name = "is_reservado")
-    private boolean isReservado;
 }

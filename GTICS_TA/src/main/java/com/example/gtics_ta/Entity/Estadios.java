@@ -14,7 +14,7 @@ import lombok.Setter;
 public class Estadios {
     @Id
     @Column(name = "id_espacio")
-    private int id_espacio;
+    private int idEspacio;
     private int aforo;
     @Column(name = "uso_permitido")
     private String usoPermitido;
