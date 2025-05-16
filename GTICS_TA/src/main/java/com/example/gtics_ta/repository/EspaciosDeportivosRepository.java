@@ -1,11 +1,12 @@
+
 package com.example.gtics_ta.repository;
 
-import com.example.gtics_ta.entity.EspaciosDeportivos;
-import org.springframework.data.jpa.repository.JpaRepository;
 
-import java.util.List;
+import com.example.gtics_ta.Entity.EspaciosDeportivos;
+import org.hibernate.type.descriptor.converter.spi.JpaAttributeConverter;
 
-public interface EspaciosDeportivosRepository extends JpaRepository<EspaciosDeportivos, Integer> {
-    List<EspaciosDeportivos> findByTipoEspacio_NombreTipo(String nombreTipo);
+public interface EspaciosDeportivosRepository extends JpaAttributeConverter<EspaciosDeportivos, Integer> {
+    long countByOperativo(boolean operativo); // true = disponible, false = ocupado
 
 }
+

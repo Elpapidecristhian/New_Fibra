@@ -99,7 +99,21 @@ body {
   height: 100%; }
   body.layout-boxed {
     height: 100%; }
+/*esto lo agregue para darle color a mi boton*/
+#generate-user-btn {
+  background-color: #2835a7;  /* Verde */
+  border-color: #282aa7;      /* Borde verde */
+  color: #fff;                /* Texto blanco */
+}
 
+/* Cambiar el tamaño y la posición */
+#generate-user-btn {
+  padding: 10px 20px;
+  font-size: 16px;
+  position: relative;
+  top: 10px;
+}
+/*----------------------------------------------*/
 .wrapper {
   height: 100%;
   overflow-x: hidden;

@@ -224,7 +224,7 @@
 					<div class="col-md-12 col-lg-4" th:each="espacio : ${espacios}">
 						<div th:each="foto : ${espacio.listaFotos.fotos}">
 							<div class="card mb-4">
-								<img th:src="@{'/imagen/' + ${foto.idFoto}}"
+								<img th:src="@{'/imagen/' + ${foto.idFotos}}"
 									 alt="Imagen de espacio deportivo"
 									 class="img-fluid" />
 
