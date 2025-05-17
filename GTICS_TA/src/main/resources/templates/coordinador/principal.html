@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="">
+  <meta name="author" content="">
+  <link rel="icon" th:src="@{/images/logo-solo.png}">
+
+  <title>Página principal - Coordinador</title>
+
+  <!-- Vendors Style-->
+  <link rel="stylesheet" th:href="@{/css/vendors_css.css}" >
+
+  <!-- Style-->
+  <link rel="stylesheet" th:href="@{/css/style.css}">
+  <link rel="stylesheet" th:href="@{/css/skin_color.css}">
+  <style>
+
+    #recuadro {
+      background-color: rgba(183, 225, 233, 0.185);
+      border-radius: 12px;
+      padding: 25px 35px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+
+    #fecha {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      font-size: 15px;
+      color: #7caad4;
+      margin-bottom: -10px;
+    }
+
+    #hora {
+      font-size: 45px;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      font-weight:bold;
+      color: #7caad4;
+      margin-bottom: 5px;
+    }
+  </style>
+
+</head>
+
+<body class="hold-transition light-skin sidebar-mini theme-success fixed">
+
+<div class="wrapper">
+  <div id="loader"></div>
+
+  <header class="main-header">
+    <div class="d-flex align-items-center logo-box justify-content-center">
+      <!-- Logo -->
+      <a th:href="@{/coordinador/principal}" class="logo">
+        <!-- logo-->
+        <div class="logo-mini w-150 text-center">
+          <span class="light-logo"><img th:src="@{/images/logo-sanMiguel.png}" alt="logo"></span>
+        </div>
+      </a>
+    </div>
+    <!-- Header Navbar -->
+    <nav class="navbar navbar-static-top">
+      <!-- Sidebar toggle button-->
+      <div class="app-menu">
+        <ul class="header-megamenu nav">
+          <li class="btn-group nav-item">
+            <a href="#" class="waves-effect waves-light nav-link push-btn btn-primary-light" data-toggle="push-menu" role="button">
+              <i data-feather="align-left"></i>
+            </a>
+          </li>
+        </ul>
+      </div>
+
+      <div class="navbar-custom-menu r-side">
+        <ul class="nav navbar-nav">
+          <!-- Notifications -->
+          <li class="dropdown notifications-menu">
+            <a href="#" class="waves-effect waves-light dropdown-toggle btn-info-light" data-bs-toggle="dropdown" title="Notifications">
+              <i data-feather="bell"></i>
+            </a>
+            <ul class="dropdown-menu animated bounceIn">
+
+              <li class="header">
+                <div class="p-20">
+                  <div class="flexbox">
+                    <div>
+                      <h4 class="mb-0 mt-0">Notifications</h4>
+                    </div>
+                    <div>
+                      <a href="#" class="text-danger">Clear All</a>
+                    </div>
+                  </div>
+                </div>
+              </li>
+
+              <li>
+                <!-- inner menu: contains the actual data -->
+                <ul class="menu sm-scrol">
+                  <li>
+                    <a href="#">
+                      <i class="fa fa-users text-info"></i> Curabitur id eros quis nunc suscipit blandit.
+                    </a>
+                  </li>
+                  <li>
+                    <a href="#">
+                      <i class="fa fa-warning text-warning"></i> Duis malesuada justo eu sapien elementum, in semper diam posuere.
+                    </a>
+                  </li>
+                  <li>
+                    <a href="#">
+                      <i class="fa fa-users text-danger"></i> Donec at nisi sit amet tortor commodo porttitor pretium a erat.
+                    </a>
+                  </li>
+                  <li>
+                    <a href="#">
+                      <i class="fa fa-shopping-cart text-success"></i> In gravida mauris et nisi
+                    </a>
+                  </li>
+                  <li>
+                    <a href="#">
+                      <i class="fa fa-user text-danger"></i> Praesent eu lacus in libero dictum fermentum.
+                    </a>
+                  </li>
+                  <li>
+                    <a href="#">
+                      <i class="fa fa-user text-primary"></i> Nunc fringilla lorem
+                    </a>
+                  </li>
+                  <li>
+                    <a href="#">
+                      <i class="fa fa-user text-success"></i> Nullam euismod dolor ut quam interdum, at scelerisque ipsum imperdiet.
+                    </a>
+                  </li>
+                </ul>
+              </li>
+              <li class="footer">
+                <a href="#">View all</a>
+              </li>
+            </ul>
+          </li>
+
+
+          <!-- User Account-->
+          <li>
+            <a th:href="@{/perfil}" class="waves-effect waves-light dropdown-toggle w-auto l-h-12 bg-transparent py-0 no-shadow" data-bs-toggle="dropdown" title="User">
+              <div class="d-flex pt-5">
+                <div class="text-end me-10">
+                  <p class="pt-5 fs-14 mb-0 fw-700 text-primary">Johen Doe</p>
+                  <small class="fs-10 mb-0 text-uppercase text-mute">Coordinador</small>
+                </div>
+                <img th:src="@{/images/avatar/avatar-1.png}" class="avatar rounded-10 bg-primary-light h-40 w-40" alt="" />
+              </div>
+            </a>
+          </li>
+
+        </ul>
+      </div>
+    </nav>
+  </header>
+
+  <!-- Left side column. contains the logo and sidebar -->
+  <aside class="main-sidebar">
+    <!-- sidebar-->
+    <section class="sidebar position-relative">
+      <div class="multinav">
+        <div class="multinav-scroll" style="height: 100%;">
+          <!-- sidebar menu-->
+          <ul class="sidebar-menu" data-widget="tree">
+            <li>
+              <a th:href="@{/perfil}">
+                <i data-feather="user"></i>
+                <span>Perfil</span>
+              </a>
+            </li>
+            <li>
+              <a th:href="@{/principal}">
+                <i data-feather="clock"></i>
+                <span>Marcar asistencia</span>
+              </a>
+            </li>
+            <!--Implementación proxima de horarios
+            <li>
+              <a href="horarios.html">
+                <i data-feather="calendar"></i>
+                <span>Horarios</span>
+              </a>
+            </li>-->
+            <li>
+              <a th:href="@{/Login/login}">
+                <i data-feather="log-out"></i>
+                <span>Cerrar sesión</span>
+              </a>
+            </li>
+
+          </ul>
+
+          <div class="sidebar-widgets">
+            <div class="copyright text-center m-25">
+              <p><strong class="d-block">Municipalidad de San Miguel</strong> © <script>document.write(new Date().getFullYear())</script> All Rights Reserved</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </aside>
+
+  <!-- Content Wrapper. Contains page content -->
+  <div class="content-wrapper">
+    <div class="container-full">
+      <!-- Content Header (Page header) -->
+      <div class="content-header">
+        <div class="d-flex align-items-center">
+          <div class="me-auto">
+            <h4 class="page-title">Perfil</h4>
+            <div class="d-inline-block align-items-center">
+              <nav>
+                <ol class="breadcrumb">
+                  <li class="breadcrumb-item"><a href="#"><i class="mdi mdi-home-outline"></i></a></li>
+                  <li class="breadcrumb-item" aria-current="page">Menú</li>
+                </ol>
+              </nav>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Main content -->
+      <section class="content">
+        <div class="row">
+          <div class="col-lg-5 col-12">
+            <div class="box" style="background-color: rgba(136, 217, 231, 0.5);">
+              <!-- /.box-header -->
+
+              <div id="recuadro">
+                <div id="fecha">Cargando fecha...</div>
+                <div id="hora">00:00:00</div>
+                <div id="frase">Marque su hora de entrada al complejo</div>
+                <div style="text-align: center;padding: 10px;">
+                  <button type="button" class="btn btn-warning me-1" id="btnEntrada">
+                    Entrada
+                  </button>
+                  <button type="submit" class="btn btn-primary" id="btnSalida">
+                    Salida
+                  </button>
+                </div>
+              </div>
+
+
+
+            </div>
+            <!-- /.box -->
+          </div>
+
+          <div class="col-lg-7 col-12">
+            <div class="box">
+              <div class="box-header with-border">
+                <h4 class="box-title">Observaciones</h4>
+              </div>
+              <!-- /.box-header -->
+              <form class="form">
+                <div class="box-body">
+                  <h4 class="box-title text-info mb-0"><i class="ti-map-alt me-15"></i>Establecimiento</h4>
+                  <hr class="my-15">
+                  <div class="row">
+                    <div class="col-md-6">
+                      <div class="form-group">
+                        <label class="form-label">Nombre del local</label>
+                        <input type="text" class="form-control" disabled placeholder="Diego Ferre">
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      <div class="form-group">
+                        <label class="form-label">Tipo de servicio<span class="text-danger">*</span></label>
+                        <select id="tipo_servicio" required class="form-select" >
+                          <option value="" disabled selected>Seleccione una opción</option>
+                          <option>Piscina</option>
+                          <option>Gimnasio</option>
+                          <option>Cancha de loza</option>
+                          <option>Cancha de grass sintético</option>
+                          <option>Pista de atletismo</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                  <h4 class="box-title text-info mb-0 mt-20"><i class="ti-comment-alt me-10"></i> Comentarios</h4>
+                  <hr class="my-15">
+                  <div class="row">
+                    <div class="radio; col-md-6">
+                      <input name="group1" type="radio" id="Option_1" checked>
+                      <label for="Option_1">Reparación</label>
+                    </div>
+                    <div class="radio; col-md-6">
+                      <input name="group1" type="radio" id="Option_2" >
+                      <label for="Option_2">Observación</label>
+                    </div>
+                  </div>
+                  <div class="form-group" style="margin-top: 15px;">
+                    <label class="form-label">Descripción<span class="text-danger">*</span></label>
+                    <textarea rows="4" class="form-control" id="comentarios" required placeholder="Explique brevemente la situación por la cual el establecimiento requiere arreglos o alguna observación sobre este."></textarea>
+                  </div>
+                </div>
+                <!-- /.box-body -->
+                <div class="box-footer text-center">
+                  <button type="submit" class="btn btn-primary">
+                    Enviar
+                  </button>
+                </div>
+              </form>
+            </div>
+            <!-- /.box -->
+          </div>
+
+        </div>
+
+
+      </section>
+      <!-- /.content -->
+    </div>
+  </div>
+  <!-- /.content-wrapper -->
+
+  <footer class="main-footer">
+    &copy; <script>document.write(new Date().getFullYear())</script> <a>New Fibra</a>. All Rights Reserved.
+  </footer>
+  <!-- Control Sidebar -->
+  <aside class="control-sidebar">
+
+    <div class="rpanel-title"><span class="pull-right btn btn-circle btn-danger" data-toggle="control-sidebar"><i class="ion ion-close text-white"></i></span> </div>  <!-- Create the tabs -->
+    <ul class="nav nav-tabs control-sidebar-tabs">
+      <li class="nav-item"><a href="#control-sidebar-home-tab" data-bs-toggle="tab" class="active"><i class="mdi mdi-message-text"></i></a></li>
+      <li class="nav-item"><a href="#control-sidebar-settings-tab" data-bs-toggle="tab"><i class="mdi mdi-playlist-check"></i></a></li>
+    </ul>
+  </aside>
+  <!-- /.control-sidebar -->
+
+  <!-- Add the sidebar's background. This div must be placed immediately after the control sidebar -->
+  <div class="control-sidebar-bg"></div>
+</div>
+
+<!--Script del contador de horas!-->
+<script>
+  // Variables para el control del tiempo
+  let inicioTrabajo = null;
+  let intervaloContador = null;
+  let intervaloReloj = null;
+  let tiempoTranscurrido = 0;
+
+  // Función para mostrar fecha y hora actual
+  function actualizarReloj() {
+    const fecha = new Date();
+    const dias = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+    const meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+      'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+
+    const diaSemana = dias[fecha.getDay()];
+    const dia = fecha.getDate();
+    const mes = meses[fecha.getMonth()];
+
+    document.getElementById('fecha').textContent = `${diaSemana}, ${dia} de ${mes}`;
+
+    // Solo actualiza la hora si NO hay registro activo
+    if (inicioTrabajo === null) {
+      let horas = fecha.getHours();
+      const minutos = String(fecha.getMinutes()).padStart(2, '0');
+      const ampm = horas >= 12 ? 'p.m.' : 'a.m.';
+
+      horas = horas % 12;
+      horas = horas ? horas : 12;
+      horas = String(horas).padStart(2, '0');
+
+      document.getElementById('hora').textContent = `${horas}:${minutos} ${ampm}`;
+    }
+  }
+
+  // Función para el contador de trabajo
+  function actualizarContador() {
+    tiempoTranscurrido++;
+    document.getElementById('hora').textContent = formatearTiempo(tiempoTranscurrido);
+  }
+
+  // Función para formatear segundos a HH:MM:SS
+  function formatearTiempo(segundos) {
+    const horas = Math.floor(segundos / 3600);
+    const minutos = Math.floor((segundos % 3600) / 60);
+    const segs = segundos % 60;
+
+    return `${String(horas).padStart(2, '0')}:${String(minutos).padStart(2, '0')}:${String(segs).padStart(2, '0')}`;
+  }
+
+  // Funciones de registro
+  function registrarEntrada() {
+    if (inicioTrabajo === null) {
+      inicioTrabajo = new Date();
+      tiempoTranscurrido = 0;
+
+      // Detener el reloj normal
+      clearInterval(intervaloReloj);
+
+      // Configurar UI
+      document.getElementById('frase').textContent = "Cantidad de horas trabajadas...";
+      document.getElementById('btnEntrada').disabled = true;
+      document.getElementById('btnSalida').disabled = false;
+      document.getElementById('hora').textContent = "00:00:00"; // Reiniciar contador
+
+      // Iniciar contador
+      intervaloContador = setInterval(actualizarContador, 1000);
+    }
+  }
+
+  function registrarSalida() {
+    if (inicioTrabajo !== null) {
+      clearInterval(intervaloContador);
+
+      // Restaurar UI
+      document.getElementById('frase').textContent = "Marque su hora de entrada al complejo";
+      document.getElementById('btnEntrada').disabled = false;
+      document.getElementById('btnSalida').disabled = true;
+
+      // Reiniciar variables
+      inicioTrabajo = null;
+      tiempoTranscurrido = 0;
+
+      // Reactivar reloj normal
+      intervaloReloj = setInterval(actualizarReloj, 1000);
+      actualizarReloj(); // Actualizar inmediatamente
+    }
+  }
+
+  // Inicialización
+  document.addEventListener('DOMContentLoaded', function() {
+    // Configurar eventos
+    document.getElementById('btnEntrada').addEventListener('click', registrarEntrada);
+    document.getElementById('btnSalida').addEventListener('click', registrarSalida);
+    document.getElementById('btnSalida').disabled = true;
+
+    // Iniciar reloj normal
+    intervaloReloj = setInterval(actualizarReloj, 1000);
+    actualizarReloj(); // Llamada inicial
+  });
+</script>
+
+<!-- ./wrapper -->
+
+<!-- Page Content overlay -->
+
+
+<!-- Vendor JS -->
+<script  th:src="@{/js/vendors.min.js}"></script>
+<script th:src="@{/js/pages/chat-popup.js}"></script>
+<script th:src="@{/assets/icons/feather-icons/feather.min.js}"></script>
+<script th:src="@{/assets/vendor_components/c3/d3.min.js}"></script>
+<script th:src="@{/assets/vendor_components/c3/c3.min.js}"></script>
+
+<!-- Rhythm Admin App -->
+<script th:src="@{/js/template.js}"></script>
+<script th:src="@{/js/pages/c3-data.js}"></script>
+
+
+
+</body>
+</html>
