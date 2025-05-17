@@ -14,4 +14,9 @@ public class Fotos {
     private int id;
     @Column(name = "id_lista_fotos")
     private int idListaFotos;
+    @Column(name = "foto_nombre")
+    private String fotoNombre;
+    @Column(name = "foto_tipo_archivo")
+    private String fotoTipoArchivo;
+    private byte[] foto;
 }

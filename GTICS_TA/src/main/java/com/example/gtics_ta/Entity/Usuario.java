@@ -36,4 +36,9 @@ public class Usuario {
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     @Column(name = "fecha_nacimiento")
     private LocalDate fechaNacimiento;
+    private byte[] foto;
+    @Column(name = "foto_nombre")
+    private String fotoNombre;
+    @Column(name = "foto_tipo_archivo")
+    private String fotoTipoArchivo;
 }

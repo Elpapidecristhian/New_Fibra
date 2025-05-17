@@ -29,6 +29,8 @@ public class EspaciosDeportivos {
     private int numContacto;
     @Column(name = "correo_contacto")
     private String correoContacto;
+    @Column(name = "maps_url")
+    private String mapsUrl;
     private Integer aforo;
     private boolean operativo;
     @Column(name = "costo_horario")

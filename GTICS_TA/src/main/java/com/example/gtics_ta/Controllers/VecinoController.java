@@ -6,11 +6,16 @@ import com.example.gtics_ta.Repository.*;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.beans.PropertyEditorSupport;
 import java.sql.Timestamp;
@@ -171,11 +176,52 @@ public class VecinoController {
     }
 
     @PostMapping("/guardarperfil")
-    public String guardarPerfil(@ModelAttribute("usuario") @Valid Usuario usuario, BindingResult bindingResult, Model model) {
+    public String guardarPerfil(@ModelAttribute("usuario") @Valid Usuario usuario, BindingResult bindingResult, @RequestParam("archivo") MultipartFile file , Model model) {
         if(bindingResult.hasErrors()) {
             return "vecino/perfil";
         }
-        usuarioRepository.save(usuario);
-        return "redirect:/vecino/perfil?id=" + usuario.getId();
+
+        if(file.isEmpty()) {
+            return "vecino/perfil";
+        }
+
+        String fileName = file.getOriginalFilename();
+
+        if (fileName.contains("..")){
+            model.addAttribute("msg","Debe ingresar un archivo válido");
+            return "vecino/perfil";
+        }
+
+        try {
+            usuario.setFoto(file.getBytes());
+            usuario.setFotoNombre(fileName);
+            usuario.setFotoTipoArchivo(file.getContentType());
+            usuarioRepository.save(usuario);
+            return "redirect:/vecino/perfil?id=" + usuario.getId();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "vecino/perfil";
+        }
+    }
+
+    @GetMapping("/image/{id}")
+    public ResponseEntity<byte[]> mostrarImagen(@PathVariable("id") Integer id) {
+        Optional<Usuario> optusuario = usuarioRepository.findById(id);
+        if(optusuario.isPresent()) {
+            Usuario usuario = optusuario.get();
+
+            byte[] image = usuario.getFoto();
+
+            HttpHeaders httpHeaders = new HttpHeaders();
+            httpHeaders.setContentType(
+                    MediaType.parseMediaType(usuario.getFotoTipoArchivo()));
+
+            return new ResponseEntity<>(
+                    image,
+                    httpHeaders,
+                    HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+        }
     }
 }

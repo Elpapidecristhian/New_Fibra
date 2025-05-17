@@ -9,7 +9,7 @@ INSERT INTO tipoespacio (id_tipo_espacio, nombre) VALUES (4, 'Estadios');
 
 INSERT INTO listafotos (id_lista_fotos) VALUES (1);
 
-INSERT INTO espaciosdeportivos (id_espacio, nombre, ubicacion, id_tipo_espacio, id_lista_fotos, descripcion_corta, descripcion_larga, num_contacto, correo_contacto, operativo, costo_horario) VALUES (1, 'Piscina Diego Ferre', 'San Miguel', 1, 1, 'Esta es una descripcion corta', 'Esta es una descripcion laaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaarga', 111222333, 'a20220378@pucp.edu.pe', true, 10.0);
+INSERT INTO espaciosdeportivos (id_espacio, nombre, ubicacion, id_tipo_espacio, id_lista_fotos, descripcion_corta, descripcion_larga, num_contacto, correo_contacto, operativo, costo_horario, maps_url) VALUES (1, 'Piscina Diego Ferre', 'San Miguel', 1, 1, 'Esta es una descripcion corta', 'Esta es una descripcion laaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaarga', 111222333, 'a20220378@pucp.edu.pe', true, 10.0, 'https://acortar.link/4DdNym');
 
 INSERT INTO piscinas(id_espacio, tipo_piscina, profundidad_min, profundidad_max, is_climatizada, requisitos, num_carril_max) VALUES (1, 'Olímpica', 1.0, 2.5, true, 'Llevar gorro y lentes para piscina', 8);
 
@@ -29,6 +29,8 @@ INSERT INTO horarios(hora_inicio, hora_fin, id_espacio, id_horarios) VALUES ('21
 INSERT INTO mediospago(id_medios_pago, nombre) VALUES (1, 'Yape');
 
 INSERT INTO pagos(id_pagos, cantidad, id_medios_pago) VALUES (1, 25, 1);
+
+UPDATE usuario SET activo = true where id_usuario=1;
 
 SELECT * FROM usuario;
 
