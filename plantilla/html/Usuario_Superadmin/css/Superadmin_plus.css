@@ -57,3 +57,13 @@
 .coordinator-form .form-control::placeholder {
   font-size: 18px; /* Ajusta el tamaño del texto en los placeholders */
 }
+
+.coordinator-form .form-control[type="email"] {
+    width: 97.6%; /* Asegura que el campo de correo ocupe todo el ancho disponible */
+    max-width: 100%; /* Asegura que el campo de correo no se haga más grande de lo necesario */
+    height: 60px; /* Ajusta la altura del input */
+    font-size: 18px; /* Ajusta el tamaño del texto dentro del input */
+    padding: 10px; /* Asegura que haya espacio entre el borde y el texto */
+    box-sizing: border-box; /* Asegura que el padding no afecte al tamaño total del campo */
+    margin-bottom: 20px; /* Añade un poco de espacio debajo del campo */
+}

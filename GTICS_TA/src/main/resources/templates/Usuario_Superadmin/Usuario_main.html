@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="description" content="">
+	<meta name="author" content="">
+	<meta name="_csrf" th:content="${_csrf.token}"/>
+	<meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+	<link rel="icon" href="/images/logo-solo.png">
+
+	<title>Superadmin</title>
+
+	<!-- Vendors Style-->
+	<link rel="stylesheet" href="/css/vendors_css.css">
+	<!-- Vendors Style (repetido, puedes eliminar uno) -->
+	<link rel="stylesheet" href="/css/vendors_css.css">
+
+	<!-- Icon Fonts -->
+	<link rel="stylesheet" href="/assets/icons/font-awesome/css/font-awesome.css">
+	<link rel="stylesheet" href="/assets/icons/ionicons/css/ionicons.css">
+	<link rel="stylesheet" href="/assets/icons/themify-icons/themify-icons.css">
+	<link rel="stylesheet" href="/assets/icons/linea-icons/linea.css">
+	<link rel="stylesheet" href="/assets/icons/glyphicons/glyphicons.css">
+	<link rel="stylesheet" href="/assets/icons/flag-icon-css/css/flag-icon.css">
+	<link rel="stylesheet" href="/assets/icons/material-design-iconic-font/css/materialdesignicons.css">
+	<link rel="stylesheet" href="/assets/icons/simple-line-icons/css/simple-line-icons.css">
+	<link rel="stylesheet" href="/assets/icons/cryptocoins-master/cryptocoins.css">
+	<link rel="stylesheet" href="/assets/icons/weather-icons/css/weather-icons.min.css">
+	<link rel="stylesheet" href="/assets/icons/iconsmind/style.css">
+	<link rel="stylesheet" href="/assets/icons/icomoon/style.css">
+	<link rel="stylesheet" href="/assets/vendor_components/animate/animate.css">
+
+	<!-- Main Style-->
+	<link rel="stylesheet" href="/css/style.css">
+	<link rel="stylesheet" href="/css/skin_color.css">
+
+	<!-- Style (repetido, puedes eliminar uno) -->
+	<link rel="stylesheet" href="/css/style.css">
+	<link rel="stylesheet" href="/css/skin_color.css">
+
+</head>
+<body class="hold-transition light-skin sidebar-mini theme-success fixed">
+
+<div class="wrapper">
+	<div id="loader"></div>
+
+	<header class="main-header">
+		<div class="d-flex align-items-center logo-box justify-content-center">
+			<!-- Logo -->
+			<a href="principal.html" class="logo">
+				<!-- logo-->
+				<div class="logo-mini w-150 text-center">
+					<span class="light-logo"><img src="/images/logo-sanMiguel.png" alt="logo"></span>
+				</div>
+			</a>
+		</div>
+		<!-- Header Navbar -->
+		<nav class="navbar navbar-static-top">
+			<!-- Sidebar toggle button-->
+			<div class="app-menu">
+				<ul class="header-megamenu nav">
+					<li class="btn-group nav-item">
+						<a href="#" class="waves-effect waves-light nav-link push-btn btn-primary-light" data-toggle="push-menu" role="button">
+							<i data-feather="align-left"></i>
+						</a>
+					</li>
+
+				</ul>
+			</div>
+
+			<div class="navbar-custom-menu r-side">
+				<ul class="nav navbar-nav">
+					<li class="btn-group nav-item d-lg-inline-flex d-none">
+						<a href="#" data-provide="fullscreen" class="waves-effect waves-light nav-link full-screen btn-warning-light" title="Full Screen">
+							<i data-feather="maximize"></i>
+						</a>
+					</li>
+					<!-- User Account-->
+					<li class="dropdown user user-menu">
+						<a href="#" class="waves-effect waves-light dropdown-toggle w-auto l-h-12 bg-transparent py-0 no-shadow" data-bs-toggle="dropdown" title="User">
+							<div class="d-flex pt-5">
+								<div class="text-end me-10">
+									<p class="pt-5 fs-14 mb-0 fw-700 text-primary">Johen Doe</p>
+									<small class="fs-10 mb-0 text-uppercase text-mute">Admin</small>
+								</div>
+								<img src="/images/avatar/avatar-1.png" class="avatar rounded-10 bg-primary-light h-40 w-40" alt="" />
+							</div>
+						</a>
+						<ul class="dropdown-menu animated flipInX">
+							<li class="user-body">
+								<a class="dropdown-item" href="#"><i class="ti-user text-muted me-2"></i> Profile</a>
+								<a class="dropdown-item" href="#"><i class="ti-wallet text-muted me-2"></i> My Wallet</a>
+								<a class="dropdown-item" href="#"><i class="ti-settings text-muted me-2"></i> Settings</a>
+								<div class="dropdown-divider"></div>
+								<a class="dropdown-item" href="#"><i class="ti-lock text-muted me-2"></i> Logout</a>
+							</li>
+						</ul>
+					</li>
+				</ul>
+			</div>
+		</nav>
+	</header>
+	<aside class="main-sidebar">
+		<!-- sidebar-->
+		<section class="sidebar position-relative">
+			<div class="multinav">
+				<div class="multinav-scroll" style="height: 100%;">
+					<!-- sidebar menu-->
+					<ul class="sidebar-menu" data-widget="tree">
+						<li>
+							<a href="/SuperAdmin/Dashboard">
+								<i data-feather="monitor"></i>
+								<span>Dashboard</span>
+							</a>
+						</li>
+						<li>
+							<a href="/SuperAdmin/usuarios-baneados">
+								<i data-feather="calendar"></i>
+								<span>Baneos</span>
+							</a>
+						</li>
+						<li class="treeview">
+							<a href="/SuperAdmin/usuarios-no-baneados">
+								<i data-feather="users"></i>
+								<span>Usuarios</span>
+							</a>
+						</li>
+					</ul>
+				</div>
+			</div>
+		</section>
+	</aside>
+
+	<!-- Content Wrapper. Contains page content -->
+	<div class="content-wrapper">
+		<div class="container-full">
+			<!-- Main content -->
+			<section class="content">
+				<div class="row">
+					<div class="col-12">
+						<div class="box">
+							<!-- /.box-header -->
+							<div class="box-body">
+								<div class="table-responsive">
+									<div class="col-12">
+										<div class="box">
+											<div class="box-header with-border">
+												<h3 class="box-title">Tabla de los Usuarios</h3>
+											</div>
+											<li class="btn-group nav-item">
+												<a href="/SuperAdmin/usuario-formulario">
+													<button class="btn btn-success" id="generate-user-btn">+ Generar un Usuario</button>
+												</a>
+											</li>
+											<div class="box-body">
+												<div class="table-responsive">
+													<table id="example1" class="table table-bordered table-striped">
+														<thead>
+														<tr>
+															<th># ID</th>
+															<th>Nombres</th>
+															<th>Apellidos</th>
+															<th>Cargo</th>
+															<th>Número Telefónico</th>
+															<th>Dirección</th>
+															<th>Acciones</th>
+														</tr>
+														</thead>
+														<tbody>
+														<tr th:each="usuario : ${noBaneados}" th:data-id="${usuario.id}">
+															<td></td>
+															<td th:text="${usuario.nombres}"></td>
+															<td th:text="${usuario.apellidos}"></td>
+															<td th:text="${usuario.rol.nombre}"></td>
+															<td th:text="${usuario.numCelular}"></td>
+															<td th:text="${usuario.direccion}"></td>
+															<td>
+																<a href="#" class="btn btn-warning btn-sm" title="Editar" data-bs-toggle="modal" data-bs-target="#modalEditar"
+																   onclick="cargarDatosUsuario(this)">
+																	<i class="fa fa-pencil"></i>
+																</a>
+																<a th:href="@{/SuperAdmin/usuarios/banear/{id}(id=${usuario.id})}" class="btn btn-danger btn-sm" title="Eliminar"
+																   onclick="return confirm('¿Estás seguro de eliminar este usuario?');">
+																	<i class="fa fa-ban"></i>
+																</a>
+															</td>
+														</tr>
+														</tbody>
+													</table>
+												</div> <!-- cierre table-responsive -->
+											</div> <!-- cierre box-body -->
+										</div> <!-- cierre box -->
+									</div> <!-- cierre col-12 -->
+								</div> <!-- cierre table-responsive (padre) -->
+							</div> <!-- cierre box-body principal -->
+						</div> <!-- cierre box principal -->
+					</div> <!-- cierre col-12 -->
+				</div> <!-- cierre row -->
+			</section> <!-- cierre section.content -->
+		</div> <!-- cierre container-full -->
+	</div> <!-- cierre content-wrapper -->
+
+	<footer class="main-footer">
+		<div class="pull-right d-none d-sm-inline-block">
+		</div>
+		&copy; <script>document.write(new Date().getFullYear())</script> <a href="https://www.multipurposethemes.com/">Multipurpose Themes</a>. All Rights Reserved.
+	</footer>
+
+	<!-- Add the sidebar's background. This div must be placed immediately after the control sidebar -->
+	<div class="control-sidebar-bg"></div>
+</div> <!-- cierre wrapper -->
+
+<!-- Vendor JS -->
+<script src="/js/vendors.min.js"></script>
+<script src="/js/pages/chat-popup.js"></script>
+<script src="/assets/icons/feather-icons/feather.min.js"></script>
+<script src="/assets/vendor_components/datatable/datatables.min.js"></script>
+
+<!-- Rhythm Admin App -->
+<script src="/js/template.js"></script>
+<script>
+	$('#example1').DataTable({
+		language: {
+			decimal: ",",
+			emptyTable: "No hay datos disponibles en la tabla",
+			info: "Mostrando _START_ a _END_ de _TOTAL_ registros",
+			infoEmpty: "Mostrando 0 a 0 de 0 registros",
+			infoFiltered: "(filtrado de _MAX_ registros totales)",
+			infoPostFix: "",
+			thousands: ".",
+			lengthMenu: "Mostrar _MENU_ registros",
+			loadingRecords: "Cargando...",
+			processing: "Procesando...",
+			search: "Buscar:",
+			zeroRecords: "No se encontraron registros coincidentes",
+			paginate: {
+				first: "Primero",
+				last: "Último",
+				next: "Siguiente",
+				previous: "Anterior"
+			},
+			aria: {
+				sortAscending: ": activar para ordenar la columna ascendente",
+				sortDescending: ": activar para ordenar la columna descendente"
+			}
+		},
+		columnDefs: [
+			{
+				targets: 0, // Primera columna (#ID)
+				orderable: false,
+				searchable: false,
+				render: function (data, type, row, meta) {
+					return meta.row + 1 + meta.settings._iDisplayStart;
+				}
+			}
+		]
+	});
+
+</script>
+
+</body>
+
+<!-- Modal Editar Usuario -->
+<div class="modal fade" id="modalEditar" tabindex="-1" aria-labelledby="modalEditarLabel" aria-hidden="true">
+	<div class="modal-dialog modal-dialog-centered">
+		<div class="modal-content">
+			<div class="modal-header bg-primary text-white">
+				<h5 class="modal-title">Editar Usuario</h5>
+				<button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+			</div>
+			<div class="modal-body">
+				<form id="formEditarUsuario">
+					<input type="hidden" id="editId">
+					<div class="mb-3">
+						<label for="editNombre" class="form-label">Nombres</label>
+						<input type="text" class="form-control" id="editNombre">
+					</div>
+					<div class="mb-3">
+						<label for="editApellido" class="form-label">Apellidos</label>
+						<input type="text" class="form-control" id="editApellido">
+					</div>
+					<div class="mb-3">
+						<label for="editDireccion" class="form-label">Dirección</label>
+						<input type="text" class="form-control" id="editDireccion">
+					</div>
+					<div class="mb-3">
+						<label for="editCelular" class="form-label">Celular</label>
+						<input type="text" class="form-control" id="editCelular">
+					</div>
+				</form>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+				<button type="button" class="btn btn-primary" onclick="guardarCambiosUsuario()">Guardar</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<script>
+	function cargarDatosUsuario(boton) {
+		const fila = boton.closest('tr');
+		const celdas = fila.querySelectorAll('td');
+
+		// Obtenemos el ID real del atributo data-id
+		const idReal = fila.getAttribute('data-id');
+
+		document.getElementById('editId').value = idReal; // ID real para el formulario
+		document.getElementById('editNombre').value = celdas[1].innerText;
+		document.getElementById('editApellido').value = celdas[2].innerText;
+		document.getElementById('editCelular').value = celdas[4].innerText;
+		document.getElementById('editDireccion').value = celdas[5].innerText;
+	}
+
+	function guardarCambiosUsuario() {
+		const id = document.getElementById('editId').value;
+		const nombre = document.getElementById('editNombre').value;
+		const apellido = document.getElementById('editApellido').value;
+		const celular = document.getElementById('editCelular').value;
+		const direccion = document.getElementById('editDireccion').value;
+
+		const usuario = {
+			nombres: nombre,
+			apellidos: apellido,
+			numCelular: celular,
+			direccion: direccion
+		};
+
+		// Leer token CSRF y header
+		const token = document.querySelector('meta[name="_csrf"]').getAttribute('content');
+		const header = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
+
+		fetch(`/SuperAdmin/usuarios/editar/${id}`, {
+			method: "PUT",
+			headers: {
+				'Content-Type': 'application/json',
+				[header]: token  // Incluir token CSRF en el header
+			},
+			body: JSON.stringify(usuario)
+		})
+				.then(response => {
+					if (response.ok) {
+						alert("Usuario actualizado correctamente");
+						location.reload();
+					} else {
+						alert("Error al actualizar el usuario");
+					}
+				})
+				.catch(error => {
+					console.error("Error al enviar solicitud:", error);
+					alert("Error de red");
+				});
+	}
+
+</script>
+
+</html>

@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="description" content="">
+	<meta name="author" content="">
+	<link rel="icon" href="/images/favicon.ico">
+
+	<title>Superadmin - Baneos</title>
+
+	<!-- Vendors Style-->
+	<link rel="stylesheet" href="/css/vendors_css.css">
+
+	<!-- Style-->
+	<link rel="stylesheet" href="/css/style.css">
+	<link rel="stylesheet" href="/css/skin_color.css">
+
+</head>
+
+<body class="hold-transition light-skin sidebar-mini theme-success fixed">
+
+<div class="wrapper">
+	<div id="loader"></div>
+
+	<header class="main-header">
+		<div class="d-flex align-items-center logo-box justify-content-center">
+			<!-- Logo -->
+			<a href="principal.html" class="logo">
+				<!-- logo-->
+				<div class="logo-mini w-150 text-center">
+					<span class="light-logo"><img src="/images/logo-sanMiguel.png" alt="logo"></span>
+				</div>
+			</a>
+		</div>
+
+		<!-- Header Navbar -->
+		<nav class="navbar navbar-static-top">
+			<!-- Sidebar toggle button-->
+			<div class="app-menu">
+				<ul class="header-megamenu nav">
+					<li class="btn-group nav-item">
+						<a href="#" class="waves-effect waves-light nav-link push-btn btn-primary-light" data-toggle="push-menu" role="button">
+							<i data-feather="align-left"></i>
+						</a>
+					</li>
+
+				</ul>
+			</div>
+
+			<div class="navbar-custom-menu r-side">
+				<ul class="nav navbar-nav">
+					<li class="btn-group nav-item d-lg-inline-flex d-none">
+						<a href="#" data-provide="fullscreen" class="waves-effect waves-light nav-link full-screen btn-warning-light" title="Full Screen">
+							<i data-feather="maximize"></i>
+						</a>
+					</li>
+					<!-- User Account-->
+					<li class="dropdown user user-menu">
+						<a href="#" class="waves-effect waves-light dropdown-toggle w-auto l-h-12 bg-transparent py-0 no-shadow" data-bs-toggle="dropdown" title="User">
+							<div class="d-flex pt-5">
+								<div class="text-end me-10">
+									<p class="pt-5 fs-14 mb-0 fw-700 text-primary">Johen Doe</p>
+									<small class="fs-10 mb-0 text-uppercase text-mute">Admin</small>
+								</div>
+								<img src="/images/avatar/avatar-1.png" class="avatar rounded-10 bg-primary-light h-40 w-40" alt="" />
+							</div>
+						</a>
+						<ul class="dropdown-menu animated flipInX">
+							<li class="user-body">
+								<a class="dropdown-item" href="#"><i class="ti-user text-muted me-2"></i> Profile</a>
+								<a class="dropdown-item" href="#"><i class="ti-wallet text-muted me-2"></i> My Wallet</a>
+								<a class="dropdown-item" href="#"><i class="ti-settings text-muted me-2"></i> Settings</a>
+								<div class="dropdown-divider"></div>
+								<a class="dropdown-item" href="#"><i class="ti-lock text-muted me-2"></i> Logout</a>
+							</li>
+						</ul>
+					</li>
+
+				</ul>
+			</div>
+		</nav>
+	</header>
+
+	<aside class="main-sidebar">
+		<section class="sidebar position-relative">
+
+			<div class="multinav">
+				<div class="multinav-scroll" style="height: 100%;">
+					<!-- sidebar menu-->
+					<ul class="sidebar-menu" data-widget="tree">
+						<li>
+							<a href="/SuperAdmin/Dashboard">
+								<i data-feather="monitor"></i>
+								<span>Dashboard</span>
+							</a>
+						</li>
+						<li>
+							<a href="/SuperAdmin/usuarios-baneados">
+								<i data-feather="calendar"></i>
+								<span>Baneos</span>
+							</a>
+						</li>
+						<li>
+							<a href="/SuperAdmin/usuarios-no-baneados">
+								<i data-feather="users"></i>
+								<span>Usuarios</span>
+							</a>
+						</li>
+					</ul>
+				</div>
+			</div>
+		</section>
+	</aside>
+
+	<div class="content-wrapper">
+		<div class="container-full">
+
+
+			<section class="content">
+				<div class="row">
+					<div class="col-12">
+						<div class="box">
+							<div class="box-body">
+								<div class="table-responsive">
+									<div class="col-12">
+										<div class="box">
+											<div class="box-header with-border">
+												<h3 class="box-title">Tabla de los Usuarios Baneados</h3> <!-- Título traducido -->
+											</div>
+											<div class="box-body">
+												<div class="table-responsive">
+													<table id="example1" class="table table-bordered table-striped">
+														<thead>
+														<tr>
+															<th># ID</th>
+															<th>Nombres</th>
+															<th>Apellidos</th>
+															<th>Cargo</th>
+															<th>Número Telefónico</th>
+															<th>Dirección</th>
+															<th>Acción</th>
+														</tr>
+														</thead>
+														<tbody>
+														<tr th:each="usuario : ${baneados}">
+															<td></td> <!-- Muestra el ID del usuario -->
+															<td th:text="${usuario.nombres}"></td> <!-- Muestra los nombres del usuario -->
+															<td th:text="${usuario.apellidos}"></td> <!-- Muestra los apellidos del usuario -->
+															<td th:text="${usuario.rol.nombre}"></td> <!-- Asumí que "rol" es un objeto con un campo "nombre" -->
+															<td th:text="${usuario.numCelular}"></td> <!-- Muestra el número de celular -->
+															<td th:text="${usuario.direccion}"></td> <!-- Muestra la dirección del usuario -->
+															<td>
+																<a th:href="@{/SuperAdmin/usuarios/desbanear/{id}(id=${usuario.id})}"
+																   class="btn btn-success btn-sm"
+																   onclick="return confirm('¿Estás seguro de desbanear a este usuario?');"
+																   title="Desbanear">
+																	<i class="fa fa-check"></i>
+																</a>
+															</td>														</tr>
+														</tbody>
+													</table>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</section>
+		</div>
+	</div>
+
+	<footer class="main-footer">
+		&copy; <script>document.write(new Date().getFullYear())</script> <a href="https://www.multipurposethemes.com/">Multipurpose Themes</a>. All Rights Reserved.
+	</footer>
+
+	<aside class="control-sidebar">
+		<div class="rpanel-title"><span class="pull-right btn btn-circle btn-danger" data-toggle="control-sidebar"><i class="ion ion-close text-white"></i></span> </div>
+		<ul class="nav nav-tabs control-sidebar-tabs">
+			<li class="nav-item"><a href="#control-sidebar-home-tab" data-bs-toggle="tab" class="active"><i class="mdi mdi-message-text"></i></a></li>
+			<li class="nav-item"><a href="#control-sidebar-settings-tab" data-bs-toggle="tab"><i class="mdi mdi-playlist-check"></i></a></li>
+		</ul>
+	</aside>
+
+	<div class="control-sidebar-bg"></div>
+</div>
+
+<script src="/js/vendors.min.js"></script>
+<script src="/js/pages/chat-popup.js"></script>
+<script src="/assets/icons/feather-icons/feather.min.js"></script>
+<script src="/assets/vendor_components/datatable/datatables.min.js"></script>
+<script src="/js/template.js"></script>
+<script>
+	$('#example1').DataTable({
+		language: {
+			decimal: ",",
+			emptyTable: "No hay datos disponibles en la tabla",
+			info: "Mostrando _START_ a _END_ de _TOTAL_ registros",
+			infoEmpty: "Mostrando 0 a 0 de 0 registros",
+			infoFiltered: "(filtrado de _MAX_ registros totales)",
+			infoPostFix: "",
+			thousands: ".",
+			lengthMenu: "Mostrar _MENU_ registros",
+			loadingRecords: "Cargando...",
+			processing: "Procesando...",
+			search: "Buscar:",
+			zeroRecords: "No se encontraron registros coincidentes",
+			paginate: {
+				first: "Primero",
+				last: "Último",
+				next: "Siguiente",
+				previous: "Anterior"
+			},
+			aria: {
+				sortAscending: ": activar para ordenar la columna ascendente",
+				sortDescending: ": activar para ordenar la columna descendente"
+			}
+		},
+		columnDefs: [
+			{
+				targets: 0, // Primera columna (#ID)
+				orderable: false,
+				searchable: false,
+				render: function (data, type, row, meta) {
+					return meta.row + 1 + meta.settings._iDisplayStart;
+				}
+			}
+		]
+	});
+
+</script>
+
+
+</body>
+</html>

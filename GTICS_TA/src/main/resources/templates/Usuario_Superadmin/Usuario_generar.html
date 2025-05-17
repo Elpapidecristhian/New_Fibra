@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="description" content="">
+	<meta name="author" content="">
+
+
+	<link rel="icon" href="/images/favicon.ico">
+
+	<title>Superadmin - Usuarios</title>
+
+	<!-- Vendors Style-->
+	<link rel="stylesheet" href="/css/vendors_css.css">
+	<!-- Style-->
+	<link rel="stylesheet" href="/css/style.css">
+	<link rel="stylesheet" href="/css/skin_color.css">
+	<link rel="stylesheet" href="/css/Superadmin_plus.css">
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@mdi/font/css/materialdesignicons.min.css">
+
+</head>
+
+<body class="hold-transition light-skin sidebar-mini theme-success fixed">
+
+<div class="wrapper">
+	<div id="loader"></div>
+
+	<header class="main-header">
+		<div class="d-flex align-items-center logo-box justify-content-center">
+			<!-- Logo -->
+			<a href="principal.html" class="logo">
+				<!-- logo-->
+				<div class="logo-mini w-150 text-center">
+					<span class="light-logo"><img src="../images/logo-sanMiguel.png" alt="logo"></span>
+				</div>
+			</a>
+		</div>
+
+		<!-- Header Navbar -->
+		<nav class="navbar navbar-static-top">
+			<!-- Sidebar toggle button-->
+			<div class="app-menu">
+				<ul class="header-megamenu nav">
+					<li class="btn-group nav-item">
+						<a href="#" class="waves-effect waves-light nav-link push-btn btn-primary-light" data-toggle="push-menu" role="button">
+							<i data-feather="align-left"></i>
+						</a>
+					</li>
+
+				</ul>
+			</div>
+			<!-- Generar Usuario Button -->
+
+
+			<div class="navbar-custom-menu r-side">
+				<ul class="nav navbar-nav">
+					<li class="btn-group nav-item d-lg-inline-flex d-none">
+						<a href="#" data-provide="fullscreen" class="waves-effect waves-light nav-link full-screen btn-warning-light" title="Full Screen">
+							<i data-feather="maximize"></i>
+						</a>
+					</li>
+					<!-- Notifications -->
+					<li class="dropdown notifications-menu">
+						<ul class="dropdown-menu animated bounceIn">
+
+							<li class="header">
+								<div class="p-20">
+									<div class="flexbox">
+										<div>
+											<h4 class="mb-0 mt-0">Notifications</h4>
+										</div>
+										<div>
+											<a href="#" class="text-danger">Clear All</a>
+										</div>
+									</div>
+								</div>
+							</li>
+
+						</ul>
+					</li>
+
+
+					<!-- User Account-->
+					<li class="dropdown user user-menu">
+						<a href="#" class="waves-effect waves-light dropdown-toggle w-auto l-h-12 bg-transparent py-0 no-shadow" data-bs-toggle="dropdown" title="User">
+							<div class="d-flex pt-5">
+								<div class="text-end me-10">
+									<p class="pt-5 fs-14 mb-0 fw-700 text-primary">Johen Doe</p>
+									<small class="fs-10 mb-0 text-uppercase text-mute">Admin</small>
+								</div>
+								<img src="../images/avatar/avatar-1.png" class="avatar rounded-10 bg-primary-light h-40 w-40" alt="" />
+							</div>
+						</a>
+
+					</li>
+
+				</ul>
+			</div>
+		</nav>
+	</header>
+	<aside class="main-sidebar">
+		<!-- sidebar-->
+		<section class="sidebar position-relative">
+
+			<div class="multinav">
+				<div class="multinav-scroll" style="height: 100%;">
+					<!-- sidebar menu-->
+					<ul class="sidebar-menu" data-widget="tree">
+						<li>
+							<a href="/SuperAdmin/Dashboard">
+								<i data-feather="monitor"></i>
+								<span>Dashboard</span>
+
+							</a>
+						</li>
+						<li>
+							<a href="/SuperAdmin/usuarios-no-baneados">
+								<i data-feather="calendar"></i>
+								<span>Baneos</span>
+							</a>
+						</li>
+						<li >
+							<a href="/SuperAdmin/usuarios-baneados">
+								<i data-feather="users"></i>
+								<span>Usuarios</span>
+
+							</a>
+						</li>
+					</ul>
+				</div>
+			</div>
+		</section>
+	</aside>
+	<!-- Content Wrapper. Contains page content -->
+	<div class="content-wrapper custom-form-container">
+		<div class="container-full">
+			<section class="content">
+				<div class="row">
+					<div class="col-lg-6 col-12">
+						<div class="box coordinator-form"> <!-- Agregado 'coordinator-form' para aplicar estilos específicos -->
+							<div class="box-header with-border">
+								<h4 class="box-title">Coordinador-Alejandro</h4>
+							</div>
+							<!-- /.box-header -->
+							<form class="form" th:action="@{/SuperAdmin/guardar-usuario}" th:object="${usuario}" method="post">
+								<input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+								<div class="box-body">
+
+									<div class="row">
+										<!-- Nombres -->
+										<div class="col-md-6">
+											<div class="form-group">
+												<label for="nombres">Nombres</label>
+												<input type="text" th:field="*{nombres}" class="form-control" id="nombres" placeholder="Ingrese su nombre" required />
+											</div>
+										</div>
+
+										<!-- Apellidos -->
+										<div class="col-md-6">
+											<div class="form-group">
+												<label for="apellidos">Apellidos</label>
+												<input type="text" th:field="*{apellidos}" class="form-control" id="apellidos" placeholder="Ingrese sus apellidos" required />
+											</div>
+										</div>
+									</div>
+
+									<div class="row">
+										<!-- DNI -->
+										<div class="col-md-6">
+											<div class="form-group">
+												<label for="dni">DNI</label>
+												<input type="text" th:field="*{dni}" class="form-control" id="dni" placeholder="Ingrese su DNI" required />
+											</div>
+										</div>
+
+										<!-- Número Telefónico -->
+										<div class="col-md-6">
+											<div class="form-group">
+												<label for="numCelular">Número Telefónico</label>
+												<input type="text" th:field="*{numCelular}" class="form-control" id="numCelular" placeholder="Ingrese su número" required />
+											</div>
+										</div>
+									</div>
+
+									<div class="row">
+										<!-- Email -->
+										<div class="col-md-6">
+											<div class="form-group">
+												<label for="correo">Email</label>
+												<input type="email" th:field="*{correo}" class="form-control" id="correo" placeholder="Ingrese su email" required />
+											</div>
+										</div>
+
+										<!-- Contraseña -->
+										<div class="col-md-6">
+											<div class="form-group">
+												<label for="contrasenia">Contraseña</label>
+												<input type="password" th:field="*{contrasenia}" class="form-control" id="contrasenia" placeholder="Ingrese su contraseña" required />
+											</div>
+										</div>
+									</div>
+
+									<div class="row">
+										<!-- Cargo (Rol) -->
+										<div class="col-md-6">
+											<div class="form-group">
+												<label for="rol">Cargo</label>
+												<select name="rolId" class="form-control" id="rol" required>
+													<option value="" disabled selected>Seleccione un cargo</option>
+													<option th:each="rol : ${roles}" th:value="${rol.idRol}" th:text="${rol.nombre}"></option>
+												</select>
+
+											</div>
+										</div>
+
+										<!-- Dirección -->
+										<div class="col-md-6">
+											<div class="form-group">
+												<label for="direccion">Dirección</label>
+												<input type="text" th:field="*{direccion}" class="form-control" id="direccion" placeholder="Ingrese su dirección" required />
+											</div>
+										</div>
+									</div>
+
+									<div class="mt-3">
+										<button type="submit" class="btn btn-primary">
+											<i class="ti-save"></i> Guardar
+										</button>
+										<a href="/usuarios-no-baneados" class="btn btn-warning me-1">
+											<i class="ti-close"></i> Cancelar
+										</a>
+									</div>
+
+								</div>
+							</form>
+
+
+						</div>
+
+					</div>
+				</div>
+			</section>
+		</div>
+	</div>
+
+	<!-- /.content-wrapper -->
+
+	<footer class="main-footer">
+		<div class="pull-right d-none d-sm-inline-block">
+
+		</div>
+		&copy; <script>document.write(new Date().getFullYear())</script> <a href="https://www.multipurposethemes.com/">Multipurpose Themes</a>. All Rights Reserved.
+	</footer>
+	<!-- Control Sidebar -->
+	<aside class="control-sidebar">
+
+		<div class="rpanel-title"><span class="pull-right btn btn-circle btn-danger" data-toggle="control-sidebar"><i class="ion ion-close text-white"></i></span> </div>  <!-- Create the tabs -->
+		<ul class="nav nav-tabs control-sidebar-tabs">
+			<li class="nav-item"><a href="#control-sidebar-home-tab" data-bs-toggle="tab" class="active"><i class="mdi mdi-message-text"></i></a></li>
+			<li class="nav-item"><a href="#control-sidebar-settings-tab" data-bs-toggle="tab"><i class="mdi mdi-playlist-check"></i></a></li>
+		</ul>
+		<!-- Tab panes -->
+
+	</aside>
+	<!-- /.control-sidebar -->
+
+	<!-- Add the sidebar's background. This div must be placed immediately after the control sidebar -->
+	<div class="control-sidebar-bg"></div>
+</div>
+
+
+<!-- Vendor JS -->
+<script src="/js/vendors.min.js"></script>
+<script src="/js/pages/chat-popup.js"></script>
+<script src="/assets/icons/feather-icons/feather.min.js"></script>
+
+<!-- Rhythm Admin App -->
+<script src="/js/template.js"></script>
+
+
+</body>
+</html>
