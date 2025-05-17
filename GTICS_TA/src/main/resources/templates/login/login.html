@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="">
     <meta name="author" content="">
-    <link rel="icon" href="/images/san_miguel_logo.ico">
+    <link rel="icon" th:href="@{/images/logo-solo.png}">
 
     <title>Log in </title>
 
@@ -36,7 +36,7 @@
                             <p class="mb-0">Ingresa tus credenciales para abrir sesión </p>
                         </div>
                         <div class="p-30">
-                            <form th:action="@{/processLogin}" method="post">
+                            <form th:action="@{/procesar-login}" method="post">
                                 <div class="form-group">
                                     <div class="input-group mb-3">
                                         <span class="input-group-text bg-transparent"><i class="ti-user"></i></span>

@@ -1,6 +1,7 @@
 package com.example.gtics_ta.Controllers;
 
-import org.springframework.context.annotation.Configuration;
+import com.example.gtics_ta.Repository.UsuarioRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 
@@ -8,7 +9,18 @@ import org.springframework.web.bind.annotation.GetMapping;
 public class LoginController {
 
     @GetMapping("/login")
-    public String loginForm() {
-        return "/login/login";
+    public String mostrarLogin(){
+        return"/login/login";
     }
+
+    @GetMapping("/signup")
+    public String registrarse(){
+        return"/login/signup";
+    }
+
+    @GetMapping("/recoverpass")
+    public String recuperarContrasenia(){
+        return"/login/recoverpass";
+    }
+
 }

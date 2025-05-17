@@ -1,14 +1,17 @@
-package com.example.gtics_ta.repository;
+package com.example.gtics_ta.Repository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import com.example.gtics_ta.Entity.Usuario;
+import org.springframework.stereotype.Repository;
+
 import java.util.List;
 import java.util.Optional;
 
+@Repository
 public interface UsuarioRepository extends JpaRepository<Usuario, Integer> {
-    List<Usuario> findByIsBaneado(boolean isBaneado);
+    List<Usuario> findByActivo(boolean isActivo);
     long count(); // total de usuarios
 
-    long countByIsBaneado(boolean estado); // usuarios baneados
-    Optional<Usuario> findByCorreo(String correo); // 👈 necesario para login
+    List<Usuario> findAll();
+    Usuario findByCorreo(String correo);
 
 }

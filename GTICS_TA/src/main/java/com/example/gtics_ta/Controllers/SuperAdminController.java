@@ -1,18 +1,15 @@
-package com.example.gtics_ta.controller;
-import com.example.gtics_ta.Dtos.DtosSuperAdmin;
+package com.example.gtics_ta.Controllers;
 import com.example.gtics_ta.Entity.Rol;
 import com.example.gtics_ta.repository.RolRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
-import com.example.gtics_ta.repository.UsuarioRepository;
+import com.example.gtics_ta.Repository.UsuarioRepository;
 import com.example.gtics_ta.Entity.Usuario;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -30,14 +27,14 @@ public class SuperAdminController {
     @Autowired
     private RolRepository rolRepository;
 
-    @GetMapping("/Dashboard")
+    @GetMapping(value = {"","/"})
     public String Dashboard(Model model) {
         return "Usuario_Superadmin/Dashboard";
     }
 
     @GetMapping("/usuarios-baneados")
     public String listarUsuariosBaneados(Model model) {
-        List<Usuario> baneados = usuarioRepository.findByIsBaneado(true);
+        List<Usuario> baneados = usuarioRepository.findByActivo(false);
         model.addAttribute("baneados", baneados);
         return "Usuario_Superadmin/Baneos"; // Nombre de la vista HTML
     }
@@ -45,7 +42,7 @@ public class SuperAdminController {
     @GetMapping("/usuarios-no-baneados")
     public String listarUsuariosNoBaneados(Model model) {
         // Buscar usuarios cuyo campo isBaneado es falso
-        List<Usuario> noBaneados = usuarioRepository.findByIsBaneado(false);
+        List<Usuario> noBaneados = usuarioRepository.findByActivo(true);
         model.addAttribute("noBaneados", noBaneados);
         return "Usuario_Superadmin/Usuario_main"; // Vista para usuarios no baneados
     }
@@ -83,7 +80,7 @@ public class SuperAdminController {
         Optional<Usuario> usuarioOpt = usuarioRepository.findById(id);
         if (usuarioOpt.isPresent()) {
             Usuario usuario = usuarioOpt.get();
-            usuario.setBaneado(true);  // Marca como baneado
+            usuario.setActivo(false);  // Marca como baneado
             usuarioRepository.save(usuario);
         }
         return "redirect:/SuperAdmin/usuarios-no-baneados"; // Redirige a usuarios no baneados para que desaparezca de ahí
@@ -113,7 +110,7 @@ public class SuperAdminController {
         Optional<Usuario> usuarioOpt = usuarioRepository.findById(id);
         if (usuarioOpt.isPresent()) {
             Usuario usuario = usuarioOpt.get();
-            usuario.setBaneado(false);  // Quita la marca de baneado
+            usuario.setActivo(true);  // Quita la marca de baneado
             usuarioRepository.save(usuario);
         }
         return "redirect:/SuperAdmin/usuarios-baneados"; // Recarga la lista de baneados

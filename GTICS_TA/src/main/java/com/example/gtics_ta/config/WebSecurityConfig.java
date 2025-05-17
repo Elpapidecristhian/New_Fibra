@@ -1,82 +1,96 @@
-package com.example.gtics_ta.config;
+package com.example.gtics_ta.Config;
 
 import com.example.gtics_ta.Entity.Usuario;
-import com.example.gtics_ta.repository.UsuarioRepository;
-
+import com.example.gtics_ta.Repository.UsuarioRepository;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.AuthenticationProvider;
-import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
-
-import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
-
-import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
-
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-
+import org.springframework.security.provisioning.JdbcUserDetailsManager;
+import org.springframework.security.provisioning.UserDetailsManager;
+import org.springframework.security.web.DefaultRedirectStrategy;
+import org.springframework.security.web.RedirectStrategy;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.savedrequest.DefaultSavedRequest;
 
-import java.util.Collections;
+import javax.sql.DataSource;
 
 @Configuration
-@EnableMethodSecurity
+@EnableWebSecurity
 public class WebSecurityConfig {
 
-    private final UsuarioRepository usuarioRepository;
+    private final DataSource dataSource;
 
-    public WebSecurityConfig(UsuarioRepository usuarioRepository) {
-        this.usuarioRepository = usuarioRepository;
+    public WebSecurityConfig(DataSource dataSource) {
+        this.dataSource = dataSource;
     }
 
     @Bean
-    public UserDetailsService userDetailsService() {
-        return correo -> {
-            Usuario usuario = usuarioRepository.findByCorreo(correo)
-                    .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado"));
+    public SecurityFilterChain filterChain(HttpSecurity http, UsuarioRepository usuarioRepository) throws Exception {
+        http.authorizeHttpRequests(auth -> auth
+                // Permitir recursos estáticos
+                .requestMatchers("/css/**", "/js/**", "/images/**", "/assets/**", "/front-ed/**", "/scss/**").permitAll()
 
-            if (usuario.isBaneado()) {
-                throw new UsernameNotFoundException("Usuario baneado");
-            }
+                .requestMatchers("/vecino/**").hasAnyAuthority("Vecino", "admin", "superadmin")
+                .requestMatchers("/coordinador/**").hasAnyAuthority("coordinador", "admin", "superadmin")
+                .requestMatchers("/admin/**").hasAnyAuthority("admin", "superadmin")
+                .requestMatchers("/SuperAdmin/**").hasAuthority("superadmin")
+                .requestMatchers("/login").permitAll()
+                .anyRequest().authenticated()
+        );
 
-            return User.builder()
-                    .username(usuario.getCorreo())
-                    .password(usuario.getContrasenia()) // debe estar cifrada
-                    .authorities("ROLE_" + usuario.getRol().getNombre().toUpperCase())
-                    .build();
-        };
-    }
+        http.formLogin(form -> form
+                .loginPage("/login")
+                .loginProcessingUrl("/procesar-login")
+                .successHandler((request, response, authentication) -> {
+                    RedirectStrategy redirectStrategy = new DefaultRedirectStrategy();
+                    DefaultSavedRequest defaultSavedRequest =
+                            (DefaultSavedRequest) request.getSession().getAttribute("SPRING_SECURITY_SAVED_REQUEST");
 
-    @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http
-                .authorizeHttpRequests(auth -> auth
-                        //permitir recursos estaticos
-                        .requestMatchers("/css/**", "/js/**", "/images/**", "/assets/**", "/front-ed/**", "/scss/**").permitAll()
+                    HttpSession session = request.getSession();
+                    session.setAttribute("usuario", usuarioRepository.findByCorreo(authentication.getName()));
 
-                        .requestMatchers("/vecino/**").hasAnyAuthority("vecino", "admin", "superadmin")
-                        .requestMatchers("/coordinador/**").hasAnyAuthority("coordinador","admin","superadmin")
-                        .requestMatchers("/admin/**").hasAnyAuthority("admin","superadmin")
-                        .requestMatchers("/SuperAdmin/**").hasRole("SUPERADMIN")
-                        .requestMatchers("/login").permitAll()
-                        .anyRequest().authenticated()
-                )
-                .formLogin(form -> form
-                        .loginPage("/login")
-                        .defaultSuccessUrl("/SuperAdmin/Dashboard", true)
-                        .permitAll()
-                )
-                .logout(logout -> logout.permitAll())
-                .exceptionHandling(handler -> handler.accessDeniedPage("/access-denied"));
+
+                    if (defaultSavedRequest != null) {
+                        String targetURL = defaultSavedRequest.getRedirectUrl();
+                        redirectStrategy.sendRedirect(request, response, targetURL);
+                        return;
+                    }
+
+                    // Redirigir según rol
+                    for (GrantedAuthority authority : authentication.getAuthorities()) {
+                        String rol = authority.getAuthority().toLowerCase(); // Normaliza a minúsculas
+
+                        switch (rol) {
+                            case "vecino":
+                                redirectStrategy.sendRedirect(request, response, "/vecino");
+                                return;
+                            case "coordinador":
+                                redirectStrategy.sendRedirect(request, response, "/coordinador/principal");
+                                return;
+                            case "admin":
+                                redirectStrategy.sendRedirect(request, response, "/admin/dashboard");
+                                return;
+                            case "superadmin":
+                                redirectStrategy.sendRedirect(request, response, "/superadmin");
+                                return;
+                        }
+                    }
+                })
+                .permitAll()
+        );
+
+        http.logout(logout -> logout
+                .logoutUrl("/logout")
+                .logoutSuccessUrl("/login")
+                .deleteCookies("JSESSIONID")
+                .invalidateHttpSession(true)
+                .permitAll()
+        );
 
         return http.build();
     }
@@ -85,5 +99,16 @@ public class WebSecurityConfig {
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
-}
 
+    @Bean
+    public UserDetailsManager users(DataSource dataSource) {
+        JdbcUserDetailsManager users = new JdbcUserDetailsManager(dataSource);
+        users.setUsersByUsernameQuery("SELECT correo, contrasenia, activo FROM gtics.usuario WHERE correo = ?");
+        users.setAuthoritiesByUsernameQuery(
+                "SELECT u.correo, r.nombre FROM usuario u " +
+                        "INNER JOIN roles r ON u.id_rol = r.id_rol " +
+                        "WHERE u.correo = ? AND u.activo = 1"
+        );
+        return users;
+    }
+}

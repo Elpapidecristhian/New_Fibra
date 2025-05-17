@@ -1,31 +1,98 @@
 package com.example.gtics_ta.Config;
 
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
+import com.example.gtics_ta.Entity.Usuario;
+import com.example.gtics_ta.Repository.UsuarioRepository;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.JdbcUserDetailsManager;
 import org.springframework.security.provisioning.UserDetailsManager;
+import org.springframework.security.web.DefaultRedirectStrategy;
+import org.springframework.security.web.RedirectStrategy;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import org.springframework.security.web.savedrequest.DefaultSavedRequest;
 
 import javax.sql.DataSource;
 
 @Configuration
-@EnableMethodSecurity
+@EnableWebSecurity
 public class WebSecurityConfig {
 
-    final DataSource dataSource;
+    private final DataSource dataSource;
 
     public WebSecurityConfig(DataSource dataSource) {
         this.dataSource = dataSource;
+    }
+
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http, UsuarioRepository usuarioRepository) throws Exception {
+        http.authorizeHttpRequests(auth -> auth
+                // Permitir recursos estáticos
+                .requestMatchers("/css/**", "/js/**", "/images/**", "/assets/**", "/front-ed/**", "/scss/**").permitAll()
+
+                .requestMatchers("/vecino/**").hasAnyAuthority("Vecino", "admin", "superadmin")
+                .requestMatchers("/coordinador/**").hasAnyAuthority("coordinador", "admin", "superadmin")
+                .requestMatchers("/admin/**").hasAnyAuthority("admin", "superadmin")
+                .requestMatchers("/SuperAdmin/**").hasAuthority("superadmin")
+                .requestMatchers("/login").permitAll()
+                .anyRequest().authenticated()
+        );
+
+        http.formLogin(form -> form
+                .loginPage("/login")
+                .loginProcessingUrl("/procesar-login")
+                .successHandler((request, response, authentication) -> {
+                    RedirectStrategy redirectStrategy = new DefaultRedirectStrategy();
+                    DefaultSavedRequest defaultSavedRequest =
+                            (DefaultSavedRequest) request.getSession().getAttribute("SPRING_SECURITY_SAVED_REQUEST");
+
+                    HttpSession session = request.getSession();
+                    session.setAttribute("usuario", usuarioRepository.findByCorreo(authentication.getName()));
+
+
+                    if (defaultSavedRequest != null) {
+                        String targetURL = defaultSavedRequest.getRedirectUrl();
+                        redirectStrategy.sendRedirect(request, response, targetURL);
+                        return;
+                    }
+
+                    // Redirigir según rol
+                    for (GrantedAuthority authority : authentication.getAuthorities()) {
+                        String rol = authority.getAuthority().toLowerCase(); // Normaliza a minúsculas
+
+                        switch (rol) {
+                            case "vecino":
+                                redirectStrategy.sendRedirect(request, response, "/vecino");
+                                return;
+                            case "coordinador":
+                                redirectStrategy.sendRedirect(request, response, "/coordinador/principal");
+                                return;
+                            case "admin":
+                                redirectStrategy.sendRedirect(request, response, "/admin/dashboard");
+                                return;
+                            case "superadmin":
+                                redirectStrategy.sendRedirect(request, response, "/superadmin");
+                                return;
+                        }
+                    }
+                })
+                .permitAll()
+        );
+
+        http.logout(logout -> logout
+                .logoutUrl("/logout")
+                .logoutSuccessUrl("/login")
+                .deleteCookies("JSESSIONID")
+                .invalidateHttpSession(true)
+                .permitAll()
+        );
+
+        return http.build();
     }
 
     @Bean
@@ -36,43 +103,12 @@ public class WebSecurityConfig {
     @Bean
     public UserDetailsManager users(DataSource dataSource) {
         JdbcUserDetailsManager users = new JdbcUserDetailsManager(dataSource);
-        String sql1 = "SELECT correo, contrasenia, activo FROM usuario WHERE correo = ?";
-        String sql2 = "SELECT u.correo, r.nombre FROM usuario u "
-                        + "INNER JOIN roles r ON (u.id_rol = r.id_rol) "
-                        + "WHERE u.correo = ? and u.activo=1";
-        users.setUsersByUsernameQuery(sql1);
-        users.setAuthoritiesByUsernameQuery(sql2);
+        users.setUsersByUsernameQuery("SELECT correo, contrasenia, activo FROM gtics.usuario WHERE correo = ?");
+        users.setAuthoritiesByUsernameQuery(
+                "SELECT u.correo, r.nombre FROM usuario u " +
+                        "INNER JOIN roles r ON u.id_rol = r.id_rol " +
+                        "WHERE u.correo = ? AND u.activo = 1"
+        );
         return users;
-    }
-
-    @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-
-        http.formLogin()
-                .loginPage("/login")
-                .loginProcessingUrl("/processLogin")
-                .successHandler((request, response, authentication) -> {
-
-                    String rol = "";
-                    for (GrantedAuthority role : authentication.getAuthorities()) {
-                        rol = role.getAuthority();
-                        break;
-                    }
-                    if (rol.equals("Vecino")) {
-                        response.sendRedirect("/vecino");
-                    } else {
-                        response.sendRedirect("/vecino");
-                    }
-                });
-
-        http.logout()
-                .logoutUrl("/logout")
-                .logoutSuccessUrl("/");
-
-        http.authorizeHttpRequests()
-                .requestMatchers("/vecino/", "/vecino/**").hasAuthority("Vecino")
-                .anyRequest().permitAll();
-
-        return http.build();
     }
 }
