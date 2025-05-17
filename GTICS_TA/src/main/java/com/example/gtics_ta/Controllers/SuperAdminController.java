@@ -1,6 +1,6 @@
 package com.example.gtics_ta.Controllers;
 import com.example.gtics_ta.Entity.Rol;
-import com.example.gtics_ta.repository.RolRepository;
+import com.example.gtics_ta.Repository.RolRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;

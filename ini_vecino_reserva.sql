@@ -1,6 +1,10 @@
 INSERT INTO roles (id_rol, nombre) VALUES (1, "Vecino");
+INSERT INTO roles (id_rol, nombre) VALUES (2, "SuperAdmin");
+INSERT INTO roles (id_rol, nombre) VALUES (3, "Coordinador");
+
 
 INSERT INTO usuario (id_usuario, nombres, apellidos, correo, contrasenia, direccion, dni, num_celular, id_rol, activo, fecha_nacimiento) VALUES (1, 'Sebastian', 'Ramirez', 'dhannysebas@hotmail.com', '$2a$12$gDEZAWdRcxdYAyqVX5WoxO/UD.JUZVVZ89b8YsdG47y5sB9QJTZfy', 'CATO', 72519702, 111999222,1, TRUE, '1990-01-01');
+INSERT INTO usuario (id_usuario, nombres, apellidos, correo, contrasenia, direccion, dni, num_celular, id_rol, activo, fecha_nacimiento) VALUES (2, 'Pepito', 'Perez', 'a20210845@pucp.edu.pe', '$2a$12$gDEZAWdRcxdYAyqVX5WoxO/UD.JUZVVZ89b8YsdG47y5sB9QJTZfy', 'PUCP', 12345678, 111333222,2, TRUE, '1993-01-01');
 
 INSERT INTO tipoespacio (id_tipo_espacio, nombre) VALUES (1, 'Piscina');
 INSERT INTO tipoespacio (id_tipo_espacio, nombre) VALUES (2, 'Canchas Fútbol');

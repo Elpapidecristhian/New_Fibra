@@ -35,10 +35,10 @@ public class WebSecurityConfig {
                 // Permitir recursos estáticos
                 .requestMatchers("/css/**", "/js/**", "/images/**", "/assets/**", "/front-ed/**", "/scss/**").permitAll()
 
-                .requestMatchers("/vecino/**").hasAnyAuthority("Vecino", "admin", "superadmin")
+                .requestMatchers("/vecino/**").hasAnyAuthority("Vecino", "admin", "SuperAdmin")
                 .requestMatchers("/coordinador/**").hasAnyAuthority("coordinador", "admin", "superadmin")
                 .requestMatchers("/admin/**").hasAnyAuthority("admin", "superadmin")
-                .requestMatchers("/SuperAdmin/**").hasAuthority("superadmin")
+                .requestMatchers("/SuperAdmin/**").hasAuthority("SuperAdmin")
                 .requestMatchers("/login").permitAll()
                 .anyRequest().authenticated()
         );

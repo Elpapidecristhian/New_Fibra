@@ -1,10 +1,7 @@
-package com.example.gtics_ta.controller;
+package com.example.gtics_ta.Controllers;
 
-import com.example.gtics_ta.Entity.Asistencia;
 import com.example.gtics_ta.Entity.Usuario;
-import com.example.gtics_ta.dto.UsuarioDTO;
-import com.example.gtics_ta.repository.AsistenciaRepository;
-import com.example.gtics_ta.repository.UsuarioRepository;
+import com.example.gtics_ta.Repository.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -16,6 +13,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.http.HttpHeaders;
 
 import java.io.IOException;
+import java.util.Optional;
 
 @Controller
 @RequestMapping("/coordinador")
@@ -25,18 +23,21 @@ public class CoordinadorController {
 
     @GetMapping("/perfil/{id}")
     public String perfilUsuario(@PathVariable Integer id, Model model) {
-        UsuarioDTO usuarioDTO = usuarioRepository.findUsuarioDTOById(id);
-        if (usuarioDTO == null) {
+        Optional<Usuario> usuarioopt = usuarioRepository.findById(id);
+        if (usuarioopt.isPresent()) {
+            Usuario usuario = usuarioopt.get();
+            model.addAttribute("usuario", usuario);
+            return "coordinador/perfil";
+
+        }else{
             return "redirect:/error";
         }
-        model.addAttribute("usuario", usuarioDTO);
-        return "main/coordinador/perfil";
     }
 
 
     @GetMapping("/principal")
     public String mostrarPaginaPrincipal(Model model) {
-        return "main/coordinador/principal";
+        return "coordinador/principal";
     }
 
     @GetMapping("/foto/{id}")
