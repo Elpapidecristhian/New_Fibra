@@ -60,8 +60,14 @@ public class WebSecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/login", "/signup", "/recoverpass", "/css/**", "/js/**").permitAll()
+                        //permitir recursos estaticos
+                        .requestMatchers("/css/**", "/js/**", "/images/**", "/assets/**", "/front-ed/**", "/scss/**").permitAll()
+
+                        .requestMatchers("/vecino/**").hasAnyAuthority("vecino", "admin", "superadmin")
+                        .requestMatchers("/coordinador/**").hasAnyAuthority("coordinador","admin","superadmin")
+                        .requestMatchers("/admin/**").hasAnyAuthority("admin","superadmin")
                         .requestMatchers("/SuperAdmin/**").hasRole("SUPERADMIN")
+                        .requestMatchers("/login").permitAll()
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form

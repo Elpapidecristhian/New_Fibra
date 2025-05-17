@@ -107,6 +107,19 @@ public class SuperAdminController {
         }
     }
 
+
+    @GetMapping("/usuarios/desbanear/{id}")
+    public String desbanearUsuario(@PathVariable("id") Integer id) {
+        Optional<Usuario> usuarioOpt = usuarioRepository.findById(id);
+        if (usuarioOpt.isPresent()) {
+            Usuario usuario = usuarioOpt.get();
+            usuario.setBaneado(false);  // Quita la marca de baneado
+            usuarioRepository.save(usuario);
+        }
+        return "redirect:/SuperAdmin/usuarios-baneados"; // Recarga la lista de baneados
+    }
+
+
 }
 
 

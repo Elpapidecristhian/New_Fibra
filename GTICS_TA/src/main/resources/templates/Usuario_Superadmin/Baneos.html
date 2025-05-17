@@ -30,7 +30,7 @@
 			<a href="principal.html" class="logo">
 				<!-- logo-->
 				<div class="logo-mini w-150 text-center">
-					<span class="light-logo"><img src="../images/logo-sanMiguel.png" alt="logo"></span>
+					<span class="light-logo"><img src="/images/logo-sanMiguel.png" alt="logo"></span>
 				</div>
 			</a>
 		</div>
@@ -45,20 +45,7 @@
 							<i data-feather="align-left"></i>
 						</a>
 					</li>
-					<li class="btn-group d-lg-inline-flex d-none">
-						<div class="app-menu">
-							<div class="search-bx mx-5">
-								<form>
-									<div class="input-group">
-										<input type="search" class="form-control" placeholder="Search" aria-label="Search" aria-describedby="button-addon2">
-										<div class="input-group-append">
-											<button class="btn" type="submit" id="button-addon3"><i data-feather="search"></i></button>
-										</div>
-									</div>
-								</form>
-							</div>
-						</div>
-					</li>
+
 				</ul>
 			</div>
 
@@ -77,7 +64,7 @@
 									<p class="pt-5 fs-14 mb-0 fw-700 text-primary">Johen Doe</p>
 									<small class="fs-10 mb-0 text-uppercase text-mute">Admin</small>
 								</div>
-								<img src="../images/avatar/avatar-1.png" class="avatar rounded-10 bg-primary-light h-40 w-40" alt="" />
+								<img src="/images/avatar/avatar-1.png" class="avatar rounded-10 bg-primary-light h-40 w-40" alt="" />
 							</div>
 						</a>
 						<ul class="dropdown-menu animated flipInX">
@@ -129,23 +116,7 @@
 
 	<div class="content-wrapper">
 		<div class="container-full">
-			<div class="content-header">
-				<div class="d-flex align-items-center">
-					<div class="me-auto">
-						<h4 class="page-title">Tablas de usuarios baneados</h4>
-						<div class="d-inline-block align-items-center">
-							<nav>
-								<ol class="breadcrumb">
-									<li class="breadcrumb-item"><a href="#"><i class="mdi mdi-home-outline"></i></a></li>
-									<li class="breadcrumb-item" aria-current="page">Tables</li>
-									<li class="breadcrumb-item active" aria-current="page">Data Tables</li>
-								</ol>
-							</nav>
-						</div>
-					</div>
 
-				</div>
-			</div>
 
 			<section class="content">
 				<div class="row">
@@ -169,19 +140,25 @@
 															<th>Cargo</th>
 															<th>Número Telefónico</th>
 															<th>Dirección</th>
-															<th>Estado</th>
+															<th>Acción</th>
 														</tr>
 														</thead>
 														<tbody>
 														<tr th:each="usuario : ${baneados}">
-															<td th:text="${usuario.id}"></td> <!-- Muestra el ID del usuario -->
+															<td></td> <!-- Muestra el ID del usuario -->
 															<td th:text="${usuario.nombres}"></td> <!-- Muestra los nombres del usuario -->
 															<td th:text="${usuario.apellidos}"></td> <!-- Muestra los apellidos del usuario -->
 															<td th:text="${usuario.rol.nombre}"></td> <!-- Asumí que "rol" es un objeto con un campo "nombre" -->
 															<td th:text="${usuario.numCelular}"></td> <!-- Muestra el número de celular -->
 															<td th:text="${usuario.direccion}"></td> <!-- Muestra la dirección del usuario -->
-															<td>Baneado</td> <!-- Todos los usuarios están baneados, así que esta columna es estática -->
-														</tr>
+															<td>
+																<a th:href="@{/SuperAdmin/usuarios/desbanear/{id}(id=${usuario.id})}"
+																   class="btn btn-success btn-sm"
+																   onclick="return confirm('¿Estás seguro de desbanear a este usuario?');"
+																   title="Desbanear">
+																	<i class="fa fa-check"></i>
+																</a>
+															</td>														</tr>
 														</tbody>
 													</table>
 												</div>
@@ -217,6 +194,46 @@
 <script src="/assets/icons/feather-icons/feather.min.js"></script>
 <script src="/assets/vendor_components/datatable/datatables.min.js"></script>
 <script src="/js/template.js"></script>
-<script src="/js/pages/data-table.js"></script>
+<script>
+	$('#example1').DataTable({
+		language: {
+			decimal: ",",
+			emptyTable: "No hay datos disponibles en la tabla",
+			info: "Mostrando _START_ a _END_ de _TOTAL_ registros",
+			infoEmpty: "Mostrando 0 a 0 de 0 registros",
+			infoFiltered: "(filtrado de _MAX_ registros totales)",
+			infoPostFix: "",
+			thousands: ".",
+			lengthMenu: "Mostrar _MENU_ registros",
+			loadingRecords: "Cargando...",
+			processing: "Procesando...",
+			search: "Buscar:",
+			zeroRecords: "No se encontraron registros coincidentes",
+			paginate: {
+				first: "Primero",
+				last: "Último",
+				next: "Siguiente",
+				previous: "Anterior"
+			},
+			aria: {
+				sortAscending: ": activar para ordenar la columna ascendente",
+				sortDescending: ": activar para ordenar la columna descendente"
+			}
+		},
+		columnDefs: [
+			{
+				targets: 0, // Primera columna (#ID)
+				orderable: false,
+				searchable: false,
+				render: function (data, type, row, meta) {
+					return meta.row + 1 + meta.settings._iDisplayStart;
+				}
+			}
+		]
+	});
+
+</script>
+
+
 </body>
 </html>
