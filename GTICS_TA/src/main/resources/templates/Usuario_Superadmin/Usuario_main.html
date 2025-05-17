@@ -169,7 +169,7 @@
 														</tr>
 														</thead>
 														<tbody>
-														<tr th:each="usuario : ${noBaneados}">
+														<tr th:each="usuario : ${noBaneados}" th:data-id="${usuario.id}">
 															<td></td>
 															<td th:text="${usuario.nombres}"></td>
 															<td th:text="${usuario.apellidos}"></td>
@@ -304,13 +304,14 @@
 		const fila = boton.closest('tr');
 		const celdas = fila.querySelectorAll('td');
 
-		document.getElementById('editId').value = celdas[0].innerText;
+		// Obtenemos el ID real del atributo data-id
+		const idReal = fila.getAttribute('data-id');
+
+		document.getElementById('editId').value = idReal; // ID real para el formulario
 		document.getElementById('editNombre').value = celdas[1].innerText;
 		document.getElementById('editApellido').value = celdas[2].innerText;
 		document.getElementById('editCelular').value = celdas[4].innerText;
 		document.getElementById('editDireccion').value = celdas[5].innerText;
-
-		fila.setAttribute('data-editar', 'true');
 	}
 
 	function guardarCambiosUsuario() {
