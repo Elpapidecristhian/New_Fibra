@@ -129,7 +129,7 @@
                     <!-- sidebar menu-->
                     <ul class="sidebar-menu" data-widget="tree">
                         <li>
-                            <a th:href="@{/coordinador/perfil}">
+                            <a th:href="@{/coordinador/perfil(id=3)}">
                                 <i data-feather="user"></i>
                                 <span>Perfil</span>
                             </a>
@@ -201,47 +201,52 @@
                             <div class="tab-content">
                                 <!-- /.tab-pane -->
 
-                                <div class="tab-pane active" id="editarPerfil">
+                                <div class="tab-pane active show" id="editarPerfil">
 
                                     <div class="box no-shadow">
                                         <!-- Basic Forms -->
-                                        <form action="/coordinador/update/${usuario.id}" method="post" enctype="multipart/form-data">
+                                        <form th:action="@{/vecino/guardarperfil}" th:object="${usuario}" method="post" enctype="multipart/form-data">
                                             <div class="box-body">
                                                 <h4 class="mt-0 mb-20" style="color: rgb(90, 201, 221);"> 1. Información personal:</h4>
+                                                <input type="hidden" th:field="*{id}">
+                                                <input type="hidden" th:field="*{contrasenia}">
+                                                <input type="hidden" th:field="*{rol}">
                                                 <div class="form-group">
                                                     <label class="form-label">Nombres:</label>
-                                                    <input type="text" class="form-control" id="nombres" th:value="${usuario.nombres}" disabled>
+                                                    <input type="text" class="form-control" id="nombres" name="nombres" th:field="*{nombres}" readonly>
                                                 </div>
                                                 <div class="form-group">
                                                     <label class="form-label" for="apellidos">Apellidos:</label>
-                                                    <input type="text" class="form-control" id="apellidos" th:value="${usuario.apellidos}" disabled>
+                                                    <input type="text" class="form-control" id="apellidos" name="apellidos" th:field="*{apellidos}" readonly>
                                                 </div>
                                                 <div class="form-group">
                                                     <label class="form-label">DNI:</label>
-                                                    <input type="number" class="form-control" th:value="${usuario.dni}" disabled>
+                                                    <input type="number" class="form-control" id="dni" name="dni" th:field="*{dni}" readonly>
                                                 </div>
                                                 <div class="form-group">
                                                     <label class="form-label">Email:</label>
-                                                    <input type="email" class="form-control" th:value="${usuario.correo}" disabled>
+                                                    <input type="email" class="form-control" name="correo" id="correo" th:field="*{correo}" readonly>
                                                 </div>
                                                 <div class="form-group">
-                                                    <label class="form-label">Celular:</label>
-                                                    <input type="tel" class="form-control" name="numCelular" th:value="${usuario.numCelular}" required>
+                                                    <label for="celular" class="form-label">Celular:</label>
+                                                    <input type="tel" class="form-control" id="celular" th:field="*{numCelular}" th:classappend="${#fields.hasErrors('numCelular')?'is-invalid':''}"/>
+                                                    <div class="invalid-feedback" th:if="${#fields.hasErrors('numCelular')}" th:errors="*{numCelular}"></div>
                                                 </div>
                                                 <div class="form-group">
                                                     <label class="form-label">Fecha de nacimiento:</label>
-                                                    <input class="form-control" type="date" id="fechaNacimiento" th:value="${usuario.fechaNacimiento}" disabled>
+                                                    <input class="form-control" type="date" id="fechaNacimiento" name="fechaNacimiento" th:field="*{fechaNacimiento}" readonly>
                                                 </div>
                                                 <div class="form-group">
                                                     <label class="form-label">Dirección:</label>
-                                                    <input type="text" class="form-control" id="direccion" th:value="${usuario.direccion}" disabled>
+                                                    <input type="text" class="form-control" id="direccion" name="direccion" th:field="*{direccion}" readonly>
                                                 </div>
                                                 <hr>
 
                                                 <h4 class="mt-0 mb-20" style="color: rgb(90, 201, 221)";>2. Foto de perfil:</h4>
                                                 <div class="mb-3">
-                                                    <label for="formFile" class="form-label">Adjunte su nueva foto</label>
-                                                    <input class="form-control" type="file" id="formFile" name="foto" accept="image/*">
+                                                    <label for="archivo" class="form-label">Adjunte su nueva foto</label>
+                                                    <input class="form-control" type="file" id="archivo" name="archivo" th:classappend="${msg != null ?'is-invalid':''}">
+                                                    <div class="invalid-feedback" th:if="${msg != null}" th:text="${msg}"></div>
                                                 </div>
                                             </div>
                                             <!-- /.box-body -->
@@ -263,16 +268,16 @@
                     <div class="col-12 col-lg-5 col-xl-4">
                         <div class="box box-widget widget-user">
                             <!-- Add the bg color to the header using any of the bg-* classes -->
-                            <div class="widget-user-header bg-img bbsr-0 bber-0" style="background: url('../resources/static/images/gallery/full/10.jpg') center center;" data-overlay="5">
-                                <h3 class="widget-user-username text-white" th:text="${usuario.nombres + ' ' + usuario.apellidos}" ></h3>
+                            <div class="widget-user-header bg-img bbsr-0 bber-0" th:style="|background: url('@{/images/gallery/full/10.jpg}') center center;|" data-overlay="5">
+                                <h3 class="widget-user-username text-white" th:text="${usuario.getNombres()} + ' ' + ${usuario.getApellidos()}" ></h3>
                                 <h6 class="widget-user-desc text-white" th:text="${usuario.rol.nombre}"></h6>
                             </div>
                             <div class="widget-user-image">
-                                <img class="rounded-circle"  th:src="@{/images/user3-128x128.jpg}" alt="User Avatar">
+                                <img class="rounded-circle"  th:src="@{|image/${usuario.getId()}|}" alt="User Avatar">
                             </div>
                             <div class="box-footer">
                                 <div class="justify-content-center">
-                                    <div id="dni">
+                                    <div id="dni-profile">
                                         <div class="description-block">
                                             <h5 class="description-header" th:text="${usuario.dni}"></h5>
                                             <span class="description-text">DNI</span>
@@ -290,7 +295,7 @@
                                     <div class="col-12">
                                         <div>
                                             <p>Email :<span class="text-gray ps-10" th:text="${usuario.correo}"></span> </p>
-                                            <p>Celular :<span class="text-gray ps-10" th:text="${#strings.replace(usuario.numCelular, '+51 ', '')}"></span></p>
+                                            <p>Celular :<span class="text-gray ps-10" th:text="${usuario.numCelular}"></span></p>
                                             <p>Dirección :<span class="text-gray ps-10" th:text="${usuario.direccion}"></span></p>
                                         </div>
                                     </div>

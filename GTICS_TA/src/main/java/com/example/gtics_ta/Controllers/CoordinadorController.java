@@ -2,12 +2,14 @@ package com.example.gtics_ta.Controllers;
 
 import com.example.gtics_ta.Entity.Usuario;
 import com.example.gtics_ta.Repository.UsuarioRepository;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.http.HttpHeaders;
@@ -21,57 +23,70 @@ public class CoordinadorController {
     @Autowired
     UsuarioRepository usuarioRepository;
 
-    @GetMapping("/perfil/{id}")
-    public String perfilUsuario(@PathVariable Integer id, Model model) {
-        Optional<Usuario> usuarioopt = usuarioRepository.findById(id);
-        if (usuarioopt.isPresent()) {
-            Usuario usuario = usuarioopt.get();
+    @GetMapping("/perfil")
+    public String coordinadorPerfil(@ModelAttribute("usuario") Usuario usuario, @RequestParam(value = "id") Integer id, Model model) {
+        Optional<Usuario> optuser = usuarioRepository.findById(id);
+        if(optuser.isPresent()) {
+            usuario = optuser.get();
             model.addAttribute("usuario", usuario);
-            return "coordinador/perfil";
+        }
+        return "coordinador/perfil";
+    }
 
-        }else{
-            return "redirect:/error";
+    @PostMapping("/guardarperfil")
+    public String guardarPerfil(@ModelAttribute("usuario") @Valid Usuario usuario, BindingResult bindingResult, @RequestParam("archivo") MultipartFile file , Model model) {
+        if(bindingResult.hasErrors()) {
+            return "coordinador/perfil";
+        }
+
+        if(file.isEmpty()) {
+            return "coordinador/perfil";
+        }
+
+        String fileName = file.getOriginalFilename();
+
+        if (fileName.contains("..")){
+            model.addAttribute("msg","Debe ingresar un archivo válido");
+            return "coordinador/perfil";
+        }
+
+        try {
+            usuario.setFoto(file.getBytes());
+            usuario.setFotoNombre(fileName);
+            usuario.setFotoTipoArchivo(file.getContentType());
+            usuarioRepository.save(usuario);
+            return "redirect:/coordinador/perfil?id=" + usuario.getId();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "coordinador/perfil";
         }
     }
 
+    @GetMapping("/image/{id}")
+    public ResponseEntity<byte[]> mostrarImagen(@PathVariable("id") Integer id) {
+        Optional<Usuario> optusuario = usuarioRepository.findById(id);
+        if(optusuario.isPresent()) {
+            Usuario usuario = optusuario.get();
+
+            byte[] image = usuario.getFoto();
+
+            HttpHeaders httpHeaders = new HttpHeaders();
+            httpHeaders.setContentType(
+                    MediaType.parseMediaType(usuario.getFotoTipoArchivo()));
+
+            return new ResponseEntity<>(
+                    image,
+                    httpHeaders,
+                    HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+        }
+    }
 
     @GetMapping("/principal")
     public String mostrarPaginaPrincipal(Model model) {
         return "coordinador/principal";
     }
 
-    @GetMapping("/foto/{id}")
-    public ResponseEntity<byte[]> mostrarFoto(@PathVariable Integer id) {
-        Usuario usuario = usuarioRepository.findById(id).orElse(null);
-        if (usuario != null && usuario.getFoto() != null) {
-            byte[] foto = usuario.getFoto();
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.IMAGE_JPEG); // O ajusta según tu formato
-            return new ResponseEntity<>(foto, headers, HttpStatus.OK);
-        } else {
-            return ResponseEntity.notFound().build();
-        }
-    }
-
-
-    @PostMapping("/actualizar/{id}")
-    public String actualizarPerfilUsuario(@PathVariable Integer id,
-                                @RequestParam("celular") String celular,
-                                @RequestParam("foto") MultipartFile foto) {
-
-        Usuario usuario = usuarioRepository.findById(id).orElse(null);
-        if (usuario != null) {
-            usuario.setNumCelular(Integer.parseInt(celular));
-            try {
-                if (!foto.isEmpty()) {
-                    usuario.setFoto(foto.getBytes());
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            usuarioRepository.save(usuario);
-        }
-        return "redirect:/coordinador/perfil/" + id;
-    }
 
 }

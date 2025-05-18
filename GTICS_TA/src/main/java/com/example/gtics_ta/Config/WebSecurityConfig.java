@@ -36,7 +36,7 @@ public class WebSecurityConfig {
                 .requestMatchers("/css/**", "/js/**", "/images/**", "/assets/**", "/front-ed/**", "/scss/**").permitAll()
 
                 .requestMatchers("/vecino/**").hasAnyAuthority("Vecino", "admin", "SuperAdmin")
-                .requestMatchers("/coordinador/**").hasAnyAuthority("coordinador", "admin", "superadmin")
+                .requestMatchers("/coordinador/**").hasAnyAuthority("Coordinador", "admin", "superadmin")
                 .requestMatchers("/admin/**").hasAnyAuthority("admin", "superadmin")
                 .requestMatchers("/SuperAdmin/**").hasAuthority("SuperAdmin")
                 .requestMatchers("/login").permitAll()

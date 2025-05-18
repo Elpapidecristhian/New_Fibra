@@ -5,6 +5,7 @@ INSERT INTO roles (id_rol, nombre) VALUES (3, "Coordinador");
 
 INSERT INTO usuario (id_usuario, nombres, apellidos, correo, contrasenia, direccion, dni, num_celular, id_rol, activo, fecha_nacimiento) VALUES (1, 'Sebastian', 'Ramirez', 'dhannysebas@hotmail.com', '$2a$12$gDEZAWdRcxdYAyqVX5WoxO/UD.JUZVVZ89b8YsdG47y5sB9QJTZfy', 'CATO', 72519702, 111999222,1, TRUE, '1990-01-01');
 INSERT INTO usuario (id_usuario, nombres, apellidos, correo, contrasenia, direccion, dni, num_celular, id_rol, activo, fecha_nacimiento) VALUES (2, 'Pepito', 'Perez', 'a20210845@pucp.edu.pe', '$2a$12$gDEZAWdRcxdYAyqVX5WoxO/UD.JUZVVZ89b8YsdG47y5sB9QJTZfy', 'PUCP', 12345678, 111333222,2, TRUE, '1993-01-01');
+INSERT INTO usuario (id_usuario, nombres, apellidos, correo, contrasenia, direccion, dni, num_celular, id_rol, activo, fecha_nacimiento) VALUES (3, 'Ariana', 'Zuñiga', 'arianazuniga01@gmail.com', '$2a$12$qNuHl9YIYm3gV3Exqnjej.oYxGnjHh5asxNmJXSceX3v/4r/NpBte', 'Av. Monte de los Olivos 286', 72885602, 994615847,3, TRUE, '2004-01-07');
 
 INSERT INTO tipoespacio (id_tipo_espacio, nombre) VALUES (1, 'Piscina');
 INSERT INTO tipoespacio (id_tipo_espacio, nombre) VALUES (2, 'Canchas Fútbol');

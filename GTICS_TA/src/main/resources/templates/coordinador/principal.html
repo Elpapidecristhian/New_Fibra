@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="">
   <meta name="author" content="">
-  <link rel="icon" th:src="@{/images/logo-solo.png}">
+  <link rel="icon" th:href="@{/images/logo-solo.png}">
 
   <title>Página principal - Coordinador</title>
 
@@ -143,7 +143,7 @@
 
           <!-- User Account-->
           <li>
-            <a th:href="@{/perfil}" class="waves-effect waves-light dropdown-toggle w-auto l-h-12 bg-transparent py-0 no-shadow" data-bs-toggle="dropdown" title="User">
+            <a class="waves-effect waves-light dropdown-toggle w-auto l-h-12 bg-transparent py-0 no-shadow" data-bs-toggle="dropdown" title="User">
               <div class="d-flex pt-5">
                 <div class="text-end me-10">
                   <p class="pt-5 fs-14 mb-0 fw-700 text-primary">Johen Doe</p>
@@ -168,13 +168,13 @@
           <!-- sidebar menu-->
           <ul class="sidebar-menu" data-widget="tree">
             <li>
-              <a th:href="@{/perfil}">
+              <a th:href="@{/coordinador/perfil}">
                 <i data-feather="user"></i>
                 <span>Perfil</span>
               </a>
             </li>
             <li>
-              <a th:href="@{/principal}">
+              <a th:href="@{/coordinador/principal}">
                 <i data-feather="clock"></i>
                 <span>Marcar asistencia</span>
               </a>
