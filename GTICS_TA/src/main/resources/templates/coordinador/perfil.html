@@ -27,7 +27,7 @@
     <header class="main-header">
         <div class="d-flex align-items-center logo-box justify-content-center">
             <!-- Logo -->
-            <a href="principal.html" class="logo">
+            <a th:href="@{/coordinador/principal}" class="logo">
                 <!-- logo-->
                 <div class="logo-mini w-150 text-center">
                     <span class="light-logo"><img th:src="@{/images/logo-sanMiguel.png}" alt="logo"></span>
@@ -148,10 +148,11 @@
                           </a>
                         </li>-->
                         <li>
-                            <a th:href="@{/login/login}">
+                            <a href="#" class="nav-link" onclick="document.getElementById('logoutForm').submit(); return false;">
                                 <i data-feather="log-out"></i>
                                 <span>Cerrar sesión</span>
                             </a>
+                            <form id="logoutForm" th:action="@{/logout}" method="post" style="display: none;"></form>
                         </li>
 
                     </ul>

@@ -69,6 +69,14 @@ public class CoordinadorController {
             Usuario usuario = optusuario.get();
 
             byte[] image = usuario.getFoto();
+            if (image == null) {
+                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+            }
+
+            String tipoArchivo = usuario.getFotoTipoArchivo();
+            if (tipoArchivo == null || tipoArchivo.isBlank()) {
+                tipoArchivo = "application/octet-stream"; // tipo MIME por defecto
+            }
 
             HttpHeaders httpHeaders = new HttpHeaders();
             httpHeaders.setContentType(
