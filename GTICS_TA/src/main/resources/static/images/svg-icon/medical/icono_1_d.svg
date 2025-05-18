@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64" fill="none">
+  <!-- Fondo círculo azul claro -->
+  <circle cx="32" cy="32" r="30" fill="#D0E6FF" stroke="#2A6BD1" stroke-width="2"/>
+  
+  <!-- Persona central -->
+  <circle cx="32" cy="22" r="8" fill="#2A6BD1"/>
+  <path d="M24 44c0-5.5 16-5.5 16 0v6H24v-6z" fill="#2A6BD1"/>
+
+  <!-- Persona izquierda -->
+  <circle cx="18" cy="30" r="6" fill="#5A8DD7"/>
+  <path d="M13 44c0-4 10-4 10 0v4H13v-4z" fill="#5A8DD7"/>
+
+  <!-- Persona derecha -->
+  <circle cx="46" cy="30" r="6" fill="#5A8DD7"/>
+  <path d="M41 44c0-4 10-4 10 0v4H41v-4z" fill="#5A8DD7"/>
+</svg>
