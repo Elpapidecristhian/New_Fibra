@@ -181,10 +181,10 @@
 																   onclick="cargarDatosUsuario(this)">
 																	<i class="fa fa-pencil"></i>
 																</a>
-																<a th:href="@{/SuperAdmin/usuarios/banear/{id}(id=${usuario.id})}" class="btn btn-danger btn-sm" title="Eliminar"
-																   onclick="return confirm('¿Estás seguro de eliminar este usuario?');">
+																<button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" th:attr="data-bs-target=${'#modal-' + usuario.id}" title="Banear">
 																	<i class="fa fa-ban"></i>
-																</a>
+																</button>
+
 															</td>
 														</tr>
 														</tbody>
@@ -225,8 +225,6 @@
 		language: {
 			decimal: ",",
 			emptyTable: "No hay datos disponibles en la tabla",
-			info: "Mostrando _START_ a _END_ de _TOTAL_ registros",
-			infoEmpty: "Mostrando 0 a 0 de 0 registros",
 			infoFiltered: "(filtrado de _MAX_ registros totales)",
 			infoPostFix: "",
 			thousands: ".",
@@ -246,6 +244,8 @@
 				sortDescending: ": activar para ordenar la columna descendente"
 			}
 		},
+		lengthChange: false,  // Oculta "Mostrar __ registros"
+		info: false,          // Oculta "Mostrando 1 a X de Y registros"
 		columnDefs: [
 			{
 				targets: 0, // Primera columna (#ID)
@@ -257,47 +257,66 @@
 			}
 		]
 	});
-
 </script>
+
+<div th:each="usuario : ${noBaneados}" class="modal center-modal fade" th:id="'modal-' + ${usuario.id}" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header bg-danger text-white">
+				<h5 class="modal-title" th:utext="'Banear Usuario'"></h5>
+				<button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+			</div>
+			<div class="modal-body">
+
+				<p>¿Está seguro que desea banear al usuario <strong th:text="${usuario.nombres} + ' ' + ${usuario.apellidos}"></strong>?</p>
+			</div>
+			<div class="modal-footer modal-footer-uniform">
+				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+				<a th:href="@{/SuperAdmin/usuarios/banear/{id}(id=${usuario.id})}" class="btn btn-danger">Confirmar Baneo</a>
+			</div>
+		</div>
+	</div>
+</div>
 
 </body>
 
 <!-- Modal Editar Usuario -->
-<div class="modal fade" id="modalEditar" tabindex="-1" aria-labelledby="modalEditarLabel" aria-hidden="true">
-	<div class="modal-dialog modal-dialog-centered">
+<div class="modal center-modal fade" id="modalEditar" tabindex="-1" aria-labelledby="modalEditarLabel" aria-hidden="true">
+	<div class="modal-dialog">
 		<div class="modal-content">
 			<div class="modal-header bg-primary text-white">
-				<h5 class="modal-title">Editar Usuario</h5>
+				<h5 class="modal-title" id="modalEditarLabel">Editar Usuario</h5>
 				<button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
 			</div>
 			<div class="modal-body">
 				<form id="formEditarUsuario">
-					<input type="hidden" id="editId">
+					<input type="hidden" id="editId" />
 					<div class="mb-3">
 						<label for="editNombre" class="form-label">Nombres</label>
-						<input type="text" class="form-control" id="editNombre">
+						<input type="text" class="form-control" id="editNombre" />
 					</div>
 					<div class="mb-3">
 						<label for="editApellido" class="form-label">Apellidos</label>
-						<input type="text" class="form-control" id="editApellido">
+						<input type="text" class="form-control" id="editApellido" />
 					</div>
 					<div class="mb-3">
 						<label for="editDireccion" class="form-label">Dirección</label>
-						<input type="text" class="form-control" id="editDireccion">
+						<input type="text" class="form-control" id="editDireccion" />
 					</div>
 					<div class="mb-3">
 						<label for="editCelular" class="form-label">Celular</label>
-						<input type="text" class="form-control" id="editCelular">
+						<input type="text" class="form-control" id="editCelular" />
 					</div>
 				</form>
 			</div>
-			<div class="modal-footer">
+			<div class="modal-footer modal-footer-uniform">
 				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
 				<button type="button" class="btn btn-primary" onclick="guardarCambiosUsuario()">Guardar</button>
 			</div>
 		</div>
 	</div>
 </div>
+
 
 <script>
 	function cargarDatosUsuario(boton) {
@@ -342,7 +361,6 @@
 		})
 				.then(response => {
 					if (response.ok) {
-						alert("Usuario actualizado correctamente");
 						location.reload();
 					} else {
 						alert("Error al actualizar el usuario");

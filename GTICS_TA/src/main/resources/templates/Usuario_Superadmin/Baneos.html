@@ -145,21 +145,41 @@
 														</thead>
 														<tbody>
 														<tr th:each="usuario : ${baneados}">
-															<td></td> <!-- Muestra el ID del usuario -->
-															<td th:text="${usuario.nombres}"></td> <!-- Muestra los nombres del usuario -->
-															<td th:text="${usuario.apellidos}"></td> <!-- Muestra los apellidos del usuario -->
-															<td th:text="${usuario.rol.nombre}"></td> <!-- Asumí que "rol" es un objeto con un campo "nombre" -->
-															<td th:text="${usuario.numCelular}"></td> <!-- Muestra el número de celular -->
-															<td th:text="${usuario.direccion}"></td> <!-- Muestra la dirección del usuario -->
+															<td th:text="${usuario.id}"></td> <!-- ID -->
+															<td th:text="${usuario.nombres}"></td>
+															<td th:text="${usuario.apellidos}"></td>
+															<td th:text="${usuario.rol.nombre}"></td>
+															<td th:text="${usuario.numCelular}"></td>
+															<td th:text="${usuario.direccion}"></td>
 															<td>
-																<a th:href="@{/SuperAdmin/usuarios/desbanear/{id}(id=${usuario.id})}"
-																   class="btn btn-success btn-sm"
-																   onclick="return confirm('¿Estás seguro de desbanear a este usuario?');"
-																   title="Desbanear">
-																	<i class="fa fa-check"></i>
-																</a>
-															</td>														</tr>
+																<!-- Botón único para abrir modal -->
+																<button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" th:attr="data-bs-target=${'#modal-' + usuario.id}" title="Desbanear">
+																	<i class="fa fa-unlock"></i>
+																</button>
+															</td>
+														</tr>
 														</tbody>
+
+														<!-- Modales para cada usuario baneado -->
+														<div th:each="usuario : ${baneados}" class="modal center-modal fade" th:id="'modal-' + ${usuario.id}" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true">
+															<div class="modal-dialog">
+																<div class="modal-content">
+																	<div class="modal-header bg-primary text-white">
+																		<h5 th:utext="'Desbanear Usuario  '" class="modal-title"></h5>
+																		<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+																	</div>
+																	<div class="modal-body">
+																		<p>¿Está seguro que desea desbanear al usuario <strong th:text="${usuario.nombres} + ' ' + ${usuario.apellidos}"></strong>?</p>
+																	</div>
+
+																	<div class="modal-footer modal-footer-uniform">
+																		<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+																		<a th:href="@{/SuperAdmin/usuarios/desbanear/{id}(id=${usuario.id})}" class="btn btn-primary">Confirmar Desbaneo</a>
+																	</div>
+																</div>
+															</div>
+														</div>
+
 													</table>
 												</div>
 											</div>
@@ -199,8 +219,6 @@
 		language: {
 			decimal: ",",
 			emptyTable: "No hay datos disponibles en la tabla",
-			info: "Mostrando _START_ a _END_ de _TOTAL_ registros",
-			infoEmpty: "Mostrando 0 a 0 de 0 registros",
 			infoFiltered: "(filtrado de _MAX_ registros totales)",
 			infoPostFix: "",
 			thousands: ".",
@@ -220,6 +238,8 @@
 				sortDescending: ": activar para ordenar la columna descendente"
 			}
 		},
+		lengthChange: false,  // Oculta "Mostrar __ registros"
+		info: false,          // Oculta "Mostrando 1 a X de Y registros"
 		columnDefs: [
 			{
 				targets: 0, // Primera columna (#ID)
@@ -231,6 +251,8 @@
 			}
 		]
 	});
+</script>
+
 
 </script>
 
