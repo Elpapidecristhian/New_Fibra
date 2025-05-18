@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -19,7 +19,7 @@
 
 </head>
 
-<body class="hold-transition theme-primary bg-img" style="background-image: url(../images/auth-bg/background.png)">
+<body class="hold-transition theme-primary bg-img" th:style="|background-image: url('@{/images/auth-bg/background.png}')|">
 
 <div class="container h-p100">
   <div class="row align-items-center justify-content-md-center h-p100">
@@ -30,7 +30,7 @@
           <div class="bg-white rounded10 shadow-lg">
             <div class="content-top-agile p-20 pb-0">
               <h2 class="text-primary">Crear una nueva cuenta</h2>
-              <div><img src="/html/images/logo-sanMiguel.png" alt="Logo Municipalidad"  width="150" style="margin-bottom: 5px;"></div>
+              <div><img th:src="@{/images/logo-sanMiguel.png}" alt="Logo Municipalidad"  width="150" style="margin-bottom: 5px;"></div>
               <p class="mb-0">¡Únete y se parte de nuestra comunidad en San Miguel!</p>
             </div>
             <div class="p-20">
@@ -103,7 +103,7 @@
                 </div>
               </form>
               <div class="text-center">
-                <p class="mt-15 mb-0">¿Ya tiene una cuenta?<a href="login.html" class="text-danger ms-5">Inicie sesión</a></p>
+                <p class="mt-15 mb-0">¿Ya tiene una cuenta?<a th:href="@{/login}" class="text-danger ms-5">Inicie sesión</a></p>
               </div>
             </div>
           </div>
