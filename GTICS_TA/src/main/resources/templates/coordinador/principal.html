@@ -275,13 +275,12 @@
                     <div class="col-md-6">
                       <div class="form-group">
                         <label class="form-label">Tipo de servicio<span class="text-danger">*</span></label>
-                        <select id="tipo_servicio" required class="form-select" >
+                        <select id="tipo_servicio" name="tipoServicio" required class="form-select" >
                           <option value="" disabled selected>Seleccione una opción</option>
-                          <option>Piscina</option>
-                          <option>Gimnasio</option>
-                          <option>Cancha de loza</option>
-                          <option>Cancha de grass sintético</option>
-                          <option>Pista de atletismo</option>
+                          <option th:each="tipo : ${tiposEspacio}"
+                                  th:value="${tipo.id}"
+                                  th:text="${tipo.nombre}">
+                          </option>
                         </select>
                       </div>
                     </div>

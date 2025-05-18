@@ -1,7 +1,10 @@
 package com.example.gtics_ta.Controllers;
 
+import com.example.gtics_ta.Entity.TipoEspacio;
 import com.example.gtics_ta.Entity.Usuario;
+import com.example.gtics_ta.Repository.TipoEspacioRepository;
 import com.example.gtics_ta.Repository.UsuarioRepository;
+import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -15,6 +18,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.http.HttpHeaders;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Optional;
 
 @Controller
@@ -22,6 +26,8 @@ import java.util.Optional;
 public class CoordinadorController {
     @Autowired
     UsuarioRepository usuarioRepository;
+    @Autowired
+    private TipoEspacioRepository tipoEspacioRepository;
 
     @GetMapping("/perfil")
     public String coordinadorPerfil(@ModelAttribute("usuario") Usuario usuario, @RequestParam(value = "id") Integer id, Model model) {
@@ -92,7 +98,11 @@ public class CoordinadorController {
     }
 
     @GetMapping("/principal")
-    public String mostrarPaginaPrincipal(Model model) {
+    public String mostrarPaginaPrincipal(HttpSession  session, Model model) {
+        // Obtener lista de tipos de espacio desde la BD
+        List<TipoEspacio> tiposEspacio = tipoEspacioRepository.findAllByOrderByNombreAsc();
+        model.addAttribute("tiposEspacio", tiposEspacio);
+
         return "coordinador/principal";
     }
 
