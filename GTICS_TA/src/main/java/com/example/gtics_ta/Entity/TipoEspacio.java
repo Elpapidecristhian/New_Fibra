@@ -16,6 +16,4 @@ public class TipoEspacio {
     private int id;
     private String nombre;
 
-    @OneToMany(mappedBy = "tipoEspacio")
-    private List<EspaciosDeportivos> espaciosDeportivos;
 }

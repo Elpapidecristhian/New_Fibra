@@ -1,0 +1,998 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="">
+  <meta name="author" content="">
+  <link rel="icon" th:href="@{/images/san_miguel_logo.ico}">
+
+  <title>Admin - Agregar Servicio</title>
+
+  <!-- Vendors Style-->
+  <link rel="stylesheet" th:href="@{/css/vendors_css.css}">
+
+  <!-- Style-->
+  <link rel="stylesheet" th:href="@{/css/style.css}">
+  <link rel="stylesheet" th:href="@{/css/skin_color.css}">
+
+
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+  <style>
+    html, body {
+      background-color: #f5f6fa !important;
+      margin: 0;
+      padding: 0;
+      overflow-x: hidden;
+    }
+
+    .wrapper {
+      background-color: #f5f6fa !important;
+      min-height: 100vh;
+    }
+    /* Ajustes para el contenedor general */
+    .content-wrapper {
+      background-color: #f5f6fa; /* Fondo similar al menú lateral */
+      padding: 20px; /* Ajustamos el padding */
+      border-radius: 8px;
+      min-height: 70vh; /* Altura mínima de la pantalla */
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      flex-direction: column;
+      transition: padding 0.3s ease;
+    }
+
+    /* Ajustes de la tarjeta del formulario */
+    .card-container {
+      width: 100%;
+      max-width: 1200px; /* Ajuste el tamaño máximo */
+      background-color: #ffffff;
+      padding: 30px; /* Padding interno para la tarjeta */
+      border-radius: 10px;
+      box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1); /* Sombra más sutil */
+      margin: 20px auto;
+      transition: width 0.3s ease-in-out, margin 0.3s ease-in-out;
+    }
+
+    /* Aseguramos que las secciones del formulario se vean bien */
+    .form-section {
+      background-color: #f9f9f9;
+      padding: 20px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      display: none; /* Ocultamos las secciones no activas */
+    }
+
+    .form-section.active {
+      display: block; /* Mostramos la sección activa */
+    }
+
+    /* Mejoramos la apariencia de los pasos de navegación */
+    .step-container {
+      display: flex;
+      justify-content: space-between;
+      gap: 5px;
+      margin-bottom: 30px;
+      width: 100%;
+      flex-wrap: wrap; /* Asegura que los pasos se alineen bien */
+    }
+
+    .step {
+      padding: 10px 25px;
+      border-radius: 5px;
+      background-color: #d9e6f6;
+      cursor: pointer;
+      font-weight: bold;
+      text-align: center;
+      flex: 1; /* Hace que los pasos se distribuyan igual */
+      max-width: 200px; /* Limita el ancho máximo de cada paso */
+    }
+
+    .step.active {
+      background-color: #2a4d85;
+      color: white;
+    }
+
+    .step:hover {
+      background-color: #1a3f6a;
+      color: white;
+    }
+
+    /* Responsividad para pantallas pequeñas */
+    @media (max-width: 768px) {
+      .content-wrapper {
+        padding: 10px;
+      }
+
+      .card-container {
+        padding: 20px;
+        width: 100%;
+        margin: 10px auto; /* Ajusta el margen para pantallas pequeñas */
+      }
+
+      .step-container {
+        flex-direction: column; /* Coloca los pasos en una columna en pantallas pequeñas */
+        align-items: center;
+      }
+
+      .step {
+        width: 60%; /* Asegura que los pasos ocupen todo el ancho disponible */
+        text-align: center;
+      }
+
+      /* Aseguramos que los formularios se ajusten bien en pantallas pequeñas */
+      .form-control, .form-select, .form-textarea {
+        width: 100%;
+      }
+
+      .form-section {
+        padding: 15px;
+      }
+    }
+
+    /* Botón de "Anterior" */
+    .btn-secondary {
+      margin-right: 15px; /* Agregar separación entre el "Anterior" y el siguiente */
+    }
+
+  </style>
+
+  <style>
+    /* Aseguramos que el resumen y la foto estén alineados horizontalmente */
+    #step3 .row {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+    }
+
+    /* Ajustes para el contenedor del resumen */
+    #step3 .col-md-8 {
+      margin-bottom: 20px;
+    }
+
+    /* Estilo para el contenedor de la foto */
+    #step3 .col-md-4 {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column; /* Apilamos la foto y el texto */
+    }
+
+    /* Ajustes de la foto (se asegura que tenga un tamaño adecuado) */
+    #photoPreview img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 5px;
+      box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+      border: 1px solid #ddd;
+    }
+
+
+
+    /* Línea de separación */
+    hr {
+      margin-top: 30px;
+      border: 0;
+      border-top: 2px solid #ddd;
+      margin-bottom: 20px;
+    }
+
+    /* Estilo para el contenedor de la foto */
+    .photo-container {
+      width: 100%;
+      height: 290px; /* Ajusta el tamaño de la caja */
+      background-color: #f5f6fa;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      border-radius: 5px;
+      border: 1px solid #ddd;
+    }
+
+  </style>
+</head>
+<body class="hold-transition light-skin sidebar-mini theme-success fixed">
+
+<div class="wrapper">
+  <div id="loader"></div>
+
+  <header class="main-header">
+    <div class="d-flex align-items-center logo-box justify-content-center">
+      <!-- Logo -->
+      <a href="principal.html" class="logo">
+        <!-- logo-->
+        <div class="logo-mini w-150 text-center">
+          <span class="light-logo"><img src="../images/logo-sanMiguel.png" alt="logo"></span>
+        </div>
+      </a>
+    </div>
+
+    <!-- Header Navbar -->
+    <nav class="navbar navbar-static-top">
+      <!-- Sidebar toggle button-->
+      <div class="app-menu">
+        <ul class="header-megamenu nav">
+          <li class="btn-group nav-item">
+            <a href="#" class="waves-effect waves-light nav-link push-btn btn-primary-light" data-toggle="push-menu" role="button">
+              <i data-feather="align-left"></i>
+            </a>
+          </li>
+
+        </ul>
+      </div>
+
+      <div class="navbar-custom-menu r-side">
+        <ul class="nav navbar-nav">
+
+          <!-- Notifications -->
+
+
+          <!-- Control Sidebar Toggle Button -->
+
+
+          <!-- User Account-->
+          <li class="dropdown user user-menu">
+            <a href="#" class="waves-effect waves-light dropdown-toggle w-auto l-h-12 bg-transparent py-0 no-shadow" data-bs-toggle="dropdown" title="User">
+              <div class="d-flex pt-5">
+                <div class="text-end me-10">
+                  <p class="pt-5 fs-14 mb-0 fw-700 text-primary">Luis Joaquin</p>
+                  <small class="fs-10 mb-0 text-uppercase text-mute">Administrador</small>
+                </div>
+                <img src="../images/avatar/avatar-1.png" class="avatar rounded-10 bg-primary-light h-40 w-40" alt="" />
+              </div>
+            </a>
+            <ul class="dropdown-menu animated flipInX">
+              <li class="user-body">
+                <a class="dropdown-item" href="#"><i class="ti-user text-muted me-2"></i> Mi perfil</a>
+                <a class="dropdown-item" href="#"><i class="ti-bell text-muted me-2"></i> Notificaciones</a>
+                <div class="dropdown-divider"></div>
+                <a class="dropdown-item" href="#"><i class="ti-lock text-muted me-2"></i> Cerrar sesión</a>
+              </li>
+            </ul>
+          </li>
+
+        </ul>
+      </div>
+    </nav>
+  </header>
+
+  <!-- Left side column. contains the logo and sidebar -->
+  <aside class="main-sidebar">
+    <!-- sidebar-->
+    <section class="sidebar position-relative">
+
+
+
+      <div class="multinav">
+        <div class="multinav-scroll" style="height: 100%;">
+          <!-- sidebar menu-->
+          <ul class="sidebar-menu" data-widget="tree">
+            <li>
+              <a href="Admin_Dashboard.html">
+                <i data-feather="monitor"></i>
+                <span>Dashboard</span>
+              </a>
+            </li>
+
+            <li>
+              <a href="Admin_Reservas.html">
+                <i data-feather="calendar"></i>
+                <span>Reservas</span>
+              </a>
+            </li>
+
+            <li>
+              <a href="/servicios">
+                <i data-feather="target"></i>
+                <span>Servicios</span>
+              </a>
+            </li>
+
+
+
+
+          </ul>
+
+
+        </div>
+      </div>
+    </section>
+  </aside>
+
+  <!-- Content Wrapper. Contains page content -->
+
+  <div class="content-wrapper">
+    <div class="container-fluid mt-4">
+      <h2>Agregar Servicio</h2>
+
+      <!-- Paso de navegación -->
+      <div class="step-container">
+        <div class="step active" id="step1-nav">Paso 1</div>
+        <div class="step" id="step2-nav">Paso 2</div>
+        <div class="step" id="step3-nav">Paso 3</div>
+      </div>
+
+      <!-- Formulario de pasos dentro de tarjeta -->
+      <div class="card-container">
+
+        <form id="service-form" enctype="multipart/form-data">
+          <!-- Paso 1: Información del Servicio -->
+          <div class="form-section active" id="step1">
+            <h6>Información del Servicio</h6>
+            <div class="mb-3">
+              <label for="serviceName" class="form-label">Nombre del servicio</label>
+              <input type="text" class="form-control" id="serviceName" placeholder="Ingrese el nombre del servicio" required>
+            </div>
+            <div class="mb-3">
+              <label for="location" class="form-label">Ubicación</label>
+              <input type="text" class="form-control" id="location" placeholder="Ingrese la dirección del servicio" required>
+            </div>
+            <div class="mb-3">
+              <label for="serviceType" class="form-label">Tipo de servicio</label>
+              <select class="form-select" id="serviceType" required>
+                <option value="">Seleccione el tipo de servicio</option>
+                <option value="Losa Deportiva">Losa Deportiva</option>
+                <option value="Piscina">Piscina</option>
+                <option value="Grass Sintético">Grass Sintético</option>
+                <option value="Pista de Atletismo">Pista de Atletismo</option>
+                <option value="Gimnasio">Gimnasio</option>
+              </select>
+            </div>
+            <div class="mb-3 row">
+              <div class="col-md-6">
+                <label for="horaAbre" class="form-label">Hora de Apertura</label>
+                <input type="time" class="form-control" id="horaAbre" required>
+              </div>
+              <div class="col-md-6">
+                <label for="horaCierra" class="form-label">Hora de Cierre</label>
+                <input type="time" class="form-control" id="horaCierra" required>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label for="aforo" class="form-label">Aforo</label>
+              <input type="number" class="form-control" id="aforo" placeholder="Ej: 100">
+            </div>
+            <div class="mb-3">
+              <label for="correoContacto" class="form-label">Correo de contacto</label>
+              <input type="email" class="form-control" id="correoContacto" placeholder="ejemplo@correo.com" required>
+            </div>
+            <div class="mb-3">
+              <label for="description" class="form-label">Descripción</label>
+              <textarea class="form-control" id="description" placeholder="Descripción del servicio" required></textarea>
+            </div>
+            <div class="mb-3">
+              <label for="photo" class="form-label">Foto del servicio</label>
+              <input type="file" class="form-control" id="photo" required accept="image/*">
+            </div>
+            <button type="button" class="btn btn-primary" id="next1">Siguiente</button>
+          </div>
+
+          <!-- Paso 2: Información Adicional -->
+          <div class="form-section" id="step2">
+            <h6>Información Adicional</h6>
+            <div id="additionalFields"></div> <!-- Los campos se agregarán dinámicamente aquí -->
+            <button type="button" class="btn btn-secondary" id="previous2">Anterior</button>
+            <button type="button" class="btn btn-primary" id="next2">Siguiente</button>
+          </div>
+
+          <!-- Paso 3: Resumen del Servicio -->
+          <div class="form-section" id="step3">
+            <h6>Resumen del Servicio</h6>
+            <hr> <!-- Línea de separación -->
+            <div class="row">
+              <!-- Columna para el resumen -->
+              <div class="col-md-8" id="summary">
+                <!-- Aquí se generará dinámicamente el resumen -->
+              </div>
+
+              <!-- Columna para la foto -->
+              <div class="col-md-4">
+                <h6>Foto del servicio</h6>
+                <div id="photoPreview" class="photo-container">
+                  <!-- Aquí se mostrará la foto cargada -->
+                </div>
+              </div>
+            </div>
+            <hr> <!-- Línea de separación -->
+            <div class="d-flex justify-content-between mt-4">
+              <button type="button" class="btn btn-secondary" id="previous3">Anterior</button>
+              <button type="button" class="btn btn-primary" id="next3">Finalizar</button>
+            </div>
+          </div>
+        </form>
+      </div>
+
+    </div>
+  </div>
+
+
+
+  <!-- /.content-wrapper -->
+
+  <footer class="main-footer">
+    <div class="pull-right d-none d-sm-inline-block">
+      <ul class="nav nav-primary nav-dotted nav-dot-separated justify-content-center justify-content-md-end">
+        <li class="nav-item">
+          <a class="nav-link" href="javascript:void(0)">Contáctanos</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#">FAQ</a>
+        </li>
+      </ul>
+    </div>
+    &copy; <script>document.write(new Date().getFullYear())</script> <a href="https://www.munisanmiguel.gob.pe/">Municipalidad de San Miguel</a>. Todos los derechos reservados.
+  </footer>
+  <!-- Control Sidebar -->
+
+  <!-- /.control-sidebar -->
+
+  <!-- Add the sidebar's background. This div must be placed immediately after the control sidebar -->
+  <div class="control-sidebar-bg"></div>
+</div>
+<!-- ./wrapper -->
+
+<!-- ./side demo panel -->
+
+
+<!-- JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/js/bootstrap.bundle.min.js"></script>
+<script>
+  $(document).ready(function() {
+    // Variables de navegación
+    let currentStep = 1;
+
+    // Función para mostrar el paso activo
+    function showStep(step) {
+      $('.form-section').removeClass('active');
+      $('#step' + step).addClass('active');
+      $('.step').removeClass('active');
+      $('#step' + step + '-nav').addClass('active');
+    }
+
+    // Paso 1 -> Paso 2
+    $('#next1').click(function () {
+      let isValid = true;
+
+      $('#step1 :input:visible').each(function () {
+        if (!this.checkValidity()) {
+          this.reportValidity();
+          isValid = false;
+          return false; // rompe el loop
+        }
+      });
+
+      if (isValid) {
+        showStep(2);
+        updateStep2();
+      }
+    });
+
+    // Paso 2 -> Paso 3
+
+    $('#next2').click(function () {
+      // ✅ Validar los inputs visibles en Step 2
+      let isValid = true;
+
+      $('#step2 :input:visible').each(function () {
+        if (!this.checkValidity()) {
+          this.reportValidity(); // Muestra el mensaje nativo
+          isValid = false;
+          return false; // rompe el loop
+        }
+      });
+
+      if (isValid) {
+        showStep(3);
+        displaySummary();
+      }
+    });
+
+
+    // Paso 2 -> Paso 1
+    $('#previous2').click(function() {
+      showStep(1);
+    });
+
+    // Paso 3 -> Paso 2
+    $('#previous3').click(function() {
+      showStep(2);
+    });
+
+    $('#serviceType').on('change', function () {
+      updateStep2();
+    });
+
+    // Mostrar campos adicionales en Paso 2 según el tipo de servicio
+    function updateStep2() {
+      const serviceTypeValue = $('#serviceType').val();
+      const serviceTypeText = $('#serviceType option:selected').text();
+
+      let additionalFields = '';
+
+      if (serviceTypeValue === 'Losa Deportiva') {
+        additionalFields = `
+				<div class="mb-3">
+				<label for="sportType" class="form-label">Tipo de deporte permitido</label>
+				<input type="text" class="form-control" id="sportType" placeholder="Ej: Fútbol, Tenis" required>
+				</div>
+
+				<div class="mb-3 row">
+					<div class="col-md-6">
+					<label for="fieldSize" class="form-label">Tamaño del campo</label>
+					<input type="text" class="form-control" id="fieldSize" placeholder="Ej: 5x5 metros" required>
+					</div>
+
+					<div class="col-md-6">
+					<label for="lighting" class="form-label">Iluminación</label>
+					<select class="form-select" id="lighting">
+						<option>Sí</option>
+						<option>No</option>
+					</select>
+					</div>
+				</div>
+
+
+				<div class="mb-3">
+					<label for="fieldCost" class="form-label">Costo por hora</label>
+					<div class="input-group">
+						<input type="number" class="form-control" id="fieldCost" placeholder="Ej: 100" required>
+						<span class="input-group-text">S/</span>
+					</div>
+				</div>
+
+				<div class="mb-3">
+					<label for="prohibitedActions" class="form-label">Prohibido</label>
+					<textarea class="form-control" id="prohibitedActions" placeholder="Describe las acciones prohibidas" required></textarea>
+				</div>
+
+			`;
+      } else if (serviceTypeValue === 'Piscina') {
+        additionalFields = `
+				<div class="mb-3">
+				<label for="poolSize" class="form-label">Tamaño de la piscina</label>
+				<input type="text" class="form-control" id="poolSize" placeholder="Ej: 10x5 metros" required>
+				</div>
+
+				<div class="mb-3 row">
+					<div class="col-md-6">
+						<label for="minDepth" class="form-label">Profundidad mínima</label>
+						<input type="number" class="form-control" id="minDepth" placeholder="Ej: 1.5 metros" required>
+					</div>
+					<div class="col-md-6">
+						<label for="maxDepth" class="form-label">Profundidad máxima</label>
+						<input type="number" class="form-control" id="maxDepth" placeholder="Ej: 3.0 metros" required>
+					</div>
+				</div>
+
+				<div class="mb-3 row">
+					<div class="col-md-6">
+					<label for="temperature" class="form-label">Temperatura</label>
+					<select class="form-select" id="temperature">
+						<option>Climatizada</option>
+						<option>No climatizada</option>
+					</select>
+					</div>
+					<div class="col-md-6">
+						<label for="fieldCost" class="form-label">Costo por hora</label>
+						<div class="input-group">
+							<input type="number" class="form-control" id="fieldCost" placeholder="Ej: 100" required>
+							<span class="input-group-text">S/</span>
+						</div>
+					</div>
+				</div>
+
+
+				<div class="mb-3">
+					<label for="prohibitedActions" class="form-label">Prohibido</label>
+					<textarea class="form-control" id="prohibitedActions" placeholder="Describe las acciones prohibidas" required></textarea>
+				</div>
+			`;
+      } else if (serviceTypeValue === 'Grass Sintético') {
+        additionalFields = `
+
+				<div class="mb-3 row">
+					<div class="col-md-6">
+					<label for="fieldSize" class="form-label">Tamaño del grass sintético</label>
+					<input type="text" class="form-control" id="fieldSize" placeholder="Ej: 5 vs 5, 7 vs 7, etc" required>
+					</div>
+
+					<div class="col-md-6">
+					<label for="lighting" class="form-label">Iluminación</label>
+					<select class="form-select" id="lighting">
+						<option>Sí</option>
+						<option>No</option>
+					</select>
+					</div>
+				</div>
+
+
+				<div class="mb-3">
+					<label for="fieldCost" class="form-label">Costo por hora</label>
+					<div class="input-group">
+						<input type="number" class="form-control" id="fieldCost" placeholder="Ej: 100" required>
+						<span class="input-group-text">S/</span>
+					</div>
+				</div>
+				<div class="mb-3 row">
+					<div class="col-md-6">
+						<label for="lockerRoom" class="form-label">Disponibilad de vestuarios</label>
+						<select class="form-select" id="lockerRoom">
+							<option>Sí</option>
+							<option>No</option>
+						</select>
+					</div>
+
+					<div class="col-md-6">
+						<label for="showers" class="form-label">Duchas</label>
+						<select class="form-select" id="showers">
+							<option>Sí</option>
+							<option>No</option>
+						</select>
+					</div>
+				</div>
+				<div class="mb-3">
+					<label for="prohibitedActions" class="form-label">Prohibido</label>
+					<textarea class="form-control" id="prohibitedActions" placeholder="Describe las acciones prohibidas" required></textarea>
+				</div>
+			`;
+      } else if (serviceTypeValue === 'Pista de Atletismo') {
+        additionalFields = `
+				<!-- Si el tipo de servicio es pista de atletismo -->
+				<div class="mb-3">
+					<label for="additionalZones" class="form-label">Zonas adicionales</label>
+					<input type="text" class="form-control" id="additionalZones" placeholder="Ej: salto largo, lanzamiento, ...." required>
+				</div>
+				<div class="mb-3 row">
+					<div class="col-md-6">
+						<label for="lanesNumber" class="form-label">Número de carriles</label>
+						<input type="number" class="form-control" id="lanesNumber" placeholder="Ingrese el número" required>
+					</div>
+
+					<div class="col-md-6">
+						<label for="trackMaterial" class="form-label">Material de la pista</label>
+						<input type="text" class="form-control" id="trackMaterial" placeholder="Ingrese material" required>
+					</div>
+				</div>
+
+
+				<div class="mb-3 row">
+					<div class="col-md-6">
+						<label for="nightUse" class="form-label">Uso nocturno permitido</label>
+						<select class="form-select" id="nightUse">
+							<option>Sí</option>
+							<option>No</option>
+						</select>
+					</div>
+
+					<div class="col-md-6">
+						<label for="fieldCost" class="form-label">Costo por hora</label>
+						<div class="input-group">
+							<input type="number" class="form-control" id="fieldCost" placeholder="Ej: 100" required>
+							<span class="input-group-text">S/</span>
+						</div>
+					</div>
+				</div>
+
+				<div class="mb-3">
+					<label for="prohibitedActions" class="form-label">Prohibido</label>
+					<textarea class="form-control" id="prohibitedActions" placeholder="Describe las acciones prohibidas" required></textarea>
+				</div>
+
+			`;
+      } else if (serviceTypeValue === 'Gimnasio') {
+        additionalFields = `
+				<div class="mb-3">
+				<label for="equipment" class="form-label">Equipos disponibles</label>
+				<textarea class="form-control" id="equipment" placeholder="Ejm: Pesas, bicicleta, máquinas, etc" required></textarea>
+				</div>
+
+				<div class="mb-3 row">
+					<div class="col-md-6">
+						<label for="nightUse" class="form-label">Aire acondicionado</label>
+						<select class="form-select" id="nightUse">
+							<option>Sí</option>
+							<option>No</option>
+						</select>
+					</div>
+
+					<div class="col-md-6">
+						<label for="fieldCost" class="form-label">Costo por mes</label>
+						<div class="input-group">
+							<input type="number" class="form-control" id="fieldCost" placeholder="Ej: 100" required>
+							<span class="input-group-text">S/</span>
+						</div>
+					</div>
+				</div>
+				<div class="mb-3 row">
+					<div class="col-md-6">
+						<label for="casilleros" class="form-label">Casilleros</label>
+						<select class="form-select" id="casilleros">
+							<option>Sí</option>
+							<option>No</option>
+						</select>
+					</div>
+
+					<div class="col-md-6">
+						<label for="showers" class="form-label">Duchas</label>
+						<select class="form-select" id="showers">
+							<option>Sí</option>
+							<option>No</option>
+						</select>
+					</div>
+				</div>
+				<div class="mb-3">
+					<label for="classDispo" class="form-label">Clases Disponibles</label>
+					<textarea class="form-control" id="classDispo" placeholder="Ejm: Yoga, Spinning, Crossfit, etc" required></textarea>
+				</div>
+				<div class="mb-3">
+					<label for="prohibitedActions" class="form-label">Prohibido</label>
+					<textarea class="form-control" id="prohibitedActions" placeholder="Describe las acciones prohibidas" required></textarea>
+				</div>
+			`;
+      }
+
+      $('#additionalFields').html(additionalFields);
+    }
+
+
+    // Mostrar resumen en Paso 3
+    function displaySummary() {
+      const serviceName = $('#serviceName').val();
+      const location = $('#location').val();
+      const serviceTypeValue = $('#serviceType').val();
+      const serviceTypeText = $('#serviceType option:selected').text();
+      const horaAbre = $('#horaAbre').val();
+      const horaCierra = $('#horaCierra').val();
+      const aforo = $('#aforo').val();
+      const correoContacto = $('#correoContacto').val(); // Nuevo campo
+      const description = $('#description').val();
+      const photo = $('#photo')[0].files[0];  // Aquí agregas el campo de la foto
+
+      let additionalFieldsSummary = '';
+
+      // Dependiendo del tipo de servicio, añadimos los campos correspondientes
+      if (serviceTypeValue === 'Losa Deportiva') {
+        additionalFieldsSummary = `
+					<p><strong>Tipo de deporte permitido:</strong> ${$('#sportType').val()}</p>
+					<p><strong>Tamaño del campo:</strong> ${$('#fieldSize').val()} metros</p>
+					<p><strong>Iluminación:</strong> ${$('#lighting').val()}</p>
+					<p><strong>Costo por hora:</strong> ${$('#fieldCost').val()} S/</p>
+					<p><strong>Prohibido:</strong> ${$('#prohibitedActions').val()}</p>
+				`;
+      } else if (serviceTypeValue === 'Piscina') {
+        additionalFieldsSummary = `
+					<p><strong>Tamaño de la piscina:</strong> ${$('#poolSize').val()}</p>
+					<p><strong>Profundidad mínima:</strong> ${$('#minDepth').val()} metros</p>
+					<p><strong>Profundidad máxima:</strong> ${$('#maxDepth').val()} metros</p>
+					<p><strong>Temperatura:</strong> ${$('#temperature').val()}</p>
+					<p><strong>Costo por hora:</strong> ${$('#fieldCost').val()} S/</p>
+					<p><strong>Prohibido:</strong> ${$('#prohibitedActions').val()}</p>
+				`;
+      } else if (serviceTypeValue === 'Grass Sintético') {
+        additionalFieldsSummary = `
+					<p><strong>Tamaño del grass sintético:</strong> ${$('#fieldSize').val()}</p>
+					<p><strong>Iluminación:</strong> ${$('#lighting').val()}</p>
+
+					<p><strong>Costo por hora:</strong> ${$('#fieldCost').val()} S/</p>
+					<p><strong>Disponibilidad de vestuarios:</strong> ${$('#lockerRoom').val()}</p>
+					<p><strong>Duchas:</strong> ${$('#showers').val()}</p>
+					<p><strong>Prohibido:</strong> ${$('#prohibitedActions').val()}</p>
+				`;
+      } else if (serviceTypeValue === 'Pista de Atletismo') {
+        additionalFieldsSummary = `
+					<p><strong>Zonas adicionales:</strong> ${$('#additionalZones').val()}</p>
+					<p><strong>Número de carriles:</strong> ${$('#lanesNumber').val()}</p>
+					<p><strong>Material de la pista:</strong> ${$('#trackMaterial').val()}</p>
+					<p><strong>Uso nocturno permitido:</strong> ${$('#nightUse').val()}</p>
+					<p><strong>Costo por hora:</strong> ${$('#fieldCost').val()} S/</p>
+					<p><strong>Prohibido:</strong> ${$('#prohibitedActions').val()}</p>
+				`;
+      } else if (serviceTypeValue === 'Gimnasio') {
+        additionalFieldsSummary = `
+					<p><strong>Equipos disponibles:</strong> ${$('#equipment').val()}</p>
+					<p><strong>Costo mensual:</strong> ${$('#fieldCost').val()} S/</p>
+					<p><strong>Aire acondicionado:</strong> ${$('#nightUse').val()}</p>
+					<p><strong>Casilleros:</strong> ${$('#casilleros').val()}</p>
+					<p><strong>Duchas:</strong> ${$('#showers').val()}</p>
+					<p><strong>Clases disponibles:</strong> ${$('#classDispo').val()}</p>
+					<p><strong>Prohibido:</strong> ${$('#prohibitedActions').val()}</p>
+				`;
+      } else {
+        additionalFieldsSummary = '<p>No se han ingresado datos adicionales.</p>';
+      }
+
+      // Mostrar foto
+      const photoPreview = photo ? `<img src="${URL.createObjectURL(photo)}" alt="Foto del servicio" />` : 'No se ha cargado una foto.';
+
+
+      // Incluir los datos comunes
+      const summaryHtml = `
+				<p><strong>Nombre del servicio:</strong> ${serviceName}</p>
+				<p><strong>Ubicación:</strong> ${location}</p>
+				<p><strong>Tipo de servicio:</strong> ${serviceTypeText}</p>
+				<p><strong>Descripción:</strong> ${description}</p>
+				<p><strong>Hora de apertura:</strong> ${horaAbre}</p>
+                <p><strong>Hora de cierre:</strong> ${horaCierra}</p>
+                <p><strong>Aforo:</strong> ${aforo}</p>
+                <p><strong>Correo de contacto:</strong> ${correoContacto}</p>
+
+				${additionalFieldsSummary}
+
+			`;
+      $('#photoPreview').html(photoPreview);
+      $('#summary').html(summaryHtml);
+    }
+
+
+
+  });
+
+</script>
+
+<script>
+  document.getElementById('next3').addEventListener('click', function () {
+    const photoInput = document.getElementById('photo');
+    const file = photoInput.files[0];
+
+    if (!file) {
+      alert("Por favor, selecciona una foto.");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    fetch('/servicios/subir-foto', {
+      method: 'POST',
+      body: formData
+    })
+            .then(response => {
+              if (!response.ok) throw new Error("Error al subir la foto");
+              return response.json();
+            })
+            .then(data => {
+              const idFoto = (typeof data === 'object') ? data.id : data;
+              const serviceTypeValue = document.getElementById('serviceType').value;
+              const aforoInput = document.getElementById('aforo').value;
+              let aforo = null;
+              if (aforoInput !== "") {
+                const parsed = parseInt(aforoInput);
+                if (!isNaN(parsed)) aforo = parsed;
+              }
+
+              // Datos comunes
+              const baseData = {
+                nombre: document.getElementById('serviceName').value,
+                ubicacion: document.getElementById('location').value,
+                descripcion: document.getElementById('description').value,
+                tipoEspacio: serviceTypeValue,
+                horaAbre: document.getElementById('horaAbre').value,
+                horaCierra: document.getElementById('horaCierra').value,
+                aforo: aforo,
+                correoContacto: document.getElementById('correoContacto').value,
+                idListaFotos: idFoto
+              };
+
+              let dataJson;
+              let url;
+
+              switch (serviceTypeValue) {
+                case 'Losa Deportiva':
+                  dataJson = {
+                    ...baseData,
+                    tipoDeporte: document.getElementById('sportType').value,
+                    tamanoCampo: document.getElementById('fieldSize').value,
+                    iluminacion: document.getElementById('lighting').value,
+                    costoHora: parseFloat(document.getElementById('fieldCost').value),
+                    prohibido: document.getElementById('prohibitedActions').value
+                  };
+                  url = '/servicios/registrar/losa';
+                  break;
+
+                case 'Piscina':
+
+                  const temperatureStr = document.getElementById('temperature').value;
+                  const isClimatizada = (temperatureStr === 'Climatizada');
+
+                  dataJson = {
+                    ...baseData,
+                    tamanioPiscina: document.getElementById('poolSize').value,
+                    profundidadMin: parseFloat(document.getElementById('minDepth').value),
+                    profundidadMax: parseFloat(document.getElementById('maxDepth').value),
+                    isClimatizada: isClimatizada,
+                    costoHora: parseFloat(document.getElementById('fieldCost').value),
+                    prohibido: document.getElementById('prohibitedActions').value
+                  };
+                  url = '/servicios/registrar/piscina';
+                  break;
+
+                case 'Grass Sintético':
+                  dataJson = {
+                    ...baseData,
+                    tamanoCampo: document.getElementById('fieldSize').value,
+                    iluminacion: document.getElementById('lighting').value,
+                    costoHora: parseFloat(document.getElementById('fieldCost').value),
+                    disponibilidadVestuario: document.getElementById('lockerRoom').value,
+                    duchas: document.getElementById('showers').value,
+                    prohibido: document.getElementById('prohibitedActions').value
+                  };
+                  url = '/servicios/registrar/grass'; // Crea el endpoint en backend
+                  break;
+
+                case 'Pista de Atletismo':
+                  dataJson = {
+                    ...baseData,
+                    zonasAdicionales: document.getElementById('additionalZones').value,
+                    numCarriles: parseInt(document.getElementById('lanesNumber').value),
+                    materialPista: document.getElementById('trackMaterial').value,
+                    usoNocturno: document.getElementById('nightUse').value,
+                    costoHora: parseFloat(document.getElementById('fieldCost').value),
+                    prohibido: document.getElementById('prohibitedActions').value
+                  };
+                  url = '/servicios/registrar/pista'; // Crea el endpoint en backend
+                  break;
+
+                case 'Gimnasio':
+                  dataJson = {
+                    ...baseData,
+                    equiposDisponibles: document.getElementById('equipment').value,
+                    costoMensual: parseFloat(document.getElementById('fieldCost').value),
+                    aireAcondicionado: document.getElementById('nightUse').value,
+                    casilleros: document.getElementById('casilleros').value,
+                    duchas: document.getElementById('showers').value,
+                    clasesDisponibles: document.getElementById('classDispo').value,
+                    prohibido: document.getElementById('prohibitedActions').value
+                  };
+                  url = '/servicios/registrar/gimnasio'; // Crea el endpoint en backend
+                  break;
+
+                default:
+                  alert('Tipo de servicio no soportado');
+                  throw new Error('Tipo de servicio no soportado');
+              }
+
+              return fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(dataJson)
+              });
+            })
+            .then(res => {
+              if (!res.ok) throw new Error("Error al guardar el servicio");
+              return res.text();
+            })
+            .then(() => {
+              alert("Servicio registrado correctamente");
+              window.location.href = "/servicios";
+            })
+            .catch(err => alert(err.message));
+  });
+
+
+</script>
+
+
+
+<!-- Vendor JS -->
+<script src="/js/vendors.min.js"></script>
+<script src="/js/pages/chat-popup.js"></script>
+<script src="/assets/icons/feather-icons/feather.min.js"></script>
+<script src="/assets/vendor_components/jquery-steps-master/build/jquery.steps.js"></script>
+<script src="/assets/vendor_components/jquery-validation-1.17.0/dist/jquery.validate.min.js"></script>
+<script src="/assets/vendor_components/sweetalert/sweetalert.min.js"></script>
+<script src="/assets/vendor_components/datatable/datatables.min.js"></script>
+<!-- Rhythm Admin App -->
+<script src="/js/template.js"></script>
+
+<script src="/js/pages/steps.js"></script>
+
+
+
+</body>
+</html>

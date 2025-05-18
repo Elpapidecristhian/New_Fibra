@@ -22,13 +22,13 @@ public class Piscina {
     private String tamanioPiscina;
 
     @Column(name = "profundidadMin")
-    private float profundidadMin;
+    private Float profundidadMin;
 
     @Column(name = "profundidadMax")
-    private float profundidadMax;
+    private Float profundidadMax;
 
     @Column(name = "isClimatizada")
-    private boolean isClimatizada;
+    private Boolean isClimatizada;
 
     @Column(name = "costoHora")
     private Float costoHora;

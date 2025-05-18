@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.beans.ConstructorProperties;
+import java.time.LocalTime;
 import java.util.List;
 
 @Getter
@@ -14,6 +15,7 @@ import java.util.List;
 public class EspaciosDeportivos {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_espacio")
     private int id;
     private String nombre;
@@ -34,6 +36,16 @@ public class EspaciosDeportivos {
     @Column(name = "costo_horario")
     private float costoHorario;
 
-    @OneToMany(mappedBy = "espacio")
-    private List<Horarios> horarios;
+    @Column(name = "hora_abre")
+    private LocalTime horaAbre;
+
+    @Column(name = "hora_cierra")
+    private LocalTime horaCierra;
+
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "id_lista_fotos", nullable = false)
+    private ListaFotos listaFotos;
+
+
+
 }

@@ -105,7 +105,7 @@
                     <!-- sidebar menu-->
                     <ul class="sidebar-menu" data-widget="tree">
                         <li>
-                            <a href="Admin_Dashboard.html">
+                            <a href="main/Admin_Dashboard.html">
                                 <i data-feather="monitor"></i>
                                 <span>Dashboard</span>
                             </a>
@@ -119,11 +119,12 @@
                         </li>
 
                         <li>
-                            <a href="Admin_Servicios.html">
+                            <a href="/servicios">
                                 <i data-feather="target"></i>
                                 <span>Servicios</span>
                             </a>
                         </li>
+
 
 
 
@@ -143,7 +144,7 @@
             <div class="content-header">
                 <div class="d-flex justify-content-between align-items-center mb-2">
                     <h2 class="fw-bold mb-0 me-3">Servicios</h2>
-                    <a href="Admin_AgregarServicio.html" class="btn btn-sm text-white" style="background-color: #008B9A;">
+                    <a href="/servicios/nuevo" class="btn btn-sm text-white" style="background-color: #008B9A;">
                         <i data-feather="plus"></i> Agregar Servicio
                     </a>
                 </div>
@@ -171,27 +172,36 @@
                                         </tr>
                                         </thead>
                                         <tbody>
-                                        <!-- Iteración sobre la lista de servicios usando Thymeleaf -->
-                                        <tr th:each="servicio  : ${listaServicios}" th:attr="data-id=${servicio[0]}">
-                                            <td th:text="${servicio[1]}"></td> <!-- Tipo de servicio -->
-                                            <td th:text="${servicio[2]}"></td> <!-- Nombre -->
-                                            <td th:text="${servicio[3]}"></td> <!-- Ubicación -->
-                                            <td th:text="${servicio[6] != null ? servicio[6] : '-'}"></td> <!-- Aforo -->
-                                            <td th:text="${servicio[4]}"></td> <!-- Correo de Contacto -->
-                                            <td th:text="${servicio[5].substring(0, 5) + ' - ' + servicio[5].substring(11, 16)}"></td> <!-- Horario sin segundos -->
-
-
+                                        <!-- Iteración sobre la lista de espacios deportivos -->
+                                        <tr th:each="servicio : ${listaEspacios}" th:attr="data-id=${servicio.id}">
+                                            <td th:text="${servicio.tipoEspacio.nombre}"></td>
+                                            <td th:text="${servicio.nombre}"></td>
+                                            <td th:text="${servicio.ubicacion}"></td>
+                                            <td th:text="${servicio.aforo != null ? servicio.aforo : '-'}"></td>
+                                            <td th:text="${servicio.correoContacto}"></td>
+                                            <td th:text="${servicio.horaAbre} + ' - ' + ${servicio.horaCierra}"></td>
                                             <td>
-                                                <button type="button" class="btn btn-sm btn-warning edit-btn" title="Editar" data-bs-toggle="modal" data-bs-target="#modalEditar" onclick="cargarDatosModal(this)">
+                                                <button type="button"
+                                                        class="btn btn-sm btn-warning"
+                                                        title="Editar"
+                                                        data-bs-toggle="modal"
+                                                        data-bs-target="#modalEditar"
+                                                        onclick="cargarDatosModal(this)">
                                                     <i class="mdi mdi-pencil"></i>
                                                 </button>
-                                                <button type="button" class="btn btn-sm btn-danger delete-btn" title="Eliminar" data-bs-toggle="modal" data-bs-target="#modalEliminar">
-                                                    <i class="mdi mdi-delete"></i>
+
+                                                <!-- en el botón de eliminar -->
+                                                <button type="button"
+                                                        class="btn btn-sm btn-danger delete-btn"
+                                                        title="Eliminar"
+                                                        th:attr="data-id=${servicio.id}"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#modalEliminar">
+                                                <i class="mdi mdi-delete"></i>
                                                 </button>
 
                                             </td>
                                         </tr>
-
                                         </tbody>
 
                                     </table>
@@ -249,35 +259,45 @@
                 </div>
                 <div class="modal-body">
                     <form id="formEditarServicio">
-                        <input type="hidden" id="editId" />
+                        <input type="hidden" id="editId" name="id" />
 
                         <div class="mb-3">
                             <label for="editTipo" class="form-label">Tipo de servicio</label>
-                            <input type="text" class="form-control" id="editTipo" readonly>
-                            <!-- readonly para que se vea pero no se pueda editar -->
-                        </div>
-                        <div class="mb-3">
-                            <label for="editNombre" class="form-label">Nombre del complejo</label>
-                            <input type="text" class="form-control" id="editNombre">
-                        </div>
-                        <div class="mb-3">
-                            <label for="editDireccion" class="form-label">Dirección</label>
-                            <input type="text" class="form-control" id="editDireccion">
-                        </div>
-                        <div class="mb-3">
-                            <label for="editCapacidad" class="form-label">Capacidad</label>
-                            <input type="number" class="form-control" id="editCapacidad">
-                        </div>
-                        <div class="mb-3">
-                            <label for="editContacto" class="form-label">Correo de contacto</label>
-                            <input type="email" class="form-control" id="editContacto">
-                        </div>
-                        <div class="mb-3">
-                            <label for="editHorario" class="form-label">Horario</label>
-                            <input type="text" class="form-control" id="editHorario">
+                            <input type="text" class="form-control" id="editTipo" name="tipoEspacioNombre" readonly>
                         </div>
 
+                        <div class="mb-3">
+                            <label for="editNombre" class="form-label">Nombre del complejo</label>
+                            <input type="text" class="form-control" id="editNombre" name="nombre">
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="editDireccion" class="form-label">Dirección</label>
+                            <input type="text" class="form-control" id="editDireccion" name="ubicacion">
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="editCapacidad" class="form-label">Capacidad</label>
+                            <input type="number" class="form-control" id="editCapacidad" name="aforo">
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="editContacto" class="form-label">Correo de contacto</label>
+                            <input type="email" class="form-control" id="editContacto" name="correoContacto">
+                        </div>
+
+                        <div class="row">
+                            <div class="col">
+                                <label for="editHoraAbre" class="form-label">Hora de apertura</label>
+                                <input type="time" class="form-control" id="editHoraAbre" name="horaAbre">
+                            </div>
+                            <div class="col">
+                                <label for="editHoraCierra" class="form-label">Hora de cierre</label>
+                                <input type="time" class="form-control" id="editHoraCierra" name="horaCierra">
+                            </div>
+                        </div>
                     </form>
+
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
@@ -302,52 +322,37 @@
         const fila = boton.closest('tr');
         const celdas = fila.querySelectorAll('td');
         const id = fila.getAttribute('data-id');
-        const horariosData = fila.getAttribute('data-horarios');
-        // Guardar el id en un campo oculto o en el modal (puedes crear un input hidden)
-        document.getElementById('editId').value = id;
 
-        document.getElementById('editTipo').value = celdas[0].textContent;
-        document.getElementById('editNombre').value = celdas[1].textContent;
-        document.getElementById('editDireccion').value = celdas[2].textContent;
-        document.getElementById('editCapacidad').value = celdas[3].textContent;
-        document.getElementById('editContacto').value = celdas[4].textContent;
-        document.getElementById('editHorario').value = celdas[5].textContent;
+        // Llenar los campos del modal
+        document.getElementById('editId').value = id;
+        document.getElementById('editTipo').value = celdas[0].textContent.trim();
+        document.getElementById('editNombre').value = celdas[1].textContent.trim();
+        document.getElementById('editDireccion').value = celdas[2].textContent.trim();
+        document.getElementById('editCapacidad').value = celdas[3].textContent.trim() === '-' ? '' : celdas[3].textContent.trim();
+        document.getElementById('editContacto').value = celdas[4].textContent.trim();
+
+        const horario = celdas[5].textContent.trim().split("-");
+        document.getElementById('editHoraAbre').value = horario[0].trim();
+        document.getElementById('editHoraCierra').value = horario[1].trim();
 
         fila.setAttribute('data-editar', 'true');
     }
-
 
     function guardarCambios() {
         const id = document.getElementById('editId').value;
         if (!id) return alert("ID no encontrado");
 
-        const horarioText = document.getElementById('editHorario').value.trim();
-        let horaInicio = "", horaFin = "";
-        if (horarioText.includes("-")) {
-            const partes = horarioText.split("-");
-            horaInicio = partes[0].trim();
-            horaFin = partes[1].trim();
-        }
-
-        // Manejo seguro de aforo: si está vacío o no es número válido, enviamos null
-        const aforoRaw = document.getElementById('editCapacidad').value.trim();
-        let aforo = null;
-        if (aforoRaw !== "") {
-            const aforoInt = parseInt(aforoRaw);
-            aforo = isNaN(aforoInt) ? null : aforoInt;
-        }
-
         const data = {
-            id: id,
-            tipoEspacio: { nombre: document.getElementById('editTipo').value },  // O ajusta según tu modelo real
-            nombre: document.getElementById('editNombre').value,
-            ubicacion: document.getElementById('editDireccion').value,
-            aforo: parseInt(document.getElementById('editCapacidad').value),
-            correoContacto: document.getElementById('editContacto').value,
-            horario: {
-                horaInicio: horaInicio,
-                horaFin: horaFin
-            }
+            id: parseInt(id),
+            tipoEspacio: {
+                nombre: document.getElementById('editTipo').value.trim()
+            },
+            nombre: document.getElementById('editNombre').value.trim(),
+            ubicacion: document.getElementById('editDireccion').value.trim(),
+            aforo: document.getElementById('editCapacidad').value ? parseInt(document.getElementById('editCapacidad').value.trim()) : null,
+            correoContacto: document.getElementById('editContacto').value.trim(),
+            horaAbre: document.getElementById('editHoraAbre').value,
+            horaCierra: document.getElementById('editHoraCierra').value
         };
 
         fetch(`/servicios/actualizar/${id}`, {
@@ -360,23 +365,37 @@
                 return res.text();
             })
             .then(() => {
-                // Actualiza la fila en la tabla
                 const fila = document.querySelector(`tr[data-id="${id}"]`);
-                const celdas = fila.querySelectorAll('td');
-                celdas[0].textContent = data.tipoEspacio.nombre;
-                celdas[1].textContent = data.nombre;
-                celdas[2].textContent = data.ubicacion;
-                celdas[3].textContent = data.aforo !== null ? data.aforo : '-';
-                celdas[4].textContent = data.correoContacto;
-                celdas[5].textContent = `${data.horario.horaInicio} - ${data.horario.horaFin}`;
-                fila.removeAttribute('data-editar');
-                const modal = bootstrap.Modal.getInstance(document.getElementById('modalEditar'));
-                modal.hide();
+                const tabla = $('#tablaServicios').DataTable(); // Asegúrate de que tu tabla tiene ese ID
+                const row = tabla.row(fila);
+
+                const acciones = fila.querySelector('td:last-child').innerHTML;
+
+                // Reemplazar datos de la fila
+                row.data([
+                    data.tipoEspacio.nombre,
+                    data.nombre,
+                    data.ubicacion,
+                    data.aforo !== null ? data.aforo : '-',
+                    data.correoContacto,
+                    `${data.horaAbre} - ${data.horaCierra}`,
+                    acciones
+                ]).draw(false);
+
+                const modalElement = document.getElementById('modalEditar');
+                const modalInstance = bootstrap.Modal.getOrCreateInstance(modalElement);
+                modalInstance.hide();
+
+                // 🧹 Forzar limpieza del backdrop si no desaparece
+                document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
+                document.body.classList.remove('modal-open');
+                document.body.style = '';  // Quita estilos extra que pueden quedar
             })
             .catch(err => alert(err.message));
     }
 
 </script>
+
 
 
 <!-- Page Content overlay -->
@@ -386,32 +405,51 @@
 
 <!-- Inicialización de DataTables -->
 <script>
-    let idEliminar = null;
+    document.addEventListener("DOMContentLoaded", function () {
+        let idEliminar = null;
 
-    document.querySelectorAll(".delete-btn").forEach(btn => {
-        btn.addEventListener("click", (event) => {
-            const fila = event.target.closest('tr');
-            idEliminar = fila.getAttribute('data-id');
-            // Modal se abre automáticamente por data-bs-toggle
+        $('#tablaServicios').on('click', '.delete-btn', function () {
+            const fila = $(this).closest('tr');
+            idEliminar = fila.attr('data-id');
+            console.log("ID seleccionado para eliminar:", idEliminar);
         });
+
+        const btnEliminar = document.getElementById('btnConfirmarEliminar');
+        if (btnEliminar) {
+            btnEliminar.addEventListener('click', () => {
+                if (!idEliminar) return alert("No se ha seleccionado ningún servicio para eliminar");
+                console.log("Llamando al DELETE con ID:", idEliminar);
+
+                fetch(`/servicios/eliminar/${idEliminar}`, {
+                    method: 'DELETE'
+                })
+                    .then(res => {
+                        if (!res.ok) throw new Error("Error al eliminar");
+
+                        const tabla = $('#tablaServicios').DataTable();
+                        tabla.row($(`tr[data-id="${idEliminar}"]`)).remove().draw(false);
+
+                        idEliminar = null;
+                        const modalElement = document.getElementById('modalEliminar');
+                        let modalInstance = bootstrap.Modal.getInstance(modalElement);
+                        if (!modalInstance) {
+                            modalInstance = new bootstrap.Modal(modalElement);
+                        }
+                        modalInstance.hide();
+
+                        document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
+                        document.body.classList.remove('modal-open');
+                        document.body.style = '';
+                    })
+                    .catch(err => alert(err.message));
+            });
+        } else {
+            console.error("❌ No se encontró el botón #btnConfirmarEliminar");
+        }
     });
-
-    document.getElementById('btnConfirmarEliminar').addEventListener('click', () => {
-        if (!idEliminar) return alert("No se ha seleccionado ningún servicio para eliminar");
-
-        fetch(`/servicios/eliminar/${idEliminar}`, { method: 'DELETE' })
-            .then(res => {
-                if (!res.ok) throw new Error("Error al eliminar");
-                const fila = document.querySelector(`tr[data-id="${idEliminar}"]`);
-                if (fila) fila.remove();
-                idEliminar = null;
-                const modal = bootstrap.Modal.getInstance(document.getElementById('modalEliminar'));
-                modal.hide();
-            })
-            .catch(err => alert(err.message));
-    });
-
 </script>
+
+
 <!-- Vendor JS -->
 <script src="/js/vendors.min.js"></script>
 <script src="/js/pages/chat-popup.js"></script>
@@ -448,6 +486,14 @@
 </script>
 
 
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const loader = document.getElementById('loader');
+        if (loader) {
+            loader.style.display = 'none';  // Oculta el fondo negro
+        }
+    });
+</script>
 
 
 
