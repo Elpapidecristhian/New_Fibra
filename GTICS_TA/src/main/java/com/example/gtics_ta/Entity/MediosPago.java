@@ -9,6 +9,6 @@ import lombok.*;
 public class MediosPago {
     @Id
     @Column(name = "id_medios_pago")
-    private int id;
+    private Integer id;
     private String nombre;
 }

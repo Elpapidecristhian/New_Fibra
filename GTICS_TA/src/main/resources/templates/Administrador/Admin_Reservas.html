@@ -6,19 +6,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="">
     <meta name="author" content="">
-    <link rel="icon" href="../images/san_miguel_logo.ico">
+    <link rel="icon" th:href="@{/images/san_miguel_logo.ico}">
 
     <title>Admin - Reservas</title>
 
-    <!-- Vendors Style-->
-    <link rel="stylesheet" href="css/vendors_css.css">
+    <link rel="stylesheet" th:href="@{/css/vendors_css.css}">
 
     <!-- Style-->
-    <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="css/skin_color.css">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" th:href="@{/css/skin_color.css}">
 
-
-
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@mdi/font/css/materialdesignicons.min.css">
 
 
 
@@ -159,123 +157,75 @@
                                     <table class="table table-bordered table-striped" id="tablaServicios">
                                         <thead>
                                         <tr>
-                                            <th>Servicio ID</th>
                                             <th>Tipo de servicio</th>
                                             <th>Nombre del complejo</th>
                                             <th>Dirección</th>
                                             <th>Fecha</th>
                                             <th>Hora</th>
                                             <th>Estado</th>
+                                            <th>Acciones</th>
 
 
                                         </tr>
                                         </thead>
                                         <tbody>
-                                        <tr>
-                                            <td>#p22435366</td>
-                                            <td>Piscina</td>
-                                            <td>Diego Ferré</td>
-                                            <td>Av. Universitaria 1812</td>
-                                            <td>14-11-2025</td>
-                                            <td>11:00 am</td>
+                                        <tr th:each="reserva : ${listaReservas}" th:if="${reserva.horarioReservado != null}">
+                                            <td th:text="${reserva.espacioDeportivo.tipoEspacio.nombre}">Tipo servicio</td>
+                                            <td th:text="${reserva.espacioDeportivo.nombre}">Nombre complejo</td>
+                                            <td th:text="${reserva.espacioDeportivo.ubicacion}">Dirección</td>
+                                            <td th:text="${#temporals.format(reserva.fechaReserva, 'dd-MM-yyyy')}">Fecha</td>
+                                            <td th:text="${reserva.horarioReservado != null ? #strings.concat(reserva.horarioReservado.horario.horaInicio, ' - ', reserva.horarioReservado.horario.horaFin) : 'Sin horario'}">Hora</td>
+
                                             <td>
-                                                <button class="btn btn-sm estado-btn" style="background-color: #22c55e; color: white;">Disponible</button>
-                                                <button class="btn btn-sm btn-warning btn-mantenimiento" data-servicio="#p22435366">🛠️</button>
+                                                  <span th:if="${reserva.horarioReservado != null}" th:switch="${reserva.horarioReservado.estado}">
+                                                    <span th:case="'Disponible'" style="color:green;font-weight:bold;">Disponible</span>
+                                                    <span th:case="'Reservado'" style="color:red;font-weight:bold;">Reservado</span>
+                                                    <span th:case="'Mantenimiento'" style="color:orange;font-weight:bold;">En mantenimiento</span>
+                                                    <span th:case="*">Desconocido</span>
+                                                  </span>
+                                                <span th:if="${reserva.horarioReservado == null}">Sin estado</span>
                                             </td>
 
-
-
-                                        </tr>
-
-
-
-                                        <tr>
-                                            <td>#p22435366</td>
-                                            <td>Cancha</td>
-                                            <td>Felipe Olivares</td>
-                                            <td>Av. Las Flores 151</td>
-                                            <td>20-11-2025</td>
-                                            <td>14:00 pm</td>
                                             <td>
-                                                <button class="btn btn-sm estado-btn" style="background-color: #22c55e; color: white;">Disponible</button>
-                                                <button class="btn btn-sm btn-warning btn-mantenimiento" data-servicio="#p22435366">🛠️</button>
-                                            </td>
+                                                <button class="btn btn-warning btn-sm btn-mantenimiento"
+                                                        th:if="${reserva.horarioReservado != null and reserva.horarioReservado.estado != 'Mantenimiento'}"
+                                                        th:attr="data-id-espacio=${reserva.espacioDeportivo.id}, data-fecha=${#temporals.format(reserva.fechaReserva, 'dd-MM-yyyy')}"
+                                                        type="button">
+                                                    🛠️
+                                                </button>
 
 
+                                                <!-- Botón detalles solo si está reservado -->
+                                                <!-- Botón detalles solo si está reservado -->
+                                                <button class="btn btn-info btn-sm"
+                                                        th:if="${reserva.horarioReservado.estado == 'Reservado'}"
+                                                        th:attr="onclick=|mostrarDetalles(${reserva.usuario.idUsuario})|">
+                                                    ℹ️
+                                                </button>
 
-                                        </tr>
-
-
-                                        <!-- FILAS ADICIONALES -->
-                                        <tr><td>#p22435367</td><td>Piscina</td><td>Lucía Torres</td><td>Av. Brasil 1500</td><td>15-11-2025</td><td>09:00 am</td>
-                                            <td>
-                                                <button class="btn btn-sm estado-btn" style="background-color: #22c55e; color: white;">Disponible</button>
-                                                <button class="btn btn-sm btn-warning btn-mantenimiento" data-servicio="#p22435366">🛠️</button>
-
-                                            </td>
-
-
-                                        </tr>
-
-
-                                        <tr><td>#p22435368</td><td>Gimnasio</td><td>Marco Ruiz</td><td>Av. Universitaria 2000</td><td>15-11-2025</td><td>08:00 am</td>
-                                            <td>
-                                                <button class="btn btn-sm estado-btn" style="background-color: #22c55e; color: white;">Disponible</button>
-                                                <button class="btn btn-sm btn-warning btn-mantenimiento" data-servicio="#p22435366">🛠️</button>
-
-                                            </td>
-
-
-                                        </tr>
-
-
-
-
-                                        <tr><td>#p22435369</td><td>Cancha</td><td>Juan Rivera</td><td>Av. Libertad 303</td><td>16-11-2025</td><td>10:00 am</td>
-                                            <td>
-                                                <button class="btn btn-sm estado-btn" style="background-color: #ef4444; color: white;">Reservado</button>
-                                                <button class="btn btn-sm btn-warning btn-mantenimiento" data-servicio="#p22435366">🛠️</button>
-
-                                            </td>
-
-                                        </tr>
-                                        <tr><td>#p22435370</td><td>Piscina</td><td>Sandra Gálvez</td><td>Av. Perú 505</td><td>17-11-2025</td><td>11:30 am</td>
-                                            <td>
-                                                <button class="btn btn-sm estado-btn" style="background-color: #facc15; color: white;">En mantenimiento</button>
-                                                <button class="btn btn-sm btn-warning btn-mantenimiento" data-servicio="#p22435366">🛠️</button>
 
                                             </td>
                                         </tr>
-                                        <tr><td>#p22435371</td><td>Pista</td><td>Pedro León</td><td>Av. Marina 777</td><td>18-11-2025</td><td>17:00 pm</td>
+                                        <!-- Mostrar mantenimientos -->
+                                        <tr th:each="mantenimiento : ${listaMantenimientos}">
+                                            <td th:text="${mantenimiento.horario.espacio.tipoEspacio.nombre}">Tipo servicio</td>
+                                            <td th:text="${mantenimiento.horario.espacio.nombre}">Nombre complejo</td>
+                                            <td th:text="${mantenimiento.horario.espacio.ubicacion}">Dirección</td>
+                                            <td th:text="${#temporals.format(mantenimiento.fecha, 'dd-MM-yyyy')}">Fecha</td>
+                                            <td th:text="${#strings.concat(mantenimiento.horario.horaInicio, ' - ', mantenimiento.horario.horaFin)}">Hora</td>
+                                            <td style="color:orange; font-weight:bold;">En mantenimiento</td>
                                             <td>
-                                                <button class="btn btn-sm estado-btn" style="background-color: #22c55e; color: white;">Disponible</button>
-                                                <button class="btn btn-sm btn-warning btn-mantenimiento" data-servicio="#p22435366">🛠️</button>
-
+                                                <button class="btn btn-danger btn-sm btn-eliminar-mantenimiento"
+                                                        th:attr="data-id-mantenimiento=${mantenimiento.id}"
+                                                        type="button">
+                                                    🗑️
+                                                </button>
                                             </td>
-                                        </tr>
-                                        <tr><td>#p22435372</td><td>Gimnasio</td><td>Ana López</td><td>Av. Costanera 100</td><td>18-11-2025</td><td>19:00 pm</td>
-                                            <td>
-                                                <button class="btn btn-sm estado-btn" style="background-color: #22c55e; color: white;">Disponible</button>
-                                                <button class="btn btn-sm btn-warning btn-mantenimiento" data-servicio="#p22435366">🛠️</button>
 
-                                            </td>
-                                        </tr>
-                                        <tr><td>#p22435373</td><td>Cancha</td><td>Mario Cáceres</td><td>Av. Arequipa 1812</td><td>19-11-2025</td><td>20:00 pm</td>
-                                            <td>
-                                                <button class="btn btn-sm estado-btn" style="background-color: #22c55e; color: white;">Disponible</button>
-                                                <button class="btn btn-sm btn-warning btn-mantenimiento" data-servicio="#p22435366">🛠️</button>
 
-                                            </td>
-                                        </tr>
-
-                                        <tr><td>#p22435375</td><td>Gimnasio</td><td>Renzo Salazar</td><td>Av. Héroes 720</td><td>20-11-2025</td><td>06:00 am</td>
-                                            <td>
-                                                <button class="btn btn-sm estado-btn" style="background-color: #22c55e; color: white;">Disponible</button>
-                                                <button class="btn btn-sm btn-warning btn-mantenimiento" data-servicio="#p22435366">🛠️</button>
-
-                                            </td>
                                         </tr>
                                         </tbody>
+
 
                                     </table>
                                 </div>
@@ -301,6 +251,27 @@
         </div>
         &copy; <script>document.write(new Date().getFullYear())</script> <a href="https://www.munisanmiguel.gob.pe/">Municipalidad de San Miguel</a>. Todos los derechos reservados.
     </footer>
+    <!-- Modal Detalles Usuario -->
+    <div class="modal fade" id="modalDetallesUsuario" tabindex="-1" aria-labelledby="modalDetallesUsuarioLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-info text-white">
+                    <h5 class="modal-title" id="modalDetallesUsuarioLabel">Detalles del Usuario</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    <p><strong>Nombres:</strong> <span id="detalleNombre"></span></p>
+                    <p><strong>Correo:</strong> <span id="detalleCorreo"></span></p>
+                    <p><strong>Celular:</strong> <span id="detalleCelular"></span></p>
+                    <p><strong>Dirección:</strong> <span id="detalleDireccion"></span></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
 
     <!-- Modal de Mantenimiento -->
     <div class="modal fade" id="modalMantenimiento" tabindex="-1" aria-labelledby="modalMantenimientoLabel" aria-hidden="true">
@@ -365,67 +336,111 @@
 <!-- Inicialización de DataTables -->
 
 <script>
-    // Simulamos reservas existentes (esto luego vendría de tu base de datos)
-    const reservasExistentes = [
-        { servicioId: "#p22435366", fecha: "2025-11-14", inicio: "11:00", fin: "12:00" },
-        { servicioId: "#p22435369", fecha: "2025-11-16", inicio: "10:00", fin: "11:00" },
-        { servicioId: "#p22435370", fecha: "2025-11-17", inicio: "11:30", fin: "12:30", mantenimiento: true }
-    ];
+    $(document).ready(function() {
+        $('.btn-mantenimiento').on('click', function() {
+            const idEspacio = $(this).data('id-espacio');
+            const fecha = $(this).data('fecha');
 
-    // Abrir modal con el ID del servicio
-    $(document).on('click', '.btn-mantenimiento', function () {
-        const servicioId = $(this).data('servicio');
-        $('#mantenimientoServicioId').val(servicioId);
-        $('#mantenimientoError').addClass('d-none');
-        $('#formMantenimiento')[0].reset();
-        $('#modalMantenimiento').modal('show');
+            $('#mantenimientoServicioId').val(idEspacio);
+            $('#mantenimientoFecha').val(fecha);
+            $('#mantenimientoError').addClass('d-none');
+            $('#formMantenimiento')[0].reset();
+
+            $('#modalMantenimiento').modal('show');
+        });
+
+        $('#formMantenimiento').on('submit', function(e) {
+            e.preventDefault();
+
+            const idEspacio = $('#mantenimientoServicioId').val();
+            const fecha = $('#mantenimientoFecha').val();
+            const horaInicio = $('#mantenimientoHoraInicio').val();
+            const horaFin = $('#mantenimientoHoraFin').val();
+            const motivo = $('#mantenimientoMotivo').val();
+
+            if (horaFin <= horaInicio) {
+                $('#mantenimientoError').text("⚠️ La hora de fin debe ser posterior a la de inicio.").removeClass('d-none');
+                return;
+            }
+
+            $.ajax({
+                url: `/servicios/horarioReservado`,
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    idEspacio: parseInt(idEspacio),
+                    fecha: fecha,
+                    horaInicio: horaInicio,
+                    horaFin: horaFin,
+                    estado: "Mantenimiento",
+                    motivo: motivo // aunque no se guarda, puedes enviarlo por si lo quieres usar después
+                }),
+                success: function(response) {
+                    alert("✅ Mantenimiento programado correctamente.");
+                    $('#modalMantenimiento').modal('hide');
+                    location.reload();
+                },
+                error: function(xhr) {
+                    let errorMsg = xhr.responseText || "Error al programar mantenimiento.";
+                    $('#mantenimientoError').text("⚠️ " + errorMsg).removeClass('d-none');
+                }
+            });
+        });
     });
 
-    // Validar si se solapan horarios
-    function hayColision(servicioId, fecha, inicio, fin) {
-        return reservasExistentes.some(evento => {
-            if (evento.servicioId !== servicioId || evento.fecha !== fecha) return false;
 
-            const inicioEvento = evento.inicio;
-            const finEvento = evento.fin;
 
-            return (inicio < finEvento && fin > inicioEvento); // true si hay solapamiento
+</script>
+
+<script>
+    function mostrarDetalles(idUsuario) {
+        // Limpiar contenido previo
+        $('#detalleNombre').text('');
+        $('#detalleCorreo').text('');
+        $('#detalleCelular').text('');
+        $('#detalleDireccion').text('');
+
+        // Hacer petición AJAX para obtener datos del usuario
+        $.ajax({
+            url: `/servicios/usuario/${idUsuario}`,
+            method: 'GET',
+            success: function(data) {
+                // Asumiendo que data es el JSON con los campos del UsuarioDTO
+                $('#detalleNombre').text(data.nombres + ' ' + data.apellidos);
+                $('#detalleCorreo').text(data.correo);
+                $('#detalleCelular').text(data.numCelular);
+                $('#detalleDireccion').text(data.direccion);
+
+                // Mostrar modal
+                $('#modalDetallesUsuario').modal('show');
+            },
+            error: function() {
+                alert('Error al cargar los detalles del usuario.');
+            }
         });
     }
 
-    // Manejar envío del formulario
-    $('#formMantenimiento').on('submit', function (e) {
-        e.preventDefault();
+</script>
 
-        const servicioId = $('#mantenimientoServicioId').val();
-        const fecha = $('#mantenimientoFecha').val();
-        const horaInicio = $('#mantenimientoHoraInicio').val();
-        const horaFin = $('#mantenimientoHoraFin').val();
-        const motivo = $('#mantenimientoMotivo').val();
+<script>
+    $(document).on('click', '.btn-eliminar-mantenimiento', function() {
+        const idMantenimiento = $(this).data('id-mantenimiento');
 
-        if (horaFin <= horaInicio) {
-            $('#mantenimientoError').text("⚠️ La hora de fin debe ser posterior a la de inicio.").removeClass('d-none');
-            return;
+        if (confirm('¿Estás seguro de eliminar este mantenimiento?')) {
+            $.ajax({
+                url: `/servicios/horarioReservado/${idMantenimiento}`,
+                type: 'DELETE',
+                success: function(response) {
+                    alert(response);
+                    location.reload();
+                },
+                error: function(xhr) {
+                    alert('Error al eliminar mantenimiento: ' + xhr.responseText);
+                }
+            });
         }
-
-        if (hayColision(servicioId, fecha, horaInicio, horaFin)) {
-            $('#mantenimientoError').text("⚠️ El horario seleccionado ya está ocupado.").removeClass('d-none');
-            return;
-        }
-
-        // Aquí podrías enviar los datos a tu backend (POST via AJAX)
-        reservasExistentes.push({
-            servicioId,
-            fecha,
-            inicio: horaInicio,
-            fin: horaFin,
-            mantenimiento: true
-        });
-
-        alert(`✅ Mantenimiento programado para ${servicioId} el ${fecha} de ${horaInicio} a ${horaFin}`);
-
-        $('#modalMantenimiento').modal('hide');
     });
+
 </script>
 
 <script>
@@ -478,15 +493,15 @@
 
 
 <!-- Vendor JS -->
-<script src="js/vendors.min.js"></script>
-<script src="js/pages/chat-popup.js"></script>
-<script src="../assets/icons/feather-icons/feather.min.js"></script>
+<script src="/js/vendors.min.js"></script>
+<script src="/js/pages/chat-popup.js"></script>
+<script src="/assets/icons/feather-icons/feather.min.js"></script>
 
-<script src="../assets/vendor_components/datatable/datatables.min.js"></script>
+<script src="/assets/vendor_components/datatable/datatables.min.js"></script>
 
 <!-- Rhythm Admin App -->
-<script src="js/template.js"></script>
-<script src="js/pages/patients.js"></script>
+<script src="/js/template.js"></script>
+<script src="/js/pages/patients.js"></script>
 
 </body>
 </html>

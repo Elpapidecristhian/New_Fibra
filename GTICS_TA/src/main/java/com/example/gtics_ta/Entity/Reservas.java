@@ -5,6 +5,7 @@ import lombok.*;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.sql.Timestamp;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Date;
 
@@ -15,7 +16,7 @@ import java.util.Date;
 public class Reservas {
     @Id
     @Column(name = "id_reservas")
-    private int id;
+    private Integer id;
     @ManyToOne
     @JoinColumn(name = "id_usuario")
     private Usuario usuario;
@@ -30,7 +31,11 @@ public class Reservas {
     private HorarioReservado horarioReservado;
     @Column(name = "registro_timestamp")
     private LocalDateTime fechaRegistro;
-    @DateTimeFormat(pattern = "yyyy-MM-dd")
+
     @Column(name = "fecha_reserva")
-    private LocalDateTime fechaReserva;
+    private LocalDate fechaReserva;
+
+    @Column(name = "estado", nullable = false)
+    private String estado = "Disponible";
+
 }

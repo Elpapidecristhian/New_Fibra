@@ -18,7 +18,7 @@ public class Usuario {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "idUsuario")
+    @Column(name = "id_usuario")
     private Integer idUsuario;
 
     @Column(name = "nombres")  // Asegúrate de mapear los nombres correctamente
@@ -30,7 +30,7 @@ public class Usuario {
     @Column(name = "dni")  // Mapear el DNI
     private Integer dni;
 
-    @Column(name = "numCelular")  // Mapea la columna "numCelular"
+    @Column(name = "num_Celular")  // Mapea la columna "numCelular"
     private Integer numCelular;
 
     @Column(name = "correo")  // Mapear el email

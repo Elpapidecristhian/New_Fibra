@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="5071b709-ace0-4d3f-96dc-25354a901009" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/GTICS_TA/src/main/java/com/example/gtics_ta/dto/HorarioReservadoDTO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/GTICS_TA/src/main/java/com/example/gtics_ta/repositories/HorarioReservadoRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/GTICS_TA/src/main/java/com/example/gtics_ta/Entity/HorarioReservado.java" beforeDir="false" afterPath="$PROJECT_DIR$/GTICS_TA/src/main/java/com/example/gtics_ta/Entity/HorarioReservado.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/GTICS_TA/src/main/java/com/example/gtics_ta/Entity/MediosPago.java" beforeDir="false" afterPath="$PROJECT_DIR$/GTICS_TA/src/main/java/com/example/gtics_ta/Entity/MediosPago.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/GTICS_TA/src/main/java/com/example/gtics_ta/Entity/Pagos.java" beforeDir="false" afterPath="$PROJECT_DIR$/GTICS_TA/src/main/java/com/example/gtics_ta/Entity/Pagos.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/GTICS_TA/src/main/java/com/example/gtics_ta/Entity/Reservas.java" beforeDir="false" afterPath="$PROJECT_DIR$/GTICS_TA/src/main/java/com/example/gtics_ta/Entity/Reservas.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/GTICS_TA/src/main/java/com/example/gtics_ta/Entity/Usuario.java" beforeDir="false" afterPath="$PROJECT_DIR$/GTICS_TA/src/main/java/com/example/gtics_ta/Entity/Usuario.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/GTICS_TA/src/main/java/com/example/gtics_ta/controller/EspaciosDeportivosController.java" beforeDir="false" afterPath="$PROJECT_DIR$/GTICS_TA/src/main/java/com/example/gtics_ta/controller/EspaciosDeportivosController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/GTICS_TA/src/main/java/com/example/gtics_ta/repositories/HorariosRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/GTICS_TA/src/main/java/com/example/gtics_ta/repositories/HorariosRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/GTICS_TA/src/main/resources/templates/Administrador/Admin_Reservas.html" beforeDir="false" afterPath="$PROJECT_DIR$/GTICS_TA/src/main/resources/templates/Administrador/Admin_Reservas.html" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="HTML File" />
+        <option value="Interface" />
+        <option value="Class" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;lujopoga&quot;
+  }
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/Elpapidecristhian/New_Fibra.git&quot;,
+    &quot;accountId&quot;: &quot;b1ba8800-1624-43ba-a105-31831d883efd&quot;
+  }
+}</component>
+  <component name="ProblemsViewState">
+    <option name="selectedTabId" value="CurrentFile" />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 7
+}</component>
+  <component name="ProjectId" id="2wF5kSCM2sXDcHZnqOI0mM21Hcd" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;DefaultHtmlFileTemplate&quot;: &quot;HTML File&quot;,
+    &quot;JavaScript Debug.vecino_perfil.html.executor&quot;: &quot;Run&quot;,
+    &quot;RequestMappingsPanelOrder0&quot;: &quot;0&quot;,
+    &quot;RequestMappingsPanelOrder1&quot;: &quot;1&quot;,
+    &quot;RequestMappingsPanelWidth0&quot;: &quot;75&quot;,
+    &quot;RequestMappingsPanelWidth1&quot;: &quot;75&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
+    &quot;Spring Boot.GticsTaApplication.executor&quot;: &quot;Run&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;developJoaco&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/51921/New_Fibra&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  }
+}</component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\51921\New_Fibra\GTICS_TA\src\main\resources\templates\main\Administrador" />
+      <recent name="C:\Users\51921\New_Fibra\GTICS_TA\src\main\resources\templates\main" />
+      <recent name="C:\Users\51921\New_Fibra\GTICS_TA\src\main\resources\static\assets" />
+      <recent name="C:\Users\51921\New_Fibra\GTICS_TA\src\main\resources\static" />
+    </key>
+  </component>
+  <component name="RunManager" selected="Spring Boot.GticsTaApplication">
+    <configuration name="usuario_perfil.html" type="JavascriptDebugType" temporary="true" nameIsGenerated="true" uri="http://localhost:63342/New_Fibra/GTICS_TA/templates/main/usuario_perfil.html" useBuiltInWebServerPort="true">
+      <method v="2" />
+    </configuration>
+    <configuration name="GticsTaApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+      <option name="ALTERNATIVE_JRE_PATH" value="17" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
+      <option name="FRAME_DEACTIVATION_UPDATE_POLICY" value="UpdateClassesAndResources" />
+      <module name="GTICS_TA" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="com.example.gtics_ta.GticsTaApplication" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="JavaScript Debug.usuario_perfil.html" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-jdk-9823dce3aa75-b114ca120d71-intellij.indexing.shared.core-IU-242.21829.142" />
+        <option value="bundled-js-predefined-d6986cc7102b-7c0b70fcd90d-JavaScript-IU-242.21829.142" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="5071b709-ace0-4d3f-96dc-25354a901009" name="Changes" comment="" />
+      <created>1745624623540</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1745624623540</updated>
+      <workItem from="1745624624827" duration="519000" />
+      <workItem from="1745816145671" duration="2400000" />
+      <workItem from="1745853798559" duration="4362000" />
+      <workItem from="1745869567234" duration="5124000" />
+      <workItem from="1746459427525" duration="692000" />
+      <workItem from="1746461474424" duration="3317000" />
+      <workItem from="1746512074354" duration="1008000" />
+      <workItem from="1746516722869" duration="19705000" />
+      <workItem from="1746664460453" duration="15211000" />
+      <workItem from="1746689738950" duration="14809000" />
+      <workItem from="1746813403076" duration="19195000" />
+      <workItem from="1747107129385" duration="3498000" />
+      <workItem from="1747197531948" duration="26864000" />
+      <workItem from="1747278837928" duration="914000" />
+      <workItem from="1747280408424" duration="17611000" />
+      <workItem from="1747412585683" duration="17569000" />
+      <workItem from="1747464586704" duration="1162000" />
+      <workItem from="1747502262832" duration="11653000" />
+      <workItem from="1747553996426" duration="9711000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+</project>

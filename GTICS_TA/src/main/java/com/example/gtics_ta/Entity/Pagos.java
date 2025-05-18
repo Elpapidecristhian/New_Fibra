@@ -10,8 +10,8 @@ import lombok.*;
 public class Pagos {
     @Id
     @Column(name = "id_pagos")
-    private int id;
-    private float cantidad;
+    private Integer id;
+    private Float cantidad;
     @ManyToOne
     @JoinColumn(name = "id_medios_pago")
     private MediosPago medioPago;
