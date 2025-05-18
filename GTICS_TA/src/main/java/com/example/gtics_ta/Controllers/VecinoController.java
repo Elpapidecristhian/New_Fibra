@@ -211,17 +211,25 @@ public class VecinoController {
             Usuario usuario = optusuario.get();
 
             byte[] image = usuario.getFoto();
+            if (image == null) {
+                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+            }
+
+            String tipoArchivo = usuario.getFotoTipoArchivo();
+            if (tipoArchivo == null || tipoArchivo.isBlank()) {
+                tipoArchivo = "application/octet-stream"; // tipo MIME por defecto
+            }
 
             HttpHeaders httpHeaders = new HttpHeaders();
-            httpHeaders.setContentType(
-                    MediaType.parseMediaType(usuario.getFotoTipoArchivo()));
+            httpHeaders.setContentType(MediaType.parseMediaType(tipoArchivo));
 
             return new ResponseEntity<>(
                     image,
                     httpHeaders,
                     HttpStatus.OK);
         } else {
-            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
+
 }

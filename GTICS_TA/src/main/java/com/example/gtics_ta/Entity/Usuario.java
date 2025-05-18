@@ -37,6 +37,7 @@ public class Usuario implements Serializable {
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     @Column(name = "fecha_nacimiento")
     private LocalDate fechaNacimiento;
+    @Lob
     private byte[] foto;
     @Column(name = "foto_nombre")
     private String fotoNombre;
