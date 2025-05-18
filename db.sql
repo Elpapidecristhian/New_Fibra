@@ -96,6 +96,8 @@ CREATE TABLE IF NOT EXISTS `gtics`.`espaciosdeportivos` (
   `correo_contacto` VARCHAR(45) NOT NULL,
   `maps_url` VARCHAR(150) NULL,
   `aforo` INT NULL,
+  `hora_abre` TIME NOT NULL,
+  `hora_cierra` TIME NOT NULL,
   `operativo` TINYINT NOT NULL,
   `costo_horario` FLOAT NOT NULL,
   PRIMARY KEY (`id_espacio`, `id_tipo_espacio`),

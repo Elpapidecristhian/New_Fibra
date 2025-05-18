@@ -6,6 +6,8 @@ import lombok.Setter;
 import org.springframework.lang.Nullable;
 
 import java.beans.ConstructorProperties;
+import java.sql.Time;
+import java.util.Timer;
 
 @Getter
 @Setter
@@ -15,7 +17,8 @@ public class EspaciosDeportivos {
 
     @Id
     @Column(name = "id_espacio")
-    private int id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
     private String nombre;
     private String ubicacion;
     @ManyToOne
@@ -31,6 +34,10 @@ public class EspaciosDeportivos {
     private String correoContacto;
     @Column(name = "maps_url")
     private String mapsUrl;
+    @Column(name = "hora_abre")
+    private Time horaAbre;
+    @Column(name = "hora_cierra")
+    private Time horaCierra;
     private Integer aforo;
     private boolean operativo;
     @Column(name = "costo_horario")
