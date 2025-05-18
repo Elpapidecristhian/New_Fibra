@@ -7,6 +7,8 @@ import org.springframework.lang.Nullable;
 
 import java.beans.ConstructorProperties;
 import java.sql.Time;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.Timer;
 
 @Getter
@@ -35,11 +37,13 @@ public class EspaciosDeportivos {
     @Column(name = "maps_url")
     private String mapsUrl;
     @Column(name = "hora_abre")
-    private Time horaAbre;
+    private LocalTime horaAbre;
     @Column(name = "hora_cierra")
-    private Time horaCierra;
+    private LocalTime horaCierra;
     private Integer aforo;
     private boolean operativo;
     @Column(name = "costo_horario")
     private float costoHorario;
+    @Column(name = "id_lista_fotos")
+    private Integer idListaFotos;
 }

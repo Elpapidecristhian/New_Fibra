@@ -167,7 +167,7 @@ DEFAULT CHARACTER SET = utf8mb3;
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `gtics`.`canchasfutbol` (
   `id_espacio` INT NOT NULL AUTO_INCREMENT,
-  `tipo_superficie` ENUM('Grass', 'Loza') NOT NULL,
+  `tipo_superficie` ENUM('Grass', 'Losa') NOT NULL,
   `iluminacion_nocturna` TINYINT NOT NULL,
   `balones_disponibles` TINYINT NOT NULL,
   `ancho` FLOAT NOT NULL,
@@ -187,7 +187,7 @@ DEFAULT CHARACTER SET = utf8mb3;
 CREATE TABLE IF NOT EXISTS `gtics`.`estadios` (
   `id_espacio` INT NOT NULL,
   `aforo` INT NOT NULL,
-  `uso_permitido` VARCHAR(45) NOT NULL,
+  `uso_permitido` VARCHAR(150) NOT NULL,
   `seguridad_disponible` TINYINT NOT NULL,
   `sonido_pantallas_disponible` TINYINT NOT NULL,
   `iluminacion_profesional_disponible` TINYINT NOT NULL,
@@ -290,7 +290,7 @@ CREATE TABLE IF NOT EXISTS `gtics`.`piscinas` (
   `profundidad_min` FLOAT NOT NULL,
   `profundidad_max` FLOAT NOT NULL,
   `is_climatizada` TINYINT NOT NULL,
-  `requisitos` VARCHAR(45) NOT NULL,
+  `requisitos` VARCHAR(150) NOT NULL,
   `num_carril_max` INT NOT NULL,
   PRIMARY KEY (`id_espacio`),
   CONSTRAINT `fk_piscinas_espaciosdeportivos1`
@@ -307,7 +307,7 @@ CREATE TABLE IF NOT EXISTS `gtics`.`pistasatletismo` (
   `id_espacio` INT NOT NULL,
   `tipo_superficie` ENUM('Tartan', 'Asfalto', 'Tierra') NOT NULL,
   `longitud` FLOAT NOT NULL,
-  `implementos` VARCHAR(45) NOT NULL,
+  `implementos` VARCHAR(150) NOT NULL,
   PRIMARY KEY (`id_espacio`),
   CONSTRAINT `fk_pistasatletismo_espaciosdeportivos1`
     FOREIGN KEY (`id_espacio`)

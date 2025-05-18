@@ -75,7 +75,7 @@
                                     <p class="pt-5 fs-14 mb-0 fw-700 text-primary">Luis Joaquin</p>
                                     <small class="fs-10 mb-0 text-uppercase text-mute">Administrador</small>
                                 </div>
-                                <img src="../images/avatar/avatar-1.png" class="avatar rounded-10 bg-primary-light h-40 w-40" alt="" />
+                                <img src="/images/avatar/avatar-1.png" class="avatar rounded-10 bg-primary-light h-40 w-40" alt="" />
                             </div>
                         </a>
                         <ul class="dropdown-menu animated flipInX">
@@ -144,7 +144,7 @@
             <div class="content-header">
                 <div class="d-flex justify-content-between align-items-center mb-2">
                     <h2 class="fw-bold mb-0 me-3">Servicios</h2>
-                    <a href="/servicios/nuevo" class="btn btn-sm text-white" style="background-color: #008B9A;">
+                    <a th:href="@{/admin/nuevo}" class="btn btn-sm text-white" style="background-color: #008B9A;">
                         <i data-feather="plus"></i> Agregar Servicio
                     </a>
                 </div>

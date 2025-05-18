@@ -10,17 +10,17 @@ public class LoginController {
 
     @GetMapping("/login")
     public String mostrarLogin(){
-        return"/login/login";
+        return"login/login";
     }
 
     @GetMapping("/signup")
     public String registrarse(){
-        return"/login/signup";
+        return"login/signup";
     }
 
     @GetMapping("/recoverpass")
     public String recuperarContrasenia(){
-        return"/login/recoverpass";
+        return"login/recoverpass";
     }
 
 }

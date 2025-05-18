@@ -72,7 +72,7 @@ public class SuperAdminController {
         // Guardar el usuario
         usuarioRepository.save(usuario);
 
-        return "redirect:/SuperAdmin/usuarios-no-baneados";
+        return "redirect:SuperAdmin/usuarios-no-baneados";
     }
 
     @GetMapping("/usuarios/banear/{id}")
@@ -83,7 +83,7 @@ public class SuperAdminController {
             usuario.setActivo(false);  // Marca como baneado
             usuarioRepository.save(usuario);
         }
-        return "redirect:/SuperAdmin/usuarios-no-baneados"; // Redirige a usuarios no baneados para que desaparezca de ahí
+        return "redirect:SuperAdmin/usuarios-no-baneados"; // Redirige a usuarios no baneados para que desaparezca de ahí
     }
 
     @PutMapping("/usuarios/editar/{id}")
@@ -113,7 +113,7 @@ public class SuperAdminController {
             usuario.setActivo(true);  // Quita la marca de baneado
             usuarioRepository.save(usuario);
         }
-        return "redirect:/SuperAdmin/usuarios-baneados"; // Recarga la lista de baneados
+        return "redirect:SuperAdmin/usuarios-baneados"; // Recarga la lista de baneados
     }
 
 

@@ -17,7 +17,7 @@ public class CanchasFutbol {
     private int idEspacio;
     @Column(name = "tipo_superficie")
     private String tipoSuperficie;
-    @Column(name = "ilumacion_nocturna")
+    @Column(name = "iluminacion_nocturna")
     private boolean ilumacionNocturna;
     @Column(name = "balones_disponibles")
     private boolean balonesDisponibles;

@@ -48,10 +48,12 @@ public class AdminController {
     private PistasAtletismoRepository pistasAtletismoRepository;
     @Autowired
     private EstadiosRepository estadiosRepository;
+    @Autowired
+    private FotosRepository fotosRepository;
 
 
     // LISTAR TODOS
-    @GetMapping("")
+    @GetMapping(value = {"","/"})
     public String listarServicios(Model model) {
         List<EspaciosDeportivos> espacios = espaciosRepository.findAll();
         model.addAttribute("listaEspacios", espacios);
@@ -61,7 +63,15 @@ public class AdminController {
     // FORMULARIO PARA NUEVO
     @GetMapping("/nuevo")
     public String nuevoServicio(@ModelAttribute("servicioDTO") ServicioDTO servicioDTO, Model model) {
-        model.addAttribute("espacio", new EspaciosDeportivos());
+        Estadios estadios = new Estadios();
+        estadios.setUsoPermitido("-");
+        PistasAtletismo pistasAtletismo = new PistasAtletismo();
+        pistasAtletismo.setImplementos("-");
+        Piscinas piscinas = new Piscinas();
+        piscinas.setRequisitos("-");
+        servicioDTO.setEstadios(estadios);
+        servicioDTO.setPista(pistasAtletismo);
+        servicioDTO.setPiscina(piscinas);
         model.addAttribute("tipos", tipoEspacioRepository.findAll());
         return "admin/agregarservicio"; // El form para crear/editar
     }
@@ -98,7 +108,7 @@ public class AdminController {
     @PostMapping("/guardar")
     public String guardarServicio(@ModelAttribute("espacio") EspaciosDeportivos espacio) {
         espaciosRepository.save(espacio);
-        return "redirect:/admin/servicios";
+        return "redirect:admin/servicios";
     }
 
     // FORMULARIO PARA EDITAR
@@ -121,34 +131,55 @@ public class AdminController {
     }
 
 
-    @GetMapping()
-
     @PostMapping("/guardarservicio")
-    public String guardarServicio(@ModelAttribute("servicioDTO") ServicioDTO servicioDTO){
-        EspaciosDeportivos espaciosDeportivos = servicioDTO.getEspacio();
-        if(espaciosDeportivos.getTipoEspacio().getId() == 1){
-            Piscinas piscina = servicioDTO.getPiscina();
-            espaciosDeportivosRepository.save(espaciosDeportivos);
-            piscina.setIdEspacio(espaciosDeportivos.getId());
-            piscinaRepository.save(piscina);
-        } else if (espaciosDeportivos.getTipoEspacio().getId() == 2) {
-            CanchasFutbol canchasFutbol = servicioDTO.getCancha();
-            espaciosDeportivosRepository.save(espaciosDeportivos);
-            canchasFutbol.setIdEspacio(espaciosDeportivos.getId());
-            canchasFutbolRepository.save(canchasFutbol);
-        } else if (espaciosDeportivos.getTipoEspacio().getId() == 3) {
-            PistasAtletismo pistasAtletismo = servicioDTO.getPista();
-            espaciosDeportivosRepository.save(espaciosDeportivos);
-            pistasAtletismo.setIdEspacio(espaciosDeportivos.getId());
-            pistasAtletismoRepository.save(pistasAtletismo);
-        } else if (espaciosDeportivos.getTipoEspacio().getId() == 4) {
-            Estadios estadios = servicioDTO.getEstadios();
-            espaciosDeportivosRepository.save(espaciosDeportivos);
-            estadios.setIdEspacio(espaciosDeportivos.getId());
-            estadiosRepository.save(estadios);
+    public String guardarServicio(@ModelAttribute("servicioDTO") ServicioDTO servicioDTO, @RequestParam("archivo") MultipartFile file ){
+        if(file.isEmpty()) {
+            return "redirect:admin/servicios";
         }
 
-        return "redirect:/admin/servicios";
+        String fileName = file.getOriginalFilename();
+
+        if (fileName.contains("..")){
+            return "redirect:admin/servicios";
+        }
+
+        try {
+            ListaFotos listaFotos = new ListaFotos();
+            listaFotosRepository.save(listaFotos);
+            Fotos foto = new Fotos();
+            foto.setFoto(file.getBytes());
+            foto.setFotoNombre(fileName);
+            foto.setFotoTipoArchivo(file.getContentType());
+            foto.setIdListaFotos(listaFotos.getId());
+            fotosRepository.save(foto);
+            EspaciosDeportivos espaciosDeportivos = servicioDTO.getEspacio();
+            espaciosDeportivos.setIdListaFotos(listaFotos.getId());
+            if(espaciosDeportivos.getTipoEspacio().getId() == 1){
+                Piscinas piscina = servicioDTO.getPiscina();
+                espaciosDeportivosRepository.save(espaciosDeportivos);
+                piscina.setIdEspacio(espaciosDeportivos.getId());
+                piscinaRepository.save(piscina);
+            } else if (espaciosDeportivos.getTipoEspacio().getId() == 2) {
+                CanchasFutbol canchasFutbol = servicioDTO.getCancha();
+                espaciosDeportivosRepository.save(espaciosDeportivos);
+                canchasFutbol.setIdEspacio(espaciosDeportivos.getId());
+                canchasFutbolRepository.save(canchasFutbol);
+            } else if (espaciosDeportivos.getTipoEspacio().getId() == 3) {
+                PistasAtletismo pistasAtletismo = servicioDTO.getPista();
+                espaciosDeportivosRepository.save(espaciosDeportivos);
+                pistasAtletismo.setIdEspacio(espaciosDeportivos.getId());
+                pistasAtletismoRepository.save(pistasAtletismo);
+            } else if (espaciosDeportivos.getTipoEspacio().getId() == 4) {
+                Estadios estadios = servicioDTO.getEstadios();
+                espaciosDeportivosRepository.save(espaciosDeportivos);
+                estadios.setIdEspacio(espaciosDeportivos.getId());
+                estadiosRepository.save(estadios);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "redirect:admin/servicios";
+        }
+        return "redirect:admin";
     }
 
 

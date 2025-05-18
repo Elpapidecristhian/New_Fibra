@@ -30,7 +30,7 @@ public class CoordinadorController {
             return "coordinador/perfil";
 
         }else{
-            return "redirect:/error";
+            return "redirect:error";
         }
     }
 
@@ -71,7 +71,7 @@ public class CoordinadorController {
             }
             usuarioRepository.save(usuario);
         }
-        return "redirect:/coordinador/perfil/" + id;
+        return "redirect:coordinador/perfil/" + id;
     }
 
 }

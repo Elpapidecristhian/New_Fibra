@@ -68,12 +68,13 @@
     <section class="content">
       <div class="box">
         <div class="box-header with-border">
-          <h4 class="box-title">Completa tu Reserva</h4>
-          <h6 class="box-subtitle">Rellena el siguiente formulario con tu información para proceder con la reserva.</h6>
+          <h4 class="box-title">Nuevo Servicio</h4>
+          <h6 class="box-subtitle">Complete el formulario con los datos del nuevo serivicio.</h6>
         </div>
         <!-- /.box-header -->
         <div class="box-body wizard-content">
-          <form th:action="@{/vecino/guardarservicio}" th:object="${servicioDTO}" method="post" class="validation-wizard wizard-circle">
+          <form th:action="@{/admin/guardarservicio}" th:object="${servicioDTO}" method="post" enctype="multipart/form-data" class="validation-wizard wizard-circle">
+            <input type="hidden" th:field="*{espacio.idListaFotos}">
             <!-- Step 1 -->
             <h6>Datos Principales</h6>
             <section>
@@ -81,27 +82,27 @@
                 <div class="col-md-6">
                   <div class="form-group">
                     <label for="wfirstName2" class="form-label"> Nombre : <span class="danger">*</span> </label>
-                    <input type="text"  th:field="*{espacio.nombre}" class="form-control required" id="wfirstName2" name="nombre">
+                    <input type="text"  th:field="*{espacio.nombre}" class="form-control required" id="wfirstName2">
                   </div>
                 </div>
                 <div class="col-md-6">
                   <div class="form-group">
-                    <label for="wlastName2" class="form-label"> Apellido : <span class="danger">*</span> </label>
-                    <input type="text" th:field="*{espacio.ubicacion}" class="form-control required" id="wlastName2" name="apellido">
+                    <label for="wlastName2" class="form-label"> Ubicación : <span class="danger">*</span> </label>
+                    <input type="text" th:field="*{espacio.ubicacion}" class="form-control required" id="wlastName2">
                   </div>
                 </div>
               </div>
               <div class="row">
                 <div class="col-md-6">
                   <div class="form-group">
-                    <label for="desCorta" class="form-label">Fecha de Nacimiento :</label>
+                    <label for="desCorta" class="form-label">Descripción Corta :</label>
                     <input th:field="*{espacio.descripcionCorta}" type="text" class="form-control required" id="desCorta">
                   </div>
-                  <div class="col-md-6">
-                    <div class="form-group">
-                      <label for="desLarga" class="form-label">Fecha de Nacimiento :</label>
-                      <input th:field="*{espacio.descripcionLarga}" type="text" class="form-control required" id="desLarga">
-                    </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label for="desLarga" class="form-label">Descripción Larga :</label>
+                    <input th:field="*{espacio.descripcionLarga}" type="text" class="form-control required" id="desLarga">
                   </div>
                 </div>
               </div>
@@ -109,13 +110,13 @@
                 <div class="col-md-6">
                   <div class="form-group">
                     <label for="horaAbre" class="form-label">Hora de Apertura :</label>
-                    <input th:field="*{espacio.horaAbre}" type="date" class="form-control required" id="horaAbre">
+                    <input th:field="*{espacio.horaAbre}" type="time" class="form-control required" id="horaAbre">
                   </div>
-                  <div class="col-md-6">
-                    <div class="form-group">
-                      <label for="horaCierra" class="form-label">Hora de Cierre :</label>
-                      <input th:field="*{espacio.horaCierra}" type="date" class="form-control required" id="horaCierra">
-                    </div>
+                  </div>
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label for="horaCierra" class="form-label">Hora de Cierre :</label>
+                    <input th:field="*{espacio.horaCierra}" type="time" class="form-control required" id="horaCierra">
                   </div>
                 </div>
               </div>
@@ -126,77 +127,190 @@
               <div class="row">
                 <div class="col-md-6">
                   <div class="form-group">
-                    <label for="wemailAddress2" class="form-label"> Correo electrónico:<span class="danger">*</span> </label>
-                    <input type="email" th:field="*{espacio.correoContacto}" class="form-control required" id="wemailAddress2" name="correo">
+                    <label for="wemailAddress2" class="form-label"> Correo de Contacto :<span class="danger">*</span> </label>
+                    <input type="email" th:field="*{espacio.correoContacto}" class="form-control required" id="wemailAddress2">
                   </div>
                 </div>
                 <div class="col-md-6">
                   <div class="form-group">
-                    <label for="wphoneNumber2" class="form-label">Celular :</label>
-                    <input type="tel" th:field="*{espacio.numContacto}" class="form-control" id="wphoneNumber2" name="celular">
+                    <label for="wphoneNumber2" class="form-label">Número de Contacto :<span class="danger">*</span></label>
+                    <input type="tel" th:field="*{espacio.numContacto}" class="form-control required" id="wphoneNumber2">
                   </div>
                 </div>
               </div>
               <div class="row">
                 <div class="col-md-6">
                   <div class="form-group">
-                    <label for="mapsUrl" class="form-label"> Correo electrónico:<span class="danger">*</span> </label>
-                    <input type="text" th:field="*{espacio.mapsUrl}" class="form-control required" id="mapsUrl" name="correo">
+                    <label for="mapsUrl" class="form-label"> Url de Google Maps:<span class="danger">*</span> </label>
+                    <input type="text" th:field="*{espacio.mapsUrl}" class="form-control required" id="mapsUrl">
                   </div>
                 </div>
                 <div class="col-md-6">
                   <div class="form-group">
-                    <label for="aforo" class="form-label">Celular :</label>
-                    <input type="number" th:field="*{espacio.aforo}" class="form-control" id="aforo" name="celular">
+                    <label for="aforo" class="form-label">Aforo :</label>
+                    <input type="number" th:field="*{espacio.aforo}" class="form-control" id="aforo">
                   </div>
                 </div>
               </div>
               <div class="row">
                 <div class="col-md-6">
                   <div class="form-group">
-                    <label for="mapsUrl" class="form-label"> Correo electrónico:<span class="danger">*</span> </label>
-                    <input type="number" step="any" th:field="*{espacio.costoHorario}" class="form-control required" id="costoHorario" name="correo">
+                    <label for="costoHorario" class="form-label"> Costo por Horario:<span class="danger">*</span> </label>
+                    <input type="number" step="any" th:field="*{espacio.costoHorario}" class="form-control required" id="costoHorario">
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label for="tipoEspacioId" class="form-label"> Tipo de Servicio:<span class="danger">*</span> </label>
+                    <select th:field="*{espacio.tipoEspacio.id}" class="form-select required" id="tipoEspacioId" onchange="mostrarCampos()">
+                      <option value="" disabled selected>Seleccione</option>
+                      <option th:each=" tipo : ${tipos}"
+                              th:value="${tipo.id}"
+                              th:text="${tipo.nombre}"
+                      ></option>
+                    </select>
                   </div>
                 </div>
               </div>
               <div class="row">
-                <div class="col-md-3">
-                  <h6>Elija la fecha de su reserva</h6>
+                <div class="col-md-12">
                   <div class="form-group">
-                    <label for="wdate2" class="form-label">Fecha :</label>
-                    <input readonly th:attr="min=${minDate}" type="date" th:field="*{fechaReserva}" class="form-control required" id="wdate2">
+                    <label for="archivo" class="form-label">Adjunte una foto para su servicio</label>
+                    <input class="form-control required" type="file" id="archivo" name="archivo">
                   </div>
-                </div>
-                <div class="col-md-9">
-                  <h5>Elija el horario de su reserva</h5>
-                  <div id="horarios-container" class="clearfix" aria-label="Horarios">
-                    <th:block th:each="horariosConsulta, idx : ${listaHorarios}">
-                      <button type="button"
-                              class="waves-effect waves-light btn "
-                              th:id="'btn-horario-' + ${idx.index}"
-                              th:text="${horariosConsulta.getHoraInicio()} + '-' + ${horariosConsulta.getHoraFin()}"
-                              th:disabled="${horariosConsulta.getReservado() != null and horariosConsulta.getReservado() == 1}"
-                              th:classappend="${horariosConsulta.getReservado() != null and horariosConsulta.getReservado() == 1} ? ' btn-danger-light mb-5' : ' btn-primary-light mb-5'"
-                              th:onclick="'selectHorario(this, ' + ${horariosConsulta.getIdHorarios()} + ')'">
-                      </button>
-                      <span th:if="${((idx.index + 1) % 3 == 0)}"><br/></span>
-                    </th:block>
-                  </div>
-
-                  <!-- Campo hidden para enviar el horario seleccionado -->
-                  <input type="hidden" id="horarioSeleccionado" th:field="*{horario}" required />
                 </div>
               </div>
             </section>
             <!-- Step 3 -->
-            <h6>Pago</h6>
+            <h6>Datos Particulares</h6>
             <section>
-              <div class="row">
-                <div class="col-md-6">
-                  <button type="button" class="waves-effect waves-light btn btn-dark btn-lg">Abrir Plataforma de Pago</button>
-
+              <div id="campoPiscina">
+                <div class="row">
+                  <div class="col-md-6">
+                    <label for="tipoPiscina" class="form-label"> Tipo de Piscina:<span class="danger">*</span> </label>
+                    <select th:field="*{piscina.tipoPiscina}" class="form-select required" id="tipoPiscina">
+                      <option value="Olímpica">Olímpica</option>
+                      <option value="Publica">Pública</option>
+                    </select>
+                  </div>
+                  <div class="col-md-6">
+                    <label for="requisitos" class="form-label"> Requisitos:<span class="danger">*</span> </label>
+                    <input type="text" th:field="*{piscina.requisitos}" class="form-control required" id="requisitos">
+                  </div>
                 </div>
-
+                <div class="row">
+                  <div class="col-md-6">
+                    <label for="profundidadMin" class="form-label"> Profundidad Mínima:<span class="danger">*</span> </label>
+                    <input type="number" step="any" th:field="*{piscina.profundidadMin}" class="form-control required" id="profundidadMin">
+                  </div>
+                  <div class="col-md-6">
+                    <label for="profundidadMax" class="form-label"> Profundidad Máxima:<span class="danger">*</span> </label>
+                    <input type="number" step="any" th:field="*{piscina.profundidadMax}" class="form-control required" id="profundidadMax">
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-md-6">
+                    <label for="climatizada" class="form-label"> Climatizada:<span class="danger">*</span> </label>
+                    <select th:field="*{piscina.climatizada}" class="form-select required" id="climatizada">
+                      <option value="1">Sí</option>
+                      <option value="0">No</option>
+                    </select>
+                  </div>
+                  <div class="col-md-6">
+                    <label for="numCarrilMax" class="form-label"> Número de Carriles:<span class="danger">*</span> </label>
+                    <input type="number" th:field="*{piscina.numCarrilMax}" class="form-control required" id="numCarrilMax">
+                  </div>
+                </div>
+              </div>
+              <div id="campoCancha">
+                <div class="row">
+                  <div class="col-md-6">
+                    <label for="tipoSuperficie" class="form-label"> Tipo de Superficie:<span class="danger">*</span> </label>
+                    <select th:field="*{cancha.tipoSuperficie}" class="form-select required" id="tipoSuperficie">
+                      <option value="Losa">Losa</option>
+                      <option value="Grass">Grass</option>
+                    </select>
+                  </div>
+                  <div class="col-md-6">
+                    <label for="balones" class="form-label"> Balones Disponibles:<span class="danger">*</span> </label>
+                    <select th:field="*{cancha.balonesDisponibles}" class="form-select required" id="balones">
+                      <option value="1">Sí</option>
+                      <option value="0">No</option>
+                    </select>
+                </div>
+                </div>
+                <div class="row">
+                  <div class="col-md-6">
+                    <label for="ancho" class="form-label"> Ancho del Campo:<span class="danger">*</span> </label>
+                    <input type="number" step="any" th:field="*{cancha.ancho}" class="form-control required" id="ancho">
+                  </div>
+                  <div class="col-md-6">
+                    <label for="alto" class="form-label"> Alto del Campo:<span class="danger">*</span> </label>
+                    <input type="number" step="any" th:field="*{cancha.alto}" class="form-control required" id="alto">
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-md-6">
+                    <label for="iluminacionNocturna" class="form-label"> Iluminación Nocturna:<span class="danger">*</span> </label>
+                    <select th:field="*{cancha.ilumacionNocturna}" class="form-select required" id="iluminacionNocturna">
+                      <option value="1">Sí</option>
+                      <option value="0">No</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+              <div id="campoEstadio">
+                <div class="row">
+                  <div class="col-md-6">
+                    <label for="usoPermitido" class="form-label"> Uso Permitido:<span class="danger">*</span> </label>
+                    <input type="text" th:field="*{estadios.usoPermitido}" class="form-control required" id="usoPermitido">
+                  </div>
+                  <div class="col-md-6">
+                    <label for="seguridadDisponible" class="form-label"> Seguridad Disponible:<span class="danger">*</span> </label>
+                    <select th:field="*{estadios.seguridadDisponible}" class="form-select required" id="seguridadDisponible">
+                      <option value="1">Sí</option>
+                      <option value="0">No</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-md-6">
+                    <label for="sonidosPantallasDisponible" class="form-label"> Equipos de Sonido y Pantallas Disponibles:<span class="danger">*</span> </label>
+                    <select th:field="*{estadios.sonidoPantallasDisponible}" class="form-select required" id="sonidosPantallasDisponible">
+                      <option value="1">Sí</option>
+                      <option value="0">No</option>
+                    </select>
+                  </div>
+                  <div class="col-md-6">
+                    <label for="iluminacionProfesionalDisponible" class="form-label"> Iluminación Profesional Disponible:<span class="danger">*</span> </label>
+                    <select th:field="*{estadios.iluminacionProfesionalDisponible}" class="form-select required" id="iluminacionProfesionalDisponible">
+                      <option value="1">Sí</option>
+                      <option value="0">No</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+              <div id="campoPista">
+                <div class="row">
+                  <div class="col-md-6">
+                    <label for="tipoSuperficiePista" class="form-label"> Tipo de Superficie:<span class="danger">*</span> </label>
+                    <select th:field="*{pista.tipoSuperficie}" class="form-select required" id="tipoSuperficiePista">
+                      <option value="Tartan">Tartan</option>
+                      <option value="Asfalto">Asfalto</option>
+                      <option value="Tierra">Tierra</option>
+                    </select>
+                  </div>
+                  <div class="col-md-6">
+                    <label for="longitud" class="form-label"> Longitud:<span class="danger">*</span> </label>
+                    <input type="number" step="any" th:field="*{pista.longitud}" class="form-control required" id="longitud">
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-md-6">
+                    <label for="implementos" class="form-label"> Implementos:<span class="danger">*</span> </label>
+                    <input type="text" th:field="*{pista.implementos}" class="form-control required" id="implementos">
+                  </div>
+                </div>
               </div>
             </section>
           </form>
@@ -495,17 +609,37 @@
 
 <script src="/js/pages/advanced-form-element.js"></script>
 <script>
-  function selectHorario(button, horarioId) {
-    // Quitar clase 'active' de todos los botones
-    document.querySelectorAll('#horarios-container .btn').forEach(btn => btn.classList.remove('active'));
+  function mostrarCampos() {
+    const valor = document.getElementById('tipoEspacioId').value;
 
-    // Marcar el botón clickeado como activo
-    button.classList.add('active');
+    const campos = ['campoPiscina', 'campoCancha', 'campoPista', 'campoEstadio'];
 
-    // Actualizar el valor del input hidden con el id del horario seleccionado
-    document.getElementById('horarioSeleccionado').value = horarioId;
+    campos.forEach(id => {
+      const div = document.getElementById(id);
+      if (!div) return; // por si no existe el elemento
+
+      if (
+              (valor === '1' && id === 'campoPiscina') ||
+              (valor === '2' && id === 'campoCancha') ||
+              (valor === '3' && id === 'campoPista') ||
+              (valor === '4' && id === 'campoEstadio')
+      ) {
+        div.style.display = 'block';
+        // Poner required a true en todos los inputs, selects y textarea dentro
+        div.querySelectorAll('input, select, textarea').forEach(el => el.required = true);
+      } else {
+        div.style.display = 'none';
+        // Quitar required para que no bloqueen el submit
+        div.querySelectorAll('input, select, textarea').forEach(el => el.required = false);
+      }
+    });
   }
 
+  // Mostrar el campo correcto al cargar la página (en caso de editar)
+  window.onload = mostrarCampos;
+
+  // Además, para que cambie dinámicamente al modificar el select:
+  document.getElementById('tipoEspacioId').addEventListener('change', mostrarCampos);
 </script>
 
 

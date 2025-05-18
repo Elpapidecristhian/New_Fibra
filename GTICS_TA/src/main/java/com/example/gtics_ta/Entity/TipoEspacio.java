@@ -11,6 +11,6 @@ import lombok.Setter;
 public class TipoEspacio {
     @Id
     @Column(name = "id_tipo_espacio")
-    private int id;
+    private Integer id;
     private String nombre;
 }

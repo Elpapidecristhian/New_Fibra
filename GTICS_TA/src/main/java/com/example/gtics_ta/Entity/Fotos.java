@@ -11,6 +11,7 @@ import lombok.Setter;
 public class Fotos {
     @Id
     @Column(name = "id_fotos")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     @Column(name = "id_lista_fotos")
     private int idListaFotos;
@@ -18,5 +19,6 @@ public class Fotos {
     private String fotoNombre;
     @Column(name = "foto_tipo_archivo")
     private String fotoTipoArchivo;
+    @Lob
     private byte[] foto;
 }

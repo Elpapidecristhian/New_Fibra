@@ -6,7 +6,6 @@ import com.example.gtics_ta.Repository.*;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -14,7 +13,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -48,6 +46,8 @@ public class VecinoController {
     PistasAtletismoRepository pistasAtletismoRepository;
     @Autowired
     private EstadiosRepository estadiosRepository;
+    @Autowired
+    private FotosRepository fotosRepository;
 
     @GetMapping(value = {"","/"})
     public String listaEspacios(@RequestParam(name = "tipo", required = false) Integer id,
@@ -113,16 +113,15 @@ public class VecinoController {
     }
 
     @GetMapping("/reservar")
-    public String reservar(Model model, @ModelAttribute("reserva") Reservas reservas, @RequestParam(name = "idUsuario") int idUsuario, @RequestParam(name = "idEspacio") int idEspacio, @RequestParam(name = "fecha") String fecha) throws ParseException {
+    public String reservar(Model model, @ModelAttribute("reserva") Reservas reservas, HttpSession session, @RequestParam(name = "idEspacio") int idEspacio, @RequestParam(name = "fecha") String fecha) throws ParseException {
             SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
             Date fechaconv = format.parse(fecha);
 
-        Optional<Usuario> optusuario = usuarioRepository.findById(idUsuario);
+        Usuario usuario = (Usuario) session.getAttribute("usuario");
         Optional<EspaciosDeportivos> optespacio = espaciosDeportivosRepository.findById(idEspacio);
 
-        if(optusuario.isPresent() && optespacio.isPresent()) {
+        if( optespacio.isPresent()) {
             reservas = new Reservas();
-            Usuario usuario = optusuario.get();
             EspaciosDeportivos espacio = optespacio.get();
             List<HorariosConsultaDTO> listaHorarios = horariosRepository.obtenerHorariosConsulta(fechaconv, espacio.getId());
             reservas.setUsuario(usuario);
@@ -153,7 +152,7 @@ public class VecinoController {
 
         horarioReservadoRepository.save(horarioReservado);
         reservasRepository.save(reserva);
-        return "redirect:/vecino/";
+        return "redirect:vecino/";
     }
 
     @GetMapping("/reservas")
@@ -166,12 +165,9 @@ public class VecinoController {
     }
 
     @GetMapping("/perfil")
-    public String vecinoPerfil(@ModelAttribute("usuario") Usuario usuario, @RequestParam(value = "id") Integer id, Model model) {
-        Optional<Usuario> optuser = usuarioRepository.findById(id);
-        if(optuser.isPresent()) {
-            usuario = optuser.get();
-            model.addAttribute("usuario", usuario);
-        }
+    public String vecinoPerfil(@ModelAttribute("usuario") Usuario usuario, HttpSession session, Model model) {
+        usuario = (Usuario) session.getAttribute("usuario");
+        model.addAttribute("usuario", usuario);
         return "vecino/perfil";
     }
 
@@ -197,15 +193,15 @@ public class VecinoController {
             usuario.setFotoNombre(fileName);
             usuario.setFotoTipoArchivo(file.getContentType());
             usuarioRepository.save(usuario);
-            return "redirect:/vecino/perfil?id=" + usuario.getId();
+            return "redirect:/vecino/perfil";
         } catch (Exception e) {
             e.printStackTrace();
             return "vecino/perfil";
         }
     }
 
-    @GetMapping("/image/{id}")
-    public ResponseEntity<byte[]> mostrarImagen(@PathVariable("id") Integer id) {
+    @GetMapping("/profileimage/{id}")
+    public ResponseEntity<byte[]> mostrarImagenPefil(@PathVariable("id") Integer id) {
         Optional<Usuario> optusuario = usuarioRepository.findById(id);
         if(optusuario.isPresent()) {
             Usuario usuario = optusuario.get();
