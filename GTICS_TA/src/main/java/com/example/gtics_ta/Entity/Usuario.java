@@ -1,8 +1,7 @@
 package com.example.gtics_ta.Entity;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Digits;
-import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.*;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -20,13 +19,31 @@ public class Usuario implements Serializable {
     @Id
     @Column(name = "id_usuario")
     private int id;
+    @NotBlank(message="Los nombres on obligatorios")
+    @Size(max = 50, message = "Los nombres no pueden exceder los 50 caracteres")
     private String nombres;
+
+    @NotBlank(message = "Los apellidos son obligatorios")
+    @Size(max = 50, message = "Los apellidos no pueden exceder los 50 caracteres")
     private String apellidos;
+
+    @NotBlank(message = "El correo electrónico es obligatorio")
+    @Email(message = "Debe ser un correo electrónico válido")
     private String correo;
+
+    @NotBlank(message = "La contraseña es obligatoria")
+    @Size(min = 8, message = "La contraseña debe tener al menos 8 caracteres")
     private String contrasenia;
+
+    @NotBlank(message = "La dirección es obligatoria")
     private String direccion;
+
+    @NotNull(message = "El DNI es obligatorio")
+    @Digits(integer = 8, fraction = 0, message = "El DNI debe tener 8 dígitos")
     private Integer dni;
+
     @Column(name = "num_celular")
+    @NotNull(message = "El número celular es obligatorio")
     @Positive
     @Digits(integer = 9, fraction = 0, message = "Debe ingresar un número de 9 dígitos")
     private Integer numCelular;

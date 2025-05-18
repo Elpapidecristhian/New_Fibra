@@ -1,14 +1,17 @@
 package com.example.gtics_ta.Controllers;
 import com.example.gtics_ta.Entity.Rol;
 import com.example.gtics_ta.Repository.RolRepository;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import com.example.gtics_ta.Repository.UsuarioRepository;
 import com.example.gtics_ta.Entity.Usuario;
 
+import javax.naming.Binding;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -60,15 +63,18 @@ public class SuperAdminController {
     }
 
     @PostMapping("/guardar-usuario")
-    public String guardarUsuario(@ModelAttribute Usuario usuario,
+    public String guardarUsuario(@Valid @ModelAttribute("usuario") Usuario usuario,
+                                  BindingResult bindingResult, Model model,
                                  @RequestParam("rolId") Integer rolId) {
-        // Buscar el Rol en BD
+
+        if (bindingResult.hasErrors()) {
+            model.addAttribute("roles", rolRepository.findAll());
+            return "Usuario_Superadmin/Usuario_generar";
+        }
         Rol rol = rolRepository.findById(rolId)
                 .orElseThrow(() -> new IllegalArgumentException("Rol inválido"));
-
         // Asignar el rol al usuario
         usuario.setRol(rol);
-
         // Guardar el usuario
         usuarioRepository.save(usuario);
 

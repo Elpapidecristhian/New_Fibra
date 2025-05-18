@@ -109,7 +109,7 @@
 					<!-- sidebar menu-->
 					<ul class="sidebar-menu" data-widget="tree">
 						<li>
-							<a href="/SuperAdmin/Dashboard">
+							<a href="/SuperAdmin">
 								<i data-feather="monitor"></i>
 								<span>Dashboard</span>
 
@@ -154,6 +154,9 @@
 											<div class="form-group">
 												<label for="nombres">Nombres</label>
 												<input type="text" th:field="*{nombres}" class="form-control" id="nombres" placeholder="Ingrese su nombre" required />
+												<div th:if="${#fields.hasErrors('nombres')}" class="text-danger">
+													<small th:errors="*{nombres}"></small>
+												</div>
 											</div>
 										</div>
 
@@ -162,6 +165,9 @@
 											<div class="form-group">
 												<label for="apellidos">Apellidos</label>
 												<input type="text" th:field="*{apellidos}" class="form-control" id="apellidos" placeholder="Ingrese sus apellidos" required />
+												<div th:if="${#fields.hasErrors('apellidos')}" class="text-danger">
+													<small th:errors="*{apellidos}"></small>
+												</div>
 											</div>
 										</div>
 									</div>
@@ -171,7 +177,10 @@
 										<div class="col-md-6">
 											<div class="form-group">
 												<label for="dni">DNI</label>
-												<input type="text" th:field="*{dni}" class="form-control" id="dni" placeholder="Ingrese su DNI" required />
+												<input type="number" th:field="*{dni}" class="form-control" id="dni" placeholder="Ingrese su DNI" required />
+												<div th:if="${#fields.hasErrors('dni')}" class="text-danger">
+													<small th:errors="*{dni}"></small>
+												</div>
 											</div>
 										</div>
 
@@ -179,7 +188,10 @@
 										<div class="col-md-6">
 											<div class="form-group">
 												<label for="numCelular">Número Telefónico</label>
-												<input type="text" th:field="*{numCelular}" class="form-control" id="numCelular" placeholder="Ingrese su número" required />
+												<input type="number" th:field="*{numCelular}" class="form-control" id="numCelular" placeholder="Ingrese su número" required />
+												<div th:if="${#fields.hasErrors('numCelular')}" class="text-danger">
+													<small th:errors="*{numCelular}"></small>
+												</div>
 											</div>
 										</div>
 									</div>
@@ -190,6 +202,9 @@
 											<div class="form-group">
 												<label for="correo">Email</label>
 												<input type="email" th:field="*{correo}" class="form-control" id="correo" placeholder="Ingrese su email" required />
+												<div th:if="${#fields.hasErrors('correo')}" class="text-danger">
+													<small th:errors="*{correo}"></small>
+												</div>
 											</div>
 										</div>
 
@@ -198,6 +213,9 @@
 											<div class="form-group">
 												<label for="contrasenia">Contraseña</label>
 												<input type="password" th:field="*{contrasenia}" class="form-control" id="contrasenia" placeholder="Ingrese su contraseña" required />
+												<div th:if="${#fields.hasErrors('contrasenia')}" class="text-danger">
+													<small th:errors="*{contrasenia}"></small>
+												</div>
 											</div>
 										</div>
 									</div>
@@ -211,7 +229,9 @@
 													<option value="" disabled selected>Seleccione un cargo</option>
 													<option th:each="rol : ${roles}" th:value="${rol.idRol}" th:text="${rol.nombre}"></option>
 												</select>
-
+												<div th:if="${#fields.hasErrors('rol')}" class="text-danger">
+													<small th:errors="*{rol}"></small>
+												</div>
 											</div>
 										</div>
 
@@ -220,6 +240,9 @@
 											<div class="form-group">
 												<label for="direccion">Dirección</label>
 												<input type="text" th:field="*{direccion}" class="form-control" id="direccion" placeholder="Ingrese su dirección" required />
+												<div th:if="${#fields.hasErrors('direccion')}" class="text-danger">
+													<small th:errors="*{direccion}"></small>
+												</div>
 											</div>
 										</div>
 									</div>
