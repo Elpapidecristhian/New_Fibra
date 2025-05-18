@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64" fill="none">
+  <!-- Cabeza -->
+  <circle cx="32" cy="20" r="12" stroke="#D32F2F" stroke-width="3" fill="#FFEBEE"/>
+  <!-- Cuerpo -->
+  <path d="M20 48c0-8 24-8 24 0v8H20v-8z" stroke="#D32F2F" stroke-width="3" fill="#FFCDD2"/>
+  <!-- Círculo prohibido -->
+  <circle cx="48" cy="48" r="12" stroke="#D32F2F" stroke-width="3" fill="none"/>
+  <line x1="40" y1="40" x2="56" y2="56" stroke="#D32F2F" stroke-width="3" stroke-linecap="round"/>
+</svg>

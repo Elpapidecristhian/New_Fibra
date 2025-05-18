@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="80" height="64" viewBox="0 0 80 64" fill="none">
+  <!-- Persona central -->
+  <circle cx="40" cy="20" r="10" stroke="#4A90E2" stroke-width="3" fill="#D0E6FF"/>
+  <path d="M30 44c0-6 20-6 20 0v8H30v-8z" stroke="#4A90E2" stroke-width="3" fill="#A8CCE7"/>
+
+  <!-- Persona izquierda -->
+  <circle cx="16" cy="26" r="8" stroke="#4A90E2" stroke-width="2.5" fill="#D0E6FF"/>
+  <path d="M10 44c0-4 12-4 12 0v6H10v-6z" stroke="#4A90E2" stroke-width="2.5" fill="#A8CCE7"/>
+
+  <!-- Persona derecha -->
+  <circle cx="64" cy="26" r="8" stroke="#4A90E2" stroke-width="2.5" fill="#D0E6FF"/>
+  <path d="M58 44c0-4 12-4 12 0v6H58v-6z" stroke="#4A90E2" stroke-width="2.5" fill="#A8CCE7"/>
+</svg>
