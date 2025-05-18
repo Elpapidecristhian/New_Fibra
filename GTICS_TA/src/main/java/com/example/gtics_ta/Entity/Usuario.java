@@ -33,7 +33,7 @@ public class Usuario implements Serializable {
     @ManyToOne
     @JoinColumn(name = "id_rol")
     private Rol rol;
-    private boolean activo;
+    private boolean activo =true;
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     @Column(name = "fecha_nacimiento")
     private LocalDate fechaNacimiento;
