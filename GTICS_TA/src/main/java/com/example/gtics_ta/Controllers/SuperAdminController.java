@@ -54,7 +54,7 @@ public class SuperAdminController {
     public String mostrarFormularioUsuario(Model model) {
         model.addAttribute("usuario", new Usuario());
         List<Rol> rolesFiltrados = rolRepository.findAll().stream()
-                .filter(r -> r.getIdRol() == 2 || r.getIdRol() == 3)
+                .filter(r -> r.getIdRol() == 3 || r.getIdRol() == 4)
                 .collect(Collectors.toList());
 
         model.addAttribute("roles", rolesFiltrados);
@@ -64,22 +64,26 @@ public class SuperAdminController {
 
     @PostMapping("/guardar-usuario")
     public String guardarUsuario(@Valid @ModelAttribute("usuario") Usuario usuario,
-                                  BindingResult bindingResult, Model model,
+                                 BindingResult bindingResult, Model model,
                                  @RequestParam("rolId") Integer rolId) {
 
         if (bindingResult.hasErrors()) {
-            model.addAttribute("roles", rolRepository.findAll());
+            // Volver a enviar SOLO los roles filtrados para que el dropdown tenga solo los correctos
+            List<Rol> rolesFiltrados = rolRepository.findAll().stream()
+                    .filter(r -> r.getIdRol() == 3 || r.getIdRol() == 4)
+                    .collect(Collectors.toList());
+            model.addAttribute("roles", rolesFiltrados);
             return "Usuario_Superadmin/Usuario_generar";
         }
+
         Rol rol = rolRepository.findById(rolId)
                 .orElseThrow(() -> new IllegalArgumentException("Rol inválido"));
-        // Asignar el rol al usuario
         usuario.setRol(rol);
-        // Guardar el usuario
         usuarioRepository.save(usuario);
 
         return "redirect:/SuperAdmin/usuarios-no-baneados";
     }
+
 
     @GetMapping("/usuarios/banear/{id}")
     public String banearUsuario(@PathVariable("id") Integer id) {
