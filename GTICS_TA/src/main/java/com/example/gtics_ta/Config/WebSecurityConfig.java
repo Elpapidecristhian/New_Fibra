@@ -73,10 +73,10 @@ public class WebSecurityConfig {
                                 redirectStrategy.sendRedirect(request, response, "/coordinador/principal");
                                 return;
                             case "admin":
-                                redirectStrategy.sendRedirect(request, response, "/admin/dashboard");
+                                redirectStrategy.sendRedirect(request, response, "/admin/");
                                 return;
                             case "superadmin":
-                                redirectStrategy.sendRedirect(request, response, "/superadmin");
+                                redirectStrategy.sendRedirect(request, response, "/SuperAdmin");
                                 return;
                         }
                     }

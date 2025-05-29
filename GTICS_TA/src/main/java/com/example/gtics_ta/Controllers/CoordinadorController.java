@@ -30,12 +30,9 @@ public class CoordinadorController {
     private TipoEspacioRepository tipoEspacioRepository;
 
     @GetMapping("/perfil")
-    public String coordinadorPerfil(@ModelAttribute("usuario") Usuario usuario, @RequestParam(value = "id") Integer id, Model model) {
-        Optional<Usuario> optuser = usuarioRepository.findById(id);
-        if(optuser.isPresent()) {
-            usuario = optuser.get();
-            model.addAttribute("usuario", usuario);
-        }
+    public String coordinadorPerfil(@ModelAttribute("usuario") Usuario usuario, HttpSession session, Model model) {
+        usuario = (Usuario) session.getAttribute("usuario");
+        model.addAttribute("usuario", usuario);
         return "coordinador/perfil";
     }
 
@@ -137,7 +134,7 @@ public class CoordinadorController {
             }
             usuarioRepository.save(usuario);
         }
-        return "redirect:coordinador/perfil/" + id;
+        return "redirect:/coordinador/perfil/" + id;
     }
 
 }

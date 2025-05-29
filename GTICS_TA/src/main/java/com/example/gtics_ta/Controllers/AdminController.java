@@ -4,6 +4,7 @@ import com.example.gtics_ta.DTO.ServicioDTO;
 import com.example.gtics_ta.Entity.*;
 import com.example.gtics_ta.Repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -11,6 +12,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Collections;
@@ -50,6 +52,8 @@ public class AdminController {
     private EstadiosRepository estadiosRepository;
     @Autowired
     private FotosRepository fotosRepository;
+    @Autowired
+    private HorarioReservadoRepository horarioReservadoRepository;
 
 
     // LISTAR TODOS
@@ -78,28 +82,28 @@ public class AdminController {
 
     @PutMapping("/actualizar/{id}")
     @ResponseBody
-    public ResponseEntity<String> actualizarServicio(@PathVariable("id") int id, @RequestBody EspaciosDeportivos espacioActualizado) {
-        EspaciosDeportivos existente = espaciosRepository.findById(id).orElse(null);
-        if (existente == null) {
+    public ResponseEntity<String> actualizarServicio(@PathVariable("id") Integer id, @RequestBody EspaciosDeportivos espacioActualizado) {
+        EspaciosDeportivos espacio = espaciosRepository.findById(id).orElse(null);
+        if (espacio == null) {
             return ResponseEntity.notFound().build();
         }
 
-        existente.setNombre(espacioActualizado.getNombre());
-        existente.setUbicacion(espacioActualizado.getUbicacion());
-        existente.setCorreoContacto(espacioActualizado.getCorreoContacto());
-        existente.setAforo(espacioActualizado.getAforo());
-        existente.setHoraAbre(espacioActualizado.getHoraAbre());
-        existente.setHoraCierra(espacioActualizado.getHoraCierra());
+        espacio.setNombre(espacioActualizado.getNombre());
+        espacio.setUbicacion(espacioActualizado.getUbicacion());
+        espacio.setCorreoContacto(espacioActualizado.getCorreoContacto());
+        espacio.setAforo(espacioActualizado.getAforo());
+        espacio.setHoraAbre(espacioActualizado.getHoraAbre());
+        espacio.setHoraCierra(espacioActualizado.getHoraCierra());
 
         if (espacioActualizado.getTipoEspacio() != null && espacioActualizado.getTipoEspacio().getNombre() != null) {
             Optional<TipoEspacio> opttipo = tipoEspacioRepository.findById(espacioActualizado.getTipoEspacio().getId());
             if (opttipo.isPresent()) {
                 TipoEspacio tipo = opttipo.get();
-                existente.setTipoEspacio(tipo);
+                espacio.setTipoEspacio(tipo);
             }
         }
 
-        espaciosRepository.save(existente);
+        espaciosRepository.save(espacio);
         return ResponseEntity.ok("Actualizado correctamente");
     }
 
@@ -109,15 +113,6 @@ public class AdminController {
     public String guardarServicio(@ModelAttribute("espacio") EspaciosDeportivos espacio) {
         espaciosRepository.save(espacio);
         return "redirect:admin/servicios";
-    }
-
-    // FORMULARIO PARA EDITAR
-    @GetMapping("/editar/{id}")
-    public String editarServicio(@PathVariable("id") int id, Model model) {
-        EspaciosDeportivos espacio = espaciosRepository.findById(id).orElse(null);
-        model.addAttribute("espacio", espacio);
-        model.addAttribute("tipos", tipoEspacioRepository.findAll());
-        return "admin/agregarservicio";
     }
 
     @DeleteMapping("/eliminar/{id}")
@@ -134,13 +129,13 @@ public class AdminController {
     @PostMapping("/guardarservicio")
     public String guardarServicio(@ModelAttribute("servicioDTO") ServicioDTO servicioDTO, @RequestParam("archivo") MultipartFile file ){
         if(file.isEmpty()) {
-            return "redirect:admin/servicios";
+            return "admin/agregarservicio";
         }
 
         String fileName = file.getOriginalFilename();
 
         if (fileName.contains("..")){
-            return "redirect:admin/servicios";
+            return "admin/agregarservicio";
         }
 
         try {
@@ -177,10 +172,12 @@ public class AdminController {
             }
         } catch (Exception e) {
             e.printStackTrace();
-            return "redirect:admin/servicios";
+            return "redirect:/admin";
         }
-        return "redirect:admin";
+        return "redirect:/admin";
     }
+
+
 
 
 }

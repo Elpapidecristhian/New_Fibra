@@ -152,7 +152,7 @@ public class VecinoController {
 
         horarioReservadoRepository.save(horarioReservado);
         reservasRepository.save(reserva);
-        return "redirect:vecino/";
+        return "redirect:/vecino";
     }
 
     @GetMapping("/reservas")

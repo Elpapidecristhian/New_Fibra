@@ -124,6 +124,13 @@
 
 							</a>
 						</li>
+						<li>
+							<a href="#" class="nav-link" onclick="document.getElementById('logoutForm2').submit(); return false;">
+								<i data-feather="log-out"></i>
+								<span>Cerrar sesión</span>
+							</a>
+							<form id="logoutForm2" th:action="@{/logout}" method="post" style="display: none;"></form>
+						</li>
 					</ul>
 				</div>
 			</div>
@@ -137,7 +144,7 @@
 					<div class="col-lg-6 col-12">
 						<div class="box coordinator-form"> <!-- Agregado 'coordinator-form' para aplicar estilos específicos -->
 							<div class="box-header with-border">
-								<h4 class="box-title">Coordinador-Alejandro</h4>
+								<h4 class="box-title">Generar Usuario</h4>
 							</div>
 							<!-- /.box-header -->
 							<form class="form" th:action="@{/SuperAdmin/guardar-usuario}" th:object="${usuario}" method="post">

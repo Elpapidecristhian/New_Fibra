@@ -240,10 +240,10 @@
                 <div id="hora">00:00:00</div>
                 <div id="frase">Marque su hora de entrada al complejo</div>
                 <div style="text-align: center;padding: 10px;">
-                  <button type="button" class="btn btn-warning me-1" id="btnEntrada">
+                  <button type="button" class="btn btn-warning me-1" id="btnEntrada" disabled>
                     Entrada
                   </button>
-                  <button type="submit" class="btn btn-primary" id="btnSalida">
+                  <button type="button" class="btn btn-primary" id="btnSalida" disabled>
                     Salida
                   </button>
                 </div>
@@ -335,120 +335,222 @@
     </ul>
   </aside>
   <!-- /.control-sidebar -->
-
   <!-- Add the sidebar's background. This div must be placed immediately after the control sidebar -->
   <div class="control-sidebar-bg"></div>
 </div>
 
 <!--Script del contador de horas!-->
+<!-- ./wrapper -->
 <script>
-  // Variables para el control del tiempo
+  // Variables globales
   let inicioTrabajo = null;
   let intervaloContador = null;
   let intervaloReloj = null;
   let tiempoTranscurrido = 0;
 
-  // Función para mostrar fecha y hora actual
-  function actualizarReloj() {
-    const fecha = new Date();
-    const dias = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
-    const meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
-      'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+  // Configuración de ubicaciones (actualiza estas coordenadas)
+  const lugaresPermitidos = [
+    {nombre: "Complejo Diego Ferré", lat: -12.0775, lng: -77.0933},
+    {nombre: "Universidad Católica", lat: -12.069722, lng: -77.079722},
+    {nombre: "Monte de los Olivos", lat: -12.134648, lng: -76.986915}
+  ];
+  const RADIO_PERMITIDO = 5000; // 5km (ajustar según necesidad)
 
-    const diaSemana = dias[fecha.getDay()];
-    const dia = fecha.getDate();
-    const mes = meses[fecha.getMonth()];
+  // Función mejorada de geolocalización
+  async function obtenerUbicacion() {
+    return new Promise((resolve, reject) => {
+      if (!navigator.geolocation) {
+        reject("Tu navegador no soporta geolocalización");
+        return;
+      }
 
-    document.getElementById('fecha').textContent = `${diaSemana}, ${dia} de ${mes}`;
+      const opciones = {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 0
+      };
 
-    // Solo actualiza la hora si NO hay registro activo
-    if (inicioTrabajo === null) {
-      let horas = fecha.getHours();
-      const minutos = String(fecha.getMinutes()).padStart(2, '0');
-      const ampm = horas >= 12 ? 'p.m.' : 'a.m.';
+      navigator.geolocation.getCurrentPosition(
+              position => resolve(position.coords),
+              error => {
+                switch(error.code) {
+                  case error.PERMISSION_DENIED:
+                    reject("Debes permitir el acceso a tu ubicación para usar esta función");
+                    break;
+                  case error.POSITION_UNAVAILABLE:
+                    reject("No se pudo obtener tu ubicación");
+                    break;
+                  case error.TIMEOUT:
+                    reject("Tiempo de espera agotado al obtener ubicación");
+                    break;
+                  default:
+                    reject("Error desconocido al obtener ubicación");
+                }
+              },
+              opciones
+      );
+    });
+  }
 
-      horas = horas % 12;
-      horas = horas ? horas : 12;
-      horas = String(horas).padStart(2, '0');
+  // Función mejorada de validación
+  async function validarUbicacion() {
+    try {
+      const coords = await obtenerUbicacion();
+      console.log('Coordenadas obtenidas:', coords.latitude, coords.longitude);
 
-      document.getElementById('hora').textContent = `${horas}:${minutos} ${ampm}`;
+      const distancias = lugaresPermitidos.map(lugar => {
+        const distancia = calcularDistancia(
+                coords.latitude,
+                coords.longitude,
+                lugar.lat,
+                lugar.lng
+        );
+        console.log(`Distancia a ${lugar.nombre}: ${Math.round(distancia)}m`);
+        return distancia;
+      });
+
+      const valido = distancias.some(d => d <= RADIO_PERMITIDO);
+      if (!valido) {
+        const minima = Math.min(...distancias);
+        throw new Error(`Fuera del área permitida (${Math.round(minima)}m de distancia)`);
+      }
+
+      // Habilitar botones si es válido
+      document.getElementById('btnEntrada').disabled = false;
+      document.getElementById('btnSalida').disabled = false;
+      return true;
+
+    } catch (error) {
+      console.error('Error:', error);
+      alert(error.message);
+      // Deshabilitar botones en caso de error
+      document.getElementById('btnEntrada').disabled = true;
+      document.getElementById('btnSalida').disabled = true;
+      return false;
     }
   }
 
-  // Función para el contador de trabajo
-  function actualizarContador() {
-    tiempoTranscurrido++;
-    document.getElementById('hora').textContent = formatearTiempo(tiempoTranscurrido);
+  // Resto del código sin cambios...
+  // [Mantener funciones calcularDistancia, formatearTiempo, actualizarReloj, registrarAccion]
+
+  // Inicialización mejorada
+  document.addEventListener('DOMContentLoaded', () => {
+    // Configurar eventos
+    document.getElementById('btnEntrada').addEventListener('click', () => registrarAccion('entrada'));
+    document.getElementById('btnSalida').addEventListener('click', () => registrarAccion('salida'));
+
+    // Iniciar reloj
+    intervaloReloj = setInterval(actualizarReloj, 1000);
+    actualizarReloj();
+
+    // Validación inicial
+    validarUbicacion().then(valido => {
+      if(valido) {
+        // Programar validación periódica
+        setInterval(validarUbicacion, 120000);
+      }
+    });
+
+    // Forzar actualización de permisos
+    if(navigator.permissions) {
+      navigator.permissions.query({name:'geolocation'})
+              .then(permiso => {
+                permiso.onchange = () => {
+                  console.log('Estado del permiso cambiado:', permiso.state);
+                  validarUbicacion();
+                }
+              });
+    }
+  });
+
+  // Añade estas funciones al script
+  function calcularDistancia(lat1, lon1, lat2, lon2) {
+    const R = 6371e3; // Radio de la Tierra en metros
+    const φ1 = lat1 * Math.PI / 180;
+    const φ2 = lat2 * Math.PI / 180;
+    const Δφ = (lat2 - lat1) * Math.PI / 180;
+    const Δλ = (lon2 - lon1) * Math.PI / 180;
+
+    const a = Math.sin(Δφ/2) ** 2 + Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ/2) ** 2;
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    return R * c;
   }
 
-  // Función para formatear segundos a HH:MM:SS
   function formatearTiempo(segundos) {
     const horas = Math.floor(segundos / 3600);
     const minutos = Math.floor((segundos % 3600) / 60);
     const segs = segundos % 60;
-
     return `${String(horas).padStart(2, '0')}:${String(minutos).padStart(2, '0')}:${String(segs).padStart(2, '0')}`;
   }
 
-  // Funciones de registro
-  function registrarEntrada() {
-    if (inicioTrabajo === null) {
-      inicioTrabajo = new Date();
-      tiempoTranscurrido = 0;
+  function actualizarReloj() {
+    const fecha = new Date();
+    const opcionesFecha = {
+      weekday: 'long',
+      day: 'numeric',
+      month: 'long'
+    };
+    const opcionesHora = {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true
+    };
 
-      // Detener el reloj normal
-      clearInterval(intervaloReloj);
+    // Actualizar fecha
+    document.getElementById('fecha').textContent = fecha.toLocaleDateString('es-PE', opcionesFecha);
 
-      // Configurar UI
-      document.getElementById('frase').textContent = "Cantidad de horas trabajadas...";
-      document.getElementById('btnEntrada').disabled = true;
-      document.getElementById('btnSalida').disabled = false;
-      document.getElementById('hora').textContent = "00:00:00"; // Reiniciar contador
-
-      // Iniciar contador
-      intervaloContador = setInterval(actualizarContador, 1000);
+    // Actualizar hora solo si no está en modo cronómetro
+    if (!inicioTrabajo) {
+      document.getElementById('hora').textContent = fecha.toLocaleTimeString('es-PE', opcionesHora);
     }
   }
 
-  function registrarSalida() {
-    if (inicioTrabajo !== null) {
-      clearInterval(intervaloContador);
+  async function registrarAccion(tipo) {
+    try {
+      const ubicacionValida = await validarUbicacion();
+      if (!ubicacionValida) return;
 
-      // Restaurar UI
-      document.getElementById('frase').textContent = "Marque su hora de entrada al complejo";
-      document.getElementById('btnEntrada').disabled = false;
-      document.getElementById('btnSalida').disabled = true;
+      const ahora = new Date();
 
-      // Reiniciar variables
-      inicioTrabajo = null;
-      tiempoTranscurrido = 0;
+      if (tipo === 'entrada') {
+        inicioTrabajo = ahora;
+        tiempoTranscurrido = 0;
 
-      // Reactivar reloj normal
-      intervaloReloj = setInterval(actualizarReloj, 1000);
-      actualizarReloj(); // Actualizar inmediatamente
+        // Iniciar cronómetro
+        intervaloContador = setInterval(() => {
+          tiempoTranscurrido++;
+          document.getElementById('hora').textContent = formatearTiempo(tiempoTranscurrido);
+        }, 1000);
+
+        // Actualizar UI
+        document.getElementById('frase').textContent = "Tiempo trabajado:";
+        document.getElementById('btnEntrada').disabled = true;
+        document.getElementById('btnSalida').disabled = false;
+
+      } else if (tipo === 'salida') {
+        // Detener cronómetro
+        clearInterval(intervaloContador);
+        inicioTrabajo = null;
+
+        // Restaurar reloj normal
+        document.getElementById('frase').textContent = "Marque su hora de entrada";
+        document.getElementById('btnEntrada').disabled = false;
+        document.getElementById('btnSalida').disabled = true;
+        actualizarReloj();
+      }
+
+      console.log(`${tipo.toUpperCase()} registrada a las ${ahora.toLocaleTimeString()}`);
+
+    } catch (error) {
+      alert(`Error: ${error.message}`);
     }
   }
 
-  // Inicialización
-  document.addEventListener('DOMContentLoaded', function() {
-    // Configurar eventos
-    document.getElementById('btnEntrada').addEventListener('click', registrarEntrada);
-    document.getElementById('btnSalida').addEventListener('click', registrarSalida);
-    document.getElementById('btnSalida').disabled = true;
-
-    // Iniciar reloj normal
-    intervaloReloj = setInterval(actualizarReloj, 1000);
-    actualizarReloj(); // Llamada inicial
-  });
 </script>
-
-<!-- ./wrapper -->
-
-<!-- Page Content overlay -->
 
 
 <!-- Vendor JS -->
-<script  th:src="@{/js/vendors.min.js}"></script>
+<script th:src="@{/js/vendors.min.js}"></script>
 <script th:src="@{/js/pages/chat-popup.js}"></script>
 <script th:src="@{/assets/icons/feather-icons/feather.min.js}"></script>
 <script th:src="@{/assets/vendor_components/c3/d3.min.js}"></script>
@@ -457,7 +559,6 @@
 <!-- Rhythm Admin App -->
 <script th:src="@{/js/template.js}"></script>
 <script th:src="@{/js/pages/c3-data.js}"></script>
-
 
 
 </body>

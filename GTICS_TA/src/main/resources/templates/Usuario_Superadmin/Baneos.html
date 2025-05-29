@@ -105,6 +105,13 @@
 								<span>Usuarios</span>
 							</a>
 						</li>
+						<li>
+							<a href="#" class="nav-link" onclick="document.getElementById('logoutForm2').submit(); return false;">
+								<i data-feather="log-out"></i>
+								<span>Cerrar sesión</span>
+							</a>
+							<form id="logoutForm2" th:action="@{/logout}" method="post" style="display: none;"></form>
+						</li>
 					</ul>
 				</div>
 			</div>
