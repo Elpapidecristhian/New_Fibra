@@ -1,4 +1,4 @@
-package com.example.gtics_ta.Config;
+package com.example.gtics_ta.config;
 
 import com.example.gtics_ta.Entity.Usuario;
 import com.example.gtics_ta.Repository.UsuarioRepository;
@@ -76,7 +76,7 @@ public class WebSecurityConfig {
                                 redirectStrategy.sendRedirect(request, response, "/admin/dashboard");
                                 return;
                             case "superadmin":
-                                redirectStrategy.sendRedirect(request, response, "/superadmin");
+                                redirectStrategy.sendRedirect(request, response, "/SuperAdmin");
                                 return;
                         }
                     }
