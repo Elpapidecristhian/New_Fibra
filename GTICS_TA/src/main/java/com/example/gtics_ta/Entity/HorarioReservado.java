@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.format.annotation.DateTimeFormat;
 
+import java.time.LocalDate;
 import java.util.Date;
 
 @Entity
@@ -15,7 +16,7 @@ public class HorarioReservado {
     @Column(name = "id_horario_reservado")
     private int id;
     @DateTimeFormat(pattern = "yyyy-MM-dd")
-    private Date fecha;
+    private LocalDate fecha;
     @ManyToOne
     @JoinColumn(name = "id_horarios")
     private Horarios horario;

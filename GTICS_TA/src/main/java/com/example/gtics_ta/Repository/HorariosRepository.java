@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 
@@ -19,5 +20,5 @@ public interface HorariosRepository extends JpaRepository<Horarios, Integer> {
                     "LEFT JOIN horarioreservado hr ON h.id_horarios = hr.id_horarios AND hr.fecha = ?1 " +
                     "WHERE h.id_espacio = ?2 " +
                     "ORDER BY h.id_horarios", nativeQuery = true)
-    List<HorariosConsultaDTO> obtenerHorariosConsulta(Date fecha, Integer idEspacio);
+    List<HorariosConsultaDTO> obtenerHorariosConsulta(LocalDate fecha, Integer idEspacio);
 }

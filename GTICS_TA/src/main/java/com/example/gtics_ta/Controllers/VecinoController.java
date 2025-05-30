@@ -15,6 +15,7 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.sql.Timestamp;
 import java.text.ParseException;
@@ -50,6 +51,11 @@ public class VecinoController {
     private FotosRepository fotosRepository;
 
     @GetMapping(value = {"","/"})
+    public String vistaInicial(Model model) {
+        return "redirect:/vecino/espacios";
+    }
+
+    @GetMapping("/espacios")
     public String listaEspacios(@RequestParam(name = "tipo", required = false) Integer id,
                                 @RequestParam(name = "fecha", required = false) String fecha,
                                 @RequestParam(name = "nombre", required = false) String nombre,
@@ -114,8 +120,7 @@ public class VecinoController {
 
     @GetMapping("/reservar")
     public String reservar(Model model, @ModelAttribute("reserva") Reservas reservas, HttpSession session, @RequestParam(name = "idEspacio") int idEspacio, @RequestParam(name = "fecha") String fecha) throws ParseException {
-            SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-            Date fechaconv = format.parse(fecha);
+            LocalDate fechaconv = LocalDate.parse(fecha);
 
         Usuario usuario = (Usuario) session.getAttribute("usuario");
         Optional<EspaciosDeportivos> optespacio = espaciosDeportivosRepository.findById(idEspacio);
@@ -152,8 +157,35 @@ public class VecinoController {
 
         horarioReservadoRepository.save(horarioReservado);
         reservasRepository.save(reserva);
-        return "redirect:/vecino";
+        return "redirect:/vecino/espacios";
     }
+
+    @PostMapping("/cancelarreserva")
+    public String cancelarReserva(@RequestParam Integer id, RedirectAttributes attr) {
+        Optional<Reservas> optReserva = reservasRepository.findById(id);
+        if (optReserva.isPresent()) {
+            Reservas reserva = optReserva.get();
+            LocalDate hoy = LocalDate.now();
+            LocalDate fechaReserva = reserva.getFechaReserva();
+            if (fechaReserva.isAfter(hoy)) {
+                Optional<HorarioReservado> optHorarioReservado =
+                        Optional.ofNullable(horarioReservadoRepository.findByHorario_IdAndFecha(
+                                reserva.getHorario().getId(),
+                                reserva.getFechaReserva()));
+                if (optHorarioReservado.isPresent()) {
+                    horarioReservadoRepository.delete(optHorarioReservado.get());
+                    reservasRepository.delete(reserva);
+                    attr.addFlashAttribute("msg", "Reserva cancelada correctamente. Su dinero será reembolsado en un plazo de dos semanas.");
+                }
+            } else {
+                attr.addFlashAttribute("error", "No puede cancelar una reserva para hoy o en el pasado.");
+            }
+        } else {
+            attr.addFlashAttribute("error", "No se encontró la reserva.");
+        }
+        return "redirect:/vecino/reservas";
+    }
+
 
     @GetMapping("/reservas")
     public String listarReservas(@RequestParam(value = "nombre", required = false) String nombre, Model model) {

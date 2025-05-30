@@ -47,7 +47,7 @@
 					<li class="btn-group d-lg-inline-flex d-none">
 						<div class="app-menu">
 							<div class="search-bx mx-5">
-								<form th:action="@{/vecino}" method="get">
+								<form th:action="@{/vecino/espacios}" method="get">
 									<div class="input-group">
 										<input type="search" class="form-control" th:value="${nombreSeleccionado}" placeholder="Buscar" aria-label="Search" aria-describedby="button-addon2" name="nombre">
 										<input type="hidden" th:value="${tipoSeleccionado}" name="tipo">
@@ -75,7 +75,7 @@
 			<section class="content">
 
 				<!-- Filtro de búsqueda y fecha -->
-				<form th:action="@{/vecino}" method="get">
+				<form th:action="@{/vecino/espacios}" method="get">
 					<div class="card">
 						<div class="card-header">
 							<h4 class="card-title">Espacios Deportivos</h4>

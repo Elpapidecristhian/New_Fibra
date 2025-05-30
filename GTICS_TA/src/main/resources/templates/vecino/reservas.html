@@ -16,8 +16,9 @@
           <!-- Style-->  
           <link rel="stylesheet" href="/css/style.css">
           <link rel="stylesheet" href="/css/skin_color.css">
-          
-      </head>
+
+
+	</head>
 
 <body class="hold-transition light-skin sidebar-mini theme-success fixed">
     
@@ -97,13 +98,16 @@
 													<tr>
 														<td th:text="${reserva.getId()}"></td>
 														<td th:text="${reserva.espacioDeportivo.getNombre()}"></td>
-														<td th:text="${#dates.format(reserva.getFechaReserva(), 'dd/MM/yyyy')}"></td>
+														<td th:text="${#temporals.format(reserva.fechaReserva, 'dd/MM/yyyy')}"></td>
 														<td th:text="${reserva.getHorario().getHoraInicio()} + '-' + ${reserva.getHorario().getHoraFin()}"></td>
 														<td th:text="${reserva.getPago().getMedioPago().getNombre()}"></td>
 														<td th:text="${#dates.format(reserva.getFechaRegistro(), 'dd/MM/yyyy HH:mm:ss')}"></td>
 														<td>
 															<button type="button" class="btn btn-primary" data-bs-toggle="modal" th:attr="data-bs-target=${'#modal-' + reserva.getId()}">
 																<i class="mdi mdi-eye"></i>
+															</button>
+															<button type="button" class="btn btn-primary" data-bs-toggle="modal" th:attr="data-bs-target=${'#modal-cancel-' + reserva.getId()}">
+																<i class="mdi mdi-cancel"></i>
 															</button>
 														</td>
 													</tr>
@@ -139,7 +143,7 @@
 					</div>
 					<div class="modal-body">
 						<p><strong>Espacio: </strong><span th:text="${reserva.getEspacioDeportivo().getNombre()}"></span></p>
-						<p><strong>Fecha de Reserva: </strong><span th:text="${#dates.format(reserva.getFechaReserva(), 'dd/MM/yyyy')}"></span></p>
+						<p><strong>Fecha de Reserva: </strong><span th:text="${#temporals.format(reserva.fechaReserva, 'dd/MM/yyyy')}"></span></p>
 						<p><strong>Horario Reservado: </strong><span th:text="${reserva.getHorario().getHoraInicio()} + '-' + ${reserva.getHorario().getHoraFin()}"></span></p>
 						<p><strong>Id Pago: </strong><span th:text="${reserva.getPago().getId()}"></span></p>
 						<p><strong>Monto Pagado: </strong><span th:text="${reserva.getPago().getCantidad()}"></span></p>
@@ -153,6 +157,29 @@
 			</div>
 		</div>
 		<!-- /.modal -->
+	<!-- /.content-wrapper -->
+	<div th:each="reserva : ${listaReservas}" class="modal center-modal fade" th:id="'modal-cancel-' + ${reserva.getId()}" tabindex="-1">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 th:utext="'Cancelar Reserva ' + ${reserva.getId()}" class="modal-title"></h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<div class="modal-body">
+					<p><strong>¿Está seguro que quiere cancelar su reserva?</strong></p>
+					<p><strong>Esta acción es irreversible</strong></p>
+				</div>
+				<div class="modal-footer modal-footer-uniform">
+					<form th:action="@{/vecino/cancelarreserva}" method="post">
+						<input type="hidden" th:value="${reserva.getId()}" name="id">
+						<button type="submit" class="btn btn-danger">Cancelar Reserva</button>
+						<button type="button" class="btn btn-success" data-bs-dismiss="modal">Cerrar</button>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- /.modal -->
 
   <footer class="main-footer">
 	&copy; <script>document.write(new Date().getFullYear())</script> <a href="https://munisanmiguel.gob.pe/">Municipalidad de San Miguel</a>. Todos los derechos reservados.
@@ -450,6 +477,29 @@
 	<script src="/js/template.js"></script>
 	
 	<script src="/js/pages/data-table.js"></script>
+
+	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+	<script th:if="${msg != null}" th:inline="javascript">
+		Swal.fire({
+			icon: 'success',
+			title: 'Éxito',
+			text: [[${msg}]],
+			confirmButtonText: 'OK'
+		});
+	</script>
+
+	<script th:if="${error != null}" th:inline="javascript">
+		Swal.fire({
+			icon: 'error',
+			title: 'Error',
+			text: [[${error}]],
+			confirmButtonText: 'OK'
+		});
+	</script>
+
+
+
 
 
 </body>

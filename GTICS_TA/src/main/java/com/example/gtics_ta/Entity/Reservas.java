@@ -5,6 +5,7 @@ import lombok.*;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.sql.Timestamp;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Date;
 
@@ -32,5 +33,5 @@ public class Reservas {
     private Timestamp fechaRegistro;
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     @Column(name = "fecha_reserva")
-    private Date fechaReserva;
+    private LocalDate fechaReserva;
 }
