@@ -22,9 +22,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Controller
 @RequestMapping("/vecino")
@@ -80,6 +78,16 @@ public class VecinoController {
         if(fecha != null && fecha.isEmpty()){fecha = LocalDate.now().format(DateTimeFormatter.ISO_DATE);}
         if(fecha == null){fecha = LocalDate.now().format(DateTimeFormatter.ISO_DATE);}
         String hoy = LocalDate.now().format(DateTimeFormatter.ISO_DATE);
+
+        Map<Integer, Integer> primerasFotos = new HashMap<>();
+        for (EspaciosDeportivos espacio : espacios) {
+            ListaFotos lista = espacio.getListaFotos();
+            if (lista != null && lista.getFotos() != null && !lista.getFotos().isEmpty()) {
+                primerasFotos.put(espacio.getId(), lista.getFotos().get(0).getId());
+            }
+        }
+        model.addAttribute("primerasFotos", primerasFotos);
+
         model.addAttribute("minDate", hoy);
         model.addAttribute("espacios", espacios);
         model.addAttribute("tipoSeleccionado", id);
@@ -114,6 +122,13 @@ public class VecinoController {
                 model.addAttribute("estadio", estadio);
             }
             model.addAttribute("fecha", fecha);
+            List<Fotos> fotos = fotosRepository.findByListaFotosId(espacio.getListaFotos().getId());
+            if(!fotos.isEmpty()) {
+                Integer fotoId = fotos.get(0).getId();
+                model.addAttribute("fotoId", fotoId);
+            } else {
+                model.addAttribute("fotoId", 0);
+            }
         }
         return "vecino/detalles";
     }
@@ -256,6 +271,35 @@ public class VecinoController {
                     httpHeaders,
                     HttpStatus.OK);
         } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @GetMapping("/image/{id}")
+    public ResponseEntity<byte[]> mostrarImagen(@PathVariable("id") Integer id) {
+        Optional<Fotos> optfotos = fotosRepository.findById(id);
+        if(optfotos.isPresent()) {
+            Fotos fotos = optfotos.get();
+
+            byte[] image = fotos.getFoto();
+            if (image == null) {
+                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+            }
+
+            String tipoArchivo = fotos.getFotoTipoArchivo();
+            if (tipoArchivo == null || tipoArchivo.isBlank()) {
+                tipoArchivo = "application/octet-stream";
+            }
+
+            HttpHeaders httpHeaders = new HttpHeaders();
+            httpHeaders.setContentType(MediaType.parseMediaType(tipoArchivo));
+
+            return new ResponseEntity<>(
+                    image,
+                    httpHeaders,
+                    HttpStatus.OK);
+
+        }else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }

@@ -145,10 +145,10 @@ public class AdminController {
             foto.setFoto(file.getBytes());
             foto.setFotoNombre(fileName);
             foto.setFotoTipoArchivo(file.getContentType());
-            foto.setIdListaFotos(listaFotos.getId());
+            foto.setListaFotos(listaFotos);
             fotosRepository.save(foto);
             EspaciosDeportivos espaciosDeportivos = servicioDTO.getEspacio();
-            espaciosDeportivos.setIdListaFotos(listaFotos.getId());
+            espaciosDeportivos.setListaFotos(listaFotos);
             if(espaciosDeportivos.getTipoEspacio().getId() == 1){
                 Piscinas piscina = servicioDTO.getPiscina();
                 espaciosDeportivosRepository.save(espaciosDeportivos);

@@ -44,6 +44,7 @@ public class EspaciosDeportivos {
     private boolean operativo;
     @Column(name = "costo_horario")
     private float costoHorario;
-    @Column(name = "id_lista_fotos")
-    private Integer idListaFotos;
+    @ManyToOne
+    @JoinColumn(name = "id_lista_fotos")
+    private ListaFotos listaFotos;
 }

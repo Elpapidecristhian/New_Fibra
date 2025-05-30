@@ -13,8 +13,9 @@ public class Fotos {
     @Column(name = "id_fotos")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
-    @Column(name = "id_lista_fotos")
-    private int idListaFotos;
+    @ManyToOne
+    @JoinColumn(name = "id_lista_fotos")
+    private ListaFotos listaFotos;
     @Column(name = "foto_nombre")
     private String fotoNombre;
     @Column(name = "foto_tipo_archivo")
