@@ -6,16 +6,110 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="">
   <meta name="author" content="">
-  <link rel="icon" href="/images/san_miguel_logo.ico">
+  <link rel="icon" th:href="@{/images/san_miguel_logo.ico}">
 
-  <title>Reservar un Espacio </title>
+  <title>Admin - Agregar Servicio</title>
 
   <!-- Vendors Style-->
-  <link rel="stylesheet" href="/css/vendors_css.css">
+  <link rel="stylesheet" th:href="@{/css/vendors_css.css}">
 
   <!-- Style-->
-  <link rel="stylesheet" href="/css/style.css">
-  <link rel="stylesheet" href="/css/skin_color.css">
+  <link rel="stylesheet" th:href="@{/css/style.css}">
+  <link rel="stylesheet" th:href="@{/css/skin_color.css}">
+
+  <!-- Google Maps API (Principal) -->
+  <script async defer
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB41DRUbKWJHPxaFjMAwdrzWzbVKartNGg&libraries=places&callback=initGoogleMaps&loading=async"
+    onerror="initFallbackMap()"></script>
+
+  <!-- Leaflet CSS para mapa de respaldo -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+        crossorigin=""/>
+
+  <!-- Leaflet JS para mapa de respaldo -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+          integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+          crossorigin=""></script>
+
+  <!-- Estilos para el mapa y controles -->
+  <style>
+    #mapContainer {
+      display: none;
+      margin-top: 15px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    #map {
+      height: 350px !important;
+      width: 100% !important;
+    }
+
+    .leaflet-container {
+      height: 350px !important;
+      width: 100% !important;
+    }
+
+    .map-toggle-btn {
+      background: linear-gradient(45deg, #007bff, #0056b3);
+      border: none;
+      color: white;
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .map-toggle-btn:hover {
+      background: linear-gradient(45deg, #0056b3, #004085);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0,123,255,0.3);
+    }
+
+    .map-toggle-btn i {
+      font-size: 16px;
+    }
+
+    .location-input-group {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+    }
+
+    .location-input-group .form-control {
+      flex: 1;
+    }
+
+    .map-status {
+      font-size: 12px;
+      color: #6c757d;
+      margin-top: 5px;
+      padding: 5px 10px;
+      background: #f8f9fa;
+      border-radius: 4px;
+      border-left: 3px solid #28a745;
+    }
+
+    .map-status.fallback {
+      border-left-color: #ffc107;
+      background: #fff3cd;
+      color: #856404;
+    }
+
+    .map-status.error {
+      border-left-color: #dc3545;
+      background: #f8d7da;
+      color: #721c24;
+    }
+  </style>
 </head>
 <body class="hold-transition light-skin sidebar-mini theme-success fixed">
 
@@ -25,10 +119,10 @@
   <header class="main-header">
     <div class="d-flex align-items-center logo-box justify-content-center">
       <!-- Logo -->
-      <a href="principal.html" class="logo">
+      <a th:href="@{/admin}" class="logo">
         <!-- logo-->
         <div class="logo-mini w-150 text-center">
-          <span class="light-logo"><img src="/images/logo-sanMiguel.png" alt="logo"></span>
+          <span class="light-logo"><img th:src="@{/images/logo-sanMiguel.png}" alt="logo"></span>
         </div>
       </a>
     </div>
@@ -58,7 +152,7 @@
       <div class="content-header">
         <div class="d-flex align-items-center">
           <div class="me-auto">
-            <h4 class="page-title">Realizar una Reserva</h4>
+            <h4 class="page-title">Agregar Nuevo Servicio</h4>
           </div>
         </div>
       </div>
@@ -69,114 +163,174 @@
       <div class="box">
         <div class="box-header with-border">
           <h4 class="box-title">Nuevo Servicio</h4>
-          <h6 class="box-subtitle">Complete el formulario con los datos del nuevo serivicio.</h6>
+          <h6 class="box-subtitle">Complete el formulario con los datos del nuevo servicio.</h6>
         </div>
         <!-- /.box-header -->
         <div class="box-body wizard-content">
           <form th:action="@{/admin/guardarservicio}" th:object="${servicioDTO}" method="post" enctype="multipart/form-data" class="validation-wizard wizard-circle">
-            <input type="hidden" th:field="*{espacio.idListaFotos}">
             <!-- Step 1 -->
             <h6>Datos Principales</h6>
             <section>
+              <!-- Nombre del lugar -->
               <div class="row">
-                <div class="col-md-6">
+                <div class="col-md-12">
                   <div class="form-group">
-                    <label for="wfirstName2" class="form-label"> Nombre : <span class="danger">*</span> </label>
-                    <input type="text"  th:field="*{espacio.nombre}" class="form-control required" id="wfirstName2">
-                  </div>
-                </div>
-                <div class="col-md-6">
-                  <div class="form-group">
-                    <label for="wlastName2" class="form-label"> Ubicación : <span class="danger">*</span> </label>
-                    <input type="text" th:field="*{espacio.ubicacion}" class="form-control required" id="wlastName2">
+                    <label for="nombreLugar" class="form-label">Nombre del lugar: <span class="danger">*</span></label>
+                    <input type="text" th:field="*{espacio.nombre}" class="form-control required" id="nombreLugar"
+                           placeholder="Ej: Complejo Deportivo San Miguel">
                   </div>
                 </div>
               </div>
+
+              <!-- Ubicación con búsqueda -->
               <div class="row">
-                <div class="col-md-6">
+                <div class="col-md-12">
                   <div class="form-group">
-                    <label for="desCorta" class="form-label">Descripción Corta :</label>
-                    <input th:field="*{espacio.descripcionCorta}" type="text" class="form-control required" id="desCorta">
-                  </div>
-                </div>
-                <div class="col-md-6">
-                  <div class="form-group">
-                    <label for="desLarga" class="form-label">Descripción Larga :</label>
-                    <input th:field="*{espacio.descripcionLarga}" type="text" class="form-control required" id="desLarga">
+                    <label for="ubicacionInput" class="form-label">Ubicación: <span class="danger">*</span></label>
+                    <div class="location-input-group">
+                      <input type="text" th:field="*{espacio.ubicacion}" class="form-control required" id="ubicacionInput"
+                             placeholder="Buscar dirección en San Miguel..." onchange="buscarDireccion()">
+                      <button type="button" class="map-toggle-btn" onclick="toggleMap()">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <span id="mapToggleText">Mostrar en mapa</span>
+                      </button>
+                    </div>
+                    <small class="form-text text-muted">Escriba la dirección y use el botón para verificar en el mapa</small>
+                    <div id="mapStatus" class="map-status" style="display: none;">
+                      <i class="fas fa-info-circle"></i> <span id="mapStatusText">Cargando sistema de mapas...</span>
+                    </div>
                   </div>
                 </div>
               </div>
+
+              <!-- Contenedor del mapa (oculto por defecto) -->
+              <div class="row">
+                <div class="col-md-12">
+                  <div id="mapContainer">
+                    <div id="map"></div>
+                    <div style="padding: 10px; background: #f8f9fa; border-top: 1px solid #dee2e6;">
+                      <small class="text-muted">
+                        <i class="fas fa-hand-pointer"></i> Puede hacer clic en el mapa o arrastrar el marcador para ajustar la ubicación exacta
+                      </small>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Horarios -->
               <div class="row">
                 <div class="col-md-6">
                   <div class="form-group">
-                    <label for="horaAbre" class="form-label">Hora de Apertura :</label>
+                    <label for="horaAbre" class="form-label">Hora de apertura: <span class="danger">*</span></label>
                     <input th:field="*{espacio.horaAbre}" type="time" class="form-control required" id="horaAbre">
                   </div>
-                  </div>
+                </div>
                 <div class="col-md-6">
                   <div class="form-group">
-                    <label for="horaCierra" class="form-label">Hora de Cierre :</label>
+                    <label for="horaCierra" class="form-label">Hora de cierre: <span class="danger">*</span></label>
                     <input th:field="*{espacio.horaCierra}" type="time" class="form-control required" id="horaCierra">
+                  </div>
+                </div>
+              </div>
+
+              <!-- Aforo -->
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label for="aforo" class="form-label">Aforo máximo:</label>
+                    <input type="number" th:field="*{espacio.aforo}" class="form-control" id="aforo"
+                           placeholder="Número de personas" min="1">
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label for="archivo" class="form-label">Foto del lugar: <span class="danger">*</span></label>
+                    <input class="form-control required" type="file" id="archivo" name="archivo"
+                           accept="image/*" onchange="previewImage(this)">
+                    <small class="form-text text-muted">Formatos: JPG, PNG, GIF (máx. 5MB)</small>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Preview de imagen -->
+              <div class="row">
+                <div class="col-md-12">
+                  <div id="imagePreview" style="display: none;">
+                    <label class="form-label">Vista previa:</label>
+                    <div style="border: 1px solid #ddd; border-radius: 5px; padding: 10px; text-align: center;">
+                      <img id="preview" src="" alt="Vista previa" style="max-width: 200px; max-height: 200px; border-radius: 5px;">
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Descripciones -->
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label for="desCorta" class="form-label">Descripción corta:</label>
+                    <textarea th:field="*{espacio.descripcionCorta}" class="form-control" id="desCorta" rows="3"
+                              placeholder="Descripción breve del lugar (máx. 100 caracteres)" maxlength="100"></textarea>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label for="desLarga" class="form-label">Descripción detallada:</label>
+                    <textarea th:field="*{espacio.descripcionLarga}" class="form-control" id="desLarga" rows="3"
+                              placeholder="Descripción detallada del lugar, servicios e instalaciones"></textarea>
                   </div>
                 </div>
               </div>
             </section>
             <!-- Step 2 -->
-            <h6>Contacto y Horario</h6>
+            <h6>Información de Contacto y Servicio</h6>
             <section>
               <div class="row">
                 <div class="col-md-6">
                   <div class="form-group">
-                    <label for="wemailAddress2" class="form-label"> Correo de Contacto :<span class="danger">*</span> </label>
-                    <input type="email" th:field="*{espacio.correoContacto}" class="form-control required" id="wemailAddress2">
+                    <label for="correoContacto" class="form-label">Correo de contacto: <span class="danger">*</span></label>
+                    <input type="email" th:field="*{espacio.correoContacto}" class="form-control required" id="correoContacto"
+                           placeholder="contacto@ejemplo.com">
                   </div>
                 </div>
                 <div class="col-md-6">
                   <div class="form-group">
-                    <label for="wphoneNumber2" class="form-label">Número de Contacto :<span class="danger">*</span></label>
-                    <input type="tel" th:field="*{espacio.numContacto}" class="form-control required" id="wphoneNumber2">
-                  </div>
-                </div>
-              </div>
-              <div class="row">
-                <div class="col-md-6">
-                  <div class="form-group">
-                    <label for="mapsUrl" class="form-label"> Url de Google Maps:<span class="danger">*</span> </label>
-                    <input type="text" th:field="*{espacio.mapsUrl}" class="form-control required" id="mapsUrl">
-                  </div>
-                </div>
-                <div class="col-md-6">
-                  <div class="form-group">
-                    <label for="aforo" class="form-label">Aforo :</label>
-                    <input type="number" th:field="*{espacio.aforo}" class="form-control" id="aforo">
+                    <label for="numContacto" class="form-label">Número de contacto: <span class="danger">*</span></label>
+                    <input type="tel" th:field="*{espacio.numContacto}" class="form-control required" id="numContacto"
+                           placeholder="999999999" pattern="[0-9]{9}" maxlength="9">
                   </div>
                 </div>
               </div>
+
               <div class="row">
                 <div class="col-md-6">
                   <div class="form-group">
-                    <label for="costoHorario" class="form-label"> Costo por Horario:<span class="danger">*</span> </label>
-                    <input type="number" step="any" th:field="*{espacio.costoHorario}" class="form-control required" id="costoHorario">
+                    <label for="costoHorario" class="form-label">Costo por hora (S/.): <span class="danger">*</span></label>
+                    <input type="number" step="0.01" th:field="*{espacio.costoHorario}" class="form-control required" id="costoHorario"
+                           placeholder="0.00" min="0">
                   </div>
                 </div>
                 <div class="col-md-6">
                   <div class="form-group">
-                    <label for="tipoEspacioId" class="form-label"> Tipo de Servicio:<span class="danger">*</span> </label>
+                    <label for="tipoEspacioId" class="form-label">Tipo de servicio: <span class="danger">*</span></label>
                     <select th:field="*{espacio.tipoEspacio.id}" class="form-select required" id="tipoEspacioId" onchange="mostrarCampos()">
-                      <option value="" disabled selected>Seleccione</option>
-                      <option th:each=" tipo : ${tipos}"
+                      <option value="" disabled selected>Seleccione el tipo de servicio</option>
+                      <option th:each="tipo : ${tipos}"
                               th:value="${tipo.id}"
-                              th:text="${tipo.nombre}"
-                      ></option>
+                              th:text="${tipo.nombre}">
+                      </option>
                     </select>
                   </div>
                 </div>
               </div>
+
               <div class="row">
                 <div class="col-md-12">
                   <div class="form-group">
-                    <label for="archivo" class="form-label">Adjunte una foto para su servicio</label>
-                    <input class="form-control required" type="file" id="archivo" name="archivo">
+                    <label for="mapsUrl" class="form-label">URL de Google Maps (opcional):</label>
+                    <input type="url" th:field="*{espacio.mapsUrl}" class="form-control" id="mapsUrl"
+                           placeholder="https://maps.google.com/..." readonly>
+                    <small class="form-text text-muted">Se generará automáticamente basado en la ubicación seleccionada</small>
                   </div>
                 </div>
               </div>
@@ -597,18 +751,402 @@
 
 
 <!-- Vendor JS -->
-<script src="/js/vendors.min.js"></script>
-<script src="/js/pages/chat-popup.js"></script>
-<script src="/assets/icons/feather-icons/feather.min.js"></script>	<script src="/assets/vendor_components/jquery-steps-master/build/jquery.steps.js"></script>
-<script src="/assets/vendor_components/jquery-validation-1.17.0/dist/jquery.validate.min.js"></script>
-<script src="/assets/vendor_components/sweetalert/sweetalert.min.js"></script>
+<script th:src="@{/js/vendors.min.js}"></script>
+<script th:src="@{/js/pages/chat-popup.js}"></script>
+<script th:src="@{/assets/icons/feather-icons/feather.min.js}"></script>
+<script th:src="@{/assets/vendor_components/jquery-steps-master/build/jquery.steps.js}"></script>
+<script th:src="@{/assets/vendor_components/jquery-validation-1.17.0/dist/jquery.validate.min.js}"></script>
+<script th:src="@{/assets/vendor_components/sweetalert/sweetalert.min.js}"></script>
 
 <!-- Rhythm Admin App -->
-<script src="/js/template.js"></script>
-<script src="/js/pages/steps.js"></script>
+<script th:src="@{/js/template.js}"></script>
+<script th:src="@{/js/pages/steps.js}"></script>
 
-<script src="/js/pages/advanced-form-element.js"></script>
+<script th:src="@{/js/pages/advanced-form-element.js}"></script>
 <script>
+  // Variables globales para el sistema de mapas
+  let map;
+  let marker;
+  let mapInitialized = false;
+  let mapVisible = false;
+  let usingGoogleMaps = false;
+  let geocoder;
+  let autocomplete;
+
+  // Coordenadas del centro de San Miguel, Lima
+  const sanMiguelCenter = { lat: -12.0776, lng: -77.0865 };
+
+  // Función principal para inicializar Google Maps
+  function initGoogleMaps() {
+    try {
+      console.log('🗺️ Iniciando Google Maps...');
+
+      if (typeof google === 'undefined' || !google.maps) {
+        throw new Error('Google Maps no disponible');
+      }
+
+      usingGoogleMaps = true;
+      updateMapStatus('Google Maps cargado correctamente', 'success');
+
+      // Solo inicializar el mapa cuando se muestre por primera vez
+      console.log('✅ Google Maps listo para usar');
+
+    } catch (error) {
+      console.error('❌ Error con Google Maps:', error);
+      initFallbackMap();
+    }
+  }
+
+  // Función de respaldo con OpenStreetMap
+  function initFallbackMap() {
+    console.log('🔄 Iniciando mapa de respaldo (OpenStreetMap)...');
+
+    try {
+      if (typeof L === 'undefined') {
+        throw new Error('Leaflet no disponible');
+      }
+
+      usingGoogleMaps = false;
+      updateMapStatus('Usando OpenStreetMap (mapa de respaldo)', 'fallback');
+      console.log('✅ OpenStreetMap listo para usar');
+
+    } catch (error) {
+      console.error('❌ Error con mapa de respaldo:', error);
+      updateMapStatus('Mapas no disponibles. Puede continuar sin ellos.', 'error');
+    }
+  }
+
+  // Función para mostrar/ocultar el mapa
+  function toggleMap() {
+    const mapContainer = document.getElementById('mapContainer');
+    const toggleText = document.getElementById('mapToggleText');
+    const toggleBtn = document.querySelector('.map-toggle-btn');
+
+    if (!mapVisible) {
+      // Mostrar mapa
+      mapContainer.style.display = 'block';
+      toggleText.textContent = 'Ocultar mapa';
+      toggleBtn.querySelector('i').className = 'fas fa-eye-slash';
+      mapVisible = true;
+
+      // Inicializar el mapa si no está inicializado
+      if (!mapInitialized) {
+        setTimeout(() => {
+          if (usingGoogleMaps) {
+            initGoogleMapInstance();
+          } else {
+            initLeafletMapInstance();
+          }
+        }, 100);
+      } else {
+        // Si ya está inicializado, buscar la dirección actual
+        const address = document.getElementById('ubicacionInput').value;
+        if (address) {
+          buscarDireccion();
+        }
+      }
+    } else {
+      // Ocultar mapa
+      mapContainer.style.display = 'none';
+      toggleText.textContent = 'Mostrar en mapa';
+      toggleBtn.querySelector('i').className = 'fas fa-map-marker-alt';
+      mapVisible = false;
+    }
+  }
+
+  // Inicializar instancia de Google Maps
+  function initGoogleMapInstance() {
+    try {
+      console.log('🗺️ Creando instancia de Google Maps...');
+
+      map = new google.maps.Map(document.getElementById('map'), {
+        zoom: 15,
+        center: sanMiguelCenter,
+        mapTypeId: 'roadmap',
+        streetViewControl: false,
+        mapTypeControl: true,
+        fullscreenControl: false
+      });
+
+      geocoder = new google.maps.Geocoder();
+
+      marker = new google.maps.Marker({
+        position: sanMiguelCenter,
+        map: map,
+        draggable: true,
+        title: 'Ubicación del servicio - Arrastre para ajustar',
+        animation: google.maps.Animation.DROP
+      });
+
+      // Configurar autocomplete
+      const input = document.getElementById('ubicacionInput');
+      if (google.maps.places) {
+        autocomplete = new google.maps.places.Autocomplete(input, {
+          bounds: new google.maps.LatLngBounds(
+            new google.maps.LatLng(-12.0950, -77.1050),
+            new google.maps.LatLng(-12.0600, -77.0680)
+          ),
+          strictBounds: false,
+          componentRestrictions: { country: 'pe' },
+          fields: ['geometry', 'formatted_address', 'name']
+        });
+
+        autocomplete.addListener('place_changed', function() {
+          const place = autocomplete.getPlace();
+          if (place.geometry) {
+            map.setCenter(place.geometry.location);
+            marker.setPosition(place.geometry.location);
+            updateMapsUrl(place.geometry.location);
+          }
+        });
+      }
+
+      marker.addListener('dragend', function() {
+        const position = marker.getPosition();
+        updateAddressFromCoordinates(position);
+        updateMapsUrl(position);
+      });
+
+      map.addListener('click', function(event) {
+        marker.setPosition(event.latLng);
+        updateAddressFromCoordinates(event.latLng);
+        updateMapsUrl(event.latLng);
+      });
+
+      updateMapsUrl(sanMiguelCenter);
+      mapInitialized = true;
+      console.log('✅ Google Maps inicializado correctamente');
+
+    } catch (error) {
+      console.error('❌ Error creando Google Maps:', error);
+      initLeafletMapInstance();
+    }
+  }
+
+  // Inicializar instancia de Leaflet
+  function initLeafletMapInstance() {
+    try {
+      console.log('🗺️ Creando instancia de OpenStreetMap...');
+
+      const mapDiv = document.getElementById('map');
+      mapDiv.innerHTML = '';
+
+      map = L.map('map').setView([sanMiguelCenter.lat, sanMiguelCenter.lng], 15);
+
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors',
+        maxZoom: 19
+      }).addTo(map);
+
+      marker = L.marker([sanMiguelCenter.lat, sanMiguelCenter.lng], {
+        draggable: true
+      }).addTo(map);
+
+      marker.bindPopup('📍 Ubicación del servicio<br><small>Arrastre para ajustar la posición</small>').openPopup();
+
+      marker.on('dragend', function(e) {
+        const position = e.target.getLatLng();
+        updateMapsUrl(position);
+        updateAddressFromCoordinates(position);
+      });
+
+      map.on('click', function(e) {
+        marker.setLatLng(e.latlng);
+        updateMapsUrl(e.latlng);
+        updateAddressFromCoordinates(e.latlng);
+      });
+
+      updateMapsUrl(sanMiguelCenter);
+      mapInitialized = true;
+      usingGoogleMaps = false;
+      console.log('✅ OpenStreetMap inicializado correctamente');
+
+    } catch (error) {
+      console.error('❌ Error creando OpenStreetMap:', error);
+      showMapError('Error al cargar el mapa. Puede continuar sin él.');
+    }
+  }
+
+  // Función para mostrar error en el mapa
+  function showMapError(message) {
+    const mapDiv = document.getElementById('map');
+    mapDiv.innerHTML = `
+      <div style="display: flex; align-items: center; justify-content: center; height: 100%; background-color: #f8f9fa; border: 2px dashed #dee2e6; border-radius: 5px;">
+        <div style="text-align: center; color: #6c757d; padding: 20px;">
+          <div style="font-size: 3rem; margin-bottom: 15px;">🗺️</div>
+          <p style="margin: 0; font-size: 16px; font-weight: 500;">${message}</p>
+          <small style="color: #999;">Puede continuar sin el mapa. La ubicación se guardará como texto.</small>
+        </div>
+      </div>
+    `;
+  }
+
+  // Actualizar estado del mapa
+  function updateMapStatus(message, type = 'success') {
+    const statusDiv = document.getElementById('mapStatus');
+    const statusText = document.getElementById('mapStatusText');
+
+    statusDiv.style.display = 'block';
+    statusDiv.className = `map-status ${type}`;
+    statusText.textContent = message;
+
+    // Ocultar después de 5 segundos si es éxito
+    if (type === 'success') {
+      setTimeout(() => {
+        statusDiv.style.display = 'none';
+      }, 5000);
+    }
+  }
+
+  // Buscar dirección cuando se cambia el input manualmente
+  function buscarDireccion() {
+    const address = document.getElementById('ubicacionInput').value;
+    if (!address || !mapInitialized || !mapVisible) return;
+
+    if (usingGoogleMaps && geocoder) {
+      // Usar Google Geocoding
+      geocoder.geocode({
+        address: address + ', San Miguel, Lima, Perú'
+      }, function(results, status) {
+        if (status === 'OK' && results[0]) {
+          const location = results[0].geometry.location;
+          map.setCenter(location);
+          marker.setPosition(location);
+          updateMapsUrl(location);
+        } else {
+          console.log('Google Geocoding falló:', status);
+          // Fallback a Nominatim
+          buscarConNominatim(address);
+        }
+      });
+    } else {
+      // Usar Nominatim para OpenStreetMap
+      buscarConNominatim(address);
+    }
+  }
+
+  // Búsqueda con Nominatim (respaldo)
+  function buscarConNominatim(address) {
+    const query = encodeURIComponent(address + ', San Miguel, Lima, Perú');
+    fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${query}&limit=1`)
+      .then(response => response.json())
+      .then(data => {
+        if (data && data.length > 0) {
+          const lat = parseFloat(data[0].lat);
+          const lng = parseFloat(data[0].lon);
+
+          if (usingGoogleMaps) {
+            const location = new google.maps.LatLng(lat, lng);
+            map.setCenter(location);
+            marker.setPosition(location);
+            updateMapsUrl(location);
+          } else {
+            map.setView([lat, lng], 16);
+            marker.setLatLng([lat, lng]);
+            updateMapsUrl({ lat: lat, lng: lng });
+          }
+        }
+      })
+      .catch(error => {
+        console.log('Error en búsqueda:', error);
+      });
+  }
+
+  // Actualizar dirección basada en coordenadas
+  function updateAddressFromCoordinates(latLng) {
+    if (!mapInitialized) return;
+
+    let lat, lng;
+
+    // Normalizar coordenadas según el tipo de mapa
+    if (usingGoogleMaps) {
+      if (typeof latLng.lat === 'function') {
+        lat = latLng.lat();
+        lng = latLng.lng();
+      } else {
+        lat = latLng.lat;
+        lng = latLng.lng;
+      }
+
+      // Usar Google Geocoding si está disponible
+      if (geocoder) {
+        geocoder.geocode({ location: latLng }, function(results, status) {
+          if (status === 'OK' && results[0]) {
+            document.getElementById('ubicacionInput').value = results[0].formatted_address;
+            return;
+          }
+          // Fallback a Nominatim
+          geocodingConNominatim(lat, lng);
+        });
+        return;
+      }
+    } else {
+      lat = latLng.lat;
+      lng = latLng.lng;
+    }
+
+    // Usar Nominatim
+    geocodingConNominatim(lat, lng);
+  }
+
+  // Geocoding inverso con Nominatim
+  function geocodingConNominatim(lat, lng) {
+    fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`)
+      .then(response => response.json())
+      .then(data => {
+        if (data.display_name) {
+          document.getElementById('ubicacionInput').value = data.display_name;
+        }
+      })
+      .catch(error => {
+        console.log('Error obteniendo dirección:', error);
+      });
+  }
+
+  // Actualizar URL de Google Maps
+  function updateMapsUrl(latLng) {
+    let lat, lng;
+
+    if (usingGoogleMaps && typeof latLng.lat === 'function') {
+      lat = latLng.lat();
+      lng = latLng.lng();
+    } else {
+      lat = latLng.lat;
+      lng = latLng.lng;
+    }
+
+    const mapsUrl = `https://maps.google.com/?q=${lat},${lng}`;
+    document.getElementById('mapsUrl').value = mapsUrl;
+  }
+
+  // Vista previa de imagen
+  function previewImage(input) {
+    if (input.files && input.files[0]) {
+      const file = input.files[0];
+
+      // Validar tamaño (5MB máximo)
+      if (file.size > 5 * 1024 * 1024) {
+        alert('El archivo es demasiado grande. Máximo 5MB.');
+        input.value = '';
+        return;
+      }
+
+      // Validar tipo de archivo
+      if (!file.type.match('image.*')) {
+        alert('Por favor seleccione un archivo de imagen válido.');
+        input.value = '';
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        document.getElementById('preview').src = e.target.result;
+        document.getElementById('imagePreview').style.display = 'block';
+      };
+      reader.readAsDataURL(file);
+    }
+  }
+
   function mostrarCampos() {
     const valor = document.getElementById('tipoEspacioId').value;
 
@@ -635,11 +1173,24 @@
     });
   }
 
-  // Mostrar el campo correcto al cargar la página (en caso de editar)
-  window.onload = mostrarCampos;
+  // Inicializar cuando se carga la página
+  document.addEventListener('DOMContentLoaded', function() {
+    console.log('Página cargada, inicializando...');
 
-  // Además, para que cambie dinámicamente al modificar el select:
-  document.getElementById('tipoEspacioId').addEventListener('change', mostrarCampos);
+    // Inicializar campos dinámicos
+    mostrarCampos();
+
+    // Configurar el listener para el select de tipo de servicio
+    const tipoSelect = document.getElementById('tipoEspacioId');
+    if (tipoSelect) {
+      tipoSelect.addEventListener('change', mostrarCampos);
+    }
+
+    // Inicializar mapa después de un pequeño delay para asegurar que todo esté cargado
+    setTimeout(function() {
+      initMap();
+    }, 500);
+  });
 </script>
 
 

@@ -1,4 +1,4 @@
-package com.example.gtics_ta.Config;
+package com.example.gtics_ta.config;
 
 import com.example.gtics_ta.Entity.Usuario;
 import com.example.gtics_ta.Repository.UsuarioRepository;

@@ -1,21 +1,21 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="">
     <meta name="author" content="">
-    <link rel="icon" href="../images/san_miguel_logo.ico">
+    <link rel="icon" th:href="@{/images/san_miguel_logo.ico}">
 
     <title>Admin - Reservas</title>
 
     <!-- Vendors Style-->
-    <link rel="stylesheet" href="css/vendors_css.css">
+    <link rel="stylesheet" th:href="@{/css/vendors_css.css}">
 
     <!-- Style-->
-    <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="css/skin_color.css">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" th:href="@{/css/skin_color.css}">
 
 
 
@@ -38,13 +38,12 @@
     <div id="loader"></div>
 
     <header class="main-header">
-
         <div class="d-flex align-items-center logo-box justify-content-center">
             <!-- Logo -->
-            <a href="principal.html" class="logo">
+            <a th:href="@{/admin}" class="logo">
                 <!-- logo-->
                 <div class="logo-mini w-150 text-center">
-                    <span class="light-logo"><img src="../images/logo-sanMiguel.png" alt="logo"></span>
+                    <span class="light-logo"><img th:src="@{/images/logo-sanMiguel.png}" alt="logo"></span>
                 </div>
             </a>
         </div>
@@ -62,80 +61,11 @@
                 </ul>
             </div>
 
-            <div class="navbar-custom-menu r-side">
-                <ul class="nav navbar-nav">
-
-                    <!-- Notifications -->
-
-
-                    <!-- User Account-->
-                    <li class="dropdown user user-menu">
-                        <a href="#" class="waves-effect waves-light dropdown-toggle w-auto l-h-12 bg-transparent py-0 no-shadow" data-bs-toggle="dropdown" title="User">
-                            <div class="d-flex pt-5">
-                                <div class="text-end me-10">
-                                    <p class="pt-5 fs-14 mb-0 fw-700 text-primary">Luis Joaquin</p>
-                                    <small class="fs-10 mb-0 text-uppercase text-mute">Administrador</small>
-                                </div>
-                                <img src="../images/avatar/avatar-1.png" class="avatar rounded-10 bg-primary-light h-40 w-40" alt="" />
-                            </div>
-                        </a>
-                        <ul class="dropdown-menu animated flipInX">
-                            <li class="user-body">
-                                <a class="dropdown-item" href="#"><i class="ti-user text-muted me-2"></i> Mi perfil</a>
-                                <a class="dropdown-item" href="#"><i class="ti-bell text-muted me-2"></i> Notificaciones</a>
-                                <div class="dropdown-divider"></div>
-                                <a class="dropdown-item" href="#"><i class="ti-lock text-muted me-2"></i> Cerrar sesión</a>
-                            </li>
-                        </ul>
-                    </li>
-
-                </ul>
-            </div>
+            <div th:replace="fragments :: navbarAdmin"></div>
         </nav>
     </header>
 
-    <aside class="main-sidebar">
-        <!-- sidebar-->
-        <section class="sidebar position-relative">
-
-
-
-
-            <div class="multinav">
-                <div class="multinav-scroll" style="height: 100%;">
-                    <!-- sidebar menu-->
-                    <ul class="sidebar-menu" data-widget="tree">
-                        <li>
-                            <a href="Admin_Dashboard.html">
-                                <i data-feather="monitor"></i>
-                                <span>Dashboard</span>
-                            </a>
-                        </li>
-
-                        <li>
-                            <a href="Admin_Reservas.html">
-                                <i data-feather="calendar"></i>
-                                <span>Reservas</span>
-                            </a>
-                        </li>
-
-                        <li>
-                            <a href="Admin_Servicios.html">
-                                <i data-feather="target"></i>
-                                <span>Servicios</span>
-                            </a>
-                        </li>
-
-
-
-
-                    </ul>
-
-
-                </div>
-            </div>
-        </section>
-    </aside>
+    <aside th:replace="fragments :: sideBarAdmin"></aside>
 
     <!-- Content Wrapper. Contains page content -->
     <div class="content-wrapper">
@@ -159,121 +89,29 @@
                                     <table class="table table-bordered table-striped" id="tablaServicios">
                                         <thead>
                                         <tr>
-                                            <th>Servicio ID</th>
-                                            <th>Tipo de servicio</th>
-                                            <th>Nombre del complejo</th>
-                                            <th>Dirección</th>
+                                            <th>ID</th>
+                                            <th>Usuario</th>
+                                            <th>Espacio Deportivo</th>
                                             <th>Fecha</th>
-                                            <th>Hora</th>
+                                            <th>Hora Inicio</th>
+                                            <th>Hora Fin</th>
                                             <th>Estado</th>
-
-
                                         </tr>
                                         </thead>
                                         <tbody>
-                                        <tr>
-                                            <td>#p22435366</td>
-                                            <td>Piscina</td>
-                                            <td>Diego Ferré</td>
-                                            <td>Av. Universitaria 1812</td>
-                                            <td>14-11-2025</td>
-                                            <td>11:00 am</td>
+                                        <tr th:if="${listaReservas != null and !listaReservas.isEmpty()}" th:each="reserva : ${listaReservas}">
+                                            <td th:text="${reserva.id}"></td>
+                                            <td th:text="${reserva.usuario != null ? (reserva.usuario.nombres + ' ' + reserva.usuario.apellidos) : 'N/A'}"></td>
+                                            <td th:text="${reserva.espacioDeportivo != null ? reserva.espacioDeportivo.nombre : 'N/A'}"></td>
+                                            <td th:text="${reserva.fechaReserva}"></td>
+                                            <td th:text="${reserva.horario != null ? reserva.horario.horaInicio : 'N/A'}"></td>
+                                            <td th:text="${reserva.horario != null ? reserva.horario.horaFin : 'N/A'}"></td>
                                             <td>
-                                                <button class="btn btn-sm estado-btn" style="background-color: #22c55e; color: white;">Disponible</button>
-                                                <button class="btn btn-sm btn-warning btn-mantenimiento" data-servicio="#p22435366">🛠️</button>
-                                            </td>
-
-
-
-                                        </tr>
-
-
-
-                                        <tr>
-                                            <td>#p22435366</td>
-                                            <td>Cancha</td>
-                                            <td>Felipe Olivares</td>
-                                            <td>Av. Las Flores 151</td>
-                                            <td>20-11-2025</td>
-                                            <td>14:00 pm</td>
-                                            <td>
-                                                <button class="btn btn-sm estado-btn" style="background-color: #22c55e; color: white;">Disponible</button>
-                                                <button class="btn btn-sm btn-warning btn-mantenimiento" data-servicio="#p22435366">🛠️</button>
-                                            </td>
-
-
-
-                                        </tr>
-
-
-                                        <!-- FILAS ADICIONALES -->
-                                        <tr><td>#p22435367</td><td>Piscina</td><td>Lucía Torres</td><td>Av. Brasil 1500</td><td>15-11-2025</td><td>09:00 am</td>
-                                            <td>
-                                                <button class="btn btn-sm estado-btn" style="background-color: #22c55e; color: white;">Disponible</button>
-                                                <button class="btn btn-sm btn-warning btn-mantenimiento" data-servicio="#p22435366">🛠️</button>
-
-                                            </td>
-
-
-                                        </tr>
-
-
-                                        <tr><td>#p22435368</td><td>Gimnasio</td><td>Marco Ruiz</td><td>Av. Universitaria 2000</td><td>15-11-2025</td><td>08:00 am</td>
-                                            <td>
-                                                <button class="btn btn-sm estado-btn" style="background-color: #22c55e; color: white;">Disponible</button>
-                                                <button class="btn btn-sm btn-warning btn-mantenimiento" data-servicio="#p22435366">🛠️</button>
-
-                                            </td>
-
-
-                                        </tr>
-
-
-
-
-                                        <tr><td>#p22435369</td><td>Cancha</td><td>Juan Rivera</td><td>Av. Libertad 303</td><td>16-11-2025</td><td>10:00 am</td>
-                                            <td>
-                                                <button class="btn btn-sm estado-btn" style="background-color: #ef4444; color: white;">Reservado</button>
-                                                <button class="btn btn-sm btn-warning btn-mantenimiento" data-servicio="#p22435366">🛠️</button>
-
-                                            </td>
-
-                                        </tr>
-                                        <tr><td>#p22435370</td><td>Piscina</td><td>Sandra Gálvez</td><td>Av. Perú 505</td><td>17-11-2025</td><td>11:30 am</td>
-                                            <td>
-                                                <button class="btn btn-sm estado-btn" style="background-color: #facc15; color: white;">En mantenimiento</button>
-                                                <button class="btn btn-sm btn-warning btn-mantenimiento" data-servicio="#p22435366">🛠️</button>
-
+                                                <span class="badge bg-success">Activa</span>
                                             </td>
                                         </tr>
-                                        <tr><td>#p22435371</td><td>Pista</td><td>Pedro León</td><td>Av. Marina 777</td><td>18-11-2025</td><td>17:00 pm</td>
-                                            <td>
-                                                <button class="btn btn-sm estado-btn" style="background-color: #22c55e; color: white;">Disponible</button>
-                                                <button class="btn btn-sm btn-warning btn-mantenimiento" data-servicio="#p22435366">🛠️</button>
-
-                                            </td>
-                                        </tr>
-                                        <tr><td>#p22435372</td><td>Gimnasio</td><td>Ana López</td><td>Av. Costanera 100</td><td>18-11-2025</td><td>19:00 pm</td>
-                                            <td>
-                                                <button class="btn btn-sm estado-btn" style="background-color: #22c55e; color: white;">Disponible</button>
-                                                <button class="btn btn-sm btn-warning btn-mantenimiento" data-servicio="#p22435366">🛠️</button>
-
-                                            </td>
-                                        </tr>
-                                        <tr><td>#p22435373</td><td>Cancha</td><td>Mario Cáceres</td><td>Av. Arequipa 1812</td><td>19-11-2025</td><td>20:00 pm</td>
-                                            <td>
-                                                <button class="btn btn-sm estado-btn" style="background-color: #22c55e; color: white;">Disponible</button>
-                                                <button class="btn btn-sm btn-warning btn-mantenimiento" data-servicio="#p22435366">🛠️</button>
-
-                                            </td>
-                                        </tr>
-
-                                        <tr><td>#p22435375</td><td>Gimnasio</td><td>Renzo Salazar</td><td>Av. Héroes 720</td><td>20-11-2025</td><td>06:00 am</td>
-                                            <td>
-                                                <button class="btn btn-sm estado-btn" style="background-color: #22c55e; color: white;">Disponible</button>
-                                                <button class="btn btn-sm btn-warning btn-mantenimiento" data-servicio="#p22435366">🛠️</button>
-
-                                            </td>
+                                        <tr th:if="${listaReservas == null or listaReservas.isEmpty()}">
+                                            <td colspan="7" class="text-center">No hay reservas disponibles</td>
                                         </tr>
                                         </tbody>
 
@@ -478,15 +316,15 @@
 
 
 <!-- Vendor JS -->
-<script src="js/vendors.min.js"></script>
-<script src="js/pages/chat-popup.js"></script>
-<script src="../assets/icons/feather-icons/feather.min.js"></script>
+<script th:src="@{/js/vendors.min.js}"></script>
+<script th:src="@{/js/pages/chat-popup.js}"></script>
+<script th:src="@{/assets/icons/feather-icons/feather.min.js}"></script>
 
-<script src="../assets/vendor_components/datatable/datatables.min.js"></script>
+<script th:src="@{/assets/vendor_components/datatable/datatables.min.js}"></script>
 
 <!-- Rhythm Admin App -->
-<script src="js/template.js"></script>
-<script src="js/pages/patients.js"></script>
+<script th:src="@{/js/template.js}"></script>
+<script th:src="@{/js/pages/patients.js}"></script>
 
 </body>
 </html>

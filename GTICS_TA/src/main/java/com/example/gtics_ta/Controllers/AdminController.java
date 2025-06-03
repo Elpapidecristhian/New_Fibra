@@ -40,7 +40,7 @@ public class AdminController {
     private ListaFotosRepository listaFotosRepository;
 
     @Autowired
-    private ReservaRepository reservaRepository;
+    private ReservasRepository reservasRepository;
 
     @Autowired
     private HorariosRepository horariosRepository;
@@ -56,28 +56,88 @@ public class AdminController {
     private HorarioReservadoRepository horarioReservadoRepository;
 
 
-    // LISTAR TODOS
+    // DASHBOARD PRINCIPAL
     @GetMapping(value = {"","/"})
+    public String dashboard(Model model) {
+        // Agregar datos para el dashboard
+        List<EspaciosDeportivos> espacios = espaciosRepository.findAll();
+        List<Reservas> reservas = reservasRepository.findAll();
+
+        model.addAttribute("totalEspacios", espacios.size());
+        model.addAttribute("totalReservas", reservas.size());
+        model.addAttribute("listaEspacios", espacios);
+        model.addAttribute("listaReservas", reservas);
+
+        return "admin/dashboard";
+    }
+
+    // DASHBOARD ALTERNATIVO
+    @GetMapping("/dashboard")
+    public String mostrarDashboard(Model model) {
+        return dashboard(model);
+    }
+
+    // LISTAR SERVICIOS
+    @GetMapping("/servicios")
     public String listarServicios(Model model) {
         List<EspaciosDeportivos> espacios = espaciosRepository.findAll();
         model.addAttribute("listaEspacios", espacios);
-        return "admin/servicios"; // Debes tener este archivo .html
+        return "admin/servicios";
     }
 
-    // FORMULARIO PARA NUEVO
+    // LISTAR RESERVAS
+    @GetMapping("/reservas")
+    public String listarReservas(@RequestParam(value = "nombre", required = false) String nombre, Model model) {
+        try {
+            List<Reservas> reservas;
+            if (nombre == null || nombre.isEmpty()) {
+                reservas = reservasRepository.findAll();
+            } else {
+                reservas = reservasRepository.findByEspacioDeportivo_NombreContainingIgnoreCase(nombre);
+            }
+            model.addAttribute("listaReservas", reservas);
+            System.out.println("Número de reservas encontradas: " + reservas.size());
+        } catch (Exception e) {
+            System.err.println("Error al cargar reservas: " + e.getMessage());
+            e.printStackTrace();
+            model.addAttribute("listaReservas", Collections.emptyList());
+        }
+        return "admin/reservas";
+    }
+
+    // FORMULARIO PARA NUEVO SERVICIO
     @GetMapping("/nuevo")
     public String nuevoServicio(@ModelAttribute("servicioDTO") ServicioDTO servicioDTO, Model model) {
+        // Inicializar EspaciosDeportivos
+        EspaciosDeportivos espacio = new EspaciosDeportivos();
+
+        // Inicializar TipoEspacio para evitar errores
+        TipoEspacio tipoEspacio = new TipoEspacio();
+        espacio.setTipoEspacio(tipoEspacio);
+
+        servicioDTO.setEspacio(espacio);
+
+        // Inicializar Estadios
         Estadios estadios = new Estadios();
         estadios.setUsoPermitido("-");
+        servicioDTO.setEstadios(estadios);
+
+        // Inicializar PistasAtletismo
         PistasAtletismo pistasAtletismo = new PistasAtletismo();
         pistasAtletismo.setImplementos("-");
+        servicioDTO.setPista(pistasAtletismo);
+
+        // Inicializar Piscinas
         Piscinas piscinas = new Piscinas();
         piscinas.setRequisitos("-");
-        servicioDTO.setEstadios(estadios);
-        servicioDTO.setPista(pistasAtletismo);
         servicioDTO.setPiscina(piscinas);
+
+        // Inicializar CanchasFutbol
+        CanchasFutbol cancha = new CanchasFutbol();
+        servicioDTO.setCancha(cancha);
+
         model.addAttribute("tipos", tipoEspacioRepository.findAll());
-        return "admin/agregarservicio"; // El form para crear/editar
+        return "admin/agregarservicio";
     }
 
     @PutMapping("/actualizar/{id}")
@@ -108,12 +168,14 @@ public class AdminController {
     }
 
 
-    // GUARDAR NUEVO O EDITADO
+    // GUARDAR NUEVO SERVICIO
     @PostMapping("/guardar")
     public String guardarServicio(@ModelAttribute("espacio") EspaciosDeportivos espacio) {
         espaciosRepository.save(espacio);
-        return "redirect:admin/servicios";
+        return "redirect:/admin/servicios";
     }
+
+
 
     @DeleteMapping("/eliminar/{id}")
     @ResponseBody
