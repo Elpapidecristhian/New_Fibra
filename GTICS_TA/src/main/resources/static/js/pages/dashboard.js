@@ -9,77 +9,13 @@ $(function () {
     'use strict';
 
     // Primer gráfico
-    var options1 = {
-        series: [{
-            name: 'Reporte económico',
-            data: [76, 85, 121]
-        }, {
-            name: 'Cantidad de Canchas reservadas',
-            data: [140, 140, 140]
-        }],
-        chart: {
-            type: 'bar',
-            foreColor:"#bac0c7",
-            height: 289,
-            toolbar: { show: false }
-        },
-        plotOptions: {
-            bar: {
-                endingShape: 'rounded',
-                horizontal: false,
-                columnWidth: '50%',
-            },
-        },
-        dataLabels: { enabled: false },
-        grid: { show: false },
-        stroke: { show: true, width: 3, colors: ['transparent'] },
-        colors: ['#00D0FF', '#3246D3'],
-        xaxis: { categories: ['Abril', 'Mayo', 'Julio'] },
-        legend: { show: true },
-        tooltip: {
-            y: { formatter: function (val) { return "$ " + val + " thousands"; }},
-            marker: { show: false },
-        }
-    };
 
-    var chart1 = new ApexCharts(document.querySelector("#recent_trend_1"), options1);
-    chart1.render();
-    var options2 = {
-        series: [{
-            name: 'Reporte económico',
-            data: [150, 200, 130]  // Datos diferentes para el segundo gráfico
-        }, {
-            name: 'Cantidad de Canchas reservadas',
-            data: [150, 135, 120]  // Otros datos diferentes para el segundo gráfico
-        }],
-        chart: {
-            type: 'bar',
-            foreColor:"#bac0c7",
-            height: 289,
-            toolbar: { show: false }
-        },
-        plotOptions: {
-            bar: {
-                endingShape: 'rounded',
-                horizontal: false,
-                columnWidth: '50%',
-            },
-        },
-        dataLabels: { enabled: false },
-        grid: { show: false },
-        stroke: { show: true, width: 3, colors: ['transparent'] },
-        colors: ['#00D0FF', '#3246D3'],
-        xaxis: { categories: ['Enero', 'Febrero', 'Marzo'] }, // Cambié las categorías para este gráfico
-        legend: { show: true },
-        tooltip: {
-            y: { formatter: function (val) { return "$ " + val + " thousands"; }},
-            marker: { show: false },
-        }
-    };
+    const topServicesEl = document.querySelector("#top_services");
+    if (topServicesEl) {
+        var chart = new ApexCharts(topServicesEl, options);
+        chart.render();
+    }
 
-
-    var chart2 = new ApexCharts(document.querySelector("#recent_trend_2"), options2);
-    chart2.render();
 
 
 
@@ -236,81 +172,7 @@ $(function () {
 
     var chart = new ApexCharts(document.querySelector("#overview_trend"), options);
     chart.render();
-
-    var options = {
-        series: [{
-            name: 'Servicios más reservados',
-            data: [120, 85, 150, 90] // Estos son los valores de reservas
-        }],
-        chart: {
-            type: 'bar',
-            height: 350
-        },
-        plotOptions: {
-            bar: {
-                horizontal: true, // Hace el gráfico de barras horizontal
-                endingShape: 'rounded',
-                columnWidth: '50%'
-            }
-        },
-        dataLabels: {
-            enabled: false
-        },
-        xaxis: {
-            categories: ['Top1: Piscina Pozo', 'Top2: Piscina Ariana', 'Top3: Cancha Fernandito ','Top4: Pista de Atletismo Yarlequé'],
-        },
-        colors: ['#00D0FF'],
-        tooltip: {
-            y: {
-                formatter: function(val) {
-                    return val + " reservas";
-                }
-            }
-        }
-    };
-
-    var chart = new ApexCharts(document.querySelector("#top_services"), options);
-    chart.render();
-
-
-
-
-    var options = {
-        series: [35, 65, 40, 50 ,60],
-        chart: {
-            height: 345,
-            type: 'polarArea'
-        },
-        labels: ['Gimnasio', 'Cancha de Césped', 'Cancha de loza', 'Pista de Atleismo', 'Piscina'],
-        fill: {
-            opacity: 1
-        },
-        stroke: {
-            width: 1,
-            colors: undefined
-        },
-        yaxis: {
-            show: false
-        },
-        legend: {
-            position: 'right'
-        },
-        colors: ['#3246D3', '#00D0FF', '#ee3158', '#ffa800', '#008000'],
-        plotOptions: {
-            polarArea: {
-                rings: {
-                    strokeWidth: 0
-                },
-                spokes: {
-                    strokeWidth: 0
-                },
-            }
-        },
-    };
-
-    var chart = new ApexCharts(document.querySelector("#chart432"), options);
-    chart.render();
-
+a
 
     // Slim scrolling
 
@@ -340,8 +202,4 @@ $(function () {
     jQuery(document).ready(function() {
         datepaginator.init()
     });
-
-
-
-
-}); // End of use strict
+});

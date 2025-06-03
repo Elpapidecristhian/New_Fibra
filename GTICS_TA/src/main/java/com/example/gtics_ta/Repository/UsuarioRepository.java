@@ -10,7 +10,7 @@ import java.util.Optional;
 public interface UsuarioRepository extends JpaRepository<Usuario, Integer> {
     List<Usuario> findByActivo(boolean isActivo);
     long count(); // total de usuarios
-
+    long countByActivo(boolean activo); // 🔹 NUEVO: para dashboard
     List<Usuario> findAll();
     Usuario findByCorreo(String correo);
 
