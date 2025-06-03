@@ -57,11 +57,17 @@ public class AdminController {
 
 
     // LISTAR TODOS
-    @GetMapping(value = {"","/"})
+    @GetMapping(value = "/servicios")
     public String listarServicios(Model model) {
         List<EspaciosDeportivos> espacios = espaciosRepository.findAll();
         model.addAttribute("listaEspacios", espacios);
         return "admin/servicios"; // Debes tener este archivo .html
+    }
+
+    @GetMapping(value={"","/"})
+    public String Dashboard(Model model) {
+
+        return "admin/dashboard";
     }
 
     // FORMULARIO PARA NUEVO
