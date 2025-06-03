@@ -243,23 +243,37 @@
                   </div>
                 </div>
                 <div class="col-md-6">
-                  <div class="form-group">
-                    <label for="archivo" class="form-label">Foto del lugar: <span class="danger">*</span></label>
-                    <input class="form-control required" type="file" id="archivo" name="archivo"
-                           accept="image/*" onchange="previewImage(this)">
-                    <small class="form-text text-muted">Formatos: JPG, PNG, GIF (máx. 5MB)</small>
+                  <div class="form-group file-input-enhanced">
+                    <label for="archivos" class="form-label">Fotos del lugar: <span class="danger">*</span></label>
+                    <input class="form-control required" type="file" id="archivos" name="archivos"
+                           accept="image/*" multiple onchange="previewMultipleImages(this)" max="4">
+                    <small class="form-text text-muted">
+                      <i class="fas fa-info-circle text-info"></i>
+                      <strong>Seleccione hasta 4 imágenes</strong> • Formatos: JPG, PNG, GIF • Máx. 5MB cada una
+                    </small>
+                    <div id="fileCount" class="mt-2" style="display: none;">
+                      <span class="badge badge-success">
+                        <i class="fas fa-images"></i> <span id="fileCountText">0</span> imagen(es) seleccionada(s)
+                      </span>
+                    </div>
                   </div>
                 </div>
               </div>
 
-              <!-- Preview de imagen -->
+              <!-- Preview de imágenes múltiples -->
               <div class="row">
                 <div class="col-md-12">
-                  <div id="imagePreview" style="display: none;">
-                    <label class="form-label">Vista previa:</label>
-                    <div style="border: 1px solid #ddd; border-radius: 5px; padding: 10px; text-align: center;">
-                      <img id="preview" src="" alt="Vista previa" style="max-width: 200px; max-height: 200px; border-radius: 5px;">
+                  <div id="imagePreviewContainer" style="display: none;">
+                    <label class="form-label">
+                      <i class="fas fa-eye"></i> Vista previa de las imágenes:
+                    </label>
+                    <div id="imagePreviewGrid" class="image-preview-grid">
+                      <!-- Las previsualizaciones se generarán dinámicamente aquí -->
                     </div>
+                    <small class="form-text text-muted mt-2">
+                      <i class="fas fa-lightbulb"></i>
+                      Puede hacer clic en el ícono ❌ para eliminar una imagen específica
+                    </small>
                   </div>
                 </div>
               </div>
@@ -1173,9 +1187,15 @@
     });
   }
 
+  // Manejo de errores de Google Maps
+  window.gm_authFailure = function() {
+    console.error('❌ Error de autenticación con Google Maps');
+    initFallbackMap();
+  };
+
   // Inicializar cuando se carga la página
   document.addEventListener('DOMContentLoaded', function() {
-    console.log('Página cargada, inicializando...');
+    console.log('📄 Página cargada, inicializando...');
 
     // Inicializar campos dinámicos
     mostrarCampos();
@@ -1186,10 +1206,16 @@
       tipoSelect.addEventListener('change', mostrarCampos);
     }
 
-    // Inicializar mapa después de un pequeño delay para asegurar que todo esté cargado
+    // Mostrar estado inicial del sistema de mapas
+    updateMapStatus('Inicializando sistema de mapas...', 'success');
+
+    // Timeout para verificar si Google Maps se carga
     setTimeout(function() {
-      initMap();
-    }, 500);
+      if (!usingGoogleMaps && typeof google === 'undefined') {
+        console.log('⏰ Google Maps no se cargó, usando respaldo');
+        initFallbackMap();
+      }
+    }, 5000);
   });
 </script>
 

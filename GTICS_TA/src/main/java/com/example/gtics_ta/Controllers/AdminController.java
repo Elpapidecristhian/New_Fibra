@@ -189,26 +189,52 @@ public class AdminController {
 
 
     @PostMapping("/guardarservicio")
-    public String guardarServicio(@ModelAttribute("servicioDTO") ServicioDTO servicioDTO, @RequestParam("archivo") MultipartFile file ){
-        if(file.isEmpty()) {
+    public String guardarServicio(@ModelAttribute("servicioDTO") ServicioDTO servicioDTO, @RequestParam("archivos") MultipartFile[] files ){
+        // Validar que se hayan subido archivos
+        if(files == null || files.length == 0 || files[0].isEmpty()) {
             return "admin/agregarservicio";
         }
 
-        String fileName = file.getOriginalFilename();
-
-        if (fileName.contains("..")){
+        // Validar máximo 4 imágenes
+        if(files.length > 4) {
             return "admin/agregarservicio";
         }
 
         try {
+            // Crear lista de fotos
             ListaFotos listaFotos = new ListaFotos();
             listaFotosRepository.save(listaFotos);
-            Fotos foto = new Fotos();
-            foto.setFoto(file.getBytes());
-            foto.setFotoNombre(fileName);
-            foto.setFotoTipoArchivo(file.getContentType());
-            foto.setListaFotos(listaFotos);
-            fotosRepository.save(foto);
+
+            // Procesar cada archivo
+            for(MultipartFile file : files) {
+                if(!file.isEmpty()) {
+                    String fileName = file.getOriginalFilename();
+
+                    // Validar nombre de archivo
+                    if (fileName.contains("..")) {
+                        continue; // Saltar archivo inválido
+                    }
+
+                    // Validar tamaño (5MB máximo)
+                    if (file.getSize() > 5 * 1024 * 1024) {
+                        continue; // Saltar archivo muy grande
+                    }
+
+                    // Validar tipo de archivo
+                    String contentType = file.getContentType();
+                    if (contentType == null || !contentType.startsWith("image/")) {
+                        continue; // Saltar archivo que no es imagen
+                    }
+
+                    // Crear y guardar foto
+                    Fotos foto = new Fotos();
+                    foto.setFoto(file.getBytes());
+                    foto.setFotoNombre(fileName);
+                    foto.setFotoTipoArchivo(contentType);
+                    foto.setListaFotos(listaFotos);
+                    fotosRepository.save(foto);
+                }
+            }
             EspaciosDeportivos espaciosDeportivos = servicioDTO.getEspacio();
             espaciosDeportivos.setListaFotos(listaFotos);
             if(espaciosDeportivos.getTipoEspacio().getId() == 1){
