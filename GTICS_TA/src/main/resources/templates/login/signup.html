@@ -1,21 +1,21 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head>
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="">
   <meta name="author" content="">
-  <link rel="icon" href="../images/logo-solo.png">
+  <link rel="icon" href="/images/logo-solo.png">
 
-  <title>Sign Up</title>
+  <title>Registrar</title>
 
   <!-- Vendors Style-->
-  <link rel="stylesheet" href="css/vendors_css.css">
+  <link rel="stylesheet" href="/css/vendors_css.css">
 
   <!-- Style-->
-  <link rel="stylesheet" href="css/style.css">
-  <link rel="stylesheet" href="css/skin_color.css">
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/skin_color.css">
 
 </head>
 
@@ -34,17 +34,41 @@
               <p class="mb-0">¡Únete y se parte de nuestra comunidad en San Miguel!</p>
             </div>
             <div class="p-20">
-              <form action="/html/coordinador/principal.html" method="post">
+              <form th:action="@{/signup/buscardni}" method="post">
+                <div class="form-group">
+                    <div class="form-group">
+                      <label class="form-label" for="dni">Ingrese su DNI para buscar sus datos</label>
+                      <div class="input-group mb-3">
+                        <span class="input-group-text bg-transparent"><i class="ti-receipt"></i></span>
+                        <input type="number" name="dni" class="form-control ps-15 bg-transparent" id="dni" placeholder="DNI" required th:classappend="${errorDNIConsulta != null ?'is-invalid':''}">
+                        <div class="invalid-feedback" th:if="${errorDNIConsulta != null}" th:text="${errorDNIConsulta}"></div>
+                      </div>
+                    </div>
+                  <div class="col-12 text-center" style="margin-top: 10px;">
+                    <button type="submit" class="btn btn-primary margin-top-10">Buscar DNI</button>
+                  </div>
+                </div>
+              </form>
+              <form th:action="@{/signup/save}" th:object="${usuario}" method="post">
                 <div class="form-group">
                   <div class="input-group mb-3">
-                    <span class="input-group-text bg-transparent"><i class="ti-user"></i></span>
-                    <input type="text" class="form-control ps-15 bg-transparent" placeholder="Nombres completos" required>
+                    <span class="input-group-text bg-transparent"><i class="ti-receipt"></i></span>
+                    <input th:field="*{dni}" readonly type="text" class="form-control ps-15 " placeholder="DNI" required th:classappend="${errorDNI != null ?'is-invalid':''}">
+                    <div class="invalid-feedback" th:if="${errorDNI != null}" th:text="${errorDNI}"></div>
                   </div>
                 </div>
                 <div class="form-group">
                   <div class="input-group mb-3">
                     <span class="input-group-text bg-transparent"><i class="ti-user"></i></span>
-                    <input type="text" class="form-control ps-15 bg-transparent" placeholder="Apellidos completos" required>
+                    <input th:field="*{nombres}" readonly type="text" class="form-control ps-15 " placeholder="Nombres completos" required th:classappend="${#fields.hasErrors('nombres')?'is-invalid':''}">
+                    <div class="invalid-feedback" th:if="${#fields.hasErrors('nombres')}" th:errors="*{nombres}"></div>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <div class="input-group mb-3">
+                    <span class="input-group-text bg-transparent"><i class="ti-user"></i></span>
+                    <input th:field="*{apellidos}" readonly type="text" class="form-control ps-15 " placeholder="Apellidos completos" required th:classappend="${#fields.hasErrors('apellidos')?'is-invalid':''}">
+                    <div class="invalid-feedback" th:if="${#fields.hasErrors('apellidos')}" th:errors="*{apellidos}"></div>
                   </div>
                 </div>
                 <div class="row">
@@ -52,58 +76,56 @@
                     <div class="form-group">
                       <div class="input-group mb-3">
                         <span class="input-group-text bg-transparent"><i class="ti-calendar"></i></span>
-                        <input type="date" class="form-control ps-15 bg-transparent" placeholder="Fecha de nacimiento" required>
+                        <input th:field="*{fechaNacimiento}" type="date" th:attr="max=${hoy}" class="form-control ps-15 bg-transparent" placeholder="Fecha de nacimiento" required>
                       </div>
                     </div>
                   </div>
                   <div class="col-md-6">
-                    <div class="form-group">
-                      <div class="input-group mb-3">
-                        <span class="input-group-text bg-transparent"><i class="ti-receipt"></i></span>
-                        <input type="number" class="form-control ps-15 bg-transparent" placeholder="DNI" required>
-                      </div>
+                    <div class="input-group mb-3">
+                      <span class="input-group-text bg-transparent"><i class="ti-mobile"></i></span>
+                      <input th:field="*{numCelular}" type="number" class="form-control ps-15 bg-transparent" placeholder="Número telefónico" required th:classappend="${#fields.hasErrors('numCelular')?'is-invalid':''}">
+                      <div class="invalid-feedback" th:if="${#fields.hasErrors('numCelular')}" th:errors="*{numCelular}"></div>
                     </div>
                   </div>
                 </div>
 
-
                 <div class="form-group">
                   <div class="input-group mb-3">
                     <span class="input-group-text bg-transparent"><i class="ti-home"></i></span>
-                    <input type="text" class="form-control ps-15 bg-transparent" placeholder="Ingrese su dirección" required>
-                  </div>
-                </div>
-
-
-                <div class="form-group">
-                  <div class="input-group mb-3">
-                    <span class="input-group-text bg-transparent"><i class="ti-mobile"></i></span>
-                    <input type="number" class="form-control ps-15 bg-transparent" placeholder="Número telefónico" required>
+                    <input th:field="*{direccion}" type="text" class="form-control ps-15 bg-transparent" placeholder="Ingrese su dirección" required th:classappend="${#fields.hasErrors('direccion')?'is-invalid':''}">
+                    <div class="invalid-feedback" th:if="${#fields.hasErrors('direccion')}" th:errors="*{direccion}"></div>
                   </div>
                 </div>
 
                 <div class="form-group">
                   <div class="input-group mb-3">
                     <span class="input-group-text bg-transparent"><i class="ti-email"></i></span>
-                    <input type="email" class="form-control ps-15 bg-transparent" placeholder="Email" required>
+                    <input th:field="*{correo}" type="email" class="form-control ps-15 bg-transparent" placeholder="Email" required th:classappend="${errorEmail != null ?'is-invalid':''}">
+                    <div class="invalid-feedback" th:if="${errorEmail != null}" th:text="${errorEmail}"></div>
                   </div>
                 </div>
                 <div class="form-group">
                   <div class="input-group mb-3">
                     <span class="input-group-text bg-transparent"><i class="ti-lock"></i></span>
-                    <input type="password" class="form-control ps-15 bg-transparent" placeholder="Contraseña" required>
+                    <input th:field="*{contrasenia}" type="password" class="form-control ps-15 bg-transparent" placeholder="Contraseña" required th:classappend="${#fields.hasErrors('contrasenia')?'is-invalid':''}" >
+                    <div class="invalid-feedback" th:if="${#fields.hasErrors('contrasenia')}" th:errors="*{contrasenia}"></div>
+                  </div>
+                  <div class="input-group mb-3">
+                    <span class="input-group-text bg-transparent"><i class="ti-lock"></i></span>
+                    <input name="confirmarContrasenia" type="password" class="form-control ps-15 bg-transparent" placeholder="Confirmar Contraseña" required th:classappend="${errorPswd != null ?'is-invalid':''}">
+                    <div class="invalid-feedback" th:if="${errorPswd != null}" th:text="${errorPswd}"></div>
                   </div>
                 </div>
                 <div class="row" style="margin-top: 10px;">
                   <!-- /.col -->
                   <div class="col-12 text-center" style="margin-top: 10px;">
-                    <button type="submit" class="btn btn-info margin-top-10">Ingresar</button>
+                    <button type="submit" class="btn btn-info margin-top-10">Registrarse</button>
                   </div>
                   <!-- /.col -->
                 </div>
               </form>
               <div class="text-center">
-                <p class="mt-15 mb-0">¿Ya tiene una cuenta?<a th:href="@{/login}" class="text-danger ms-5">Inicie sesión</a></p>
+                <p class="mt-15 mb-0">¿Ya tiene una cuenta? <a th:href="@{/login}" class="text-danger ms-5">Inicie sesión</a></p>
               </div>
             </div>
           </div>
@@ -124,9 +146,9 @@
 
 
 <!-- Vendor JS -->
-<script src="js/vendors.min.js"></script>
-<script src="js/pages/chat-popup.js"></script>
-<script src="../assets/icons/feather-icons/feather.min.js"></script>
+<script src="/js/vendors.min.js"></script>
+<script src="/js/pages/chat-popup.js"></script>
+<script src="/assets/icons/feather-icons/feather.min.js"></script>
 
 
 </body>

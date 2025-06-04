@@ -3,6 +3,7 @@ package com.example.gtics_ta.Controllers;
 import com.example.gtics_ta.DTO.HorariosConsultaDTO;
 import com.example.gtics_ta.Entity.*;
 import com.example.gtics_ta.Repository.*;
+import com.example.gtics_ta.Services.MailService;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,8 +20,8 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.sql.Timestamp;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
@@ -47,11 +48,19 @@ public class VecinoController {
     private EstadiosRepository estadiosRepository;
     @Autowired
     private FotosRepository fotosRepository;
+    @Autowired
+    private MailService emailService;
 
     @GetMapping(value = {"","/"})
     public String vistaInicial(Model model) {
         return "redirect:/vecino/espacios";
     }
+
+    //*********************************************************************************************
+    //
+    //                                    Lista de Espacios
+    //
+    //*********************************************************************************************
 
     @GetMapping("/espacios")
     public String listaEspacios(@RequestParam(name = "tipo", required = false) Integer id,
@@ -133,10 +142,60 @@ public class VecinoController {
         return "vecino/detalles";
     }
 
+    //*********************************************************************************************
+    //
+    //                                    Lista de Reservas
+    //
+    //*********************************************************************************************
+
+    @GetMapping("/reservas")
+    public String listarReservas(@RequestParam(value = "nombre", required = false) String nombre, Model model) {
+        List<Reservas> reservas= (nombre == null || nombre.isEmpty()) ?
+                reservasRepository.findAll() :
+                reservasRepository.findByEspacioDeportivo_NombreContainingIgnoreCase(nombre);
+        model.addAttribute("listaReservas", reservas);
+        model.addAttribute("hoy", LocalDate.now());
+        return "vecino/reservas";
+    }
+
+    @PostMapping("/cancelarreserva")
+    public String cancelarReserva(@RequestParam Integer id, RedirectAttributes attr) {
+        Optional<Reservas> optReserva = reservasRepository.findById(id);
+        if (optReserva.isPresent()) {
+            Reservas reserva = optReserva.get();
+            LocalDate hoy = LocalDate.now();
+            LocalDate fechaReserva = reserva.getFechaReserva();
+            if (fechaReserva.isAfter(hoy)) {
+                Optional<HorarioReservado> optHorarioReservado =
+                        Optional.ofNullable(horarioReservadoRepository.findByHorario_IdAndFecha(
+                                reserva.getHorario().getId(),
+                                reserva.getFechaReserva()));
+                if (optHorarioReservado.isPresent()) {
+                    horarioReservadoRepository.delete(optHorarioReservado.get());
+                    reservasRepository.delete(reserva);
+                    attr.addFlashAttribute("msg", "Reserva cancelada correctamente. Su dinero será reembolsado en un plazo de dos semanas.");
+                }
+            } else {
+                attr.addFlashAttribute("error", "No puede cancelar una reserva para hoy o en el pasado.");
+            }
+        } else {
+            attr.addFlashAttribute("error", "No se encontró la reserva.");
+        }
+        return "redirect:/vecino/reservas";
+    }
+
+    //*********************************************************************************************
+    //
+    //                                    Reservar un Espacio
+    //
+    //*********************************************************************************************
+
     @GetMapping("/reservar")
     public String reservar(Model model, @ModelAttribute("reserva") Reservas reservas, HttpSession session, @RequestParam(name = "idEspacio") int idEspacio, @RequestParam(name = "fecha") String fecha) throws ParseException {
-            LocalDate fechaconv = LocalDate.parse(fecha);
-
+        LocalDate fechaconv = LocalDate.parse(fecha);
+        if(fechaconv.isBefore(LocalDate.now())) {
+            return "redirect:/vecino/";
+        }
         Usuario usuario = (Usuario) session.getAttribute("usuario");
         Optional<EspaciosDeportivos> optespacio = espaciosDeportivosRepository.findById(idEspacio);
 
@@ -172,44 +231,29 @@ public class VecinoController {
 
         horarioReservadoRepository.save(horarioReservado);
         reservasRepository.save(reserva);
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("d 'de' MMMM 'de' yyyy", new Locale("es", "ES"));
+        LocalDateTime fechaReserva = reserva.getFechaRegistro().toLocalDateTime();
+        String fechaReservaString = fechaReserva.format(formatter);
+        String asunto = "Confirmación de Reserva #" + reserva.getId();
+        String cuerpo = "Id de Reserva #" + reserva.getId() + "\n" +
+                        fechaReservaString + "\n" +
+                        "Espacio: " + reserva.getEspacioDeportivo().getNombre() + "\n" +
+                        "Fecha de Reserva: " + reserva.getFechaReserva().toString() + "\n" +
+                        "Horario: " + reserva.getHorario().getHoraInicio() + "-" + reserva.getHorario().getHoraFin() + "\n" +
+                        "Medio de Pago: " + "Yape" + "\n" +
+                        "Total: S/." + reserva.getPago().getCantidad() + "25";
+
+
+        emailService.enviarCorreo(reserva.getUsuario().getCorreo(), asunto, cuerpo);
         return "redirect:/vecino/espacios";
     }
 
-    @PostMapping("/cancelarreserva")
-    public String cancelarReserva(@RequestParam Integer id, RedirectAttributes attr) {
-        Optional<Reservas> optReserva = reservasRepository.findById(id);
-        if (optReserva.isPresent()) {
-            Reservas reserva = optReserva.get();
-            LocalDate hoy = LocalDate.now();
-            LocalDate fechaReserva = reserva.getFechaReserva();
-            if (fechaReserva.isAfter(hoy)) {
-                Optional<HorarioReservado> optHorarioReservado =
-                        Optional.ofNullable(horarioReservadoRepository.findByHorario_IdAndFecha(
-                                reserva.getHorario().getId(),
-                                reserva.getFechaReserva()));
-                if (optHorarioReservado.isPresent()) {
-                    horarioReservadoRepository.delete(optHorarioReservado.get());
-                    reservasRepository.delete(reserva);
-                    attr.addFlashAttribute("msg", "Reserva cancelada correctamente. Su dinero será reembolsado en un plazo de dos semanas.");
-                }
-            } else {
-                attr.addFlashAttribute("error", "No puede cancelar una reserva para hoy o en el pasado.");
-            }
-        } else {
-            attr.addFlashAttribute("error", "No se encontró la reserva.");
-        }
-        return "redirect:/vecino/reservas";
-    }
-
-
-    @GetMapping("/reservas")
-    public String listarReservas(@RequestParam(value = "nombre", required = false) String nombre, Model model) {
-        List<Reservas> reservas= (nombre == null || nombre.isEmpty()) ?
-                reservasRepository.findAll() :
-                reservasRepository.findByEspacioDeportivo_NombreContainingIgnoreCase(nombre);
-        model.addAttribute("listaReservas", reservas);
-        return "vecino/reservas";
-    }
+    //*********************************************************************************************
+    //
+    //                                         Perfil
+    //
+    //*********************************************************************************************
 
     @GetMapping("/perfil")
     public String vecinoPerfil(@ModelAttribute("usuario") Usuario usuario, HttpSession session, Model model) {
@@ -235,10 +279,16 @@ public class VecinoController {
             return "vecino/perfil";
         }
 
+        String contentType = file.getContentType();
+        if (contentType == null || !contentType.matches("image/(jpeg|png|jpg|gif|bmp|webp)")) {
+            model.addAttribute("msg", "El archivo debe ser una imagen (jpg, png, gif, etc)");
+            return "vecino/perfil";
+        }
+
         try {
             usuario.setFoto(file.getBytes());
             usuario.setFotoNombre(fileName);
-            usuario.setFotoTipoArchivo(file.getContentType());
+            usuario.setFotoTipoArchivo(contentType);
             usuarioRepository.save(usuario);
             return "redirect:/vecino/perfil";
         } catch (Exception e) {
@@ -246,6 +296,12 @@ public class VecinoController {
             return "vecino/perfil";
         }
     }
+
+    //*********************************************************************************************
+    //
+    //                                    Gestión de Imágenes
+    //
+    //*********************************************************************************************
 
     @GetMapping("/profileimage/{id}")
     public ResponseEntity<byte[]> mostrarImagenPefil(@PathVariable("id") Integer id) {

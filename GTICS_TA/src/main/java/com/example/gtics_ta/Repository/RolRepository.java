@@ -6,6 +6,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface RolRepository extends JpaRepository<Rol, Integer> {
-    // No necesitas métodos adicionales para listar todos los roles
+    Rol findByNombre(String vecino);
 
 }
