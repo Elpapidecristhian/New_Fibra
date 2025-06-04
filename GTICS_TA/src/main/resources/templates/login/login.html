@@ -59,7 +59,7 @@
                                     <!-- /.col -->
                                     <div class="col-6">
                                         <div class="fog-pwd text-end">
-                                            <a th:href="@{/recoverpass}" class="hover-warning"><i class="ion ion-locked"></i> ¿Olvido la contraseña?</a><br>
+                                            <a th:href="@{/login/recoverpassword}" class="hover-warning"><i class="ion ion-locked"></i> ¿Olvido la contraseña?</a><br>
                                         </div>
                                     </div>
                                     <!-- /.col -->
@@ -93,6 +93,16 @@
 <script  th:src="@{/js/vendors.min.js}"></script>
 <script th:src="@{/js/pages/chat-popup.js}"></script>
 <script th:src="@{/assets/icons/feather-icons/feather.min.js}"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script th:if="${msg != null}" th:inline="javascript">
+    Swal.fire({
+        icon: 'success',
+        title: 'Éxito',
+        text: [[${msg}]],
+        confirmButtonText: 'OK'
+    });
+</script>
 
 </body>
 </html>

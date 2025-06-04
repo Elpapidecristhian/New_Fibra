@@ -39,7 +39,8 @@ public class WebSecurityConfig {
                 .requestMatchers("/coordinador/**").hasAnyAuthority("Coordinador", "Admin", "SuperAdmin")
                 .requestMatchers("/admin/**").hasAnyAuthority("Admin", "SuperAdmin")
                 .requestMatchers("/SuperAdmin/**").hasAuthority("SuperAdmin")
-                .requestMatchers("/login").permitAll()
+                .requestMatchers("/login/**").permitAll()
+                .requestMatchers("/signup/**").permitAll()
                 .anyRequest().authenticated()
         );
 

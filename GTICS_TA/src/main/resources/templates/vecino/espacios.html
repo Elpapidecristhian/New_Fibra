@@ -108,16 +108,16 @@
 					<div class="col-md-12 col-lg-4" th:each="espacio : ${espacios}">
 						<div>
 							<div class="card mb-4">
-								<img th:if="${primerasFotos[espacio.id] != null}"
-									 th:src="@{|image/${primerasFotos[espacio.id]}|}"
-									 onerror="this.onerror=null;this.src='https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRzzuCP3cOsY_IqKeLxrY-KQOCiUabgxyZqHw&s';"
-									 class="img-fluid" />
-								<img th:unless="${primerasFotos[espacio.id] != null}"
-									 src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRzzuCP3cOsY_IqKeLxrY-KQOCiUabgxyZqHw&s"
-									 alt="Imagen de espacio deportivo"
-									 class="img-fluid"
-									>
-
+								<div class="img-wrapper">
+									<img th:if="${primerasFotos[espacio.id] != null}"
+										 th:src="@{|image/${primerasFotos[espacio.id]}|}"
+										 onerror="this.onerror=null;this.src='https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRzzuCP3cOsY_IqKeLxrY-KQOCiUabgxyZqHw&s';"
+										 class="card-img-top img-cropped" />
+									<img th:unless="${primerasFotos[espacio.id] != null}"
+										 src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRzzuCP3cOsY_IqKeLxrY-KQOCiUabgxyZqHw&s"
+										 alt="Imagen de espacio deportivo"
+										 class="card-img-top img-cropped" />"
+								</div>
 								<div class="card-body">
 									<h4 class="card-title" th:text="${espacio.getNombre()}">Nombre espacio</h4>
 									<p class="card-text" th:text="${espacio.getDescripcionCorta()}">Descripción corta...</p>
@@ -126,8 +126,6 @@
 								<div class="card-footer justify-content-between d-flex">
 									<a th:href="@{/vecino/detalles(idEspacio=${espacio.id}, fecha=${fechaSeleccionada})}" class="btn btn-primary">Detalles</a>
 									<a th:href="@{/vecino/reservar(idEspacio=${espacio.id}, fecha=${fechaSeleccionada})}" class="btn btn-info">Reservar</a>
-									<span>
-                    </span>
 								</div>
 							</div>
 						</div>

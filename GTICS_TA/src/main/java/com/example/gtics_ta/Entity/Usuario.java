@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.validator.constraints.UniqueElements;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.io.Serializable;
@@ -47,17 +48,23 @@ public class Usuario implements Serializable {
     @Positive
     @Digits(integer = 9, fraction = 0, message = "Debe ingresar un número de 9 dígitos")
     private Integer numCelular;
+
     @ManyToOne
     @JoinColumn(name = "id_rol")
     private Rol rol;
+
     private boolean activo =true;
+
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     @Column(name = "fecha_nacimiento")
     private LocalDate fechaNacimiento;
+
     @Lob
     private byte[] foto;
+
     @Column(name = "foto_nombre")
     private String fotoNombre;
+
     @Column(name = "foto_tipo_archivo")
     private String fotoTipoArchivo;
 }
