@@ -183,59 +183,49 @@
         <div class="container-full">
             <!-- Main content -->
             <section class="content">
+
                 <div class="row">
                     <!-- Card 1 -->
-                    <div class="col-xl-3 col-md-6 col-12">
-                        <div class="box">
-                            <div class="box-body text-center">
-                                <div class="bg-primary-light rounded10 p-20 mx-auto w-100 h-100">
-                                    <img src="/images/svg-icon/medical/icono_1_d.svg" class="" alt="" />
-                                </div>
-                                <p class="text-fade mt-15 mb-5">Total de Usuarios </p>
-                                <h2 class="mt-0">1,548</h2>
+                    <div class="col-md-3 col-sm-6 col-12 mb-3">
+                        <div class="card shadow-sm border-0 text-center p-3 h-140" style="background-color: #D1FAE5;">
+                            <div class="bg-primary-light rounded10 p-20 mx-auto w-100 h-100">
+                                <img src="/images/svg-icon/medical/icono_1_d.svg" class="" alt="" />
                             </div>
+                            <h6 class="text-dark">Total de Usuarios</h6>
+                            <h2 class="text-success fw-bold" th:text="${dashboard.totalUsuarios}">0</h2>
                         </div>
                     </div>
-
                     <!-- Card 2 -->
-                    <div class="col-xl-3 col-md-6 col-12">
-                        <div class="box">
-                            <div class="box-body text-center">
+                    <div class="col-md-3 col-sm-6 col-12 mb-3">
+                        <div class="card shadow-sm border-0 text-center p-3 h-140" style="background-color: #FECACA;">
                                 <div class="bg-danger-light rounded10 p-20 mx-auto w-100 h-100">
                                     <img src="/images/svg-icon/medical/usuarios_baneados.svg" class="" alt="" />
                                 </div>
-                                <p class="text-fade mt-15 mb-5">Total de Usuarios Baneados</p>
-                                <h2 class="mt-0">448</h2>
-                            </div>
+                                <h6 class="text-dark">Total de Usuarios Baneados</h6>
+                                <h2 class="text-success fw-bold" th:text="${dashboard.totalUsuariosBaneados}">0</h2>
                         </div>
                     </div>
 
                     <!-- Card 3 -->
-                    <div class="col-xl-3 col-md-6 col-12">
-                        <div class="box">
-                            <div class="box-body text-center">
-                                <div class="bg-warning-light rounded10 p-20 mx-auto w-100 h-100">
-                                    <img src="/images/svg-icon/medical/espacio_deportivo.svg" class="" alt="" />
-                                </div>
-                                <p class="text-fade mt-15 mb-5">Cantidad de espacios disponibles</p>
-                                <h2 class="mt-0">848</h2>
-                            </div>
+                    <div class="col-md-3 col-sm-6 col-12 mb-3">
+                    <div class="card shadow-sm border-0 text-center p-3 h-140" style="background-color: #BFDBFE;">
+                        <div class="bg-warning-light rounded10 p-20 mx-auto w-100 h-100">
+                            <img src="/images/svg-icon/medical/espacio_deportivo.svg" class="" alt="" />
                         </div>
+                        <h6 class="text-dark">Cantidad de espacios </h6>
+                        <h2 class="text-success fw-bold" th:text="${dashboard.espaciosDisponibles}">0</h2>
                     </div>
+                </div>
 
-                    <!-- Card 4 -->
-                    <div class="col-xl-3 col-md-6 col-12">
-                        <div class="box">
-                            <div class="box-body text-center">
+                    <div class="col-md-3 col-sm-6 col-12 mb-3">
+                        <div class="card shadow-sm border-0 text-center p-3 h-140" style="background-color: #E0E7FF;">
                                 <div class="bg-info-light rounded10 p-20 mx-auto w-100 h-100">
                                     <img src="/images/svg-icon/medical/espacio_deportivo_ocupado.svg" class="" alt="" />
                                 </div>
-                                <p class="text-fade mt-15 mb-5">Cantidad de espacios ocupados</p>
-                                <h2 class="mt-0">3,100</h2>
-                            </div>
+                                <h6 class="text-dark">Cantidad de reservas</h6>
+                            <h2 class="text-success fw-bold" th:text="${dashboard.cantidadTotalReservas}">0</h2>
                         </div>
                     </div>
-                </div>
 
                 <!-- Una sola fila para ambos gráficos -->
                 <div class="row">
@@ -243,10 +233,11 @@
                     <div class="col-xl-6 col-12">
                         <div class="box">
                             <div class="box-header">
-                                <h4 class="box-title">Reporte Económico de los servicios y la cantidad de cachas reservadas en los últimos 3 meses</h4>
+                                <h4 class="box-title">Reporte Económico de los servicios vs cachas reservadas en los últimos 3 meses</h4>
                             </div>
                             <div class="box-body">
-                                <h3 class="text-primary mt-0">$32,485 <small class="text-muted">$12,458</small></h3>
+                                <h3 class="text-primary mt-0" th:text="'S/ ' + ${dashboard.totalRecaudadoUltimos3Meses}">S/ 0.00</h3>
+                                <small class="text-muted" th:text="${dashboard.reservasUltimos3Meses} + ' reservas'">0 reservas</small>
                                 <div id="recent_trend_1"></div>
                             </div>
                         </div>
@@ -256,12 +247,14 @@
                     <div class="col-xl-6 col-12">
                         <div class="box">
                             <div class="box-header">
-                                <h4 class="box-title">Reporte Económico de los servicios y la cantidad de cachas reservadas en el año</h4>
+                                <h4 class="box-title">Reporte Económico de los servicios vs cachas reservadas en el año</h4>
                             </div>
                             <div class="box-body">
-                                <h3 class="text-primary mt-0">$32,485 <small class="text-muted">$12,458</small></h3>
+                                <h3 class="text-primary mt-0" th:text="'S/ ' + ${dashboard.totalRecaudadoAnual}">S/ 0.00</h3>
+                                <small class="text-muted" th:text="${dashboard.reservasAnuales} + ' reservas'">0 reservas</small>
                                 <div id="recent_trend_2"></div>
                             </div>
+
                         </div>
                     </div>
                 </div>
@@ -292,25 +285,19 @@
                         </div>
                     </div>
                 </div>
+            </div> <!-- cierre de div.container-full -->
+        </div>
+    </div><!-- cierre de div.content-wrapper -->
 
-            </section> <!-- cierre de section.content -->
-
-        </div> <!-- cierre de div.container-full -->
-    </div> <!-- cierre de div.content-wrapper -->
-
-</div> <!-- cierre de div.wrapper -->
 
 <!-- /.content-wrapper -->
 <footer class="main-footer">
     <div class="pull-right d-none d-sm-inline-block">
         <ul class="nav nav-primary nav-dotted nav-dot-separated justify-content-center justify-content-md-end">
 
-            <li class="nav-item">
-                <a class="nav-link" href="#">Purchase Now</a>
-            </li>
+
         </ul>
     </div>
-    &copy; <script>document.write(new Date().getFullYear())</script> <a href="https://www.multipurposethemes.com/">Multipurpose Themes</a>. All Rights Reserved.
 </footer>
 
 
@@ -325,6 +312,269 @@
 <!-- Rhythm Admin App -->
 <script src="/js/template.js"></script>
 <script src="/js/pages/dashboard.js"></script>
+<script th:inline="javascript">
+    document.addEventListener("DOMContentLoaded", function () {
+        let meses = /*[[${dashboard.mesesUltimos3Meses}]]*/ [];
+        let totales = /*[[${dashboard.recaudacionUltimos3Meses}]]*/ [];
+        let reservas = /*[[${dashboard.reservasUltimos3MesesLista}]]*/ [];
+
+        const options1 = {
+            series: [
+                { name: 'Recaudación (S/)', data: totales },
+                { name: 'Reservas', data: reservas }
+            ],
+            chart: {
+                type: 'line',
+                height: 300,
+                toolbar: {
+                    show: true,
+                    tools: {
+                        download: true,
+                        selection: false,
+                        zoom: false,
+                        zoomin: false,
+                        zoomout: false,
+                        pan: false,
+                        reset: false
+                    },
+                    export: {
+                        csv: {
+                            filename: "reporte_3_meses",
+                            columnDelimiter: ",",
+                            headerCategory: "Mes",
+                            headerValue: "Valor",
+                            dateFormatter(timestamp) {
+                                return new Date(timestamp).toLocaleDateString();
+                            }
+                        },
+                        svg: { filename: "reporte_3_meses" },
+                        png: { filename: "reporte_3_meses" }
+                    }
+                }
+            },
+            stroke: {
+                curve: 'straight',
+                width: 2
+            },
+            markers: {
+                size: 4
+            },
+            xaxis: {
+                categories: meses,
+                labels: {
+                    rotate: -45
+                }
+            },
+            colors: ['#00D0FF', '#28C76F'],
+            tooltip: {
+                shared: true,
+                intersect: false,
+                y: {
+                    formatter: function (val, { seriesIndex, w }) {
+                        const label = w.globals.seriesNames[seriesIndex];
+                        if (label.includes("Recaudación")) {
+                            return "S/ " + val.toFixed(2);
+                        } else if (label.includes("Reservas")) {
+                            return val + " reservas";
+                        } else {
+                            return val;
+                        }
+                    }
+                }
+            },
+            legend: {
+                show: true
+            }
+        };
+
+
+        const chart1 = new ApexCharts(document.querySelector("#recent_trend_1"), options1);
+        chart1.render();
+
+        // Segundo gráfico
+        let mesesAnual = /*[[${dashboard.mesesAnuales}]]*/ [];
+        let totalesAnual = /*[[${dashboard.recaudacionAnualPorMes}]]*/ [];
+        let reservasAnual = /*[[${dashboard.reservasAnualesPorMes}]]*/ [];
+
+        const options2 = {
+            series: [
+                { name: 'Recaudación (S/)', data: totalesAnual },
+                { name: 'Reservas', data: reservasAnual }
+            ],
+            chart: {
+                type: 'line',
+                height: 300,
+                toolbar: {
+                    show: true,
+                    tools: {
+                        download: true,
+                        selection: false,
+                        zoom: false,
+                        zoomin: false,
+                        zoomout: false,
+                        pan: false,
+                        reset: false,
+                        customIcons: []
+                    },
+                    export: {
+                        csv: {
+                            filename: "reporte_anual",
+                            columnDelimiter: ",",
+                            headerCategory: "Mes",
+                            headerValue: "Valor",
+                            dateFormatter(timestamp) {
+                                return new Date(timestamp).toLocaleDateString();
+                            }
+                        },
+                        svg: {
+                            filename: "reporte_anual"
+                        },
+                        png: {
+                            filename: "reporte_anual"
+                        }
+                    }
+                }
+            },
+            stroke: {
+                curve: 'straight',
+                width: 2
+            },
+            markers: {
+                size: 4
+            },
+            xaxis: {
+                categories: mesesAnual,
+                labels: {
+                    rotate: -45
+                }
+            },
+            tooltip: {
+                shared: false, // Desactivamos el comportamiento combinado
+                intersect: true,
+                y: {
+                    formatter: function (val, { series, seriesIndex, dataPointIndex, w }) {
+                        const label = w.globals.seriesNames[seriesIndex];
+                        if (label.includes("Recaudación")) {
+                            return "S/ " + val.toFixed(2);
+                        } else if (label.includes("Reservas")) {
+                            return val + " reservas";
+                        } else {
+                            return val;
+                        }
+                    }
+                }
+            },
+            colors: ['#00D0FF', '#28C76F'],
+            legend: { show: true }
+        };
+
+        const chart2 = new ApexCharts(document.querySelector("#recent_trend_2"), options2);
+        chart2.render();
+    });
+</script>
+<script th:inline="javascript">
+    document.addEventListener("DOMContentLoaded", function () {
+
+        const nombresTop = /*[[${dashboard.nombresServiciosTop}]]*/ [];
+        const cantidadesTop = /*[[${dashboard.cantidadReservasTop}]]*/ [];
+
+        const topServicesChart = new ApexCharts(document.querySelector("#top_services"), {
+            series: [{
+                name: 'Reservas',
+                data: cantidadesTop
+            }],
+            chart: {
+                type: 'bar',
+                height: Math.max(355, cantidadesTop.length * 10) // 45 px por barra
+            },
+            plotOptions: {
+                bar: {
+                    horizontal: true,
+                    endingShape: 'rounded'
+                }
+            },
+            xaxis: {
+                categories: nombresTop,
+                labels: {
+                    style: {
+                        fontSize: '13px',
+                        fontFamily: 'inherit',
+                        cssClass: 'apexcharts-xaxis-label'
+                    }
+                }
+            },
+            colors: ['#00D0FF']
+        });
+        topServicesChart.render();
+
+        const nombresPorcentaje = /*[[${dashboard.nombresServiciosPorcentaje}]]*/ [];
+        const cantidadesPorcentaje = /*[[${dashboard.cantidadServiciosPorcentaje}]]*/ [];
+
+        const porcentajeChart = new ApexCharts(document.querySelector("#chart432"), {
+            series: cantidadesPorcentaje,
+            chart: {
+                type: 'donut',
+                height: 350,
+                toolbar: {
+                    show: true,
+                    tools: {
+                        download: true,
+                        selection: false,
+                        zoom: false,
+                        zoomin: false,
+                        zoomout: false,
+                        pan: false,
+                        reset: false
+                    },
+                    export: {
+                        csv: {
+                            filename: "porcentaje_servicios",
+                            headerCategory: "Servicio",
+                            headerValue: "Reservas"
+                        },
+                        svg: {
+                            filename: "porcentaje_servicios"
+                        },
+                        png: {
+                            filename: "porcentaje_servicios"
+                        }
+                    }
+                }
+            },
+            labels: nombresPorcentaje,
+            plotOptions: {
+                pie: {
+                    donut: {
+                        size: '65%',
+                        labels: {
+                            show: true,
+                            total: {
+                                show: true,
+                                label: 'Total',
+                                formatter: function (w) {
+                                    return w.globals.seriesTotals.reduce((a, b) => a + b, 0) + " reservas";
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            legend: {
+                position: 'right'
+            },
+            tooltip: {
+                y: {
+                    formatter: function (value, { series }) {
+                        const total = series.reduce((a, b) => a + b, 0);
+                        return `${value} reservas (${((value / total) * 100).toFixed(1)}%)`;
+                    }
+                }
+            }
+        });
+        porcentajeChart.render();
+
+    });
+</script>
 
 </body>
 </html>

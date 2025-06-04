@@ -1,5 +1,6 @@
 package com.example.gtics_ta.Controllers;
 
+import com.example.gtics_ta.DTO.AdminDTO;
 import com.example.gtics_ta.DTO.ServicioDTO;
 import com.example.gtics_ta.Entity.*;
 import com.example.gtics_ta.Repository.*;
@@ -15,10 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @Controller
 @RequestMapping("/admin")
@@ -41,7 +39,8 @@ public class AdminController {
 
     @Autowired
     private ReservaRepository reservaRepository;
-
+    @Autowired
+    private UsuarioRepository usuarioRepository;
     @Autowired
     private HorariosRepository horariosRepository;
     @Autowired
@@ -64,10 +63,76 @@ public class AdminController {
         return "admin/servicios"; // Debes tener este archivo .html
     }
 
-    @GetMapping(value={"","/"})
+    @GetMapping(value={"", "/"})
     public String Dashboard(Model model) {
+        AdminDTO dto = new AdminDTO();
 
-        return "admin/dashboard";
+        dto.setTotalUsuarios(usuarioRepository.count());
+        dto.setTotalUsuariosBaneados(usuarioRepository.countByActivo(false));
+        dto.setEspaciosDisponibles(espaciosDeportivosRepository.countByOperativo(true));
+        dto.setCantidadTotalReservas(reservaRepository.contarTotalReservas());
+        dto.setCantidadReservasHoy(reservaRepository.contarReservasHoy());
+
+        List<Object[]> topServicios = reservaRepository.top10ServiciosMasReservados();
+        List<String> nombresTop = new ArrayList<>();
+        List<Long> cantidadesTop = new ArrayList<>();
+
+        for (Object[] fila : topServicios) {
+            nombresTop.add((String) fila[0]);
+            cantidadesTop.add(((Number) fila[1]).longValue());
+        }
+
+        dto.setNombresServiciosTop(nombresTop);
+        dto.setCantidadReservasTop(cantidadesTop);
+
+        List<Object[]> porcentajes = reservaRepository.porcentajeReservasPorServicio();
+        List<String> nombres = new ArrayList<>();
+        List<Long> cantidades = new ArrayList<>();
+
+        for (Object[] fila : porcentajes) {
+            nombres.add((String) fila[0]);
+            cantidades.add(((Number) fila[1]).longValue());
+        }
+// TOP 10 USUARIOS
+        List<Object[]> topUsuarios = reservaRepository.top10UsuariosConMasReservas();
+        List<String> nombresUsuarios = new ArrayList<>();
+        List<Long> cantidadUsuarios = new ArrayList<>();
+
+        int count = 0;
+        for (Object[] fila : topUsuarios) {
+            if (count++ >= 10) break;
+
+            // Asegúrate de castear correctamente cada campo
+            String nombrePersona = (String) fila[1];
+            String apellidoPersona = (String) fila[2];
+            String nombreCompleto = nombrePersona + " " + apellidoPersona;
+
+
+            nombresUsuarios.add(nombreCompleto);
+            cantidadUsuarios.add(((Number) fila[3]).longValue());
+        }
+        dto.setNombresUsuariosTop(nombresUsuarios);
+        dto.setCantidadReservasUsuariosTop(cantidadUsuarios);
+
+
+// RESERVAS POR HORA
+        List<Object[]> porHora = reservaRepository.distribucionReservasPorHora();
+        List<String> horas = new ArrayList<>();
+        List<Long> cantidadHoras = new ArrayList<>();
+        for (Object[] fila : porHora) {
+            Integer horaInt = (Integer) fila[0];
+            horas.add(String.format("%02d:00", horaInt));  // ej: "08:00"
+            cantidadHoras.add(((Number) fila[1]).longValue());
+        }
+        dto.setHorasReservas(horas);
+        dto.setCantidadReservasPorHora(cantidadHoras);
+
+        dto.setNombresServiciosPorcentaje(nombres);
+        dto.setCantidadServiciosPorcentaje(cantidades);
+
+        model.addAttribute("dashboard", dto);
+
+        return "admin/dashboard"; // Vista correspondiente
     }
 
     // FORMULARIO PARA NUEVO
