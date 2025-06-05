@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Admin - Agregar Servicio</title>
+
+  <!-- Vendors Style-->
+  <link rel="stylesheet" th:href="@{/css/vendors_css.css}">
+  <link rel="stylesheet" th:href="@{/css/style.css}">
+  <link rel="stylesheet" th:href="@{/css/skin_color.css}">
+</head>
+<body class="hold-transition light-skin sidebar-mini theme-success fixed">
+
+<div class="wrapper">
+  <div id="loader"></div>
+
+  <header class="main-header">
+    <div class="d-flex align-items-center logo-box justify-content-center">
+      <a th:href="@{/admin}" class="logo">
+        <div class="logo-mini w-150 text-center">
+          <span class="light-logo"><img th:src="@{/images/logo-sanMiguel.png}" alt="logo"></span>
+        </div>
+      </a>
+    </div>
+    <nav class="navbar navbar-static-top">
+      <div class="app-menu">
+        <ul class="header-megamenu nav">
+          <li class="btn-group nav-item">
+            <a href="#" class="waves-effect waves-light nav-link push-btn btn-primary-light" data-toggle="push-menu" role="button">
+              <i data-feather="align-left"></i>
+            </a>
+          </li>
+        </ul>
+      </div>
+      <div th:replace="~{fragments :: navbarAdmin}"></div>
+    </nav>
+  </header>
+
+  <aside th:replace="~{fragments :: sideBarAdmin}"></aside>
+
+  <div class="content-wrapper">
+    <div class="container-full">
+      <div class="content-header">
+        <div class="d-flex align-items-center">
+          <div class="me-auto">
+            <h4 class="page-title">Agregar Servicio</h4>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <section class="content">
+      <div class="box">
+        <div class="box-header with-border">
+          <h4 class="box-title">Nuevo Servicio</h4>
+          <h6 class="box-subtitle">Ingrese los datos necesarios para crear el servicio</h6>
+        </div>
+        
+        <div class="box-body">
+          <form th:action="@{/admin/guardarservicio}" th:object="${servicioDTO}" method="post" enctype="multipart/form-data">
+            
+            <!-- Información básica -->
+            <div class="row">
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label for="nombreLugar" class="form-label">Nombre del lugar: <span class="text-danger">*</span></label>
+                  <input type="text" th:field="*{espacio.nombre}" class="form-control" id="nombreLugar" required>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label for="ubicacionInput" class="form-label">Ubicación: <span class="text-danger">*</span></label>
+                  <input type="text" th:field="*{espacio.ubicacion}" class="form-control" id="ubicacionInput" required>
+                </div>
+              </div>
+            </div>
+
+            <!-- Tipo de servicio y horarios -->
+            <div class="row">
+              <div class="col-md-4">
+                <div class="form-group">
+                  <label for="tipoServicioSelect" class="form-label">Tipo de servicio: <span class="text-danger">*</span></label>
+                  <select class="form-select" id="tipoServicioSelect" onchange="actualizarTipoEspacio()" required>
+                    <option value="" disabled selected>Seleccione el tipo</option>
+                    <option value="piscina">Piscina</option>
+                    <option value="cancha">Cancha de Fútbol</option>
+                    <option value="pista">Pista de Atletismo</option>
+                    <option value="estadio">Estadio</option>
+                  </select>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="form-group">
+                  <label for="horaAbre" class="form-label">Hora de apertura: <span class="text-danger">*</span></label>
+                  <input th:field="*{espacio.horaAbre}" type="time" class="form-control" id="horaAbre" required>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="form-group">
+                  <label for="horaCierra" class="form-label">Hora de cierre: <span class="text-danger">*</span></label>
+                  <input th:field="*{espacio.horaCierra}" type="time" class="form-control" id="horaCierra" required>
+                </div>
+              </div>
+            </div>
+
+            <!-- Información de contacto -->
+            <div class="row">
+              <div class="col-md-4">
+                <div class="form-group">
+                  <label for="correoContacto" class="form-label">Correo contacto: <span class="text-danger">*</span></label>
+                  <input type="email" th:field="*{espacio.correoContacto}" class="form-control" id="correoContacto" required>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="form-group">
+                  <label for="numContacto" class="form-label">Teléfono contacto: <span class="text-danger">*</span></label>
+                  <input type="tel" th:field="*{espacio.numContacto}" class="form-control" id="numContacto" required>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="form-group">
+                  <label for="costoHorario" class="form-label">Costo por hora (S/.): <span class="text-danger">*</span></label>
+                  <input type="number" step="0.01" th:field="*{espacio.costoHorario}" class="form-control" id="costoHorario" required>
+                </div>
+              </div>
+            </div>
+
+            <!-- Fotos -->
+            <div class="row">
+              <div class="col-md-12">
+                <div class="form-group">
+                  <label for="archivos" class="form-label">Fotos del lugar: <span class="text-danger">*</span></label>
+                  <input class="form-control" type="file" id="archivos" name="archivos" accept="image/*" multiple required>
+                  <small class="form-text text-muted">Seleccione hasta 4 imágenes</small>
+                </div>
+              </div>
+            </div>
+
+            <!-- Campo oculto para el tipo de espacio -->
+            <input type="hidden" th:field="*{espacio.tipoEspacio.id}" id="tipoEspacioId">
+
+            <!-- Campo oculto para URL de Google Maps -->
+            <input type="hidden" th:field="*{espacio.mapsUrl}" id="mapsUrl">
+
+            <!-- Información adicional del espacio -->
+            <div class="row">
+              <div class="col-md-4">
+                <div class="form-group">
+                  <label for="aforo" class="form-label">Aforo: <span class="text-danger">*</span></label>
+                  <input type="number" class="form-control" th:field="*{espacio.aforo}" id="aforo" min="1" required>
+                  <small class="form-text text-muted">Número máximo de personas</small>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="form-group">
+                  <label for="descripcionCorta" class="form-label">Descripción: <span class="text-danger">*</span></label>
+                  <input type="text" class="form-control" th:field="*{espacio.descripcionCorta}" id="descripcionCorta" maxlength="100" required>
+                  <small class="form-text text-muted">Descripción breve (máx. 100 caracteres)</small>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="form-group">
+                  <label for="descripcionLarga" class="form-label">Detalles:</label>
+                  <textarea class="form-control" th:field="*{espacio.descripcionLarga}" id="descripcionLarga" rows="3" maxlength="500" placeholder="Descripción detallada del espacio deportivo"></textarea>
+                  <small class="form-text text-muted">Descripción detallada (máx. 500 caracteres)</small>
+                </div>
+              </div>
+            </div>
+
+            <!-- Campos específicos para PISCINA -->
+            <div id="campoPiscina" style="display: none;">
+              <h5>🏊‍♀️ Configuración de Piscina</h5>
+              <div class="row">
+                <div class="col-md-4">
+                  <div class="form-group">
+                    <label for="tipoPiscina" class="form-label">Tipo de Piscina:</label>
+                    <select th:field="*{piscina.tipoPiscina}" class="form-select" id="tipoPiscina">
+                      <option value="">Seleccione tipo</option>
+                      <option value="Olímpica">Olímpica (50m)</option>
+                      <option value="Semiolímpica">Semiolímpica (25m)</option>
+                      <option value="Recreativa">Recreativa</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="form-group">
+                    <label for="profundidadMin" class="form-label">Profundidad Mín. (m):</label>
+                    <input type="number" step="0.01" th:field="*{piscina.profundidadMin}" class="form-control" id="profundidadMin" placeholder="1.20">
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="form-group">
+                    <label for="profundidadMax" class="form-label">Profundidad Máx. (m):</label>
+                    <input type="number" step="0.01" th:field="*{piscina.profundidadMax}" class="form-control" id="profundidadMax" placeholder="2.00">
+                  </div>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-md-4">
+                  <div class="form-group">
+                    <label class="form-label">¿Climatizada?</label>
+                    <div>
+                      <input type="radio" th:field="*{piscina.climatizada}" value="true" id="climatizadaSi">
+                      <label for="climatizadaSi">Sí</label>
+                      <input type="radio" th:field="*{piscina.climatizada}" value="false" id="climatizadaNo">
+                      <label for="climatizadaNo">No</label>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="form-group">
+                    <label for="numCarrilMax" class="form-label">Número de Carriles:</label>
+                    <input type="number" th:field="*{piscina.numCarrilMax}" class="form-control" id="numCarrilMax"
+                           placeholder="Ej: 8" min="1" max="20">
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="form-group">
+                    <label for="requisitos" class="form-label">Requisitos:</label>
+                    <input type="text" th:field="*{piscina.requisitos}" class="form-control" id="requisitos"
+                           placeholder="Ej: Gorro de baño obligatorio" maxlength="255">
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Campos específicos para CANCHA DE FÚTBOL -->
+            <div id="campoCancha" style="display: none;">
+              <h5>⚽ Configuración de Cancha de Fútbol</h5>
+              <div class="row">
+                <div class="col-md-4">
+                  <div class="form-group">
+                    <label for="tipoSuperficie" class="form-label">Superficie:</label>
+                    <select th:field="*{cancha.tipoSuperficie}" class="form-select" id="tipoSuperficie">
+                      <option value="">Seleccione superficie</option>
+                      <option value="Grass Sintético">Grass Sintético</option>
+                      <option value="Grass Natural">Grass Natural</option>
+                      <option value="Loza">Loza</option>
+                      <option value="Tierra">Tierra</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="form-group">
+                    <label for="ancho" class="form-label">Ancho (metros):</label>
+                    <input type="number" step="0.01" th:field="*{cancha.ancho}" class="form-control" id="ancho" placeholder="68">
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="form-group">
+                    <label for="alto" class="form-label">Largo (metros):</label>
+                    <input type="number" step="0.01" th:field="*{cancha.alto}" class="form-control" id="alto" placeholder="105">
+                  </div>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label class="form-label">¿Iluminación Nocturna?</label>
+                    <div>
+                      <input type="radio" th:field="*{cancha.ilumacionNocturna}" value="true" id="iluminacionSi">
+                      <label for="iluminacionSi">Sí</label>
+                      <input type="radio" th:field="*{cancha.ilumacionNocturna}" value="false" id="iluminacionNo">
+                      <label for="iluminacionNo">No</label>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label class="form-label">¿Balones Disponibles?</label>
+                    <div>
+                      <input type="radio" th:field="*{cancha.balonesDisponibles}" value="true" id="balonesSi">
+                      <label for="balonesSi">⚽ Sí</label>
+                      <input type="radio" th:field="*{cancha.balonesDisponibles}" value="false" id="balonesNo">
+                      <label for="balonesNo">❌ No</label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Campos específicos para PISTA DE ATLETISMO -->
+            <div id="campoPista" style="display: none;">
+              <h5>🏃‍♂️ Configuración de Pista de Atletismo</h5>
+              <div class="row">
+                <div class="col-md-4">
+                  <div class="form-group">
+                    <label for="tipoSuperficiePista" class="form-label">Tipo de Superficie:</label>
+                    <select th:field="*{pista.tipoSuperficie}" class="form-select" id="tipoSuperficiePista">
+                      <option value="">Seleccione superficie</option>
+                      <option value="Concreto">Concreto</option>
+                      <option value="Caucho Sintético">Caucho Sintético</option>
+                      <option value="Tartán">Tartán</option>
+                      <option value="Tierra">Tierra</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="form-group">
+                    <label for="longitud" class="form-label">Longitud (metros):</label>
+                    <input type="number" step="0.01" th:field="*{pista.longitud}" class="form-control" id="longitud" placeholder="400">
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="form-group">
+                    <label for="implementos" class="form-label">Implementos Disponibles:</label>
+                    <input type="text" th:field="*{pista.implementos}" class="form-control" id="implementos" placeholder="Ej: Vallas, postes, cronómetros">
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Campos específicos para ESTADIO -->
+            <div id="campoEstadio" style="display: none;">
+              <h5>🏟️ Configuración de Estadio</h5>
+              <div class="row">
+                <div class="col-md-12">
+                  <div class="form-group">
+                    <label for="usoPermitido" class="form-label">Uso Permitido:</label>
+                    <textarea th:field="*{estadios.usoPermitido}" class="form-control" id="usoPermitido" rows="3"
+                              placeholder="Describa los usos permitidos del estadio (eventos deportivos, conciertos, etc.)"></textarea>
+                  </div>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-md-4">
+                  <div class="form-group">
+                    <label class="form-label">¿Seguridad Disponible?</label>
+                    <div>
+                      <input type="radio" th:field="*{estadios.seguridadDisponible}" value="true" id="seguridadSi">
+                      <label for="seguridadSi">Sí</label>
+                      <input type="radio" th:field="*{estadios.seguridadDisponible}" value="false" id="seguridadNo">
+                      <label for="seguridadNo">No</label>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="form-group">
+                    <label class="form-label">¿Sonido y Pantallas?</label>
+                    <div>
+                      <input type="radio" th:field="*{estadios.sonidoPantallasDisponible}" value="true" id="sonidoSi">
+                      <label for="sonidoSi">Sí</label>
+                      <input type="radio" th:field="*{estadios.sonidoPantallasDisponible}" value="false" id="sonidoNo">
+                      <label for="sonidoNo">No</label>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="form-group">
+                    <label class="form-label">¿Iluminación Profesional?</label>
+                    <div>
+                      <input type="radio" th:field="*{estadios.iluminacionProfesionalDisponible}" value="true" id="iluminacionProfSi">
+                      <label for="iluminacionProfSi">Sí</label>
+                      <input type="radio" th:field="*{estadios.iluminacionProfesionalDisponible}" value="false" id="iluminacionProfNo">
+                      <label for="iluminacionProfNo">No</label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Campos específicos para PISTA DE ATLETISMO -->
+            <div id="campoPista" style="display: none;">
+              <h5>🏃‍♂️ Configuración de Pista de Atletismo</h5>
+              <div class="row">
+                <div class="col-md-4">
+                  <div class="form-group">
+                    <label for="tipoSuperficiePista" class="form-label">Tipo de Superficie:</label>
+                    <select th:field="*{pista.tipoSuperficie}" class="form-select" id="tipoSuperficiePista">
+                      <option value="">Seleccione superficie</option>
+                      <option value="Concreto">Concreto</option>
+                      <option value="Caucho Sintético">Caucho Sintético</option>
+                      <option value="Tartán">Tartán</option>
+                      <option value="Tierra">Tierra</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="form-group">
+                    <label for="longitud" class="form-label">Longitud (metros):</label>
+                    <input type="number" step="0.01" th:field="*{pista.longitud}" class="form-control" id="longitud" placeholder="400">
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="form-group">
+                    <label for="implementos" class="form-label">Implementos Disponibles:</label>
+                    <input type="text" th:field="*{pista.implementos}" class="form-control" id="implementos"
+                           placeholder="Ej: Vallas, postes, cronómetros" maxlength="255">
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Campos específicos para ESTADIO -->
+            <div id="campoEstadio" style="display: none;">
+              <h5>🏟️ Configuración de Estadio</h5>
+              <div class="row">
+                <div class="col-md-12">
+                  <div class="form-group">
+                    <label for="usoPermitido" class="form-label">Uso Permitido:</label>
+                    <textarea th:field="*{estadios.usoPermitido}" class="form-control" id="usoPermitido" rows="3"
+                              placeholder="Describa los usos permitidos del estadio (eventos deportivos, conciertos, etc.)" maxlength="500"></textarea>
+                  </div>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-md-4">
+                  <div class="form-group">
+                    <label class="form-label">¿Seguridad Disponible?</label>
+                    <div>
+                      <input type="radio" th:field="*{estadios.seguridadDisponible}" value="true" id="seguridadSi">
+                      <label for="seguridadSi">Sí</label>
+                      <input type="radio" th:field="*{estadios.seguridadDisponible}" value="false" id="seguridadNo">
+                      <label for="seguridadNo">No</label>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="form-group">
+                    <label class="form-label">¿Sonido y Pantallas?</label>
+                    <div>
+                      <input type="radio" th:field="*{estadios.sonidoPantallasDisponible}" value="true" id="sonidoSi">
+                      <label for="sonidoSi">Sí</label>
+                      <input type="radio" th:field="*{estadios.sonidoPantallasDisponible}" value="false" id="sonidoNo">
+                      <label for="sonidoNo">No</label>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="form-group">
+                    <label class="form-label">¿Iluminación Profesional?</label>
+                    <div>
+                      <input type="radio" th:field="*{estadios.iluminacionProfesionalDisponible}" value="true" id="iluminacionProfSi">
+                      <label for="iluminacionProfSi">Sí</label>
+                      <input type="radio" th:field="*{estadios.iluminacionProfesionalDisponible}" value="false" id="iluminacionProfNo">
+                      <label for="iluminacionProfNo">No</label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Botones -->
+            <div class="row mt-4">
+              <div class="col-md-12">
+                <button type="submit" class="btn btn-primary">Guardar Servicio</button>
+                <a th:href="@{/admin/servicios}" class="btn btn-secondary ms-2">Cancelar</a>
+              </div>
+            </div>
+
+          </form>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <footer class="main-footer">
+    &copy; <script>document.write(new Date().getFullYear())</script> 
+    <a href="https://munisanmiguel.gob.pe/">Municipalidad de San Miguel</a>. 
+    Todos los derechos reservados.
+  </footer>
+
+</div>
+
+<!-- Vendor JS -->
+<script th:src="@{/js/vendors.min.js}"></script>
+<script th:src="@{/js/pages/chat-popup.js}"></script>
+<script th:src="@{/assets/icons/feather-icons/feather.min.js}"></script>
+<script th:src="@{/js/template.js}"></script>
+
+<script>
+  function actualizarTipoEspacio() {
+    const tipoServicio = document.getElementById('tipoServicioSelect').value;
+    const tipoEspacioId = document.getElementById('tipoEspacioId');
+
+    const mapeoTipos = {
+      'piscina': '1',
+      'cancha': '2',
+      'pista': '3',
+      'estadio': '4'
+    };
+
+    if (tipoServicio && mapeoTipos[tipoServicio]) {
+      tipoEspacioId.value = mapeoTipos[tipoServicio];
+    }
+
+    // Ocultar todos los campos específicos
+    document.querySelectorAll('[id^="campo"]').forEach(campo => {
+      campo.style.display = 'none';
+    });
+
+    // Mostrar el campo específico correspondiente
+    if (tipoServicio) {
+      const campoEspecifico = document.getElementById(`campo${tipoServicio.charAt(0).toUpperCase() + tipoServicio.slice(1)}`);
+      if (campoEspecifico) {
+        campoEspecifico.style.display = 'block';
+      }
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', function() {
+    console.log('Página debug cargada correctamente');
+    
+    const tipoServicioSelect = document.getElementById('tipoServicioSelect');
+    if (tipoServicioSelect) {
+      tipoServicioSelect.addEventListener('change', actualizarTipoEspacio);
+    }
+  });
+
+  feather.replace();
+</script>
+
+</body>
+</html>
