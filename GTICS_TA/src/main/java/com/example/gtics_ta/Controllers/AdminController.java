@@ -137,7 +137,7 @@ public class AdminController {
         servicioDTO.setCancha(cancha);
 
         model.addAttribute("tipos", tipoEspacioRepository.findAll());
-        return "admin/agregarservicio";
+        return "admin/agregarservicio_debug";
     }
 
     @PutMapping("/actualizar/{id}")
@@ -192,12 +192,12 @@ public class AdminController {
     public String guardarServicio(@ModelAttribute("servicioDTO") ServicioDTO servicioDTO, @RequestParam("archivos") MultipartFile[] files ){
         // Validar que se hayan subido archivos
         if(files == null || files.length == 0 || files[0].isEmpty()) {
-            return "admin/agregarservicio";
+            return "admin/agregarservicio_debug";
         }
 
         // Validar máximo 4 imágenes
         if(files.length > 4) {
-            return "admin/agregarservicio";
+            return "admin/agregarservicio_debug";
         }
 
         try {
@@ -237,6 +237,16 @@ public class AdminController {
             }
             EspaciosDeportivos espaciosDeportivos = servicioDTO.getEspacio();
             espaciosDeportivos.setListaFotos(listaFotos);
+
+            // Asegurar que el TipoEspacio esté correctamente configurado
+            if(espaciosDeportivos.getTipoEspacio() != null && espaciosDeportivos.getTipoEspacio().getId() != null) {
+                TipoEspacio tipoEspacio = tipoEspacioRepository.findById(espaciosDeportivos.getTipoEspacio().getId()).orElse(null);
+                espaciosDeportivos.setTipoEspacio(tipoEspacio);
+            }
+
+            // Establecer operativo como true por defecto
+            espaciosDeportivos.setOperativo(true);
+
             if(espaciosDeportivos.getTipoEspacio().getId() == 1){
                 Piscinas piscina = servicioDTO.getPiscina();
                 espaciosDeportivosRepository.save(espaciosDeportivos);

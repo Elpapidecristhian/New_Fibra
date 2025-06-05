@@ -94,12 +94,10 @@
                                     <table class="table table-bordered table-striped" id="tablaServicios">
                                         <thead>
                                         <tr>
-
-                                            <th>Tipo de servicio</th>
-                                            <th>Nombre del complejo</th>
-                                            <th>Dirección</th>
-                                            <th>Capacidad</th>
-                                            <th>Contacto</th>
+                                            <th>Tipo de Servicio</th>
+                                            <th>Nombre</th>
+                                            <th>Ubicación</th>
+                                            <th>Aforo</th>
                                             <th>Horario</th>
                                             <th>Opciones</th>
                                         </tr>
@@ -111,11 +109,10 @@
                                             <td th:text="${servicio.nombre}"></td>
                                             <td th:text="${servicio.ubicacion}"></td>
                                             <td th:text="${servicio.aforo != null ? servicio.aforo : '-'}"></td>
-                                            <td th:text="${servicio.correoContacto}"></td>
-                                            <td th:text="${servicio.horaAbre} + ' - ' + ${servicio.horaCierra}"></td>
+                                            <td th:text="${servicio.horaAbre + ' - ' + servicio.horaCierra}"></td>
                                             <td>
                                                 <button type="button"
-                                                        class="btn btn-sm btn-warning"
+                                                        class="btn btn-sm btn-warning me-1"
                                                         title="Editar"
                                                         data-bs-toggle="modal"
                                                         data-bs-target="#modalEditar"
@@ -123,16 +120,21 @@
                                                     <i class="mdi mdi-pencil"></i>
                                                 </button>
 
-                                                <!-- en el botón de eliminar -->
+                                                <button type="button"
+                                                        class="btn btn-sm btn-info me-1"
+                                                        title="Mantenimiento"
+                                                        onclick="abrirMantenimiento(this)">
+                                                    <i class="mdi mdi-wrench"></i>
+                                                </button>
+
                                                 <button type="button"
                                                         class="btn btn-sm btn-danger delete-btn"
                                                         title="Eliminar"
                                                         th:attr="data-id=${servicio.id}"
-                                                data-bs-toggle="modal"
-                                                data-bs-target="#modalEliminar">
-                                                <i class="mdi mdi-delete"></i>
+                                                        data-bs-toggle="modal"
+                                                        data-bs-target="#modalEliminar">
+                                                    <i class="mdi mdi-delete"></i>
                                                 </button>
-
                                             </td>
                                         </tr>
                                         </tbody>
@@ -195,22 +197,22 @@
                         <input type="hidden" id="editId" name="id" />
 
                         <div class="mb-3">
-                            <label for="editTipo" class="form-label">Tipo de servicio</label>
+                            <label for="editTipo" class="form-label">Tipo de Servicio</label>
                             <input type="text" class="form-control" id="editTipo" name="tipoEspacioNombre" readonly>
                         </div>
 
                         <div class="mb-3">
-                            <label for="editNombre" class="form-label">Nombre del complejo</label>
+                            <label for="editNombre" class="form-label">Nombre</label>
                             <input type="text" class="form-control" id="editNombre" name="nombre">
                         </div>
 
                         <div class="mb-3">
-                            <label for="editDireccion" class="form-label">Dirección</label>
+                            <label for="editDireccion" class="form-label">Ubicación</label>
                             <input type="text" class="form-control" id="editDireccion" name="ubicacion">
                         </div>
 
                         <div class="mb-3">
-                            <label for="editCapacidad" class="form-label">Capacidad</label>
+                            <label for="editCapacidad" class="form-label">Aforo</label>
                             <input type="number" class="form-control" id="editCapacidad" name="aforo">
                         </div>
 
@@ -240,6 +242,117 @@
         </div>
     </div>
 
+    <!-- Modal Programar Mantenimiento -->
+    <div class="modal fade" id="modalMantenimiento" tabindex="-1" aria-labelledby="modalMantenimientoLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-info text-white">
+                    <h5 class="modal-title" id="modalMantenimientoLabel">
+                        <i class="mdi mdi-wrench me-2"></i>Programar Mantenimiento
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="formMantenimiento">
+                        <input type="hidden" id="mantenimientoId" name="id" />
+
+                        <!-- Información del servicio (solo lectura) -->
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="mantenimientoTipo" class="form-label">Tipo de Servicio</label>
+                                <input type="text" class="form-control" id="mantenimientoTipo" readonly>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="mantenimientoNombre" class="form-label">Nombre del Lugar</label>
+                                <input type="text" class="form-control" id="mantenimientoNombre" readonly>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="mantenimientoUbicacion" class="form-label">Ubicación</label>
+                            <input type="text" class="form-control" id="mantenimientoUbicacion" readonly>
+                        </div>
+
+                        <!-- Información del mantenimiento -->
+                        <hr>
+                        <h6 class="text-info mb-3">
+                            <i class="mdi mdi-calendar-clock me-2"></i>Detalles del Mantenimiento
+                        </h6>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="fechaMantenimiento" class="form-label">Fecha de Mantenimiento <span class="text-danger">*</span></label>
+                                <input type="date" class="form-control" id="fechaMantenimiento" name="fechaMantenimiento" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="tipoMantenimiento" class="form-label">Tipo de Mantenimiento <span class="text-danger">*</span></label>
+                                <select class="form-select" id="tipoMantenimiento" name="tipoMantenimiento" required>
+                                    <option value="">Seleccione tipo</option>
+                                    <option value="preventivo">🔧 Preventivo</option>
+                                    <option value="correctivo">⚠️ Correctivo</option>
+                                    <option value="limpieza">🧹 Limpieza Profunda</option>
+                                    <option value="inspeccion">🔍 Inspección</option>
+                                    <option value="reparacion">🔨 Reparación</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="horaInicioMantenimiento" class="form-label">Hora de Inicio <span class="text-danger">*</span></label>
+                                <input type="time" class="form-control" id="horaInicioMantenimiento" name="horaInicio" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="horaFinMantenimiento" class="form-label">Hora de Fin <span class="text-danger">*</span></label>
+                                <input type="time" class="form-control" id="horaFinMantenimiento" name="horaFin" required>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="responsableMantenimiento" class="form-label">Responsable <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="responsableMantenimiento" name="responsable"
+                                   placeholder="Nombre del responsable del mantenimiento" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="descripcionMantenimiento" class="form-label">Descripción del Trabajo <span class="text-danger">*</span></label>
+                            <textarea class="form-control" id="descripcionMantenimiento" name="descripcion" rows="3"
+                                      placeholder="Describa las actividades de mantenimiento a realizar..." required></textarea>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="prioridadMantenimiento" class="form-label">Prioridad</label>
+                            <select class="form-select" id="prioridadMantenimiento" name="prioridad">
+                                <option value="baja">🟢 Baja</option>
+                                <option value="media" selected>🟡 Media</option>
+                                <option value="alta">🟠 Alta</option>
+                                <option value="urgente">🔴 Urgente</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="suspenderServicio" name="suspenderServicio">
+                                <label class="form-check-label" for="suspenderServicio">
+                                    <strong>Suspender servicio durante el mantenimiento</strong>
+                                    <small class="text-muted d-block">El servicio no estará disponible para reservas durante este período</small>
+                                </label>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="mdi mdi-close me-1"></i>Cancelar
+                    </button>
+                    <button type="button" class="btn btn-info" onclick="programarMantenimiento()">
+                        <i class="mdi mdi-calendar-check me-1"></i>Programar Mantenimiento
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Add the sidebar's background. This div must be placed immediately after the control sidebar -->
     <div class="control-sidebar-bg"></div>
 
@@ -262,13 +375,127 @@
         document.getElementById('editNombre').value = celdas[1].textContent.trim();
         document.getElementById('editDireccion').value = celdas[2].textContent.trim();
         document.getElementById('editCapacidad').value = celdas[3].textContent.trim() === '-' ? '' : celdas[3].textContent.trim();
-        document.getElementById('editContacto').value = celdas[4].textContent.trim();
 
-        const horario = celdas[5].textContent.trim().split("-");
+        // El horario ahora está en la columna 4 (índice 4)
+        const horario = celdas[4].textContent.trim().split("-");
         document.getElementById('editHoraAbre').value = horario[0].trim();
         document.getElementById('editHoraCierra').value = horario[1].trim();
 
         fila.setAttribute('data-editar', 'true');
+    }
+
+    // Función para abrir el modal de mantenimiento
+    function abrirMantenimiento(boton) {
+        const fila = boton.closest('tr');
+        const celdas = fila.querySelectorAll('td');
+        const id = fila.getAttribute('data-id');
+
+        // Llenar los campos de información del servicio (solo lectura)
+        document.getElementById('mantenimientoId').value = id;
+        document.getElementById('mantenimientoTipo').value = celdas[0].textContent.trim();
+        document.getElementById('mantenimientoNombre').value = celdas[1].textContent.trim();
+        document.getElementById('mantenimientoUbicacion').value = celdas[2].textContent.trim();
+
+        // Limpiar los campos del formulario de mantenimiento
+        document.getElementById('fechaMantenimiento').value = '';
+        document.getElementById('tipoMantenimiento').value = '';
+        document.getElementById('horaInicioMantenimiento').value = '';
+        document.getElementById('horaFinMantenimiento').value = '';
+        document.getElementById('responsableMantenimiento').value = '';
+        document.getElementById('descripcionMantenimiento').value = '';
+        document.getElementById('prioridadMantenimiento').value = 'media';
+        document.getElementById('suspenderServicio').checked = false;
+
+        // Establecer fecha mínima como hoy
+        const hoy = new Date().toISOString().split('T')[0];
+        document.getElementById('fechaMantenimiento').min = hoy;
+
+        // Abrir el modal
+        const modal = new bootstrap.Modal(document.getElementById('modalMantenimiento'));
+        modal.show();
+    }
+
+    // Función para programar el mantenimiento
+    function programarMantenimiento() {
+        // Validar campos requeridos
+        const campos = {
+            fecha: document.getElementById('fechaMantenimiento').value,
+            tipo: document.getElementById('tipoMantenimiento').value,
+            horaInicio: document.getElementById('horaInicioMantenimiento').value,
+            horaFin: document.getElementById('horaFinMantenimiento').value,
+            responsable: document.getElementById('responsableMantenimiento').value.trim(),
+            descripcion: document.getElementById('descripcionMantenimiento').value.trim()
+        };
+
+        // Validaciones
+        if (!campos.fecha) {
+            alert('Por favor seleccione la fecha del mantenimiento');
+            return;
+        }
+
+        if (!campos.tipo) {
+            alert('Por favor seleccione el tipo de mantenimiento');
+            return;
+        }
+
+        if (!campos.horaInicio || !campos.horaFin) {
+            alert('Por favor ingrese las horas de inicio y fin');
+            return;
+        }
+
+        if (campos.horaInicio >= campos.horaFin) {
+            alert('La hora de fin debe ser posterior a la hora de inicio');
+            return;
+        }
+
+        if (!campos.responsable) {
+            alert('Por favor ingrese el nombre del responsable');
+            return;
+        }
+
+        if (!campos.descripcion) {
+            alert('Por favor describa el trabajo a realizar');
+            return;
+        }
+
+        // Recopilar todos los datos
+        const datosMantenimiento = {
+            servicioId: document.getElementById('mantenimientoId').value,
+            servicioNombre: document.getElementById('mantenimientoNombre').value,
+            servicioTipo: document.getElementById('mantenimientoTipo').value,
+            servicioUbicacion: document.getElementById('mantenimientoUbicacion').value,
+            fecha: campos.fecha,
+            tipo: campos.tipo,
+            horaInicio: campos.horaInicio,
+            horaFin: campos.horaFin,
+            responsable: campos.responsable,
+            descripcion: campos.descripcion,
+            prioridad: document.getElementById('prioridadMantenimiento').value,
+            suspenderServicio: document.getElementById('suspenderServicio').checked
+        };
+
+        // Por ahora mostrar los datos (después puedes enviar al servidor)
+        console.log('📋 Mantenimiento programado:', datosMantenimiento);
+
+        // Mostrar confirmación
+        const tipoTexto = document.getElementById('tipoMantenimiento').selectedOptions[0].textContent;
+        const prioridadTexto = document.getElementById('prioridadMantenimiento').selectedOptions[0].textContent;
+
+        alert(`✅ Mantenimiento programado exitosamente!\n\n` +
+              `🏢 Servicio: ${datosMantenimiento.servicioNombre}\n` +
+              `📅 Fecha: ${datosMantenimiento.fecha}\n` +
+              `⏰ Horario: ${datosMantenimiento.horaInicio} - ${datosMantenimiento.horaFin}\n` +
+              `🔧 Tipo: ${tipoTexto}\n` +
+              `⚡ Prioridad: ${prioridadTexto}\n` +
+              `👤 Responsable: ${datosMantenimiento.responsable}\n` +
+              `${datosMantenimiento.suspenderServicio ? '⚠️ Servicio suspendido durante mantenimiento' : '✅ Servicio disponible durante mantenimiento'}`);
+
+        // Cerrar el modal
+        const modal = bootstrap.Modal.getInstance(document.getElementById('modalMantenimiento'));
+        modal.hide();
+
+        // TODO: Aquí puedes agregar la llamada al servidor para guardar el mantenimiento
+        // fetch('/admin/programar-mantenimiento', { ... })
     }
 
     function guardarCambios() {
@@ -310,13 +537,12 @@
 
                 const acciones = fila.querySelector('td:last-child').innerHTML;
 
-                // Reemplazar datos de la fila
+                // Reemplazar datos de la fila (sin columna de contacto)
                 row.data([
                     data.tipoEspacio.nombre,
                     data.nombre,
                     data.ubicacion,
                     data.aforo !== null ? data.aforo : '-',
-                    data.correoContacto,
                     `${data.horaAbre} - ${data.horaCierra}`,
                     acciones
                 ]).draw(false);

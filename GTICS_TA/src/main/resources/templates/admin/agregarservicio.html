@@ -17,23 +17,11 @@
   <link rel="stylesheet" th:href="@{/css/style.css}">
   <link rel="stylesheet" th:href="@{/css/skin_color.css}">
 
-  <!-- Google Maps API (Principal) -->
-  <script async defer
-    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB41DRUbKWJHPxaFjMAwdrzWzbVKartNGg&libraries=places&callback=initGoogleMaps&loading=async"
-    onerror="initFallbackMap()"></script>
+  <!-- Mapas temporalmente deshabilitados para debugging -->
 
-  <!-- Leaflet CSS para mapa de respaldo -->
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
-        crossorigin=""/>
-
-  <!-- Leaflet JS para mapa de respaldo -->
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-          integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
-          crossorigin=""></script>
-
-  <!-- Estilos para el mapa y controles -->
+  <!-- Estilos para mapas y campos dinámicos -->
   <style>
+    /* Estilos del mapa */
     #mapContainer {
       display: none;
       margin-top: 15px;
@@ -74,10 +62,6 @@
       box-shadow: 0 4px 12px rgba(0,123,255,0.3);
     }
 
-    .map-toggle-btn i {
-      font-size: 16px;
-    }
-
     .location-input-group {
       display: flex;
       gap: 10px;
@@ -104,10 +88,81 @@
       color: #856404;
     }
 
-    .map-status.error {
-      border-left-color: #dc3545;
-      background: #f8d7da;
-      color: #721c24;
+    /* Estilos para campos dinámicos */
+    .campos-especificos {
+      display: none;
+      margin-top: 20px;
+      padding: 20px;
+      border: 1px solid #e3e6f0;
+      border-radius: 8px;
+      background: #f8f9fa;
+    }
+
+    .campos-especificos.active {
+      display: block;
+      animation: fadeIn 0.3s ease-in;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .tipo-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 15px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid #dee2e6;
+    }
+
+    .tipo-icon {
+      font-size: 24px;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      color: white;
+    }
+
+    .tipo-piscina { background: #17a2b8; }
+    .tipo-cancha { background: #28a745; }
+    .tipo-pista { background: #ffc107; color: #212529 !important; }
+    .tipo-estadio { background: #dc3545; }
+
+    .radio-group {
+      display: flex;
+      gap: 15px;
+      flex-wrap: wrap;
+    }
+
+    .radio-option {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 15px;
+      border: 2px solid #dee2e6;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      background: white;
+    }
+
+    .radio-option:hover {
+      border-color: #007bff;
+      background: #f8f9fa;
+    }
+
+    .radio-option.selected {
+      border-color: #007bff;
+      background: #e3f2fd;
+    }
+
+    .radio-option input[type="radio"] {
+      margin: 0;
     }
   </style>
 </head>
@@ -138,12 +193,12 @@
         </ul>
       </div>
 
-      <div th:replace="fragments :: navbarAdmin"></div>
+      <div th:replace="~{fragments :: navbarAdmin}"></div>
     </nav>
   </header>
 
   <!-- Left side column. contains the logo and sidebar -->
-  <aside th:replace="fragments :: sideBarAdmin"></aside>
+  <aside th:replace="~{fragments :: sideBarAdmin}"></aside>
 
   <!-- Content Wrapper. Contains page content -->
   <div class="content-wrapper">
@@ -166,321 +221,401 @@
           <h6 class="box-subtitle">Complete el formulario con los datos del nuevo servicio.</h6>
         </div>
         <!-- /.box-header -->
-        <div class="box-body wizard-content">
-          <form th:action="@{/admin/guardarservicio}" th:object="${servicioDTO}" method="post" enctype="multipart/form-data" class="validation-wizard wizard-circle">
-            <!-- Step 1 -->
-            <h6>Datos Principales</h6>
-            <section>
-              <!-- Nombre del lugar -->
+        <div class="box-body">
+          <form th:action="@{/admin/guardarservicio}" th:object="${servicioDTO}" method="post" enctype="multipart/form-data">
+            
+            <!-- Nombre del lugar -->
+            <div class="row">
+              <div class="col-md-12">
+                <div class="form-group">
+                  <label for="nombreLugar" class="form-label">Nombre del lugar: <span class="text-danger">*</span></label>
+                  <input type="text" th:field="*{espacio.nombre}" class="form-control" id="nombreLugar"
+                         placeholder="Ej: Complejo Deportivo San Miguel" required>
+                </div>
+              </div>
+            </div>
+
+            <!-- Ubicación -->
+            <div class="row">
+              <div class="col-md-12">
+                <div class="form-group">
+                  <label for="ubicacionInput" class="form-label">Ubicación: <span class="text-danger">*</span></label>
+                  <input type="text" th:field="*{espacio.ubicacion}" class="form-control" id="ubicacionInput"
+                         placeholder="Ingrese la dirección en San Miguel..." required>
+                  <small class="form-text text-muted">Escriba la dirección completa del lugar en San Miguel</small>
+                </div>
+              </div>
+            </div>
+
+            <!-- Tipo de servicio y Horarios -->
+            <div class="row">
+              <div class="col-md-4">
+                <div class="form-group">
+                  <label for="tipoServicioSelect" class="form-label">Tipo de servicio: <span class="text-danger">*</span></label>
+                  <select class="form-select" id="tipoServicioSelect" onchange="actualizarTipoEspacio()" required>
+                    <option value="" disabled selected>Seleccione el tipo</option>
+                    <option value="piscina">Piscina</option>
+                    <option value="cancha">Cancha de Fútbol</option>
+                    <option value="pista">Pista de Atletismo</option>
+                    <option value="estadio">Estadio</option>
+                  </select>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="form-group">
+                  <label for="horaAbre" class="form-label">Hora de apertura: <span class="text-danger">*</span></label>
+                  <input th:field="*{espacio.horaAbre}" type="time" class="form-control" id="horaAbre" required>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="form-group">
+                  <label for="horaCierra" class="form-label">Hora de cierre: <span class="text-danger">*</span></label>
+                  <input th:field="*{espacio.horaCierra}" type="time" class="form-control" id="horaCierra" required>
+                </div>
+              </div>
+            </div>
+
+            <!-- Aforo y Fotos -->
+            <div class="row">
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label for="aforo" class="form-label">Aforo máximo:</label>
+                  <input type="number" th:field="*{espacio.aforo}" class="form-control" id="aforo"
+                         placeholder="Número de personas" min="1">
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label for="archivos" class="form-label">Fotos del lugar: <span class="text-danger">*</span></label>
+                  <input class="form-control" type="file" id="archivos" name="archivos"
+                         accept="image/*" multiple required>
+                  <small class="form-text text-muted">
+                    Seleccione hasta 4 imágenes • Formatos: JPG, PNG, GIF • Máx. 5MB cada una
+                  </small>
+                </div>
+              </div>
+            </div>
+
+            <!-- Descripciones -->
+            <div class="row">
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label for="desCorta" class="form-label">Descripción corta:</label>
+                  <textarea th:field="*{espacio.descripcionCorta}" class="form-control" id="desCorta" rows="3"
+                            placeholder="Descripción breve del lugar (máx. 100 caracteres)" maxlength="100"></textarea>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label for="desLarga" class="form-label">Descripción detallada:</label>
+                  <textarea th:field="*{espacio.descripcionLarga}" class="form-control" id="desLarga" rows="3"
+                            placeholder="Descripción detallada del lugar, servicios e instalaciones"></textarea>
+                </div>
+              </div>
+            </div>
+
+            <!-- Información de Contacto -->
+            <div class="row">
+              <div class="col-md-4">
+                <div class="form-group">
+                  <label for="correoContacto" class="form-label">Correo de contacto: <span class="text-danger">*</span></label>
+                  <input type="email" th:field="*{espacio.correoContacto}" class="form-control" id="correoContacto"
+                         placeholder="contacto@ejemplo.com" required>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="form-group">
+                  <label for="numContacto" class="form-label">Número de contacto: <span class="text-danger">*</span></label>
+                  <input type="tel" th:field="*{espacio.numContacto}" class="form-control" id="numContacto"
+                         placeholder="999999999" pattern="[0-9]{9}" maxlength="9" required>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="form-group">
+                  <label for="costoHorario" class="form-label">Costo por hora (S/.): <span class="text-danger">*</span></label>
+                  <input type="number" step="0.01" th:field="*{espacio.costoHorario}" class="form-control" id="costoHorario"
+                         placeholder="0.00" min="0" required>
+                </div>
+              </div>
+            </div>
+
+            <!-- Campo oculto para el tipo de espacio -->
+            <input type="hidden" th:field="*{espacio.tipoEspacio.id}" id="tipoEspacioId">
+
+            <!-- Campos específicos para PISCINA -->
+            <div id="campoPiscina" class="campos-especificos">
+              <div class="tipo-header">
+                <div class="tipo-icon tipo-piscina">
+                  <i class="fas fa-swimmer"></i>
+                </div>
+                <div>
+                  <h5 class="mb-1">Configuración de Piscina</h5>
+                  <small class="text-muted">Complete los datos específicos para la piscina</small>
+                </div>
+              </div>
+
               <div class="row">
-                <div class="col-md-12">
+                <div class="col-md-4">
                   <div class="form-group">
-                    <label for="nombreLugar" class="form-label">Nombre del lugar: <span class="danger">*</span></label>
-                    <input type="text" th:field="*{espacio.nombre}" class="form-control required" id="nombreLugar"
-                           placeholder="Ej: Complejo Deportivo San Miguel">
+                    <label for="tipoPiscina" class="form-label">Tipo de Piscina: <span class="text-danger">*</span></label>
+                    <select th:field="*{piscina.tipoPiscina}" class="form-select" id="tipoPiscina">
+                      <option value="">Seleccione tipo</option>
+                      <option value="Olímpica">Olímpica (50m)</option>
+                      <option value="Semiolímpica">Semiolímpica (25m)</option>
+                      <option value="Recreativa">Recreativa</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="form-group">
+                    <label for="profundidadMin" class="form-label">Profundidad Mínima (m): <span class="text-danger">*</span></label>
+                    <input type="number" step="0.01" th:field="*{piscina.profundidadMin}" class="form-control" id="profundidadMin" placeholder="1.20">
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="form-group">
+                    <label for="profundidadMax" class="form-label">Profundidad Máxima (m): <span class="text-danger">*</span></label>
+                    <input type="number" step="0.01" th:field="*{piscina.profundidadMax}" class="form-control" id="profundidadMax" placeholder="2.00">
                   </div>
                 </div>
               </div>
 
-              <!-- Ubicación con búsqueda -->
               <div class="row">
-                <div class="col-md-12">
+                <div class="col-md-4">
                   <div class="form-group">
-                    <label for="ubicacionInput" class="form-label">Ubicación: <span class="danger">*</span></label>
-                    <div class="location-input-group">
-                      <input type="text" th:field="*{espacio.ubicacion}" class="form-control required" id="ubicacionInput"
-                             placeholder="Buscar dirección en San Miguel..." onchange="buscarDireccion()">
-                      <button type="button" class="map-toggle-btn" onclick="toggleMap()">
-                        <i class="fas fa-map-marker-alt"></i>
-                        <span id="mapToggleText">Mostrar en mapa</span>
-                      </button>
+                    <label class="form-label">¿Climatizada? <span class="text-danger">*</span></label>
+                    <div class="radio-group">
+                      <label class="radio-option">
+                        <input type="radio" th:field="*{piscina.climatizada}" value="true" name="climatizada">
+                        <i class="fas fa-check text-success"></i> Sí
+                      </label>
+                      <label class="radio-option">
+                        <input type="radio" th:field="*{piscina.climatizada}" value="false" name="climatizada">
+                        <i class="fas fa-times text-danger"></i> No
+                      </label>
                     </div>
-                    <small class="form-text text-muted">Escriba la dirección y use el botón para verificar en el mapa</small>
-                    <div id="mapStatus" class="map-status" style="display: none;">
-                      <i class="fas fa-info-circle"></i> <span id="mapStatusText">Cargando sistema de mapas...</span>
-                    </div>
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="form-group">
+                    <label for="numCarrilMax" class="form-label">Número de Carriles: <span class="text-danger">*</span></label>
+                    <select th:field="*{piscina.numCarrilMax}" class="form-select" id="numCarrilMax">
+                      <option value="">Seleccione</option>
+                      <option value="4">4 carriles</option>
+                      <option value="6">6 carriles</option>
+                      <option value="8">8 carriles</option>
+                      <option value="10">10 carriles</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="form-group">
+                    <label for="requisitos" class="form-label">Requisitos: <span class="text-danger">*</span></label>
+                    <input type="text" th:field="*{piscina.requisitos}" class="form-control" id="requisitos" placeholder="Ej: Gorro de baño obligatorio">
                   </div>
                 </div>
               </div>
+            </div>
 
-              <!-- Contenedor del mapa (oculto por defecto) -->
-              <div class="row">
-                <div class="col-md-12">
-                  <div id="mapContainer">
-                    <div id="map"></div>
-                    <div style="padding: 10px; background: #f8f9fa; border-top: 1px solid #dee2e6;">
-                      <small class="text-muted">
-                        <i class="fas fa-hand-pointer"></i> Puede hacer clic en el mapa o arrastrar el marcador para ajustar la ubicación exacta
-                      </small>
-                    </div>
-                  </div>
+            <!-- Campos específicos para CANCHA DE FÚTBOL -->
+            <div id="campoCancha" class="campos-especificos">
+              <div class="tipo-header">
+                <div class="tipo-icon tipo-cancha">
+                  <i class="fas fa-futbol"></i>
                 </div>
-              </div>
-
-              <!-- Horarios -->
-              <div class="row">
-                <div class="col-md-6">
-                  <div class="form-group">
-                    <label for="horaAbre" class="form-label">Hora de apertura: <span class="danger">*</span></label>
-                    <input th:field="*{espacio.horaAbre}" type="time" class="form-control required" id="horaAbre">
-                  </div>
-                </div>
-                <div class="col-md-6">
-                  <div class="form-group">
-                    <label for="horaCierra" class="form-label">Hora de cierre: <span class="danger">*</span></label>
-                    <input th:field="*{espacio.horaCierra}" type="time" class="form-control required" id="horaCierra">
-                  </div>
-                </div>
-              </div>
-
-              <!-- Aforo -->
-              <div class="row">
-                <div class="col-md-6">
-                  <div class="form-group">
-                    <label for="aforo" class="form-label">Aforo máximo:</label>
-                    <input type="number" th:field="*{espacio.aforo}" class="form-control" id="aforo"
-                           placeholder="Número de personas" min="1">
-                  </div>
-                </div>
-                <div class="col-md-6">
-                  <div class="form-group file-input-enhanced">
-                    <label for="archivos" class="form-label">Fotos del lugar: <span class="danger">*</span></label>
-                    <input class="form-control required" type="file" id="archivos" name="archivos"
-                           accept="image/*" multiple onchange="previewMultipleImages(this)" max="4">
-                    <small class="form-text text-muted">
-                      <i class="fas fa-info-circle text-info"></i>
-                      <strong>Seleccione hasta 4 imágenes</strong> • Formatos: JPG, PNG, GIF • Máx. 5MB cada una
-                    </small>
-                    <div id="fileCount" class="mt-2" style="display: none;">
-                      <span class="badge badge-success">
-                        <i class="fas fa-images"></i> <span id="fileCountText">0</span> imagen(es) seleccionada(s)
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Preview de imágenes múltiples -->
-              <div class="row">
-                <div class="col-md-12">
-                  <div id="imagePreviewContainer" style="display: none;">
-                    <label class="form-label">
-                      <i class="fas fa-eye"></i> Vista previa de las imágenes:
-                    </label>
-                    <div id="imagePreviewGrid" class="image-preview-grid">
-                      <!-- Las previsualizaciones se generarán dinámicamente aquí -->
-                    </div>
-                    <small class="form-text text-muted mt-2">
-                      <i class="fas fa-lightbulb"></i>
-                      Puede hacer clic en el ícono ❌ para eliminar una imagen específica
-                    </small>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Descripciones -->
-              <div class="row">
-                <div class="col-md-6">
-                  <div class="form-group">
-                    <label for="desCorta" class="form-label">Descripción corta:</label>
-                    <textarea th:field="*{espacio.descripcionCorta}" class="form-control" id="desCorta" rows="3"
-                              placeholder="Descripción breve del lugar (máx. 100 caracteres)" maxlength="100"></textarea>
-                  </div>
-                </div>
-                <div class="col-md-6">
-                  <div class="form-group">
-                    <label for="desLarga" class="form-label">Descripción detallada:</label>
-                    <textarea th:field="*{espacio.descripcionLarga}" class="form-control" id="desLarga" rows="3"
-                              placeholder="Descripción detallada del lugar, servicios e instalaciones"></textarea>
-                  </div>
-                </div>
-              </div>
-            </section>
-            <!-- Step 2 -->
-            <h6>Información de Contacto y Servicio</h6>
-            <section>
-              <div class="row">
-                <div class="col-md-6">
-                  <div class="form-group">
-                    <label for="correoContacto" class="form-label">Correo de contacto: <span class="danger">*</span></label>
-                    <input type="email" th:field="*{espacio.correoContacto}" class="form-control required" id="correoContacto"
-                           placeholder="contacto@ejemplo.com">
-                  </div>
-                </div>
-                <div class="col-md-6">
-                  <div class="form-group">
-                    <label for="numContacto" class="form-label">Número de contacto: <span class="danger">*</span></label>
-                    <input type="tel" th:field="*{espacio.numContacto}" class="form-control required" id="numContacto"
-                           placeholder="999999999" pattern="[0-9]{9}" maxlength="9">
-                  </div>
+                <div>
+                  <h5 class="mb-1">Configuración de Cancha de Fútbol</h5>
+                  <small class="text-muted">Complete los datos específicos para la cancha</small>
                 </div>
               </div>
 
               <div class="row">
-                <div class="col-md-6">
+                <div class="col-md-4">
                   <div class="form-group">
-                    <label for="costoHorario" class="form-label">Costo por hora (S/.): <span class="danger">*</span></label>
-                    <input type="number" step="0.01" th:field="*{espacio.costoHorario}" class="form-control required" id="costoHorario"
-                           placeholder="0.00" min="0">
-                  </div>
-                </div>
-                <div class="col-md-6">
-                  <div class="form-group">
-                    <label for="tipoEspacioId" class="form-label">Tipo de servicio: <span class="danger">*</span></label>
-                    <select th:field="*{espacio.tipoEspacio.id}" class="form-select required" id="tipoEspacioId" onchange="mostrarCampos()">
-                      <option value="" disabled selected>Seleccione el tipo de servicio</option>
-                      <option th:each="tipo : ${tipos}"
-                              th:value="${tipo.id}"
-                              th:text="${tipo.nombre}">
-                      </option>
-                    </select>
-                  </div>
-                </div>
-              </div>
-
-              <div class="row">
-                <div class="col-md-12">
-                  <div class="form-group">
-                    <label for="mapsUrl" class="form-label">URL de Google Maps (opcional):</label>
-                    <input type="url" th:field="*{espacio.mapsUrl}" class="form-control" id="mapsUrl"
-                           placeholder="https://maps.google.com/..." readonly>
-                    <small class="form-text text-muted">Se generará automáticamente basado en la ubicación seleccionada</small>
-                  </div>
-                </div>
-              </div>
-            </section>
-            <!-- Step 3 -->
-            <h6>Datos Particulares</h6>
-            <section>
-              <div id="campoPiscina">
-                <div class="row">
-                  <div class="col-md-6">
-                    <label for="tipoPiscina" class="form-label"> Tipo de Piscina:<span class="danger">*</span> </label>
-                    <select th:field="*{piscina.tipoPiscina}" class="form-select required" id="tipoPiscina">
-                      <option value="Olímpica">Olímpica</option>
-                      <option value="Publica">Pública</option>
-                    </select>
-                  </div>
-                  <div class="col-md-6">
-                    <label for="requisitos" class="form-label"> Requisitos:<span class="danger">*</span> </label>
-                    <input type="text" th:field="*{piscina.requisitos}" class="form-control required" id="requisitos">
-                  </div>
-                </div>
-                <div class="row">
-                  <div class="col-md-6">
-                    <label for="profundidadMin" class="form-label"> Profundidad Mínima:<span class="danger">*</span> </label>
-                    <input type="number" step="any" th:field="*{piscina.profundidadMin}" class="form-control required" id="profundidadMin">
-                  </div>
-                  <div class="col-md-6">
-                    <label for="profundidadMax" class="form-label"> Profundidad Máxima:<span class="danger">*</span> </label>
-                    <input type="number" step="any" th:field="*{piscina.profundidadMax}" class="form-control required" id="profundidadMax">
-                  </div>
-                </div>
-                <div class="row">
-                  <div class="col-md-6">
-                    <label for="climatizada" class="form-label"> Climatizada:<span class="danger">*</span> </label>
-                    <select th:field="*{piscina.climatizada}" class="form-select required" id="climatizada">
-                      <option value="1">Sí</option>
-                      <option value="0">No</option>
-                    </select>
-                  </div>
-                  <div class="col-md-6">
-                    <label for="numCarrilMax" class="form-label"> Número de Carriles:<span class="danger">*</span> </label>
-                    <input type="number" th:field="*{piscina.numCarrilMax}" class="form-control required" id="numCarrilMax">
-                  </div>
-                </div>
-              </div>
-              <div id="campoCancha">
-                <div class="row">
-                  <div class="col-md-6">
-                    <label for="tipoSuperficie" class="form-label"> Tipo de Superficie:<span class="danger">*</span> </label>
-                    <select th:field="*{cancha.tipoSuperficie}" class="form-select required" id="tipoSuperficie">
-                      <option value="Losa">Losa</option>
-                      <option value="Grass">Grass</option>
-                    </select>
-                  </div>
-                  <div class="col-md-6">
-                    <label for="balones" class="form-label"> Balones Disponibles:<span class="danger">*</span> </label>
-                    <select th:field="*{cancha.balonesDisponibles}" class="form-select required" id="balones">
-                      <option value="1">Sí</option>
-                      <option value="0">No</option>
-                    </select>
-                </div>
-                </div>
-                <div class="row">
-                  <div class="col-md-6">
-                    <label for="ancho" class="form-label"> Ancho del Campo:<span class="danger">*</span> </label>
-                    <input type="number" step="any" th:field="*{cancha.ancho}" class="form-control required" id="ancho">
-                  </div>
-                  <div class="col-md-6">
-                    <label for="alto" class="form-label"> Alto del Campo:<span class="danger">*</span> </label>
-                    <input type="number" step="any" th:field="*{cancha.alto}" class="form-control required" id="alto">
-                  </div>
-                </div>
-                <div class="row">
-                  <div class="col-md-6">
-                    <label for="iluminacionNocturna" class="form-label"> Iluminación Nocturna:<span class="danger">*</span> </label>
-                    <select th:field="*{cancha.ilumacionNocturna}" class="form-select required" id="iluminacionNocturna">
-                      <option value="1">Sí</option>
-                      <option value="0">No</option>
-                    </select>
-                  </div>
-                </div>
-              </div>
-              <div id="campoEstadio">
-                <div class="row">
-                  <div class="col-md-6">
-                    <label for="usoPermitido" class="form-label"> Uso Permitido:<span class="danger">*</span> </label>
-                    <input type="text" th:field="*{estadios.usoPermitido}" class="form-control required" id="usoPermitido">
-                  </div>
-                  <div class="col-md-6">
-                    <label for="seguridadDisponible" class="form-label"> Seguridad Disponible:<span class="danger">*</span> </label>
-                    <select th:field="*{estadios.seguridadDisponible}" class="form-select required" id="seguridadDisponible">
-                      <option value="1">Sí</option>
-                      <option value="0">No</option>
-                    </select>
-                  </div>
-                </div>
-                <div class="row">
-                  <div class="col-md-6">
-                    <label for="sonidosPantallasDisponible" class="form-label"> Equipos de Sonido y Pantallas Disponibles:<span class="danger">*</span> </label>
-                    <select th:field="*{estadios.sonidoPantallasDisponible}" class="form-select required" id="sonidosPantallasDisponible">
-                      <option value="1">Sí</option>
-                      <option value="0">No</option>
-                    </select>
-                  </div>
-                  <div class="col-md-6">
-                    <label for="iluminacionProfesionalDisponible" class="form-label"> Iluminación Profesional Disponible:<span class="danger">*</span> </label>
-                    <select th:field="*{estadios.iluminacionProfesionalDisponible}" class="form-select required" id="iluminacionProfesionalDisponible">
-                      <option value="1">Sí</option>
-                      <option value="0">No</option>
-                    </select>
-                  </div>
-                </div>
-              </div>
-              <div id="campoPista">
-                <div class="row">
-                  <div class="col-md-6">
-                    <label for="tipoSuperficiePista" class="form-label"> Tipo de Superficie:<span class="danger">*</span> </label>
-                    <select th:field="*{pista.tipoSuperficie}" class="form-select required" id="tipoSuperficiePista">
-                      <option value="Tartan">Tartan</option>
-                      <option value="Asfalto">Asfalto</option>
+                    <label for="tipoSuperficie" class="form-label">Superficie: <span class="text-danger">*</span></label>
+                    <select th:field="*{cancha.tipoSuperficie}" class="form-select" id="tipoSuperficie">
+                      <option value="">Seleccione superficie</option>
+                      <option value="Grass Sintético">Grass Sintético</option>
+                      <option value="Grass Natural">Grass Natural</option>
+                      <option value="Loza">Loza</option>
                       <option value="Tierra">Tierra</option>
                     </select>
                   </div>
-                  <div class="col-md-6">
-                    <label for="longitud" class="form-label"> Longitud:<span class="danger">*</span> </label>
-                    <input type="number" step="any" th:field="*{pista.longitud}" class="form-control required" id="longitud">
+                </div>
+                <div class="col-md-4">
+                  <div class="form-group">
+                    <label for="ancho" class="form-label">Ancho (metros): <span class="text-danger">*</span></label>
+                    <input type="number" step="0.01" th:field="*{cancha.ancho}" class="form-control" id="ancho" placeholder="68">
                   </div>
                 </div>
-                <div class="row">
-                  <div class="col-md-6">
-                    <label for="implementos" class="form-label"> Implementos:<span class="danger">*</span> </label>
-                    <input type="text" th:field="*{pista.implementos}" class="form-control required" id="implementos">
+                <div class="col-md-4">
+                  <div class="form-group">
+                    <label for="alto" class="form-label">Largo (metros): <span class="text-danger">*</span></label>
+                    <input type="number" step="0.01" th:field="*{cancha.alto}" class="form-control" id="alto" placeholder="105">
                   </div>
                 </div>
               </div>
-            </section>
+
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label class="form-label">¿Iluminación Nocturna? <span class="text-danger">*</span></label>
+                    <div class="radio-group">
+                      <label class="radio-option">
+                        <input type="radio" th:field="*{cancha.ilumacionNocturna}" value="true" name="iluminacion">
+                        <i class="fas fa-lightbulb text-warning"></i> Sí
+                      </label>
+                      <label class="radio-option">
+                        <input type="radio" th:field="*{cancha.ilumacionNocturna}" value="false" name="iluminacion">
+                        <i class="fas fa-moon text-dark"></i> No
+                      </label>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label class="form-label">¿Balones Disponibles? <span class="text-danger">*</span></label>
+                    <div class="radio-group">
+                      <label class="radio-option">
+                        <input type="radio" th:field="*{cancha.balonesDisponibles}" value="true" name="balones">
+                        <i class="fas fa-futbol text-success"></i> Sí
+                      </label>
+                      <label class="radio-option">
+                        <input type="radio" th:field="*{cancha.balonesDisponibles}" value="false" name="balones">
+                        <i class="fas fa-times text-danger"></i> No
+                      </label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Campos específicos para PISTA DE ATLETISMO -->
+            <div id="campoPista" class="campos-especificos">
+              <div class="tipo-header">
+                <div class="tipo-icon tipo-pista">
+                  <i class="fas fa-running"></i>
+                </div>
+                <div>
+                  <h5 class="mb-1">Configuración de Pista de Atletismo</h5>
+                  <small class="text-muted">Complete los datos específicos para la pista</small>
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="col-md-4">
+                  <div class="form-group">
+                    <label for="tipoSuperficiePista" class="form-label">Tipo de Superficie: <span class="text-danger">*</span></label>
+                    <select th:field="*{pista.tipoSuperficie}" class="form-select" id="tipoSuperficiePista">
+                      <option value="">Seleccione superficie</option>
+                      <option value="Concreto">Concreto</option>
+                      <option value="Caucho Sintético">Caucho Sintético</option>
+                      <option value="Tartán">Tartán</option>
+                      <option value="Tierra">Tierra</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="form-group">
+                    <label for="longitud" class="form-label">Longitud (metros): <span class="text-danger">*</span></label>
+                    <input type="number" step="0.01" th:field="*{pista.longitud}" class="form-control" id="longitud" placeholder="400">
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="form-group">
+                    <label for="implementos" class="form-label">Implementos Disponibles: <span class="text-danger">*</span></label>
+                    <input type="text" th:field="*{pista.implementos}" class="form-control" id="implementos" placeholder="Ej: Vallas, postes, cronómetros">
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Campos específicos para ESTADIO -->
+            <div id="campoEstadio" class="campos-especificos">
+              <div class="tipo-header">
+                <div class="tipo-icon tipo-estadio">
+                  <i class="fas fa-building"></i>
+                </div>
+                <div>
+                  <h5 class="mb-1">Configuración de Estadio</h5>
+                  <small class="text-muted">Complete los datos específicos para el estadio</small>
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="col-md-12">
+                  <div class="form-group">
+                    <label for="usoPermitido" class="form-label">Uso Permitido: <span class="text-danger">*</span></label>
+                    <textarea th:field="*{estadios.usoPermitido}" class="form-control" id="usoPermitido" rows="3"
+                              placeholder="Describa los usos permitidos del estadio (eventos deportivos, conciertos, etc.)"></textarea>
+                  </div>
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="col-md-4">
+                  <div class="form-group">
+                    <label class="form-label">¿Seguridad Disponible? <span class="text-danger">*</span></label>
+                    <div class="radio-group">
+                      <label class="radio-option">
+                        <input type="radio" th:field="*{estadios.seguridadDisponible}" value="true" name="seguridad">
+                        <i class="fas fa-shield-alt text-success"></i> Sí
+                      </label>
+                      <label class="radio-option">
+                        <input type="radio" th:field="*{estadios.seguridadDisponible}" value="false" name="seguridad">
+                        <i class="fas fa-times text-danger"></i> No
+                      </label>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="form-group">
+                    <label class="form-label">¿Sonido y Pantallas? <span class="text-danger">*</span></label>
+                    <div class="radio-group">
+                      <label class="radio-option">
+                        <input type="radio" th:field="*{estadios.sonidoPantallasDisponible}" value="true" name="sonido">
+                        <i class="fas fa-volume-up text-primary"></i> Sí
+                      </label>
+                      <label class="radio-option">
+                        <input type="radio" th:field="*{estadios.sonidoPantallasDisponible}" value="false" name="sonido">
+                        <i class="fas fa-times text-danger"></i> No
+                      </label>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="form-group">
+                    <label class="form-label">¿Iluminación Profesional? <span class="text-danger">*</span></label>
+                    <div class="radio-group">
+                      <label class="radio-option">
+                        <input type="radio" th:field="*{estadios.iluminacionProfesionalDisponible}" value="true" name="iluminacionProf">
+                        <i class="fas fa-lightbulb text-warning"></i> Sí
+                      </label>
+                      <label class="radio-option">
+                        <input type="radio" th:field="*{estadios.iluminacionProfesionalDisponible}" value="false" name="iluminacionProf">
+                        <i class="fas fa-times text-danger"></i> No
+                      </label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Campo oculto para URL de Google Maps (temporalmente deshabilitado) -->
+            <!-- <input type="hidden" th:field="*{espacio.mapsUrl}" id="mapsUrl"> -->
+
+            <!-- Botón de envío -->
+            <div class="row mt-4">
+              <div class="col-md-12">
+                <button type="submit" class="btn btn-primary">
+                  <i class="fa fa-save"></i> Guardar Servicio
+                </button>
+                <a th:href="@{/admin/servicios}" class="btn btn-secondary ms-2">
+                  <i class="fa fa-arrow-left"></i> Cancelar
+                </a>
+              </div>
+            </div>
+
           </form>
         </div>
         <!-- /.box-body -->
@@ -488,738 +623,116 @@
     </section>
     <!-- /.content -->
   </div>
-</div>
-<!-- /.content-wrapper -->
+  <!-- /.content-wrapper -->
 
-<footer class="main-footer">
-  &copy; <script>document.write(new Date().getFullYear())</script> <a href="https://munisanmiguel.gob.pe/">Municipalidad de San Miguel</a>. Todos los derechos reservados.
-</footer>
-<!-- Control Sidebar -->
-<aside class="control-sidebar">
+  <footer class="main-footer">
+    &copy; <script>document.write(new Date().getFullYear())</script> 
+    <a href="https://munisanmiguel.gob.pe/">Municipalidad de San Miguel</a>. 
+    Todos los derechos reservados.
+  </footer>
 
-  <div class="rpanel-title"><span class="pull-right btn btn-circle btn-danger" data-toggle="control-sidebar"><i class="ion ion-close text-white"></i></span> </div>  <!-- Create the tabs -->
-  <ul class="nav nav-tabs control-sidebar-tabs">
-    <li class="nav-item"><a href="#control-sidebar-home-tab" data-bs-toggle="tab" class="active"><i class="mdi mdi-message-text"></i></a></li>
-    <li class="nav-item"><a href="#control-sidebar-settings-tab" data-bs-toggle="tab"><i class="mdi mdi-playlist-check"></i></a></li>
-  </ul>
-  <!-- Tab panes -->
-  <div class="tab-content">
-    <!-- Home tab content -->
-    <div class="tab-pane active" id="control-sidebar-home-tab">
-      <div class="flexbox">
-        <a href="javascript:void(0)" class="text-grey">
-          <i class="ti-more"></i>
-        </a>
-        <p>Users</p>
-        <a href="javascript:void(0)" class="text-end text-grey"><i class="ti-plus"></i></a>
-      </div>
-      <div class="media-list media-list-hover mt-20">
-        <div class="media py-10 px-0">
-          <a class="avatar avatar-lg status-success" href="#">
-            <img src="../images/avatar/1.jpg" alt="...">
-          </a>
-          <div class="media-body">
-            <p class="fs-16">
-              <a class="hover-primary" href="#"><strong>Tyler</strong></a>
-            </p>
-            <p>Praesent tristique diam...</p>
-            <span>Just now</span>
-          </div>
-        </div>
-
-        <div class="media py-10 px-0">
-          <a class="avatar avatar-lg status-danger" href="#">
-            <img src="../images/avatar/2.jpg" alt="...">
-          </a>
-          <div class="media-body">
-            <p class="fs-16">
-              <a class="hover-primary" href="#"><strong>Luke</strong></a>
-            </p>
-            <p>Cras tempor diam ...</p>
-            <span>33 min ago</span>
-          </div>
-        </div>
-
-        <div class="media py-10 px-0">
-          <a class="avatar avatar-lg status-warning" href="#">
-            <img src="../images/avatar/3.jpg" alt="...">
-          </a>
-          <div class="media-body">
-            <p class="fs-16">
-              <a class="hover-primary" href="#"><strong>Evan</strong></a>
-            </p>
-            <p>In posuere tortor vel...</p>
-            <span>42 min ago</span>
-          </div>
-        </div>
-
-        <div class="media py-10 px-0">
-          <a class="avatar avatar-lg status-primary" href="#">
-            <img src="../images/avatar/4.jpg" alt="...">
-          </a>
-          <div class="media-body">
-            <p class="fs-16">
-              <a class="hover-primary" href="#"><strong>Evan</strong></a>
-            </p>
-            <p>In posuere tortor vel...</p>
-            <span>42 min ago</span>
-          </div>
-        </div>
-
-        <div class="media py-10 px-0">
-          <a class="avatar avatar-lg status-success" href="#">
-            <img src="../images/avatar/1.jpg" alt="...">
-          </a>
-          <div class="media-body">
-            <p class="fs-16">
-              <a class="hover-primary" href="#"><strong>Tyler</strong></a>
-            </p>
-            <p>Praesent tristique diam...</p>
-            <span>Just now</span>
-          </div>
-        </div>
-
-        <div class="media py-10 px-0">
-          <a class="avatar avatar-lg status-danger" href="#">
-            <img src="../images/avatar/2.jpg" alt="...">
-          </a>
-          <div class="media-body">
-            <p class="fs-16">
-              <a class="hover-primary" href="#"><strong>Luke</strong></a>
-            </p>
-            <p>Cras tempor diam ...</p>
-            <span>33 min ago</span>
-          </div>
-        </div>
-
-        <div class="media py-10 px-0">
-          <a class="avatar avatar-lg status-warning" href="#">
-            <img src="../images/avatar/3.jpg" alt="...">
-          </a>
-          <div class="media-body">
-            <p class="fs-16">
-              <a class="hover-primary" href="#"><strong>Evan</strong></a>
-            </p>
-            <p>In posuere tortor vel...</p>
-            <span>42 min ago</span>
-          </div>
-        </div>
-
-        <div class="media py-10 px-0">
-          <a class="avatar avatar-lg status-primary" href="#">
-            <img src="../images/avatar/4.jpg" alt="...">
-          </a>
-          <div class="media-body">
-            <p class="fs-16">
-              <a class="hover-primary" href="#"><strong>Evan</strong></a>
-            </p>
-            <p>In posuere tortor vel...</p>
-            <span>42 min ago</span>
-          </div>
-        </div>
-
-      </div>
-
-    </div>
-    <!-- /.tab-pane -->
-    <!-- Settings tab content -->
-    <div class="tab-pane" id="control-sidebar-settings-tab">
-      <div class="flexbox">
-        <a href="javascript:void(0)" class="text-grey">
-          <i class="ti-more"></i>
-        </a>
-        <p>Todo List</p>
-        <a href="javascript:void(0)" class="text-end text-grey"><i class="ti-plus"></i></a>
-      </div>
-      <ul class="todo-list mt-20">
-        <li class="py-15 px-5 by-1">
-          <!-- checkbox -->
-          <input type="checkbox" id="basic_checkbox_1" class="filled-in">
-          <label for="basic_checkbox_1" class="mb-0 h-15"></label>
-          <!-- todo text -->
-          <span class="text-line">Nulla vitae purus</span>
-          <!-- Emphasis label -->
-          <small class="badge bg-danger"><i class="fa fa-clock-o"></i> 2 mins</small>
-          <!-- General tools such as edit or delete-->
-          <div class="tools">
-            <i class="fa fa-edit"></i>
-            <i class="fa fa-trash-o"></i>
-          </div>
-        </li>
-        <li class="py-15 px-5">
-          <!-- checkbox -->
-          <input type="checkbox" id="basic_checkbox_2" class="filled-in">
-          <label for="basic_checkbox_2" class="mb-0 h-15"></label>
-          <span class="text-line">Phasellus interdum</span>
-          <small class="badge bg-info"><i class="fa fa-clock-o"></i> 4 hours</small>
-          <div class="tools">
-            <i class="fa fa-edit"></i>
-            <i class="fa fa-trash-o"></i>
-          </div>
-        </li>
-        <li class="py-15 px-5 by-1">
-          <!-- checkbox -->
-          <input type="checkbox" id="basic_checkbox_3" class="filled-in">
-          <label for="basic_checkbox_3" class="mb-0 h-15"></label>
-          <span class="text-line">Quisque sodales</span>
-          <small class="badge bg-warning"><i class="fa fa-clock-o"></i> 1 day</small>
-          <div class="tools">
-            <i class="fa fa-edit"></i>
-            <i class="fa fa-trash-o"></i>
-          </div>
-        </li>
-        <li class="py-15 px-5">
-          <!-- checkbox -->
-          <input type="checkbox" id="basic_checkbox_4" class="filled-in">
-          <label for="basic_checkbox_4" class="mb-0 h-15"></label>
-          <span class="text-line">Proin nec mi porta</span>
-          <small class="badge bg-success"><i class="fa fa-clock-o"></i> 3 days</small>
-          <div class="tools">
-            <i class="fa fa-edit"></i>
-            <i class="fa fa-trash-o"></i>
-          </div>
-        </li>
-        <li class="py-15 px-5 by-1">
-          <!-- checkbox -->
-          <input type="checkbox" id="basic_checkbox_5" class="filled-in">
-          <label for="basic_checkbox_5" class="mb-0 h-15"></label>
-          <span class="text-line">Maecenas scelerisque</span>
-          <small class="badge bg-primary"><i class="fa fa-clock-o"></i> 1 week</small>
-          <div class="tools">
-            <i class="fa fa-edit"></i>
-            <i class="fa fa-trash-o"></i>
-          </div>
-        </li>
-        <li class="py-15 px-5">
-          <!-- checkbox -->
-          <input type="checkbox" id="basic_checkbox_6" class="filled-in">
-          <label for="basic_checkbox_6" class="mb-0 h-15"></label>
-          <span class="text-line">Vivamus nec orci</span>
-          <small class="badge bg-info"><i class="fa fa-clock-o"></i> 1 month</small>
-          <div class="tools">
-            <i class="fa fa-edit"></i>
-            <i class="fa fa-trash-o"></i>
-          </div>
-        </li>
-        <li class="py-15 px-5 by-1">
-          <!-- checkbox -->
-          <input type="checkbox" id="basic_checkbox_7" class="filled-in">
-          <label for="basic_checkbox_7" class="mb-0 h-15"></label>
-          <!-- todo text -->
-          <span class="text-line">Nulla vitae purus</span>
-          <!-- Emphasis label -->
-          <small class="badge bg-danger"><i class="fa fa-clock-o"></i> 2 mins</small>
-          <!-- General tools such as edit or delete-->
-          <div class="tools">
-            <i class="fa fa-edit"></i>
-            <i class="fa fa-trash-o"></i>
-          </div>
-        </li>
-        <li class="py-15 px-5">
-          <!-- checkbox -->
-          <input type="checkbox" id="basic_checkbox_8" class="filled-in">
-          <label for="basic_checkbox_8" class="mb-0 h-15"></label>
-          <span class="text-line">Phasellus interdum</span>
-          <small class="badge bg-info"><i class="fa fa-clock-o"></i> 4 hours</small>
-          <div class="tools">
-            <i class="fa fa-edit"></i>
-            <i class="fa fa-trash-o"></i>
-          </div>
-        </li>
-        <li class="py-15 px-5 by-1">
-          <!-- checkbox -->
-          <input type="checkbox" id="basic_checkbox_9" class="filled-in">
-          <label for="basic_checkbox_9" class="mb-0 h-15"></label>
-          <span class="text-line">Quisque sodales</span>
-          <small class="badge bg-warning"><i class="fa fa-clock-o"></i> 1 day</small>
-          <div class="tools">
-            <i class="fa fa-edit"></i>
-            <i class="fa fa-trash-o"></i>
-          </div>
-        </li>
-        <li class="py-15 px-5">
-          <!-- checkbox -->
-          <input type="checkbox" id="basic_checkbox_10" class="filled-in">
-          <label for="basic_checkbox_10" class="mb-0 h-15"></label>
-          <span class="text-line">Proin nec mi porta</span>
-          <small class="badge bg-success"><i class="fa fa-clock-o"></i> 3 days</small>
-          <div class="tools">
-            <i class="fa fa-edit"></i>
-            <i class="fa fa-trash-o"></i>
-          </div>
-        </li>
-      </ul>
-    </div>
-    <!-- /.tab-pane -->
-  </div>
-</aside>
-<!-- /.control-sidebar -->
-
-<!-- Add the sidebar's background. This div must be placed immediately after the control sidebar -->
-<div class="control-sidebar-bg"></div>
 </div>
 <!-- ./wrapper -->
-
-
-<!-- Page Content overlay -->
-
 
 <!-- Vendor JS -->
 <script th:src="@{/js/vendors.min.js}"></script>
 <script th:src="@{/js/pages/chat-popup.js}"></script>
 <script th:src="@{/assets/icons/feather-icons/feather.min.js}"></script>
-<script th:src="@{/assets/vendor_components/jquery-steps-master/build/jquery.steps.js}"></script>
-<script th:src="@{/assets/vendor_components/jquery-validation-1.17.0/dist/jquery.validate.min.js}"></script>
-<script th:src="@{/assets/vendor_components/sweetalert/sweetalert.min.js}"></script>
 
 <!-- Rhythm Admin App -->
 <script th:src="@{/js/template.js}"></script>
-<script th:src="@{/js/pages/steps.js}"></script>
 
-<script th:src="@{/js/pages/advanced-form-element.js}"></script>
 <script>
-  // Variables globales para el sistema de mapas
-  let map;
-  let marker;
-  let mapInitialized = false;
-  let mapVisible = false;
-  let usingGoogleMaps = false;
-  let geocoder;
-  let autocomplete;
+  // Función para actualizar el tipo de espacio y mostrar campos específicos
+  function actualizarTipoEspacio() {
+    const tipoServicio = document.getElementById('tipoServicioSelect').value;
+    const tipoEspacioId = document.getElementById('tipoEspacioId');
 
-  // Coordenadas del centro de San Miguel, Lima
-  const sanMiguelCenter = { lat: -12.0776, lng: -77.0865 };
+    // Mapear los valores del selector a los IDs de tipo de espacio
+    const mapeoTipos = {
+      'piscina': '1',
+      'cancha': '2',
+      'pista': '3',
+      'estadio': '4'
+    };
 
-  // Función principal para inicializar Google Maps
-  function initGoogleMaps() {
-    try {
-      console.log('🗺️ Iniciando Google Maps...');
+    if (tipoServicio && mapeoTipos[tipoServicio]) {
+      tipoEspacioId.value = mapeoTipos[tipoServicio];
+    }
 
-      if (typeof google === 'undefined' || !google.maps) {
-        throw new Error('Google Maps no disponible');
+    // Ocultar todos los campos específicos
+    document.querySelectorAll('.campos-especificos').forEach(campo => {
+      campo.classList.remove('active');
+    });
+
+    // Mostrar el campo específico correspondiente
+    if (tipoServicio) {
+      const campoEspecifico = document.getElementById(`campo${tipoServicio.charAt(0).toUpperCase() + tipoServicio.slice(1)}`);
+      if (campoEspecifico) {
+        campoEspecifico.classList.add('active');
       }
-
-      usingGoogleMaps = true;
-      updateMapStatus('Google Maps cargado correctamente', 'success');
-
-      // Solo inicializar el mapa cuando se muestre por primera vez
-      console.log('✅ Google Maps listo para usar');
-
-    } catch (error) {
-      console.error('❌ Error con Google Maps:', error);
-      initFallbackMap();
     }
   }
 
-  // Función de respaldo con OpenStreetMap
-  function initFallbackMap() {
-    console.log('🔄 Iniciando mapa de respaldo (OpenStreetMap)...');
+  // Configurar eventos para radio buttons
+  function setupRadioEvents() {
+    document.querySelectorAll('.radio-option').forEach(option => {
+      option.addEventListener('click', function() {
+        const radio = this.querySelector('input[type="radio"]');
+        if (radio) {
+          radio.checked = true;
 
-    try {
-      if (typeof L === 'undefined') {
-        throw new Error('Leaflet no disponible');
-      }
+          // Remover selección de otros radios del mismo grupo
+          const groupName = radio.name;
+          document.querySelectorAll(`input[name="${groupName}"]`).forEach(r => {
+            r.closest('.radio-option').classList.remove('selected');
+          });
 
-      usingGoogleMaps = false;
-      updateMapStatus('Usando OpenStreetMap (mapa de respaldo)', 'fallback');
-      console.log('✅ OpenStreetMap listo para usar');
-
-    } catch (error) {
-      console.error('❌ Error con mapa de respaldo:', error);
-      updateMapStatus('Mapas no disponibles. Puede continuar sin ellos.', 'error');
-    }
-  }
-
-  // Función para mostrar/ocultar el mapa
-  function toggleMap() {
-    const mapContainer = document.getElementById('mapContainer');
-    const toggleText = document.getElementById('mapToggleText');
-    const toggleBtn = document.querySelector('.map-toggle-btn');
-
-    if (!mapVisible) {
-      // Mostrar mapa
-      mapContainer.style.display = 'block';
-      toggleText.textContent = 'Ocultar mapa';
-      toggleBtn.querySelector('i').className = 'fas fa-eye-slash';
-      mapVisible = true;
-
-      // Inicializar el mapa si no está inicializado
-      if (!mapInitialized) {
-        setTimeout(() => {
-          if (usingGoogleMaps) {
-            initGoogleMapInstance();
-          } else {
-            initLeafletMapInstance();
-          }
-        }, 100);
-      } else {
-        // Si ya está inicializado, buscar la dirección actual
-        const address = document.getElementById('ubicacionInput').value;
-        if (address) {
-          buscarDireccion();
-        }
-      }
-    } else {
-      // Ocultar mapa
-      mapContainer.style.display = 'none';
-      toggleText.textContent = 'Mostrar en mapa';
-      toggleBtn.querySelector('i').className = 'fas fa-map-marker-alt';
-      mapVisible = false;
-    }
-  }
-
-  // Inicializar instancia de Google Maps
-  function initGoogleMapInstance() {
-    try {
-      console.log('🗺️ Creando instancia de Google Maps...');
-
-      map = new google.maps.Map(document.getElementById('map'), {
-        zoom: 15,
-        center: sanMiguelCenter,
-        mapTypeId: 'roadmap',
-        streetViewControl: false,
-        mapTypeControl: true,
-        fullscreenControl: false
-      });
-
-      geocoder = new google.maps.Geocoder();
-
-      marker = new google.maps.Marker({
-        position: sanMiguelCenter,
-        map: map,
-        draggable: true,
-        title: 'Ubicación del servicio - Arrastre para ajustar',
-        animation: google.maps.Animation.DROP
-      });
-
-      // Configurar autocomplete
-      const input = document.getElementById('ubicacionInput');
-      if (google.maps.places) {
-        autocomplete = new google.maps.places.Autocomplete(input, {
-          bounds: new google.maps.LatLngBounds(
-            new google.maps.LatLng(-12.0950, -77.1050),
-            new google.maps.LatLng(-12.0600, -77.0680)
-          ),
-          strictBounds: false,
-          componentRestrictions: { country: 'pe' },
-          fields: ['geometry', 'formatted_address', 'name']
-        });
-
-        autocomplete.addListener('place_changed', function() {
-          const place = autocomplete.getPlace();
-          if (place.geometry) {
-            map.setCenter(place.geometry.location);
-            marker.setPosition(place.geometry.location);
-            updateMapsUrl(place.geometry.location);
-          }
-        });
-      }
-
-      marker.addListener('dragend', function() {
-        const position = marker.getPosition();
-        updateAddressFromCoordinates(position);
-        updateMapsUrl(position);
-      });
-
-      map.addListener('click', function(event) {
-        marker.setPosition(event.latLng);
-        updateAddressFromCoordinates(event.latLng);
-        updateMapsUrl(event.latLng);
-      });
-
-      updateMapsUrl(sanMiguelCenter);
-      mapInitialized = true;
-      console.log('✅ Google Maps inicializado correctamente');
-
-    } catch (error) {
-      console.error('❌ Error creando Google Maps:', error);
-      initLeafletMapInstance();
-    }
-  }
-
-  // Inicializar instancia de Leaflet
-  function initLeafletMapInstance() {
-    try {
-      console.log('🗺️ Creando instancia de OpenStreetMap...');
-
-      const mapDiv = document.getElementById('map');
-      mapDiv.innerHTML = '';
-
-      map = L.map('map').setView([sanMiguelCenter.lat, sanMiguelCenter.lng], 15);
-
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '© OpenStreetMap contributors',
-        maxZoom: 19
-      }).addTo(map);
-
-      marker = L.marker([sanMiguelCenter.lat, sanMiguelCenter.lng], {
-        draggable: true
-      }).addTo(map);
-
-      marker.bindPopup('📍 Ubicación del servicio<br><small>Arrastre para ajustar la posición</small>').openPopup();
-
-      marker.on('dragend', function(e) {
-        const position = e.target.getLatLng();
-        updateMapsUrl(position);
-        updateAddressFromCoordinates(position);
-      });
-
-      map.on('click', function(e) {
-        marker.setLatLng(e.latlng);
-        updateMapsUrl(e.latlng);
-        updateAddressFromCoordinates(e.latlng);
-      });
-
-      updateMapsUrl(sanMiguelCenter);
-      mapInitialized = true;
-      usingGoogleMaps = false;
-      console.log('✅ OpenStreetMap inicializado correctamente');
-
-    } catch (error) {
-      console.error('❌ Error creando OpenStreetMap:', error);
-      showMapError('Error al cargar el mapa. Puede continuar sin él.');
-    }
-  }
-
-  // Función para mostrar error en el mapa
-  function showMapError(message) {
-    const mapDiv = document.getElementById('map');
-    mapDiv.innerHTML = `
-      <div style="display: flex; align-items: center; justify-content: center; height: 100%; background-color: #f8f9fa; border: 2px dashed #dee2e6; border-radius: 5px;">
-        <div style="text-align: center; color: #6c757d; padding: 20px;">
-          <div style="font-size: 3rem; margin-bottom: 15px;">🗺️</div>
-          <p style="margin: 0; font-size: 16px; font-weight: 500;">${message}</p>
-          <small style="color: #999;">Puede continuar sin el mapa. La ubicación se guardará como texto.</small>
-        </div>
-      </div>
-    `;
-  }
-
-  // Actualizar estado del mapa
-  function updateMapStatus(message, type = 'success') {
-    const statusDiv = document.getElementById('mapStatus');
-    const statusText = document.getElementById('mapStatusText');
-
-    statusDiv.style.display = 'block';
-    statusDiv.className = `map-status ${type}`;
-    statusText.textContent = message;
-
-    // Ocultar después de 5 segundos si es éxito
-    if (type === 'success') {
-      setTimeout(() => {
-        statusDiv.style.display = 'none';
-      }, 5000);
-    }
-  }
-
-  // Buscar dirección cuando se cambia el input manualmente
-  function buscarDireccion() {
-    const address = document.getElementById('ubicacionInput').value;
-    if (!address || !mapInitialized || !mapVisible) return;
-
-    if (usingGoogleMaps && geocoder) {
-      // Usar Google Geocoding
-      geocoder.geocode({
-        address: address + ', San Miguel, Lima, Perú'
-      }, function(results, status) {
-        if (status === 'OK' && results[0]) {
-          const location = results[0].geometry.location;
-          map.setCenter(location);
-          marker.setPosition(location);
-          updateMapsUrl(location);
-        } else {
-          console.log('Google Geocoding falló:', status);
-          // Fallback a Nominatim
-          buscarConNominatim(address);
+          // Agregar selección al actual
+          this.classList.add('selected');
         }
       });
-    } else {
-      // Usar Nominatim para OpenStreetMap
-      buscarConNominatim(address);
-    }
-  }
-
-  // Búsqueda con Nominatim (respaldo)
-  function buscarConNominatim(address) {
-    const query = encodeURIComponent(address + ', San Miguel, Lima, Perú');
-    fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${query}&limit=1`)
-      .then(response => response.json())
-      .then(data => {
-        if (data && data.length > 0) {
-          const lat = parseFloat(data[0].lat);
-          const lng = parseFloat(data[0].lon);
-
-          if (usingGoogleMaps) {
-            const location = new google.maps.LatLng(lat, lng);
-            map.setCenter(location);
-            marker.setPosition(location);
-            updateMapsUrl(location);
-          } else {
-            map.setView([lat, lng], 16);
-            marker.setLatLng([lat, lng]);
-            updateMapsUrl({ lat: lat, lng: lng });
-          }
-        }
-      })
-      .catch(error => {
-        console.log('Error en búsqueda:', error);
-      });
-  }
-
-  // Actualizar dirección basada en coordenadas
-  function updateAddressFromCoordinates(latLng) {
-    if (!mapInitialized) return;
-
-    let lat, lng;
-
-    // Normalizar coordenadas según el tipo de mapa
-    if (usingGoogleMaps) {
-      if (typeof latLng.lat === 'function') {
-        lat = latLng.lat();
-        lng = latLng.lng();
-      } else {
-        lat = latLng.lat;
-        lng = latLng.lng;
-      }
-
-      // Usar Google Geocoding si está disponible
-      if (geocoder) {
-        geocoder.geocode({ location: latLng }, function(results, status) {
-          if (status === 'OK' && results[0]) {
-            document.getElementById('ubicacionInput').value = results[0].formatted_address;
-            return;
-          }
-          // Fallback a Nominatim
-          geocodingConNominatim(lat, lng);
-        });
-        return;
-      }
-    } else {
-      lat = latLng.lat;
-      lng = latLng.lng;
-    }
-
-    // Usar Nominatim
-    geocodingConNominatim(lat, lng);
-  }
-
-  // Geocoding inverso con Nominatim
-  function geocodingConNominatim(lat, lng) {
-    fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`)
-      .then(response => response.json())
-      .then(data => {
-        if (data.display_name) {
-          document.getElementById('ubicacionInput').value = data.display_name;
-        }
-      })
-      .catch(error => {
-        console.log('Error obteniendo dirección:', error);
-      });
-  }
-
-  // Actualizar URL de Google Maps
-  function updateMapsUrl(latLng) {
-    let lat, lng;
-
-    if (usingGoogleMaps && typeof latLng.lat === 'function') {
-      lat = latLng.lat();
-      lng = latLng.lng();
-    } else {
-      lat = latLng.lat;
-      lng = latLng.lng;
-    }
-
-    const mapsUrl = `https://maps.google.com/?q=${lat},${lng}`;
-    document.getElementById('mapsUrl').value = mapsUrl;
-  }
-
-  // Vista previa de imagen
-  function previewImage(input) {
-    if (input.files && input.files[0]) {
-      const file = input.files[0];
-
-      // Validar tamaño (5MB máximo)
-      if (file.size > 5 * 1024 * 1024) {
-        alert('El archivo es demasiado grande. Máximo 5MB.');
-        input.value = '';
-        return;
-      }
-
-      // Validar tipo de archivo
-      if (!file.type.match('image.*')) {
-        alert('Por favor seleccione un archivo de imagen válido.');
-        input.value = '';
-        return;
-      }
-
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        document.getElementById('preview').src = e.target.result;
-        document.getElementById('imagePreview').style.display = 'block';
-      };
-      reader.readAsDataURL(file);
-    }
-  }
-
-  function mostrarCampos() {
-    const valor = document.getElementById('tipoEspacioId').value;
-
-    const campos = ['campoPiscina', 'campoCancha', 'campoPista', 'campoEstadio'];
-
-    campos.forEach(id => {
-      const div = document.getElementById(id);
-      if (!div) return; // por si no existe el elemento
-
-      if (
-              (valor === '1' && id === 'campoPiscina') ||
-              (valor === '2' && id === 'campoCancha') ||
-              (valor === '3' && id === 'campoPista') ||
-              (valor === '4' && id === 'campoEstadio')
-      ) {
-        div.style.display = 'block';
-        // Poner required a true en todos los inputs, selects y textarea dentro
-        div.querySelectorAll('input, select, textarea').forEach(el => el.required = true);
-      } else {
-        div.style.display = 'none';
-        // Quitar required para que no bloqueen el submit
-        div.querySelectorAll('input, select, textarea').forEach(el => el.required = false);
-      }
     });
   }
 
-  // Manejo de errores de Google Maps
-  window.gm_authFailure = function() {
-    console.error('❌ Error de autenticación con Google Maps');
-    initFallbackMap();
-  };
+  // Configurar eventos para radio buttons
+  function setupRadioEvents() {
+    document.querySelectorAll('.radio-option').forEach(option => {
+      option.addEventListener('click', function() {
+        const radio = this.querySelector('input[type="radio"]');
+        if (radio) {
+          radio.checked = true;
+
+          // Remover selección de otros radios del mismo grupo
+          const groupName = radio.name;
+          document.querySelectorAll(`input[name="${groupName}"]`).forEach(r => {
+            r.closest('.radio-option').classList.remove('selected');
+          });
+
+          // Agregar selección al actual
+          this.classList.add('selected');
+        }
+      });
+    });
+  }
 
   // Inicializar cuando se carga la página
   document.addEventListener('DOMContentLoaded', function() {
-    console.log('📄 Página cargada, inicializando...');
-
-    // Inicializar campos dinámicos
-    mostrarCampos();
+    console.log('📄 Página cargada correctamente');
 
     // Configurar el listener para el select de tipo de servicio
-    const tipoSelect = document.getElementById('tipoEspacioId');
-    if (tipoSelect) {
-      tipoSelect.addEventListener('change', mostrarCampos);
+    const tipoServicioSelect = document.getElementById('tipoServicioSelect');
+    if (tipoServicioSelect) {
+      tipoServicioSelect.addEventListener('change', actualizarTipoEspacio);
     }
 
-    // Mostrar estado inicial del sistema de mapas
-    updateMapStatus('Inicializando sistema de mapas...', 'success');
-
-    // Timeout para verificar si Google Maps se carga
-    setTimeout(function() {
-      if (!usingGoogleMaps && typeof google === 'undefined') {
-        console.log('⏰ Google Maps no se cargó, usando respaldo');
-        initFallbackMap();
-      }
-    }, 5000);
+    // Configurar eventos para radio buttons
+    setupRadioEvents();
   });
+
+  // Inicializar iconos
+  feather.replace();
 </script>
-
-
 
 </body>
 </html>

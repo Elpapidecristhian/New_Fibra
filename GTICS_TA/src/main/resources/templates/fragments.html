@@ -164,4 +164,30 @@
 </div>
 
 
+<!-- Fragment para Google Maps -->
+<div th:fragment="googleMapsScripts">
+    <!-- Google Maps API -->
+    <script th:src="@{'https://maps.googleapis.com/maps/api/js?key=' + ${@environment.getProperty('google.maps.api.key')} + '&libraries=places&callback=initMap'}"
+            async defer></script>
+    <!-- Script personalizado de Google Maps -->
+    <script th:src="@{/js/google-maps.js}"></script>
+</div>
+
+<!-- Fragment para inicializar mapa en formularios -->
+<div th:fragment="mapFormScript(formId)">
+    <script th:inline="javascript">
+        document.addEventListener('DOMContentLoaded', function() {
+            // Esperar a que Google Maps API esté cargada
+            function waitForGoogleMaps() {
+                if (typeof google !== 'undefined' && google.maps) {
+                    initFormMap(/*[[${formId}]]*/);
+                } else {
+                    setTimeout(waitForGoogleMaps, 100);
+                }
+            }
+            waitForGoogleMaps();
+        });
+    </script>
+</div>
+
 </html>
