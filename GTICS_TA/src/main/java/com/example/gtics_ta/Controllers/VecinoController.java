@@ -7,6 +7,7 @@ import com.example.gtics_ta.Services.MailService;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -176,7 +177,7 @@ public class VecinoController {
                     attr.addFlashAttribute("msg", "Reserva cancelada correctamente. Su dinero será reembolsado en un plazo de dos semanas.");
                 }
             } else {
-                attr.addFlashAttribute("error", "No puede cancelar una reserva para hoy o en el pasado.");
+                attr.addFlashAttribute("error", "Solo puede cancelar una reserva con un plazo de antelación de un día.");
             }
         } else {
             attr.addFlashAttribute("error", "No se encontró la reserva.");
@@ -213,6 +214,16 @@ public class VecinoController {
         }
         return "vecino/reservar";
     }
+
+    @GetMapping("/horarios-disponibles")
+    @ResponseBody
+    public List<HorariosConsultaDTO> obtenerHorariosPorFecha(
+            @RequestParam("fecha") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fecha,
+            @RequestParam("idEspacio") Integer idEspacio) {
+
+        return horariosRepository.obtenerHorariosConsulta(fecha, idEspacio);
+    }
+
 
     @PostMapping("/guardarreserva")
     public String guardarreserva(@ModelAttribute("reserva") Reservas reserva) {

@@ -7,6 +7,7 @@
     <meta name="description" content="">
     <meta name="author" content="">
     <link rel="icon" href="/images/san_miguel_logo.ico">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 
     <title>Reservar un Espacio </title>
 
@@ -124,7 +125,9 @@
                                     <h6>Elija la fecha de su reserva</h6>
                                         <div class="form-group">
                                             <label for="wdate2" class="form-label">Fecha :</label>
-                                            <input readonly th:attr="min=${minDate}" type="date" th:field="*{fechaReserva}" class="form-control required" id="wdate2">
+                                            <input th:attr="min=${minDate}" type="date" th:field="*{fechaReserva}" class="form-control required" id="wdate2" onchange="cargarHorarios()">
+                                            <input type="hidden" id="idEspacio" th:value="${reserva.espacioDeportivo.id}" />
+
                                         </div>
                                 </div>
                                 <div class="col-md-9">
@@ -153,7 +156,7 @@
                         <section>
                             <div class="row">
                                 <div class="col-md-6">
-                                    <button type="button" class="waves-effect waves-light btn btn-dark btn-lg">Abrir Plataforma de Pago</button>
+                                    <button type="button" data-bs-toggle="modal" data-bs-target="#pagoModal" class="waves-effect waves-light btn btn-dark btn-lg">Abrir Plataforma de Pago</button>
 
                                 </div>
 
@@ -168,6 +171,58 @@
     </div>
 </div>
 <!-- /.content-wrapper -->
+
+<!-- Modal -->
+<div class="modal fade" id="pagoModal" tabindex="-1" aria-labelledby="pagoModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content p-4">
+            <div class="modal-header">
+                <h5 class="modal-title">Reserva</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body">
+
+                <p class="text-center">Puedes pagar usando:</p>
+
+                <div class="d-flex justify-content-between mb-3">
+                    <div class="pay-option active" onclick="selectPayment(this)">Tarjeta</div>
+                    <div class="pay-option" onclick="selectPayment(this)">QR</div>
+                    <div class="pay-option" onclick="selectPayment(this)">Yape</div>
+                </div>
+
+                <small class="text-muted d-block mb-3">Recuerda activar tus compras por internet</small>
+
+                <form>
+                    <div class="mb-2">
+                        <input type="text" class="form-control" placeholder="Número de tarjeta">
+                    </div>
+                    <div class="row g-2 mb-2">
+                        <div class="col">
+                            <input type="text" class="form-control" placeholder="Caducidad">
+                        </div>
+                        <div class="col">
+                            <input type="text" class="form-control" placeholder="CVV">
+                        </div>
+                    </div>
+                    <div class="row g-2 mb-2">
+                        <div class="col">
+                            <input type="text" class="form-control" placeholder="Nombres">
+                        </div>
+                        <div class="col">
+                            <input type="text" class="form-control" placeholder="Apellidos">
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <input type="email" class="form-control" placeholder="Correo">
+                    </div>
+                    <button type="button" class="btn btn-teal w-100" style="background-color:#00bfa6; color:white;">
+                        Pagar S/25.00
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
 
 <footer class="main-footer">
     &copy; <script>document.write(new Date().getFullYear())</script> <a href="https://munisanmiguel.gob.pe/">Municipalidad de San Miguel</a>. Todos los derechos reservados.
@@ -467,6 +522,52 @@
     }
 
 </script>
+
+
+<script>
+    function selectPayment(el) {
+        document.querySelectorAll('.pay-option').forEach(option => option.classList.remove('active'));
+        el.classList.add('active');
+    }
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    function cargarHorarios() {
+        const fecha = document.getElementById('wdate2').value;
+        const idEspacio = document.getElementById('idEspacio').value;
+
+        if (!fecha || !idEspacio) return;
+
+        fetch(`/vecino/horarios-disponibles?fecha=${fecha}&idEspacio=${idEspacio}`)
+            .then(response => response.json())
+            .then(data => {
+                const container = document.getElementById('horarios-container');
+                container.innerHTML = '';
+
+                data.forEach((horario, idx) => {
+                    const btn = document.createElement('button');
+                    btn.type = 'button';
+                    btn.className = 'waves-effect waves-light btn mb-5 ' +
+                        (horario.reservado === 1 ? 'btn-danger-light' : 'btn-primary-light');
+                    btn.id = 'btn-horario-' + idx;
+                    btn.textContent = horario.horaInicio + ' - ' + horario.horaFin;
+                    btn.disabled = horario.reservado === 1;
+                    btn.onclick = function () {
+                        selectHorario(this, horario.idHorarios);
+                    };
+
+                    container.appendChild(btn);
+
+                    // Salto de línea cada 3 botones
+                    if ((idx + 1) % 3 === 0) container.appendChild(document.createElement('br'));
+                });
+            })
+            .catch(error => console.error('Error al cargar horarios:', error));
+    }
+</script>
+
 
 
 
