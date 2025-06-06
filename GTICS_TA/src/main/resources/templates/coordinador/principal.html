@@ -13,6 +13,9 @@
   <!-- Vendors Style-->
   <link rel="stylesheet" th:href="@{/css/vendors_css.css}" >
 
+  <!-- Font Awesome -->
+  <link rel="stylesheet" th:href="@{/assets/icons/font-awesome/css/font-awesome.min.css}">
+
   <!-- Style-->
   <link rel="stylesheet" th:href="@{/css/style.css}">
   <link rel="stylesheet" th:href="@{/css/skin_color.css}">
@@ -179,6 +182,12 @@
                 <span>Marcar asistencia</span>
               </a>
             </li>
+            <li>
+              <a th:href="@{/coordinador/mis-observaciones}">
+                <i data-feather="file-text"></i>
+                <span>Mis Observaciones</span>
+              </a>
+            </li>
             <!--Implementación proxima de horarios
             <li>
               <a href="horarios.html">
@@ -261,8 +270,21 @@
                 <h4 class="box-title">Observaciones</h4>
               </div>
               <!-- /.box-header -->
-              <form class="form">
+              <form class="form" th:action="@{/coordinador/guardar-observacion}" method="post">
                 <div class="box-body">
+                  <!-- Mostrar mensajes de éxito o error -->
+                  <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="fa fa-check-circle me-2"></i>
+                    <span th:text="${success}"></span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                  </div>
+
+                  <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="fa fa-exclamation-triangle me-2"></i>
+                    <span th:text="${error}"></span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                  </div>
+
                   <h4 class="box-title text-info mb-0"><i class="ti-map-alt me-15"></i>Establecimiento</h4>
                   <hr class="my-15">
                   <div class="row">
@@ -289,24 +311,28 @@
                   <hr class="my-15">
                   <div class="row">
                     <div class="radio; col-md-6">
-                      <input name="group1" type="radio" id="Option_1" checked>
-                      <label for="Option_1">Reparación</label>
+                      <input name="tipoComentario" type="radio" id="Option_1" value="reparacion" checked>
+                      <label for="Option_1">🔧 Reparación/Mantenimiento</label>
                     </div>
                     <div class="radio; col-md-6">
-                      <input name="group1" type="radio" id="Option_2" >
-                      <label for="Option_2">Observación</label>
+                      <input name="tipoComentario" type="radio" id="Option_2" value="observacion">
+                      <label for="Option_2">📝 Observación General</label>
                     </div>
                   </div>
                   <div class="form-group" style="margin-top: 15px;">
                     <label class="form-label">Descripción<span class="text-danger">*</span></label>
-                    <textarea rows="4" class="form-control" id="comentarios" required placeholder="Explique brevemente la situación por la cual el establecimiento requiere arreglos o alguna observación sobre este."></textarea>
+                    <textarea rows="4" class="form-control" name="comentarios" id="comentarios" required
+                              placeholder="Explique brevemente la situación por la cual el establecimiento requiere arreglos o alguna observación sobre este."></textarea>
                   </div>
                 </div>
                 <!-- /.box-body -->
                 <div class="box-footer text-center">
                   <button type="submit" class="btn btn-primary">
-                    Enviar
+                    <i class="fa fa-paper-plane me-2"></i>Enviar Observación
                   </button>
+                  <a href="/coordinador/mis-observaciones" class="btn btn-outline-info ms-2">
+                    <i class="fa fa-list me-2"></i>Ver Mis Observaciones
+                  </a>
                 </div>
               </form>
             </div>
@@ -405,14 +431,14 @@
                 lugar.lat,
                 lugar.lng
         );
-        console.log(`Distancia a ${lugar.nombre}: ${Math.round(distancia)}m`);
+        console.log(Distancia a ${lugar.nombre}: ${Math.round(distancia)}m);
         return distancia;
       });
 
       const valido = distancias.some(d => d <= RADIO_PERMITIDO);
       if (!valido) {
         const minima = Math.min(...distancias);
-        throw new Error(`Fuera del área permitida (${Math.round(minima)}m de distancia)`);
+        throw new Error(Fuera del área permitida (${Math.round(minima)}m de distancia));
       }
 
       // Habilitar botones si es válido
@@ -471,7 +497,7 @@
     const Δφ = (lat2 - lat1) * Math.PI / 180;
     const Δλ = (lon2 - lon1) * Math.PI / 180;
 
-    const a = Math.sin(Δφ/2) ** 2 + Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ/2) ** 2;
+    const a = Math.sin(Δφ/2) * 2 + Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ/2) * 2;
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
     return R * c;
   }
@@ -480,7 +506,7 @@
     const horas = Math.floor(segundos / 3600);
     const minutos = Math.floor((segundos % 3600) / 60);
     const segs = segundos % 60;
-    return `${String(horas).padStart(2, '0')}:${String(minutos).padStart(2, '0')}:${String(segs).padStart(2, '0')}`;
+    return ${String(horas).padStart(2, '0')}:${String(minutos).padStart(2, '0')}:${String(segs).padStart(2, '0')};
   }
 
   function actualizarReloj() {
@@ -539,12 +565,89 @@
         actualizarReloj();
       }
 
-      console.log(`${tipo.toUpperCase()} registrada a las ${ahora.toLocaleTimeString()}`);
+      console.log(${tipo.toUpperCase()} registrada a las ${ahora.toLocaleTimeString()});
 
     } catch (error) {
-      alert(`Error: ${error.message}`);
+      alert(Error: ${error.message});
     }
   }
+
+  // Script para mejorar la experiencia del formulario de observaciones
+  document.addEventListener('DOMContentLoaded', function() {
+    const tipoServicioSelect = document.getElementById('tipo_servicio');
+    const comentariosTextarea = document.getElementById('comentarios');
+    const radioButtons = document.querySelectorAll('input[name="tipoComentario"]');
+
+    // Actualizar placeholder según el tipo de comentario seleccionado
+    function actualizarPlaceholder() {
+      const tipoSeleccionado = document.querySelector('input[name="tipoComentario"]:checked').value;
+      if (tipoSeleccionado === 'reparacion') {
+        comentariosTextarea.placeholder = 'Describa detalladamente el problema o reparación necesaria. Incluya ubicación específica, urgencia y cualquier detalle relevante para el mantenimiento.';
+      } else {
+        comentariosTextarea.placeholder = '📝 Comparta su observación general sobre el espacio deportivo. Puede incluir sugerencias de mejora, comentarios sobre el estado actual o cualquier aspecto relevante.';
+      }
+    }
+
+    // Agregar event listeners a los radio buttons
+    radioButtons.forEach(radio => {
+      radio.addEventListener('change', actualizarPlaceholder);
+    });
+
+    // Validación del formulario
+    const form = document.querySelector('form');
+    form.addEventListener('submit', function(e) {
+      const tipoServicio = tipoServicioSelect.value;
+      const comentarios = comentariosTextarea.value.trim();
+
+      if (!tipoServicio) {
+        e.preventDefault();
+        alert('⚠️ Por favor, seleccione un tipo de servicio.');
+        tipoServicioSelect.focus();
+        return;
+      }
+
+      if (!comentarios) {
+        e.preventDefault();
+        alert('⚠️ Por favor, ingrese una descripción.');
+        comentariosTextarea.focus();
+        return;
+      }
+
+      if (comentarios.length < 10) {
+        e.preventDefault();
+        alert('⚠️ La descripción debe tener al menos 10 caracteres.');
+        comentariosTextarea.focus();
+        return;
+      }
+
+      // Confirmación antes de enviar
+      const tipoComentario = document.querySelector('input[name="tipoComentario"]:checked').value;
+      const tipoTexto = tipoComentario === 'reparacion' ? 'reporte de mantenimiento' : 'observación';
+      const tipoServicioTexto = tipoServicioSelect.options[tipoServicioSelect.selectedIndex].text;
+
+      const confirmacion = confirm(
+        ¿Está seguro de enviar este ${tipoTexto} para el tipo de servicio "${tipoServicioTexto}"?\n\n +
+      Descripción: ${comentarios.substring(0, 100)}${comentarios.length > 100 ? '...' : ''}
+    );
+
+      if (!confirmacion) {
+        e.preventDefault();
+      }
+    });
+
+    // Inicializar placeholder
+    actualizarPlaceholder();
+
+    // Auto-dismiss alerts después de 5 segundos
+    setTimeout(function() {
+      const alerts = document.querySelectorAll('.alert');
+      alerts.forEach(alert => {
+        if (alert.querySelector('.btn-close')) {
+          alert.querySelector('.btn-close').click();
+        }
+      });
+    }, 5000);
+  });
 
 </script>
 
