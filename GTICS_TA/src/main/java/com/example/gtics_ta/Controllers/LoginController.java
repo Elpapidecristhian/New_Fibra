@@ -44,7 +44,7 @@ public class LoginController {
         if(email!= null){
             if(usuarioRepository.existsByCorreo(email)) {
                 String token = UUID.randomUUID().toString();
-                String link = "localhost:8080/login/resetpassword?token=" + token;
+                String link = "3.89.234.107:8080/login/resetpassword?token=" + token;
                 emailService.enviarCorreo(email, "Recupera tu contraseña",
                         "Haz clic en el siguiente enlace para restablecer tu contraseña:\n" + link + "\n Recuerde que este código tiene validez de una hora.");
 

@@ -87,7 +87,7 @@ public class SignUpController {
         accountActivate.setToken(token);
         accountActivateRepository.save(accountActivate);
 
-        String link = "localhost:8080/signup/activarcuenta?token=" + token;
+        String link = "3.89.234.107:8080/signup/activarcuenta?token=" + token;
         String asunto = "Hola " + usuario.getNombres() + " " + usuario.getApellidos() + ".\n" +
                         "Para activar tu cuenta solo tienes que entrar al siguente enlace: " + link;
 
