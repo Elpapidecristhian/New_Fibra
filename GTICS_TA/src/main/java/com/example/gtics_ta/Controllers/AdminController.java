@@ -1,21 +1,33 @@
 package com.example.gtics_ta.Controllers;
-
 import com.example.gtics_ta.DTO.AdminDTO;
+import com.itextpdf.kernel.colors.DeviceRgb;
+import com.itextpdf.layout.element.Paragraph;
+import com.itextpdf.kernel.colors.ColorConstants;
+import com.itextpdf.layout.properties.*;
 import com.example.gtics_ta.DTO.ServicioDTO;
 import com.example.gtics_ta.Entity.*;
 import com.example.gtics_ta.Repository.*;
+import com.itextpdf.io.image.ImageData;
+import com.itextpdf.io.image.ImageDataFactory;
+import com.itextpdf.kernel.colors.ColorConstants;
+import com.itextpdf.kernel.pdf.PdfDocument;
+import com.itextpdf.kernel.pdf.PdfWriter;
+import com.itextpdf.layout.Document;
+import com.itextpdf.layout.element.Cell;
+import com.itextpdf.layout.element.Image;
+import com.itextpdf.layout.element.Paragraph;
+import com.itextpdf.layout.element.Table;
+import com.itextpdf.layout.properties.HorizontalAlignment;
+import com.itextpdf.layout.properties.TextAlignment;
+import jakarta.servlet.http.HttpServletResponse;
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.time.LocalDate;
-import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 @Controller
@@ -253,6 +265,192 @@ public class AdminController {
     @GetMapping("/reservas")
         public String Reservas(Model model){
         return "admin/reservas";
+    }
+
+    @GetMapping("/servicios/exportar-reporte-pdf")
+    public void exportarReportePdf(@RequestParam("id") int idEspacio, HttpServletResponse response) throws Exception {
+        EspaciosDeportivos espacio = espaciosRepository.findById(idEspacio).orElse(null);
+        if (espacio == null) {
+            response.sendError(HttpServletResponse.SC_NOT_FOUND, "Espacio no encontrado");
+            return;
+        }
+
+        String nombreServicio = espacio.getNombre();
+
+        // Obtener imagen
+        byte[] imagen = null;
+        if (espacio.getListaFotos() != null) {
+            List<Fotos> fotos = fotosRepository.findByListaFotosId(espacio.getListaFotos().getId());
+            if (!fotos.isEmpty()) {
+                imagen = fotos.get(0).getFoto();
+            }
+        }
+
+        // Configurar PDF
+        response.setContentType("application/pdf");
+        response.setHeader("Content-Disposition", "attachment; filename=reporte_servicio_" + idEspacio + ".pdf");
+
+        PdfWriter writer = new PdfWriter(response.getOutputStream());
+        PdfDocument pdf = new PdfDocument(writer);
+        Document document = new Document(pdf);
+
+        // Logo
+        String imagePath = "src/main/resources/static/images/logo-sanMiguel.png";
+        ImageData imageData = ImageDataFactory.create(imagePath);
+        Image logo = new Image(imageData);
+        logo.setHorizontalAlignment(HorizontalAlignment.CENTER);
+        logo.setWidth(60);
+        document.add(logo);
+
+        // Título
+        Paragraph titulo = new Paragraph("Reporte de Servicio Deportivo")
+                .setTextAlignment(TextAlignment.CENTER)
+                .setBold()
+                .setFontSize(16);
+        document.add(titulo);
+
+        Paragraph subtitulo = new Paragraph(nombreServicio)
+                .setTextAlignment(TextAlignment.CENTER)
+                .setFontSize(13);
+        document.add(subtitulo);
+
+        // Imagen del espacio
+        if (imagen != null) {
+            Image img = new Image(ImageDataFactory.create(imagen))
+                    .scaleToFit(200, 200)
+                    .setHorizontalAlignment(HorizontalAlignment.CENTER);
+            document.add(img);
+            document.add(new Paragraph("\n"));
+        }
+
+        // Datos del servicio
+        document.add(new Paragraph("Tipo: " + espacio.getTipoEspacio().getNombre()));
+        document.add(new Paragraph("Ubicación: " + espacio.getUbicacion()));
+        document.add(new Paragraph("Horario: " + espacio.getHoraAbre() + " - " + espacio.getHoraCierra()));
+        document.add(new Paragraph("Correo: " + espacio.getCorreoContacto()));
+        document.add(new Paragraph("\n"));
+
+        // Tabla de reservas
+        List<Reservas> reservas = reservaRepository.findByEspacioDeportivoId(idEspacio);
+        if (!reservas.isEmpty()) {
+            DeviceRgb celesteOscuro = new DeviceRgb(36, 118, 141);
+
+            Table table = new Table(5);
+            table.setWidth(UnitValue.createPercentValue(100)); // ✅ Alternativa válida en iText 7
+
+            table.setHorizontalAlignment(HorizontalAlignment.CENTER);
+
+            // Encabezados
+            table.addHeaderCell(new Cell().add(new Paragraph("Usuario"))
+                    .setBackgroundColor(celesteOscuro)
+                    .setFontColor(ColorConstants.WHITE)  // <- Letras blancas
+                    .setTextAlignment(TextAlignment.CENTER)
+                    .setBold()
+                    .setPadding(5));
+
+            table.addHeaderCell(new Cell().add(new Paragraph("Fecha"))
+                    .setBackgroundColor(celesteOscuro)
+                    .setFontColor(ColorConstants.WHITE)
+                    .setTextAlignment(TextAlignment.CENTER)
+                    .setBold()
+                    .setPadding(5));
+
+            table.addHeaderCell(new Cell().add(new Paragraph("Horario"))
+                    .setBackgroundColor(celesteOscuro)
+                    .setFontColor(ColorConstants.WHITE)
+                    .setTextAlignment(TextAlignment.CENTER)
+                    .setBold()
+                    .setPadding(5));
+
+            table.addHeaderCell(new Cell().add(new Paragraph("Medio Pago"))
+                    .setBackgroundColor(celesteOscuro)
+                    .setFontColor(ColorConstants.WHITE)
+                    .setTextAlignment(TextAlignment.CENTER)
+                    .setBold()
+                    .setPadding(5));
+
+            table.addHeaderCell(new Cell().add(new Paragraph("Monto"))
+                    .setBackgroundColor(celesteOscuro)
+                    .setFontColor(ColorConstants.WHITE)
+                    .setTextAlignment(TextAlignment.CENTER)
+                    .setBold()
+                    .setPadding(5));
+
+            // Filas de datos
+            for (Reservas r : reservas) {
+                table.addCell(new Cell().add(new Paragraph(r.getUsuario().getNombres() + " " + r.getUsuario().getApellidos())).setTextAlignment(TextAlignment.CENTER).setPadding(4));
+                table.addCell(new Cell().add(new Paragraph(r.getFechaReserva().toString())).setTextAlignment(TextAlignment.CENTER).setPadding(4));
+                table.addCell(new Cell().add(new Paragraph(r.getHorario().getHoraInicio() + " - " + r.getHorario().getHoraFin())).setTextAlignment(TextAlignment.CENTER).setPadding(4));
+                table.addCell(new Cell().add(new Paragraph(r.getPago().getMedioPago().getNombre())).setTextAlignment(TextAlignment.CENTER).setPadding(4));
+                table.addCell(new Cell().add(new Paragraph("S/ " + r.getPago().getCantidad())).setTextAlignment(TextAlignment.CENTER).setPadding(4));
+            }
+
+            document.add(new Paragraph("Reservas realizadas:").setBold());
+            document.add(table);
+        } else {
+            document.add(new Paragraph("No se han registrado reservas para este servicio."));
+        }
+
+        document.close();
+    }
+
+    @GetMapping("/servicios/exportar-reporte-excel")
+    public void exportarReporteExcel(@RequestParam("id") int idEspacio, HttpServletResponse response) throws Exception {
+        EspaciosDeportivos espacio = espaciosRepository.findById(idEspacio).orElse(null);
+        if (espacio == null) {
+            response.sendError(HttpServletResponse.SC_NOT_FOUND, "Espacio no encontrado");
+            return;
+        }
+
+        List<Reservas> reservas = reservaRepository.findByEspacioDeportivoId(idEspacio);
+
+        // Crear workbook y hoja
+        Workbook workbook = new XSSFWorkbook();
+        Sheet sheet = workbook.createSheet("Reservas");
+
+        // Estilo de encabezado
+        CellStyle headerStyle = workbook.createCellStyle();
+        Font font = workbook.createFont();
+        font.setBold(true);
+        font.setColor(IndexedColors.WHITE.getIndex());
+        headerStyle.setFont(font);
+        headerStyle.setFillForegroundColor(IndexedColors.DARK_BLUE.getIndex());
+        headerStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+        headerStyle.setAlignment(org.apache.poi.ss.usermodel.HorizontalAlignment.CENTER);
+
+        // Crear fila de encabezado
+        Row header = sheet.createRow(0);
+        String[] columnas = {"Usuario", "Fecha", "Horario", "Medio Pago", "Monto"};
+
+        for (int i = 0; i < columnas.length; i++) {
+            org.apache.poi.ss.usermodel.Cell cell = header.createCell(i);
+            cell.setCellValue(columnas[i]);
+            cell.setCellStyle(headerStyle);
+        }
+
+        // Filas de contenido
+        int fila = 1;
+        for (Reservas r : reservas) {
+            Row dataRow = sheet.createRow(fila++);
+            dataRow.createCell(0).setCellValue(r.getUsuario().getNombres() + " " + r.getUsuario().getApellidos());
+            dataRow.createCell(1).setCellValue(r.getFechaReserva().toString());
+            dataRow.createCell(2).setCellValue(r.getHorario().getHoraInicio() + " - " + r.getHorario().getHoraFin());
+            dataRow.createCell(3).setCellValue(r.getPago().getMedioPago().getNombre());
+            dataRow.createCell(4).setCellValue("S/ " + r.getPago().getCantidad());
+        }
+
+        // Autoajustar columnas
+        for (int i = 0; i < columnas.length; i++) {
+            sheet.autoSizeColumn(i);
+        }
+
+        // Configurar descarga
+        response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+        response.setHeader("Content-Disposition", "attachment; filename=reporte_servicio_" + idEspacio + ".xlsx");
+
+        // Escribir archivo
+        workbook.write(response.getOutputStream());
+        workbook.close();
     }
 
 

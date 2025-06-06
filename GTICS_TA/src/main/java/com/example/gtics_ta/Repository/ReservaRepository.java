@@ -85,5 +85,6 @@ public interface ReservaRepository extends JpaRepository<Reservas, Integer> {
             "GROUP BY HOUR(h.horaInicio) " +
             "ORDER BY HOUR(h.horaInicio)")
     List<Object[]> distribucionReservasPorHora();
+    List<Reservas> findByEspacioDeportivoId(Integer idEspacio);
 
 }
