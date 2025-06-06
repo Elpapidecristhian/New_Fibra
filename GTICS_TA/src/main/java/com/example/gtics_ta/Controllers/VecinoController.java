@@ -277,50 +277,34 @@ public class VecinoController {
     @PostMapping("/guardarperfil")
     public String guardarPerfil(@ModelAttribute("usuario") @Valid Usuario usuario, BindingResult bindingResult, @RequestParam("archivo") MultipartFile file , Model model) {
         if(bindingResult.hasErrors()) {
-            model.addAttribute("usuario", usuario);
             return "vecino/perfil";
         }
 
-        if (file.isEmpty()) {
-            model.addAttribute("usuario", usuario);
-            model.addAttribute("msg", "Debe subir una imagen");
+        if(file.isEmpty()) {
             return "vecino/perfil";
         }
 
         String fileName = file.getOriginalFilename();
-        String tipoArchivo = file.getContentType();
 
-        // Validación de nombre de archivo
-        if (fileName == null || fileName.contains("..")) {
-            model.addAttribute("usuario", usuario);
-            model.addAttribute("msg", "Nombre de archivo inválido");
+        if (fileName.contains("..")){
+            model.addAttribute("msg","Debe ingresar un archivo válido");
             return "vecino/perfil";
         }
 
-        // Validación de tipo MIME
-        if (tipoArchivo == null || (!tipoArchivo.equals("image/jpeg") && !tipoArchivo.equals("image/png"))) {
-            model.addAttribute("usuario", usuario);
-            model.addAttribute("msg", "Solo se permiten archivos JPG o PNG");
-            return "vecino/perfil";
-        }
-
-        // Validación de tamaño (máx. 2MB)
-        if (file.getSize() > 2 * 1024 * 1024) {
-            model.addAttribute("usuario", usuario);
-            model.addAttribute("msg", "El tamaño máximo permitido es de 2MB");
+        String contentType = file.getContentType();
+        if (contentType == null || !contentType.matches("image/(jpeg|png|jpg|gif|bmp|webp)")) {
+            model.addAttribute("msg", "El archivo debe ser una imagen (jpg, png, gif, etc)");
             return "vecino/perfil";
         }
 
         try {
             usuario.setFoto(file.getBytes());
             usuario.setFotoNombre(fileName);
-            usuario.setFotoTipoArchivo(tipoArchivo);
+            usuario.setFotoTipoArchivo(contentType);
             usuarioRepository.save(usuario);
             return "redirect:/vecino/perfil";
         } catch (Exception e) {
             e.printStackTrace();
-            model.addAttribute("usuario", usuario);
-            model.addAttribute("msg", "Error al guardar la imagen");
             return "vecino/perfil";
         }
     }
