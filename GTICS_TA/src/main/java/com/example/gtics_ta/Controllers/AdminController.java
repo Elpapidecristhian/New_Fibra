@@ -248,7 +248,12 @@ public class AdminController {
         return "redirect:/admin";
     }
 
+//reservas uwu
 
+    @GetMapping("/reservas")
+        public String Reservas(Model model){
+        return "admin/reservas";
+    }
 
 
 }
