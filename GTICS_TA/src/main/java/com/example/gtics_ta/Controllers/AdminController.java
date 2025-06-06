@@ -58,10 +58,29 @@ public class AdminController {
     // DASHBOARD PRINCIPAL
     @GetMapping(value = {"","/"})
     public String dashboard(Model model) {
-        // Agregar datos para el dashboard
+        // Crear objeto AdminDTO con datos básicos
+        AdminDTO dashboard = new AdminDTO();
+
+        // Datos básicos
         List<EspaciosDeportivos> espacios = espaciosRepository.findAll();
         List<Reservas> reservas = reservaRepository.findAll();
 
+        dashboard.setTotalUsuarios(0); // TODO: implementar conteo de usuarios
+        dashboard.setTotalUsuariosBaneados(0); // TODO: implementar conteo de usuarios baneados
+        dashboard.setCantidadTotalReservas(reservas.size());
+        dashboard.setEspaciosDisponibles(espacios.size());
+
+        // Datos para gráficos (valores por defecto)
+        dashboard.setNombresServiciosTop(List.of("Piscina", "Cancha", "Pista"));
+        dashboard.setCantidadReservasTop(List.of(10L, 8L, 5L));
+        dashboard.setNombresServiciosPorcentaje(List.of("Piscina", "Cancha", "Pista"));
+        dashboard.setCantidadServiciosPorcentaje(List.of(10L, 8L, 5L));
+        dashboard.setHorasReservas(List.of("08:00", "09:00", "10:00", "11:00"));
+        dashboard.setCantidadReservasPorHora(List.of(2L, 5L, 8L, 3L));
+        dashboard.setNombresUsuariosTop(List.of("Usuario1", "Usuario2", "Usuario3"));
+        dashboard.setCantidadReservasUsuariosTop(List.of(5L, 3L, 2L));
+
+        model.addAttribute("dashboard", dashboard);
         model.addAttribute("totalEspacios", espacios.size());
         model.addAttribute("totalReservas", reservas.size());
         model.addAttribute("listaEspacios", espacios);

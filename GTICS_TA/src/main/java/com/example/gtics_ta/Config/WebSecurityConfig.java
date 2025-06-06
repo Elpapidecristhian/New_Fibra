@@ -103,7 +103,8 @@ public class WebSecurityConfig {
     @Bean
     public UserDetailsManager users() {
         JdbcUserDetailsManager users = new JdbcUserDetailsManager(this.dataSource);
-        users.setUsersByUsernameQuery("SELECT correo, contrasenia, activo FROM gtics.usuario WHERE correo = ?");
+        // REVERTIDO: Usar activo = 1 como funcionaba originalmente
+        users.setUsersByUsernameQuery("SELECT correo, contrasenia, activo FROM gtics.usuario WHERE correo = ? AND activo = 1");
         users.setAuthoritiesByUsernameQuery(
                 "SELECT u.correo, r.nombre FROM gtics.usuario u " +
                         "INNER JOIN gtics.roles r ON u.id_rol = r.id_rol " +
