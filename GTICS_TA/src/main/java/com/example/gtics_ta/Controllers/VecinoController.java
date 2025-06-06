@@ -286,6 +286,7 @@ public class VecinoController {
 
         String fileName = file.getOriginalFilename();
 
+        assert fileName != null;
         if (fileName.contains("..")){
             model.addAttribute("msg","Debe ingresar un archivo válido");
             return "vecino/perfil";
