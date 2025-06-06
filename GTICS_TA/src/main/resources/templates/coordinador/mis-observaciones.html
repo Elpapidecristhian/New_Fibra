@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="">
+  <meta name="author" content="">
+  <link rel="icon" th:href="@{/images/logo-solo.png}">
+
+  <title>Mis Observaciones - Coordinador</title>
+
+  <!-- Vendors Style-->
+  <link rel="stylesheet" th:href="@{/css/vendors_css.css}" >
+
+  <!-- Font Awesome -->
+  <link rel="stylesheet" th:href="@{/assets/icons/font-awesome/css/font-awesome.min.css}">
+
+  <!-- Style-->
+  <link rel="stylesheet" th:href="@{/css/style.css}">
+  <link rel="stylesheet" th:href="@{/css/skin_color.css}">
+  
+  <style>
+    .observacion-card {
+      border-left: 4px solid;
+      margin-bottom: 15px;
+      transition: transform 0.2s;
+    }
+    .observacion-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    .observacion-reparacion {
+      border-left-color: #dc3545;
+    }
+    .observacion-general {
+      border-left-color: #007bff;
+    }
+    .fecha-observacion {
+      font-size: 0.85em;
+      color: #6c757d;
+    }
+    .tipo-badge {
+      font-size: 0.75em;
+      padding: 0.25em 0.5em;
+    }
+  </style>
+</head>
+
+<body class="hold-transition light-skin sidebar-mini theme-success fixed">
+
+<div class="wrapper">
+  <div id="loader"></div>
+
+  <header class="main-header">
+    <div class="d-flex align-items-center logo-box justify-content-center">
+      <!-- Logo -->
+      <a th:href="@{/coordinador/principal}" class="logo">
+        <!-- logo-->
+        <div class="logo-mini w-150 text-center">
+          <span class="light-logo"><img th:src="@{/images/logo-sanMiguel.png}" alt="logo"></span>
+        </div>
+      </a>
+    </div>
+    <!-- Header Navbar -->
+    <nav class="navbar navbar-static-top">
+      <!-- Sidebar toggle button-->
+      <div class="app-menu">
+        <ul class="header-megamenu nav">
+          <li class="btn-group nav-item">
+            <a href="#" class="waves-effect waves-light nav-link push-btn btn-primary-light" data-toggle="push-menu" role="button">
+              <i data-feather="align-left"></i>
+            </a>
+          </li>
+        </ul>
+      </div>
+
+      <div class="navbar-custom-menu r-side">
+        <ul class="nav navbar-nav">
+          <!-- User Account-->
+          <li>
+            <a class="waves-effect waves-light dropdown-toggle w-auto l-h-12 bg-transparent py-0 no-shadow" data-bs-toggle="dropdown" title="User">
+              <div class="d-flex pt-5">
+                <div class="text-end me-10">
+                  <p class="pt-5 fs-14 mb-0 fw-700 text-primary" th:text="${session.usuario.nombres+ ' ' + session.usuario.apellidos}" ></p>
+                  <small class="fs-10 mb-0 text-uppercase text-mute" th:text="${session.usuario.rol.nombre}"></small>
+                </div>
+                <img th:src="@{/images/avatar/avatar-1.png}" class="avatar rounded-10 bg-primary-light h-40 w-40" alt="" />
+              </div>
+            </a>
+          </li>
+        </ul>
+      </div>
+    </nav>
+  </header>
+
+  <!-- Left side column. contains the logo and sidebar -->
+  <aside class="main-sidebar">
+    <!-- sidebar-->
+    <section class="sidebar position-relative">
+      <div class="multinav">
+        <div class="multinav-scroll" style="height: 100%;">
+          <!-- sidebar menu-->
+          <ul class="sidebar-menu" data-widget="tree">
+            <li>
+              <a th:href="@{/coordinador/perfil(id=3)}">
+                <i data-feather="user"></i>
+                <span>Perfil</span>
+              </a>
+            </li>
+            <li>
+              <a th:href="@{/coordinador/principal}">
+                <i data-feather="clock"></i>
+                <span>Marcar asistencia</span>
+              </a>
+            </li>
+            <li class="active">
+              <a th:href="@{/coordinador/mis-observaciones}">
+                <i data-feather="file-text"></i>
+                <span>Mis Observaciones</span>
+              </a>
+            </li>
+            <li>
+              <a href="#" class="nav-link" onclick="document.getElementById('logoutForm').submit(); return false;">
+                <i data-feather="log-out"></i>
+                <span>Cerrar sesión</span>
+              </a>
+              <form id="logoutForm" th:action="@{/logout}" method="post" style="display: none;"></form>
+            </li>
+          </ul>
+
+          <div class="sidebar-widgets">
+            <div class="copyright text-center m-25">
+              <p><strong class="d-block">Municipalidad de San Miguel</strong> © <script>document.write(new Date().getFullYear())</script> All Rights Reserved</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </aside>
+
+  <!-- Content Wrapper. Contains page content -->
+  <div class="content-wrapper">
+    <div class="container-full">
+      <!-- Content Header (Page header) -->
+      <div class="content-header">
+        <div class="d-flex align-items-center">
+          <div class="me-auto">
+            <h4 class="page-title">Mis Observaciones</h4>
+            <div class="d-inline-block align-items-center">
+              <nav>
+                <ol class="breadcrumb">
+                  <li class="breadcrumb-item"><a href="#"><i class="mdi mdi-home-outline"></i></a></li>
+                  <li class="breadcrumb-item"><a th:href="@{/coordinador/principal}">Menú</a></li>
+                  <li class="breadcrumb-item active" aria-current="page">Observaciones</li>
+                </ol>
+              </nav>
+            </div>
+          </div>
+          <div class="text-end">
+            <a th:href="@{/coordinador/principal}" class="btn btn-primary">
+              <i class="fa fa-plus me-2"></i>Nueva Observación
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Main content -->
+      <section class="content">
+        <div class="row">
+          <div class="col-12">
+            <div class="box">
+              <div class="box-header with-border">
+                <h4 class="box-title">
+                  <i class="fa fa-list me-2"></i>Historial de Observaciones
+                </h4>
+                <div class="box-tools pull-right">
+                  <span class="badge badge-info">Total: <span th:text="${#lists.size(comentarios)}">0</span></span>
+                </div>
+              </div>
+              <!-- /.box-header -->
+              <div class="box-body">
+                
+                <!-- Mensaje si no hay observaciones -->
+                <div th:if="${#lists.isEmpty(comentarios)}" class="text-center py-5">
+                  <i class="fa fa-clipboard fa-4x text-muted mb-3"></i>
+                  <h5 class="text-muted">No has registrado observaciones aún</h5>
+                  <p class="text-muted">Cuando registres observaciones o reportes de mantenimiento, aparecerán aquí.</p>
+                  <a th:href="@{/coordinador/principal}" class="btn btn-primary">
+                    <i class="fa fa-plus me-2"></i>Registrar Primera Observación
+                  </a>
+                </div>
+
+                <!-- Lista de observaciones -->
+                <div th:if="${!#lists.isEmpty(comentarios)}">
+                  <div th:each="comentario : ${comentarios}" 
+                       th:class="'card observacion-card ' + (${comentario.tipoComentario.id == 2} ? 'observacion-reparacion' : 'observacion-general')">
+                    <div class="card-body">
+                      <div class="d-flex justify-content-between align-items-start mb-2">
+                        <div class="flex-grow-1">
+                          <h6 class="card-title mb-1">
+                            <i th:class="${comentario.tipoComentario.id == 2} ? 'fa fa-wrench text-danger' : 'fa fa-comment text-primary'" class="me-2"></i>
+                            <span th:text="${comentario.espacio.nombre}">Espacio Deportivo</span>
+                          </h6>
+                          <small class="fecha-observacion">
+                            <i class="fa fa-calendar me-1"></i>
+                            <span th:text="${#temporals.format(comentario.fechaCreacion, 'dd/MM/yyyy HH:mm')}">Fecha</span>
+                          </small>
+                        </div>
+                        <div>
+                          <span th:if="${comentario.tipoComentario.id == 2}" 
+                                class="badge bg-danger tipo-badge">
+                            🔧 Mantenimiento
+                          </span>
+                          <span th:if="${comentario.tipoComentario.id == 1}" 
+                                class="badge bg-primary tipo-badge">
+                            📝 Observación
+                          </span>
+                        </div>
+                      </div>
+                      
+                      <div class="card-text">
+                        <p class="mb-2" th:text="${comentario.contenido}">Contenido de la observación</p>
+                        <small class="text-muted">
+                          <i class="fa fa-map-marker me-1"></i>
+                          Tipo: <span th:text="${comentario.espacio.tipoEspacio.nombre}">Tipo de espacio</span>
+                        </small>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+              <!-- /.box-body -->
+            </div>
+            <!-- /.box -->
+          </div>
+        </div>
+      </section>
+      <!-- /.content -->
+    </div>
+  </div>
+  <!-- /.content-wrapper -->
+
+  <footer class="main-footer">
+    &copy; <script>document.write(new Date().getFullYear())</script> <a>New Fibra</a>. All Rights Reserved.
+  </footer>
+
+</div>
+
+<!-- Vendor JS -->
+<script th:src="@{/js/vendors.min.js}"></script>
+<script th:src="@{/js/pages/chat-popup.js}"></script>
+<script th:src="@{/assets/icons/feather-icons/feather.min.js}"></script>
+
+<!-- Rhythm Admin App -->
+<script th:src="@{/js/template.js}"></script>
+
+</body>
+</html>

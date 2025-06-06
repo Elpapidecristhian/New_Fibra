@@ -1,9 +1,7 @@
 package com.example.gtics_ta.Controllers;
 
-import com.example.gtics_ta.Entity.TipoEspacio;
-import com.example.gtics_ta.Entity.Usuario;
-import com.example.gtics_ta.Repository.TipoEspacioRepository;
-import com.example.gtics_ta.Repository.UsuarioRepository;
+import com.example.gtics_ta.Entity.*;
+import com.example.gtics_ta.Repository.*;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +13,7 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.http.HttpHeaders;
 
 import java.io.IOException;
@@ -28,6 +27,12 @@ public class CoordinadorController {
     UsuarioRepository usuarioRepository;
     @Autowired
     private TipoEspacioRepository tipoEspacioRepository;
+    @Autowired
+    private ComentariosRepository comentariosRepository;
+    @Autowired
+    private TipoComentarioRepository tipoComentarioRepository;
+    @Autowired
+    private EspaciosDeportivosRepository espaciosDeportivosRepository;
 
     @GetMapping("/perfil")
     public String coordinadorPerfil(@ModelAttribute("usuario") Usuario usuario, HttpSession session, Model model) {
@@ -100,6 +105,10 @@ public class CoordinadorController {
         List<TipoEspacio> tiposEspacio = tipoEspacioRepository.findAllByOrderByNombreAsc();
         model.addAttribute("tiposEspacio", tiposEspacio);
 
+        // Obtener lista de espacios deportivos para el select
+        List<EspaciosDeportivos> espaciosDeportivos = espaciosDeportivosRepository.findAll();
+        model.addAttribute("espaciosDeportivos", espaciosDeportivos);
+
         return "coordinador/principal";
     }
 
@@ -135,6 +144,95 @@ public class CoordinadorController {
             usuarioRepository.save(usuario);
         }
         return "redirect:/coordinador/perfil/" + id;
+    }
+
+    @PostMapping("/guardar-observacion")
+    public String guardarObservacion(@RequestParam("tipoServicio") Integer tipoServicioId,
+                                     @RequestParam("tipoComentario") String tipoComentario,
+                                     @RequestParam("comentarios") String contenido,
+                                     HttpSession session,
+                                     RedirectAttributes redirectAttributes) {
+
+        try {
+            // Obtener el usuario de la sesión
+            Usuario usuario = (Usuario) session.getAttribute("usuario");
+            if (usuario == null) {
+                redirectAttributes.addFlashAttribute("error", "Sesión expirada. Por favor, inicie sesión nuevamente.");
+                return "redirect:/login";
+            }
+
+            // Validar que se haya seleccionado un tipo de servicio
+            if (tipoServicioId == null) {
+                redirectAttributes.addFlashAttribute("error", "Debe seleccionar un tipo de servicio.");
+                return "redirect:/coordinador/principal";
+            }
+
+            // Validar que el contenido no esté vacío
+            if (contenido == null || contenido.trim().isEmpty()) {
+                redirectAttributes.addFlashAttribute("error", "Debe ingresar una descripción.");
+                return "redirect:/coordinador/principal";
+            }
+
+            // Buscar el primer espacio deportivo del tipo seleccionado
+            // (Puedes modificar esto para permitir seleccionar un espacio específico)
+            List<EspaciosDeportivos> espacios = espaciosDeportivosRepository.findByTipoEspacio_Id(tipoServicioId);
+            if (espacios.isEmpty()) {
+                redirectAttributes.addFlashAttribute("error", "No se encontraron espacios para el tipo de servicio seleccionado.");
+                return "redirect:/coordinador/principal";
+            }
+
+            EspaciosDeportivos espacio = espacios.get(0); // Tomar el primer espacio del tipo
+
+            // Determinar el tipo de comentario basado en la selección del radio button
+            // Según tu BD: 1 = reparacion, 2 = comentario
+            Integer tipoComentarioId;
+            if ("reparacion".equals(tipoComentario)) {
+                tipoComentarioId = 1; // Reparación (según tu BD)
+            } else {
+                tipoComentarioId = 2; // Comentario general (según tu BD)
+            }
+
+            // Buscar el tipo de comentario en la BD
+            Optional<TipoComentario> tipoComentarioOpt = tipoComentarioRepository.findById(tipoComentarioId);
+            if (tipoComentarioOpt.isEmpty()) {
+                redirectAttributes.addFlashAttribute("error", "Tipo de comentario no válido.");
+                return "redirect:/coordinador/principal";
+            }
+
+            // Crear y guardar el comentario
+            Comentarios comentario = new Comentarios();
+            comentario.setEspacio(espacio);
+            comentario.setUsuario(usuario);
+            comentario.setTipoComentario(tipoComentarioOpt.get());
+            comentario.setContenido(contenido.trim());
+
+            comentariosRepository.save(comentario);
+
+            // Mensaje de éxito
+            String tipoMensaje = tipoComentarioId == 1 ? "reporte de reparación" : "observación";
+            redirectAttributes.addFlashAttribute("success",
+                "Su " + tipoMensaje + " ha sido registrado exitosamente para el espacio: " + espacio.getNombre());
+
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error",
+                "Ocurrió un error al guardar la observación: " + e.getMessage());
+        }
+
+        return "redirect:/coordinador/principal";
+    }
+
+    @GetMapping("/mis-observaciones")
+    public String verMisObservaciones(HttpSession session, Model model) {
+        Usuario usuario = (Usuario) session.getAttribute("usuario");
+        if (usuario == null) {
+            return "redirect:/login";
+        }
+
+        // Obtener todas las observaciones del coordinador
+        List<Comentarios> misComentarios = comentariosRepository.findByUsuarioOrderByFechaCreacionDesc(usuario);
+        model.addAttribute("comentarios", misComentarios);
+
+        return "coordinador/mis-observaciones";
     }
 
 }
