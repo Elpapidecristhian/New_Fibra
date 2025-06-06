@@ -15,5 +15,6 @@ public interface EspaciosDeportivosRepository extends JpaRepository<EspaciosDepo
     List<EspaciosDeportivos> findByTipoEspacio_Id(int id);
     List<EspaciosDeportivos> findByTipoEspacio_IdAndNombreContaining(int tipoEspacio, String nombre);
     List<EspaciosDeportivos> findByNombreContaining(String nombre);
-}
+    long countByOperativo(boolean operativo);
 
+}

@@ -1,5 +1,6 @@
 package com.example.gtics_ta.Controllers;
 
+import com.example.gtics_ta.DTO.AdminDTO;
 import com.example.gtics_ta.DTO.ServicioDTO;
 import com.example.gtics_ta.Entity.*;
 import com.example.gtics_ta.Repository.*;
@@ -15,10 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @Controller
 @RequestMapping("/admin")
@@ -40,8 +38,9 @@ public class AdminController {
     private ListaFotosRepository listaFotosRepository;
 
     @Autowired
-    private ReservasRepository reservasRepository;
-
+    private ReservaRepository reservaRepository;
+    @Autowired
+    private UsuarioRepository usuarioRepository;
     @Autowired
     private HorariosRepository horariosRepository;
     @Autowired

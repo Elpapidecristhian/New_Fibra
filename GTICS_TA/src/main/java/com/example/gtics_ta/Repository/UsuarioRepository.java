@@ -1,4 +1,6 @@
 package com.example.gtics_ta.Repository;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 import org.springframework.data.jpa.repository.JpaRepository;
 import com.example.gtics_ta.Entity.Usuario;
 import org.springframework.stereotype.Repository;
@@ -10,8 +12,11 @@ import java.util.Optional;
 public interface UsuarioRepository extends JpaRepository<Usuario, Integer> {
     List<Usuario> findByActivo(boolean isActivo);
     long count(); // total de usuarios
-
+    long countByActivo(boolean activo); // 🔹 NUEVO: para dashboard
     List<Usuario> findAll();
     Usuario findByCorreo(String correo);
 
+    boolean existsByCorreo(String correo);
+
+    boolean existsByDni(Integer dni);
 }

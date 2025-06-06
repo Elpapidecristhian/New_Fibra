@@ -10,6 +10,7 @@ import lombok.*;
 public class Pagos {
     @Id
     @Column(name = "id_pagos")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     private float cantidad;
     @ManyToOne
