@@ -1,10 +1,14 @@
 package com.example.gtics_ta.Controllers;
 
 import com.example.gtics_ta.DTO.ReniecDTO;
+import com.example.gtics_ta.Entity.AccountActivate;
 import com.example.gtics_ta.Entity.Usuario;
+import com.example.gtics_ta.Repository.AccountActivateRepository;
 import com.example.gtics_ta.Repository.RolRepository;
 import com.example.gtics_ta.Repository.UsuarioRepository;
+import com.example.gtics_ta.Services.MailService;
 import com.example.gtics_ta.Services.ReniecService;
+import com.fasterxml.jackson.databind.annotation.JsonAppend;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -15,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.LocalDate;
+import java.util.UUID;
 
 @Controller
 @RequestMapping("/signup")
@@ -30,6 +35,12 @@ public class SignUpController {
 
     @Autowired
     private ReniecService reniecService;
+
+    @Autowired
+    private AccountActivateRepository accountActivateRepository;
+
+    @Autowired
+    private MailService emailService;
 
     @GetMapping(value = {"", "/"})
     public String mostrarFormularioRegistro(@ModelAttribute("usuario") Usuario usuario, Model model) {
@@ -66,11 +77,39 @@ public class SignUpController {
         usuario.setContrasenia(passwordEncoder.encode(usuario.getContrasenia()));
         usuario.setActivo(true);
         usuario.setRol(rolRepository.findByNombre("Vecino"));
+        usuario.setActivo(false);
 
         usuarioRepository.save(usuario);
 
-        attr.addFlashAttribute("msg", "Usuario registrado correctamente.");
+        String token = UUID.randomUUID().toString();
+        AccountActivate accountActivate = new AccountActivate();
+        accountActivate.setUsuario(usuario);
+        accountActivate.setToken(token);
+        accountActivateRepository.save(accountActivate);
+
+        String link = "localhost:8080/signup/activarcuenta?token=" + token;
+        String asunto = "Hola " + usuario.getNombres() + " " + usuario.getApellidos() + ".\n" +
+                        "Para activar tu cuenta solo tienes que entrar al siguente enlace: " + link;
+
+        emailService.enviarCorreo(usuario.getCorreo(), "Activa tu cuenta", asunto);
+
+        attr.addFlashAttribute("msg", "Usuario registrado correctamente. \nRevise su correo para activar su cuenta");
         return "redirect:/login";
+    }
+
+    @GetMapping("/activarcuenta")
+    public String activarCuenta(@RequestParam("token") String token, Model model) {
+        AccountActivate activate = accountActivateRepository.findByToken(token);
+        if (activate == null) {
+            return "/login/login";
+        } else {
+            Usuario usuario = activate.getUsuario();
+            usuario.setActivo(true);
+            usuarioRepository.save(usuario);
+            accountActivateRepository.delete(activate);
+            model.addAttribute("usuario", usuario);
+            return "/login/cuentaactiva";
+        }
     }
 
     @PostMapping("/buscardni")
@@ -83,9 +122,11 @@ public class SignUpController {
                 usuario.setDni(Integer.valueOf(dni));
             }
             model.addAttribute("usuario", usuario);
+            model.addAttribute("hoy", LocalDate.now());
             return "/login/signup";
         } catch (Exception e) {
             model.addAttribute("errorDNIConsulta", "No se pudo encontrar información del DNI");
+            model.addAttribute("hoy", LocalDate.now());
             return "/login/signup";
         }
     }

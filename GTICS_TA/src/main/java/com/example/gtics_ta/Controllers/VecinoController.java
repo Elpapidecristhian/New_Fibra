@@ -238,6 +238,7 @@ public class VecinoController {
         //Pago chancado
         Pagos pago = new Pagos();
         pago.setId(1);
+        pago.setCantidad(reserva.getEspacioDeportivo().getCostoHorario());
         reserva.setPago(pago);
 
         horarioReservadoRepository.save(horarioReservado);

@@ -7,11 +7,6 @@ SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,N
 -- -----------------------------------------------------
 -- Schema mydb
 -- -----------------------------------------------------
-
--- -----------------------------------------------------
--- Schema mydb
--- -----------------------------------------------------
-CREATE SCHEMA IF NOT EXISTS `mydb` DEFAULT CHARACTER SET utf8mb3 ;
 -- -----------------------------------------------------
 -- Schema gtics
 -- -----------------------------------------------------
@@ -20,74 +15,6 @@ CREATE SCHEMA IF NOT EXISTS `mydb` DEFAULT CHARACTER SET utf8mb3 ;
 -- Schema gtics
 -- -----------------------------------------------------
 CREATE SCHEMA IF NOT EXISTS `gtics` DEFAULT CHARACTER SET utf8mb3 ;
-USE `mydb` ;
-
--- -----------------------------------------------------
--- Table `mydb`.`actor`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `mydb`.`actor` (
-  `idActor` INT NOT NULL AUTO_INCREMENT,
-  `Nombre` VARCHAR(100) NOT NULL,
-  `Apellido` VARCHAR(100) NOT NULL,
-  `anoNacimiento` INT NULL DEFAULT NULL,
-  `premioOscar` TINYINT NOT NULL,
-  PRIMARY KEY (`idActor`))
-ENGINE = InnoDB
-AUTO_INCREMENT = 29
-DEFAULT CHARACTER SET = utf8mb3;
-
-
--- -----------------------------------------------------
--- Table `mydb`.`genero`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `mydb`.`genero` (
-  `idGenero` INT NOT NULL AUTO_INCREMENT,
-  `nombre` VARCHAR(45) NULL DEFAULT NULL,
-  PRIMARY KEY (`idGenero`))
-ENGINE = InnoDB
-AUTO_INCREMENT = 8
-DEFAULT CHARACTER SET = utf8mb3;
-
-
--- -----------------------------------------------------
--- Table `mydb`.`pelicula`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `mydb`.`pelicula` (
-  `idPelicula` INT NOT NULL AUTO_INCREMENT,
-  `titulo` VARCHAR(200) NOT NULL,
-  `director` VARCHAR(200) NOT NULL,
-  `anoPublicacion` INT NOT NULL,
-  `rating` DOUBLE NULL DEFAULT NULL,
-  `boxOffice` DOUBLE NULL DEFAULT NULL,
-  `idGenero` INT NOT NULL,
-  PRIMARY KEY (`idPelicula`, `idGenero`),
-  INDEX `fk_Pelicula_Genero_idx` (`idGenero` ASC) VISIBLE,
-  CONSTRAINT `fk_Pelicula_Genero`
-    FOREIGN KEY (`idGenero`)
-    REFERENCES `mydb`.`genero` (`idGenero`))
-ENGINE = InnoDB
-AUTO_INCREMENT = 15
-DEFAULT CHARACTER SET = utf8mb3;
-
-
--- -----------------------------------------------------
--- Table `mydb`.`protagonistas`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `mydb`.`protagonistas` (
-  `idPelicula` INT NOT NULL,
-  `idActor` INT NOT NULL,
-  PRIMARY KEY (`idPelicula`, `idActor`),
-  INDEX `fk_Pelicula_has_Actor_Actor1_idx` (`idActor` ASC) VISIBLE,
-  INDEX `fk_Pelicula_has_Actor_Pelicula1_idx` (`idPelicula` ASC) VISIBLE,
-  CONSTRAINT `fk_Pelicula_has_Actor_Actor1`
-    FOREIGN KEY (`idActor`)
-    REFERENCES `mydb`.`actor` (`idActor`),
-  CONSTRAINT `fk_Pelicula_has_Actor_Pelicula1`
-    FOREIGN KEY (`idPelicula`)
-    REFERENCES `mydb`.`pelicula` (`idPelicula`))
-ENGINE = InnoDB
-DEFAULT CHARACTER SET = utf8mb3;
-
 USE `gtics` ;
 
 -- -----------------------------------------------------
@@ -183,7 +110,7 @@ CREATE TABLE IF NOT EXISTS `gtics`.`usuario` (
     FOREIGN KEY (`id_rol`)
     REFERENCES `gtics`.`roles` (`id_rol`))
 ENGINE = InnoDB
-AUTO_INCREMENT = 10
+AUTO_INCREMENT = 11
 DEFAULT CHARACTER SET = utf8mb3;
 
 
@@ -271,6 +198,7 @@ CREATE TABLE IF NOT EXISTS `gtics`.`comentarios` (
   `id_usuario` INT NOT NULL,
   `id_tipo_comentario` INT NOT NULL,
   `contenido` VARCHAR(255) NULL DEFAULT NULL,
+  `fecha_creacion` DATETIME(6) NULL DEFAULT NULL,
   PRIMARY KEY (`id_comentarios`),
   INDEX `fk_comentarios_espaciosdeportivos1_idx` (`id_espacio` ASC) VISIBLE,
   INDEX `fk_comentarios_tipocomentario1_idx` (`id_tipo_comentario` ASC) VISIBLE,
@@ -390,6 +318,22 @@ DEFAULT CHARACTER SET = utf8mb3;
 
 
 -- -----------------------------------------------------
+-- Table `gtics`.`passwdreset`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `gtics`.`passwdreset` (
+  `id_usuario` INT NOT NULL,
+  `token` VARCHAR(255) NOT NULL,
+  `expiracion` DATETIME(6) NULL DEFAULT NULL,
+  PRIMARY KEY (`token`),
+  INDEX `fk_passwdreset_usuario1_idx` (`id_usuario` ASC) VISIBLE,
+  CONSTRAINT `fk_passwdreset_usuario1`
+    FOREIGN KEY (`id_usuario`)
+    REFERENCES `gtics`.`usuario` (`id_usuario`))
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb3;
+
+
+-- -----------------------------------------------------
 -- Table `gtics`.`piscinas`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `gtics`.`piscinas` (
@@ -496,15 +440,15 @@ ROW_FORMAT = DYNAMIC;
 
 
 -- -----------------------------------------------------
--- Table `gtics`.`passwdreset`
+-- Table `gtics`.`accountactivate`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `gtics`.`passwdreset` (
+CREATE TABLE IF NOT EXISTS `gtics`.`accountactivate` (
+  `token` VARCHAR(100) NOT NULL,
   `id_usuario` INT NOT NULL,
-  `token` VARCHAR(30) NOT NULL,
-  `expiracion` DATE NOT NULL,
-  INDEX `fk_passwdreset_usuario1_idx` (`id_usuario` ASC) VISIBLE,
   PRIMARY KEY (`token`),
-  CONSTRAINT `fk_passwdreset_usuario1`
+  UNIQUE INDEX `token_UNIQUE` (`token` ASC) VISIBLE,
+  INDEX `fk_accountactivate_usuario1_idx` (`id_usuario` ASC) VISIBLE,
+  CONSTRAINT `fk_accountactivate_usuario1`
     FOREIGN KEY (`id_usuario`)
     REFERENCES `gtics`.`usuario` (`id_usuario`)
     ON DELETE NO ACTION
