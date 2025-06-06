@@ -47,6 +47,7 @@ public class WebSecurityConfig {
         http.formLogin(form -> form
                 .loginPage("/login")
                 .loginProcessingUrl("/procesar-login")
+                .failureUrl("/login?errorcred=true")
                 .successHandler((request, response, authentication) -> {
                     RedirectStrategy redirectStrategy = new DefaultRedirectStrategy();
                     DefaultSavedRequest defaultSavedRequest =

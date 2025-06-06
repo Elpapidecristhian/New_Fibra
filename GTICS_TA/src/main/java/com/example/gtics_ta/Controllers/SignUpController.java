@@ -69,14 +69,14 @@ public class SignUpController {
 
         usuarioRepository.save(usuario);
 
-        attr.addFlashAttribute("exito", "Usuario registrado correctamente.");
+        attr.addFlashAttribute("msg", "Usuario registrado correctamente.");
         return "redirect:/login";
     }
 
     @PostMapping("/buscardni")
     public String buscarDNI(@RequestParam("dni") String dni, Model model, @ModelAttribute("usuario") Usuario usuario) {
         try {
-            ReniecDTO respuesta = reniecService.consultaPorDNI(String.valueOf(usuario.getDni()));
+            ReniecDTO respuesta = reniecService.consultaPorDNI(dni);
             if (respuesta != null) {
                 usuario.setNombres(respuesta.getNombres());
                 usuario.setApellidos(respuesta.getApellidoPaterno() + " " + respuesta.getApellidoMaterno());
