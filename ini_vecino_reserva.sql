@@ -37,6 +37,12 @@ INSERT INTO mediospago(id_medios_pago, nombre) VALUES (1, 'Yape');
 
 INSERT INTO pagos(id_pagos, cantidad, id_medios_pago) VALUES (1, 25, 1);
 
+INSERT INTO `gtics`.`mediospago` (`nombre`, `tipo_pago`, `requiere_verificacion`, `activo`, `descripcion`, `datos_cuenta`, `icono`) VALUES
+('Tarjeta de Crédito/Débito', 'AUTOMATICO', 0, 1, 'Pago con tarjeta a través de pasarela segura', NULL, 'credit-card.png'),
+('Transferencia Bancaria', 'MANUAL', 1, 1, 'Transferencia a cuenta bancaria', 'Banco: BCP\nCuenta: 123-456789-0-12\nCCI: 00212312345678901234', 'bank-transfer.png'),
+('Yape', 'MANUAL', 1, 1, 'Pago mediante Yape', 'Número Yape: 987654321\nNombre: Espacios Deportivos SAC', 'yape.png'),
+('Plin', 'MANUAL', 1, 1, 'Pago mediante Plin', 'Número Plin: 987654321\nNombre: Espacios Deportivos SAC', 'plin.png');
+
 UPDATE usuario SET activo = true where id_usuario=1;
 
 SELECT * FROM usuario;

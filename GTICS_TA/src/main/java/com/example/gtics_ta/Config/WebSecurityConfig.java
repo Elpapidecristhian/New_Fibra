@@ -1,6 +1,5 @@
 package com.example.gtics_ta.Config;
 
-import com.example.gtics_ta.Entity.Usuario;
 import com.example.gtics_ta.Repository.UsuarioRepository;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.context.annotation.Bean;
@@ -47,6 +46,7 @@ public class WebSecurityConfig {
         http.formLogin(form -> form
                 .loginPage("/login")
                 .loginProcessingUrl("/procesar-login")
+                .failureUrl("/login?errorcred=true")
                 .successHandler((request, response, authentication) -> {
                     RedirectStrategy redirectStrategy = new DefaultRedirectStrategy();
                     DefaultSavedRequest defaultSavedRequest =
@@ -54,7 +54,6 @@ public class WebSecurityConfig {
 
                     HttpSession session = request.getSession();
                     session.setAttribute("usuario", usuarioRepository.findByCorreo(authentication.getName()));
-
 
                     if (defaultSavedRequest != null) {
                         String targetURL = defaultSavedRequest.getRedirectUrl();
@@ -102,12 +101,12 @@ public class WebSecurityConfig {
     }
 
     @Bean
-    public UserDetailsManager users(DataSource dataSource) {
-        JdbcUserDetailsManager users = new JdbcUserDetailsManager(dataSource);
+    public UserDetailsManager users() {
+        JdbcUserDetailsManager users = new JdbcUserDetailsManager(this.dataSource);
         users.setUsersByUsernameQuery("SELECT correo, contrasenia, activo FROM gtics.usuario WHERE correo = ?");
         users.setAuthoritiesByUsernameQuery(
-                "SELECT u.correo, r.nombre FROM usuario u " +
-                        "INNER JOIN roles r ON u.id_rol = r.id_rol " +
+                "SELECT u.correo, r.nombre FROM gtics.usuario u " +
+                        "INNER JOIN gtics.roles r ON u.id_rol = r.id_rol " +
                         "WHERE u.correo = ? AND u.activo = 1"
         );
         return users;

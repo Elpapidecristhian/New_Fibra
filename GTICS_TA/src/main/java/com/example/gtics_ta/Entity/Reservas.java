@@ -35,4 +35,31 @@ public class Reservas {
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     @Column(name = "fecha_reserva")
     private LocalDate fechaReserva;
+
+    // Nuevos campos para gestión de reservas
+    @Enumerated(EnumType.STRING)
+    @Column(name = "estado_reserva")
+    private EstadoReserva estadoReserva = EstadoReserva.ACTIVA;
+
+    @Column(name = "motivo_cancelacion")
+    private String motivoCancelacion;
+
+    @Column(name = "fecha_cancelacion")
+    private Timestamp fechaCancelacion;
+
+    @ManyToOne
+    @JoinColumn(name = "cancelado_por")
+    private Usuario canceladoPor;
+
+    @ManyToOne
+    @JoinColumn(name = "id_mantenimiento")
+    private Mantenimiento mantenimiento;
+
+    @Column(name = "reembolso_procesado")
+    private Boolean reembolsoProcesado = false;
+
+    // Enum para estado de reserva
+    public enum EstadoReserva {
+        ACTIVA, CANCELADA_USUARIO, CANCELADA_MANTENIMIENTO, CANCELADA_ADMIN, COMPLETADA
+    }
 }

@@ -29,8 +29,7 @@ public class CoordinadorController {
     private TipoEspacioRepository tipoEspacioRepository;
     @Autowired
     private ComentariosRepository comentariosRepository;
-    @Autowired
-    private TipoComentarioRepository tipoComentarioRepository;
+    // TipoComentarioRepository ya no se usa - ahora usamos ENUM
     @Autowired
     private EspaciosDeportivosRepository espaciosDeportivosRepository;
 
@@ -184,32 +183,25 @@ public class CoordinadorController {
             EspaciosDeportivos espacio = espacios.get(0); // Tomar el primer espacio del tipo
 
             // Determinar el tipo de comentario basado en la selección del radio button
-            // Según tu BD: 1 = reparacion, 2 = comentario
-            Integer tipoComentarioId;
+            // Ahora usamos ENUM en lugar de la tabla TipoComentario
+            Comentarios.TipoComentario tipoComentarioEnum;
             if ("reparacion".equals(tipoComentario)) {
-                tipoComentarioId = 1; // Reparación (según tu BD)
+                tipoComentarioEnum = Comentarios.TipoComentario.REPARACION;
             } else {
-                tipoComentarioId = 2; // Comentario general (según tu BD)
-            }
-
-            // Buscar el tipo de comentario en la BD
-            Optional<TipoComentario> tipoComentarioOpt = tipoComentarioRepository.findById(tipoComentarioId);
-            if (tipoComentarioOpt.isEmpty()) {
-                redirectAttributes.addFlashAttribute("error", "Tipo de comentario no válido.");
-                return "redirect:/coordinador/principal";
+                tipoComentarioEnum = Comentarios.TipoComentario.COMENTARIO;
             }
 
             // Crear y guardar el comentario
             Comentarios comentario = new Comentarios();
             comentario.setEspacio(espacio);
             comentario.setUsuario(usuario);
-            comentario.setTipoComentario(tipoComentarioOpt.get());
+            comentario.setTipoComentario(tipoComentarioEnum);
             comentario.setContenido(contenido.trim());
 
             comentariosRepository.save(comentario);
 
             // Mensaje de éxito
-            String tipoMensaje = tipoComentarioId == 1 ? "reporte de reparación" : "observación";
+            String tipoMensaje = tipoComentarioEnum == Comentarios.TipoComentario.REPARACION ? "reporte de reparación" : "observación";
             redirectAttributes.addFlashAttribute("success",
                 "Su " + tipoMensaje + " ha sido registrado exitosamente para el espacio: " + espacio.getNombre());
 

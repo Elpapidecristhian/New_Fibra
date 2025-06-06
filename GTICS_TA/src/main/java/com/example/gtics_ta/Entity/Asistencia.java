@@ -7,6 +7,7 @@ import lombok.Setter;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.sql.Time;
+import java.sql.Timestamp;
 import java.util.Date;
 
 @Entity
@@ -27,7 +28,31 @@ public class Asistencia {
     @Column(name = "hora_salida")
     @DateTimeFormat(pattern = "HH:mm:ss")
     private Time horaSalida;
+
+    // Nuevos campos para control de asistencia
+    @Enumerated(EnumType.STRING)
+    @Column(name = "estado_asistencia")
+    private EstadoAsistencia estadoAsistencia = EstadoAsistencia.FALTA;
+
+    @Column(name = "minutos_retraso")
+    private Integer minutosRetraso = 0;
+
+    @Column(name = "observaciones")
+    private String observaciones;
+
+    @ManyToOne
+    @JoinColumn(name = "registrado_por")
+    private Usuario registradoPor;
+
+    @Column(name = "fecha_registro")
+    private Timestamp fechaRegistro;
+
     @ManyToOne
     @JoinColumn(name = "id_horarios_coordinador")
     private HorariosCoordinador horariosCoordinador;
+
+    // Enum para estado de asistencia
+    public enum EstadoAsistencia {
+        A_TIEMPO, TARDE, FALTA, JUSTIFICADO
+    }
 }

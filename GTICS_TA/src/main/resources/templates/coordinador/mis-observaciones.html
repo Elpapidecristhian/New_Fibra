@@ -193,13 +193,13 @@
 
                 <!-- Lista de observaciones -->
                 <div th:if="${!#lists.isEmpty(comentarios)}">
-                  <div th:each="comentario : ${comentarios}" 
-                       th:class="'card observacion-card ' + (${comentario.tipoComentario.id == 2} ? 'observacion-reparacion' : 'observacion-general')">
+                  <div th:each="comentario : ${comentarios}"
+                       th:class="'card observacion-card ' + (${comentario.tipoComentario.name() == 'REPARACION'} ? 'observacion-reparacion' : 'observacion-general')">
                     <div class="card-body">
                       <div class="d-flex justify-content-between align-items-start mb-2">
                         <div class="flex-grow-1">
                           <h6 class="card-title mb-1">
-                            <i th:class="${comentario.tipoComentario.id == 2} ? 'fa fa-wrench text-danger' : 'fa fa-comment text-primary'" class="me-2"></i>
+                            <i th:class="${comentario.tipoComentario.name() == 'REPARACION'} ? 'fa fa-wrench text-danger' : 'fa fa-comment text-primary'" class="me-2"></i>
                             <span th:text="${comentario.espacio.nombre}">Espacio Deportivo</span>
                           </h6>
                           <small class="fecha-observacion">
@@ -208,11 +208,11 @@
                           </small>
                         </div>
                         <div>
-                          <span th:if="${comentario.tipoComentario.id == 2}" 
+                          <span th:if="${comentario.tipoComentario.name() == 'REPARACION'}"
                                 class="badge bg-danger tipo-badge">
                             🔧 Mantenimiento
                           </span>
-                          <span th:if="${comentario.tipoComentario.id == 1}" 
+                          <span th:if="${comentario.tipoComentario.name() == 'COMENTARIO'}"
                                 class="badge bg-primary tipo-badge">
                             📝 Observación
                           </span>

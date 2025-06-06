@@ -38,7 +38,7 @@ public class AdminController {
     private ListaFotosRepository listaFotosRepository;
 
     @Autowired
-    private ReservaRepository reservaRepository;
+    private ReservasRepository reservaRepository;
     @Autowired
     private UsuarioRepository usuarioRepository;
     @Autowired
@@ -60,7 +60,7 @@ public class AdminController {
     public String dashboard(Model model) {
         // Agregar datos para el dashboard
         List<EspaciosDeportivos> espacios = espaciosRepository.findAll();
-        List<Reservas> reservas = reservasRepository.findAll();
+        List<Reservas> reservas = reservaRepository.findAll();
 
         model.addAttribute("totalEspacios", espacios.size());
         model.addAttribute("totalReservas", reservas.size());
@@ -90,9 +90,9 @@ public class AdminController {
         try {
             List<Reservas> reservas;
             if (nombre == null || nombre.isEmpty()) {
-                reservas = reservasRepository.findAll();
+                reservas = reservaRepository.findAll();
             } else {
-                reservas = reservasRepository.findByEspacioDeportivo_NombreContainingIgnoreCase(nombre);
+                reservas = reservaRepository.findByEspacioDeportivo_NombreContainingIgnoreCase(nombre);
             }
             model.addAttribute("listaReservas", reservas);
             System.out.println("Número de reservas encontradas: " + reservas.size());
