@@ -5,17 +5,12 @@ import com.example.gtics_ta.DTO.ServicioDTO;
 import com.example.gtics_ta.Entity.*;
 import com.example.gtics_ta.Repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.time.LocalDate;
-import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 @Controller
@@ -137,23 +132,36 @@ public class AdminController {
 
         // Inicializar Estadios
         Estadios estadios = new Estadios();
-        estadios.setUsoPermitido("-");
+        estadios.setUsoPermitido("");
+        estadios.setSeguridadDisponible(false);
+        estadios.setSonidoPantallasDisponible(false);
+        estadios.setIluminacionProfesionalDisponible(false);
         servicioDTO.setEstadios(estadios);
 
         // Inicializar PistasAtletismo
         PistasAtletismo pistasAtletismo = new PistasAtletismo();
-        pistasAtletismo.setImplementos("-");
+        pistasAtletismo.setImplementos("");
+        pistasAtletismo.setLongitud(0.0f);
         servicioDTO.setPista(pistasAtletismo);
 
         // Inicializar Piscinas
         Piscinas piscinas = new Piscinas();
-        piscinas.setRequisitos("-");
+        piscinas.setRequisitos("");
+        piscinas.setClimatizada(false);
+        piscinas.setProfundidadMin(0.0f);
+        piscinas.setProfundidadMax(0.0f);
+        piscinas.setNumCarrilMax(0);
         servicioDTO.setPiscina(piscinas);
 
         // Inicializar CanchasFutbol
         CanchasFutbol cancha = new CanchasFutbol();
+        cancha.setIluminacionNocturna(false);
+        cancha.setBalonesDisponibles(false);
+        cancha.setAncho(0.0f);
+        cancha.setAlto(0.0f);
         servicioDTO.setCancha(cancha);
 
+        model.addAttribute("servicioDTO", servicioDTO);
         model.addAttribute("tipos", tipoEspacioRepository.findAll());
         return "admin/agregarservicio_debug";
     }
@@ -265,26 +273,30 @@ public class AdminController {
             // Establecer operativo como true por defecto
             espaciosDeportivos.setOperativo(true);
 
-            if(espaciosDeportivos.getTipoEspacio().getId() == 1){
+            // Verificar que el TipoEspacio no sea null antes de acceder a su ID
+            if(espaciosDeportivos.getTipoEspacio() != null && espaciosDeportivos.getTipoEspacio().getId() != null && espaciosDeportivos.getTipoEspacio().getId() == 1){
                 Piscinas piscina = servicioDTO.getPiscina();
                 espaciosDeportivosRepository.save(espaciosDeportivos);
                 piscina.setIdEspacio(espaciosDeportivos.getId());
                 piscinaRepository.save(piscina);
-            } else if (espaciosDeportivos.getTipoEspacio().getId() == 2) {
+            } else if (espaciosDeportivos.getTipoEspacio() != null && espaciosDeportivos.getTipoEspacio().getId() != null && espaciosDeportivos.getTipoEspacio().getId() == 2) {
                 CanchasFutbol canchasFutbol = servicioDTO.getCancha();
                 espaciosDeportivosRepository.save(espaciosDeportivos);
                 canchasFutbol.setIdEspacio(espaciosDeportivos.getId());
                 canchasFutbolRepository.save(canchasFutbol);
-            } else if (espaciosDeportivos.getTipoEspacio().getId() == 3) {
+            } else if (espaciosDeportivos.getTipoEspacio() != null && espaciosDeportivos.getTipoEspacio().getId() != null && espaciosDeportivos.getTipoEspacio().getId() == 3) {
                 PistasAtletismo pistasAtletismo = servicioDTO.getPista();
                 espaciosDeportivosRepository.save(espaciosDeportivos);
                 pistasAtletismo.setIdEspacio(espaciosDeportivos.getId());
                 pistasAtletismoRepository.save(pistasAtletismo);
-            } else if (espaciosDeportivos.getTipoEspacio().getId() == 4) {
+            } else if (espaciosDeportivos.getTipoEspacio() != null && espaciosDeportivos.getTipoEspacio().getId() != null && espaciosDeportivos.getTipoEspacio().getId() == 4) {
                 Estadios estadios = servicioDTO.getEstadios();
                 espaciosDeportivosRepository.save(espaciosDeportivos);
                 estadios.setIdEspacio(espaciosDeportivos.getId());
                 estadiosRepository.save(estadios);
+            } else {
+                // Si no hay tipo específico, solo guardar el espacio deportivo
+                espaciosDeportivosRepository.save(espaciosDeportivos);
             }
         } catch (Exception e) {
             e.printStackTrace();
