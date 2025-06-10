@@ -246,8 +246,8 @@
                                                 </div>
                                                 <span th:if="${reserva.espacioDeportivo == null}" class="text-muted">N/A</span>
                                             </td>
-                                            <td class="small-text" th:text="${reserva.fechaReserva}"></td>
-                                            <td class="small-text text-center">
+                                            <td class="text-center" th:text="${reserva.fechaReserva}"></td>
+                                            <td class="text-center">
                                                 <div th:if="${reserva.horario != null}">
                                                     <div th:text="${reserva.horario.horaInicio}"></div>
                                                     <div th:text="${reserva.horario.horaFin}"></div>
@@ -297,7 +297,7 @@
                                                     <button type="button"
                                                             th:if="${reserva.pago != null}"
                                                             th:class="${(reserva.pago.estadoPago != null and reserva.pago.estadoPago.name() == 'APROBADO') or (reserva.estadoReserva != null and reserva.estadoReserva.name() == 'COMPLETADA')} ? 'btn btn-sm btn-secondary opacity-50' : 'btn btn-sm btn-success-pastel'"
-                                                            th:onclick="${(reserva.pago.estadoPago != null and reserva.pago.estadoPago.name() != 'APROBADO') and (reserva.estadoReserva == null or reserva.estadoReserva.name() != 'COMPLETADA')} ? |aprobarPago(${reserva.pago.id})| : 'return false;'"
+                                                            th:onclick="${(reserva.pago.estadoPago != null and reserva.pago.estadoPago.name() != 'APROBADO') and (reserva.estadoReserva == null or reserva.estadoReserva.name() != 'COMPLETADA')} ? 'aprobarPago(' + ${reserva.pago.id} + ')' : 'return false;'"
                                                             th:title="${reserva.estadoReserva != null and reserva.estadoReserva.name() == 'COMPLETADA'} ? 'Reserva completada' : (${reserva.pago.estadoPago != null and reserva.pago.estadoPago.name() == 'APROBADO'} ? 'Pago ya aprobado' : 'Aprobar pago')"
                                                             th:style="${(reserva.pago.estadoPago != null and reserva.pago.estadoPago.name() == 'APROBADO') or (reserva.estadoReserva != null and reserva.estadoReserva.name() == 'COMPLETADA')} ? 'cursor: not-allowed;' : ''">
                                                         <i data-feather="check"></i>
@@ -307,7 +307,7 @@
                                                     <button type="button"
                                                             th:if="${reserva.pago != null}"
                                                             th:class="${(reserva.pago.estadoPago != null and reserva.pago.estadoPago.name() == 'RECHAZADO') or (reserva.estadoReserva != null and reserva.estadoReserva.name() == 'COMPLETADA')} ? 'btn btn-sm btn-secondary opacity-50' : 'btn btn-sm btn-danger-pastel'"
-                                                            th:onclick="${(reserva.pago.estadoPago != null and reserva.pago.estadoPago.name() != 'RECHAZADO') and (reserva.estadoReserva == null or reserva.estadoReserva.name() != 'COMPLETADA')} ? |rechazarPago(${reserva.pago.id})| : 'return false;'"
+                                                            th:onclick="${(reserva.pago.estadoPago != null and reserva.pago.estadoPago.name() != 'RECHAZADO') and (reserva.estadoReserva == null or reserva.estadoReserva.name() != 'COMPLETADA')} ? 'rechazarPago(' + ${reserva.pago.id} + ')' : 'return false;'"
                                                             th:title="${reserva.estadoReserva != null and reserva.estadoReserva.name() == 'COMPLETADA'} ? 'Reserva completada' : (${reserva.pago.medioPago != null and reserva.pago.medioPago.nombre == 'Tarjeta de Crédito/Débito'} ? 'Cancelar reserva' : (${reserva.pago.estadoPago != null and reserva.pago.estadoPago.name() == 'RECHAZADO'} ? 'Pago ya rechazado' : 'Rechazar pago'))"
                                                             th:style="${(reserva.pago.estadoPago != null and reserva.pago.estadoPago.name() == 'RECHAZADO') or (reserva.estadoReserva != null and reserva.estadoReserva.name() == 'COMPLETADA')} ? 'cursor: not-allowed;' : ''">
                                                         <i data-feather="x"></i>
