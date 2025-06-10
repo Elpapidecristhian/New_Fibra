@@ -10,6 +10,10 @@
 
     <title>Admin - Reservas</title>
 
+    <!-- CSRF Token -->
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+
     <!-- Vendors Style-->
     <link rel="stylesheet" th:href="@{/css/vendors_css.css}">
 
@@ -27,6 +31,108 @@
         .dataTables_filter {
             margin-bottom: 20px; /* Separación */
             float: right; /* Puedes quitar esto si lo quieres alineado a la izquierda */
+        }
+
+        .filter-btn.active {
+            background-color: #007bff;
+            color: white;
+            border-color: #007bff;
+        }
+
+        .btn-group .btn {
+            margin-right: 2px;
+        }
+
+        .btn-group .btn:last-child {
+            margin-right: 0;
+        }
+
+        /* Estilos para botones de acciones */
+        .d-flex.flex-column.gap-1 {
+            gap: 0.25rem !important;
+            min-width: 80px;
+        }
+
+        .d-flex.flex-column.gap-1 .btn {
+            font-size: 0.75rem;
+            padding: 0.4rem;
+            white-space: nowrap;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto;
+        }
+
+        /* Botón ojo con fondo suave */
+        .btn-info-soft {
+            background-color: rgba(125, 214, 231, 0.1) !important;
+            border: none !important;
+            color: #0dcaf0 !important;
+        }
+
+        .btn-info-soft:hover {
+            background-color: rgba(13, 202, 240, 0.356) !important;
+            color: #0dcaf0 !important;
+        }
+
+        /* Botones con colores pastel */
+        .btn-success-pastel {
+            background-color: #aaf0baa6 !important;
+            color: #31c754 !important;
+        }
+
+        .btn-danger-pastel {
+            background-color: #eed1d380 !important;
+            color: #e44b5a !important;
+        }
+
+        /* Botones deshabilitados */
+        .btn.opacity-50 {
+            opacity: 0.5 !important;
+            pointer-events: none;
+        }
+
+        .btn.opacity-50:hover {
+            transform: none !important;
+        }
+
+        /* Filtros de tipo de espacio */
+        .filter-btn.active {
+            background-color: #1DBFC1 !important;
+            border-color: #1DBFC1 !important;
+            color: white !important;
+        }
+
+        .filter-btn {
+            border-color: #1DBFC1;
+            color: #1DBFC1;
+        }
+
+        .filter-btn:hover {
+            background-color: #1DBFC1;
+            border-color: #1DBFC1;
+            color: white;
+        }
+
+        /* Texto más pequeño para horario y fecha */
+        .small-text {
+            font-size: 0.85rem;
+        }
+
+        /* Estado en dos líneas */
+        .estado-dos-lineas {
+            line-height: 1.2;
+            text-align: center;
+        }
+
+        /* Título de tabla */
+        .table-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #495057;
+            margin: 0;
         }
     </style>
 
@@ -80,41 +186,139 @@
 
             <!-- Main content -->
             <section class="content">
+                <!-- Botones de filtro por tipo de espacio -->
+                <div class="row mb-3">
+                    <div class="col-12">
+                        <div class="d-flex justify-content-center gap-2 flex-wrap">
+                            <button type="button" class="btn btn-outline-primary filter-btn active" data-tipo="all">
+                                Todos
+                            </button>
+                            <button type="button" class="btn btn-outline-primary filter-btn" th:each="tipo : ${tiposEspacio}"
+                                    th:data-tipo="${tipo.id}" th:text="${tipo.nombre}">
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="row mt-2">
                     <div class="col-12">
                         <div class="box">
-
                             <div class="box-body">
                                 <div class="table-responsive">
-                                    <table class="table table-bordered table-striped" id="tablaServicios">
+                                    <table class="table table-bordered table-striped" id="tablaReservas">
                                         <thead>
                                         <tr>
-                                            <th>ID</th>
-                                            <th>Usuario</th>
-                                            <th>Espacio Deportivo</th>
-                                            <th>Fecha</th>
-                                            <th>Hora Inicio</th>
-                                            <th>Hora Fin</th>
+                                            <th>#</th>
+                                            <th>Registro</th>
+                                            <th>Datos Usuario</th>
+                                            <th>Datos Servicio</th>
+                                            <th>Fecha Reserva</th>
+                                            <th>Horario Reservado</th>
+                                            <th>Datos Pago</th>
                                             <th>Estado</th>
+                                            <th>Acciones</th>
                                         </tr>
                                         </thead>
                                         <tbody>
-                                        <tr th:if="${listaReservas != null and !listaReservas.isEmpty()}" th:each="reserva : ${listaReservas}">
+                                        <tr th:if="${listaReservas != null and !listaReservas.isEmpty()}"
+                                            th:each="reserva : ${listaReservas}"
+                                            th:data-tipo="${reserva.espacioDeportivo?.tipoEspacio?.id}">
                                             <td th:text="${reserva.id}"></td>
-                                            <td th:text="${reserva.usuario != null ? (reserva.usuario.nombres + ' ' + reserva.usuario.apellidos) : 'N/A'}"></td>
-                                            <td th:text="${reserva.espacioDeportivo != null ? reserva.espacioDeportivo.nombre : 'N/A'}"></td>
-                                            <td th:text="${reserva.fechaReserva}"></td>
-                                            <td th:text="${reserva.horario != null ? reserva.horario.horaInicio : 'N/A'}"></td>
-                                            <td th:text="${reserva.horario != null ? reserva.horario.horaFin : 'N/A'}"></td>
                                             <td>
-                                                <span class="badge bg-success">Activa</span>
+                                                <div th:if="${reserva.fechaRegistro != null}" class="d-flex flex-column">
+                                                    <small th:text="${#dates.format(reserva.fechaRegistro, 'dd/MM/yyyy')}"></small>
+                                                    <small th:text="${#dates.format(reserva.fechaRegistro, 'hh:mm a')}" class="text-muted"></small>
+                                                </div>
+                                                <small th:if="${reserva.fechaRegistro == null}" class="text-muted">N/A</small>
+                                            </td>
+                                            <td>
+                                                <div th:if="${reserva.usuario != null}">
+                                                    <strong th:text="${reserva.usuario.nombres + ' ' + reserva.usuario.apellidos}"></strong><br>
+                                                    <small class="text-muted" th:text="${reserva.usuario.correo}"></small><br>
+                                                    <small class="text-muted" th:text="'DNI: ' + ${reserva.usuario.dni}"></small>
+                                                </div>
+                                                <span th:if="${reserva.usuario == null}" class="text-muted">N/A</span>
+                                            </td>
+                                            <td>
+                                                <div th:if="${reserva.espacioDeportivo != null}">
+                                                    <strong th:text="${reserva.espacioDeportivo.nombre}"></strong><br>
+                                                    <small class="text-muted" th:text="${reserva.espacioDeportivo.tipoEspacio?.nombre}"></small>
+                                                </div>
+                                                <span th:if="${reserva.espacioDeportivo == null}" class="text-muted">N/A</span>
+                                            </td>
+                                            <td class="small-text" th:text="${reserva.fechaReserva}"></td>
+                                            <td class="small-text text-center">
+                                                <div th:if="${reserva.horario != null}">
+                                                    <div th:text="${reserva.horario.horaInicio}"></div>
+                                                    <div th:text="${reserva.horario.horaFin}"></div>
+                                                </div>
+                                                <span th:if="${reserva.horario == null}" class="text-muted">N/A</span>
+                                            </td>
+
+                                            <td>
+                                                <div th:if="${reserva.pago != null}">
+                                                    <span class="fw-bold" th:text="'S/ ' + ${reserva.pago.cantidad}"></span><br>
+                                                    <small th:text="${reserva.pago.medioPago?.nombre}" class="text-muted"></small><br>
+                                                    <span th:if="${reserva.pago.estadoPago != null}" th:switch="${reserva.pago.estadoPago.name()}">
+                                                        <span th:case="'PENDIENTE'" class="badge bg-warning">Pendiente</span>
+                                                        <span th:case="'APROBADO'" class="badge bg-success">Aprobado</span>
+                                                        <span th:case="'RECHAZADO'" class="badge bg-danger">Rechazado</span>
+                                                        <span th:case="*" class="badge bg-secondary">Desconocido</span>
+                                                    </span>
+                                                    <span th:if="${reserva.pago.estadoPago == null}" class="badge bg-secondary">Sin estado</span>
+                                                </div>
+                                                <span th:if="${reserva.pago == null}" class="text-muted">N/A</span>
+                                            </td>
+                                            <td class="text-center">
+                                                <span th:if="${reserva.estadoReserva != null}" th:switch="${reserva.estadoReserva.name()}">
+                                                    <span th:case="'ACTIVA'" class="badge bg-success">Activa</span>
+                                                    <span th:case="'CANCELADA_USUARIO'" class="badge bg-warning">Cancelada por Usuario</span>
+                                                    <span th:case="'CANCELADA_MANTENIMIENTO'" class="badge bg-info">Cancelada por Mantenimiento</span>
+                                                    <span th:case="'CANCELADA_ADMIN'" class="badge bg-danger estado-dos-lineas">
+                                                        Cancelada por<br>
+                                                        <span th:if="${reserva.canceladoPor != null}" th:text="${reserva.canceladoPor.nombres}"></span>
+                                                        <span th:if="${reserva.canceladoPor == null}">Admin</span>
+                                                    </span>
+                                                    <span th:case="'COMPLETADA'" class="badge bg-primary">Completada</span>
+                                                    <span th:case="*" class="badge bg-secondary">Desconocido</span>
+                                                </span>
+                                                <span th:if="${reserva.estadoReserva == null}" class="badge bg-secondary">Sin estado</span>
+                                            </td>
+                                            <td>
+                                                <div class="d-flex flex-column gap-1">
+                                                    <!-- Botón Ver Detalles - Siempre habilitado -->
+                                                    <button type="button" class="btn btn-sm btn-info-soft"
+                                                            th:onclick="|verDetallesPago(${reserva.pago?.id ?: 'null'})|"
+                                                            title="Ver detalles del pago">
+                                                        <i data-feather="eye"></i>
+                                                    </button>
+
+                                                    <!-- Botón Aprobar -->
+                                                    <button type="button"
+                                                            th:if="${reserva.pago != null}"
+                                                            th:class="${(reserva.pago.estadoPago != null and reserva.pago.estadoPago.name() == 'APROBADO') or (reserva.estadoReserva != null and reserva.estadoReserva.name() == 'COMPLETADA')} ? 'btn btn-sm btn-secondary opacity-50' : 'btn btn-sm btn-success-pastel'"
+                                                            th:onclick="${(reserva.pago.estadoPago != null and reserva.pago.estadoPago.name() != 'APROBADO') and (reserva.estadoReserva == null or reserva.estadoReserva.name() != 'COMPLETADA')} ? |aprobarPago(${reserva.pago.id})| : 'return false;'"
+                                                            th:title="${reserva.estadoReserva != null and reserva.estadoReserva.name() == 'COMPLETADA'} ? 'Reserva completada' : (${reserva.pago.estadoPago != null and reserva.pago.estadoPago.name() == 'APROBADO'} ? 'Pago ya aprobado' : 'Aprobar pago')"
+                                                            th:style="${(reserva.pago.estadoPago != null and reserva.pago.estadoPago.name() == 'APROBADO') or (reserva.estadoReserva != null and reserva.estadoReserva.name() == 'COMPLETADA')} ? 'cursor: not-allowed;' : ''">
+                                                        <i data-feather="check"></i>
+                                                    </button>
+
+                                                    <!-- Botón Rechazar/Cancelar -->
+                                                    <button type="button"
+                                                            th:if="${reserva.pago != null}"
+                                                            th:class="${(reserva.pago.estadoPago != null and reserva.pago.estadoPago.name() == 'RECHAZADO') or (reserva.estadoReserva != null and reserva.estadoReserva.name() == 'COMPLETADA')} ? 'btn btn-sm btn-secondary opacity-50' : 'btn btn-sm btn-danger-pastel'"
+                                                            th:onclick="${(reserva.pago.estadoPago != null and reserva.pago.estadoPago.name() != 'RECHAZADO') and (reserva.estadoReserva == null or reserva.estadoReserva.name() != 'COMPLETADA')} ? |rechazarPago(${reserva.pago.id})| : 'return false;'"
+                                                            th:title="${reserva.estadoReserva != null and reserva.estadoReserva.name() == 'COMPLETADA'} ? 'Reserva completada' : (${reserva.pago.medioPago != null and reserva.pago.medioPago.nombre == 'Tarjeta de Crédito/Débito'} ? 'Cancelar reserva' : (${reserva.pago.estadoPago != null and reserva.pago.estadoPago.name() == 'RECHAZADO'} ? 'Pago ya rechazado' : 'Rechazar pago'))"
+                                                            th:style="${(reserva.pago.estadoPago != null and reserva.pago.estadoPago.name() == 'RECHAZADO') or (reserva.estadoReserva != null and reserva.estadoReserva.name() == 'COMPLETADA')} ? 'cursor: not-allowed;' : ''">
+                                                        <i data-feather="x"></i>
+                                                    </button>
+                                                </div>
                                             </td>
                                         </tr>
                                         <tr th:if="${listaReservas == null or listaReservas.isEmpty()}">
-                                            <td colspan="7" class="text-center">No hay reservas disponibles</td>
+                                            <td colspan="9" class="text-center">No hay reservas disponibles</td>
                                         </tr>
                                         </tbody>
-
                                     </table>
                                 </div>
                             </div>
@@ -140,38 +344,45 @@
         &copy; <script>document.write(new Date().getFullYear())</script> <a href="https://www.munisanmiguel.gob.pe/">Municipalidad de San Miguel</a>. Todos los derechos reservados.
     </footer>
 
-    <!-- Modal de Mantenimiento -->
-    <div class="modal fade" id="modalMantenimiento" tabindex="-1" aria-labelledby="modalMantenimientoLabel" aria-hidden="true">
+    <!-- Modal de Detalles de Pago -->
+    <div class="modal fade" id="modalDetallesPago" tabindex="-1" aria-labelledby="modalDetallesPagoLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-info text-white">
+                    <h5 class="modal-title" id="modalDetallesPagoLabel">Detalles del Pago</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body" id="detallesPagoContent">
+                    <!-- El contenido se cargará dinámicamente -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Rechazo de Pago -->
+    <div class="modal fade" id="modalRechazarPago" tabindex="-1" aria-labelledby="modalRechazarPagoLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
-                <form id="formMantenimiento">
-                    <div class="modal-header bg-warning text-white">
-                        <h5 class="modal-title" id="modalMantenimientoLabel">Programar Mantenimiento</h5>
+                <form id="formRechazarPago">
+                    <div class="modal-header bg-danger text-white">
+                        <h5 class="modal-title" id="modalRechazarPagoLabel">Rechazar Pago</h5>
                         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                     </div>
                     <div class="modal-body">
-                        <input type="hidden" id="mantenimientoServicioId">
+                        <input type="hidden" id="rechazarPagoId">
                         <div class="mb-3">
-                            <label for="mantenimientoFecha" class="form-label">Fecha</label>
-                            <input type="date" class="form-control" id="mantenimientoFecha" required>
+                            <label for="motivoRechazo" class="form-label">Motivo del rechazo <span class="text-danger">*</span></label>
+                            <textarea class="form-control" id="motivoRechazo" rows="3"
+                                      placeholder="Explique el motivo del rechazo del pago..." required></textarea>
                         </div>
-                        <div class="mb-3">
-                            <label for="mantenimientoHoraInicio" class="form-label">Hora de inicio</label>
-                            <input type="time" class="form-control" id="mantenimientoHoraInicio" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="mantenimientoHoraFin" class="form-label">Hora de fin</label>
-                            <input type="time" class="form-control" id="mantenimientoHoraFin" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="mantenimientoMotivo" class="form-label">Motivo (opcional)</label>
-                            <textarea class="form-control" id="mantenimientoMotivo" placeholder="Ejm: Revisión de luminarias, limpieza..."></textarea>
-                        </div>
-                        <div class="alert alert-danger d-none" id="mantenimientoError">⚠️ El horario seleccionado ya está ocupado.</div>
+                        <div class="alert alert-danger d-none" id="rechazarPagoError"></div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                        <button type="submit" class="btn btn-warning">Guardar</button>
+                        <button type="submit" class="btn btn-danger">Rechazar Pago</button>
                     </div>
                 </form>
             </div>
@@ -203,116 +414,253 @@
 <!-- Inicialización de DataTables -->
 
 <script>
-    // Simulamos reservas existentes (esto luego vendría de tu base de datos)
-    const reservasExistentes = [
-        { servicioId: "#p22435366", fecha: "2025-11-14", inicio: "11:00", fin: "12:00" },
-        { servicioId: "#p22435369", fecha: "2025-11-16", inicio: "10:00", fin: "11:00" },
-        { servicioId: "#p22435370", fecha: "2025-11-17", inicio: "11:30", fin: "12:30", mantenimiento: true }
-    ];
+    // Variable global para almacenar la instancia de DataTable
+    let tablaReservas;
 
-    // Abrir modal con el ID del servicio
-    $(document).on('click', '.btn-mantenimiento', function () {
-        const servicioId = $(this).data('servicio');
-        $('#mantenimientoServicioId').val(servicioId);
-        $('#mantenimientoError').addClass('d-none');
-        $('#formMantenimiento')[0].reset();
-        $('#modalMantenimiento').modal('show');
-    });
-
-    // Validar si se solapan horarios
-    function hayColision(servicioId, fecha, inicio, fin) {
-        return reservasExistentes.some(evento => {
-            if (evento.servicioId !== servicioId || evento.fecha !== fecha) return false;
-
-            const inicioEvento = evento.inicio;
-            const finEvento = evento.fin;
-
-            return (inicio < finEvento && fin > inicioEvento); // true si hay solapamiento
-        });
-    }
-
-    // Manejar envío del formulario
-    $('#formMantenimiento').on('submit', function (e) {
-        e.preventDefault();
-
-        const servicioId = $('#mantenimientoServicioId').val();
-        const fecha = $('#mantenimientoFecha').val();
-        const horaInicio = $('#mantenimientoHoraInicio').val();
-        const horaFin = $('#mantenimientoHoraFin').val();
-        const motivo = $('#mantenimientoMotivo').val();
-
-        if (horaFin <= horaInicio) {
-            $('#mantenimientoError').text("⚠️ La hora de fin debe ser posterior a la de inicio.").removeClass('d-none');
-            return;
+    // Funcionalidad de filtros por tipo de espacio
+    $(document).ready(function() {
+        // Colapsar sidebar por defecto en la página de reservas
+        if (!$('body').hasClass('sidebar-collapse')) {
+            $('body').addClass('sidebar-collapse');
         }
 
-        if (hayColision(servicioId, fecha, horaInicio, horaFin)) {
-            $('#mantenimientoError').text("⚠️ El horario seleccionado ya está ocupado.").removeClass('d-none');
-            return;
-        }
-
-        // Aquí podrías enviar los datos a tu backend (POST via AJAX)
-        reservasExistentes.push({
-            servicioId,
-            fecha,
-            inicio: horaInicio,
-            fin: horaFin,
-            mantenimiento: true
-        });
-
-        alert(`✅ Mantenimiento programado para ${servicioId} el ${fecha} de ${horaInicio} a ${horaFin}`);
-
-        $('#modalMantenimiento').modal('hide');
-    });
-</script>
-
-<script>
-    $(document).ready(function () {
-        $('#tablaServicios').DataTable({
-            pageLength: 5,
+        // Inicializar DataTable primero
+        tablaReservas = $('#tablaReservas').DataTable({
+            pageLength: 10,
             lengthChange: false,
-            info: false,
+            info: true,
+            paging: true,
             language: {
                 url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json",
                 search: "Buscar:",
                 paginate: {
                     previous: "Anterior",
                     next: "Siguiente"
+                },
+                info: "Mostrando _START_ a _END_ de _TOTAL_ registros",
+                infoEmpty: "Mostrando 0 a 0 de 0 registros",
+                infoFiltered: "(filtrado de _MAX_ registros totales)"
+            },
+            dom: '<"d-flex justify-content-between align-items-center mb-3"<"table-title">f>rt<"d-flex justify-content-between align-items-center mt-3"ip><"clear">',
+            columnDefs: [
+                { orderable: false, targets: [8] } // Deshabilitar ordenamiento en columna de acciones
+            ]
+        });
+
+        // Función de filtro personalizada para DataTables
+        $.fn.dataTable.ext.search.push(
+            function(settings, data, dataIndex) {
+                // Solo aplicar a nuestra tabla
+                if (settings.nTable.id !== 'tablaReservas') {
+                    return true;
+                }
+
+                // Obtener el tipo seleccionado
+                const tipoSeleccionado = $('.filter-btn.active').data('tipo');
+
+                // Si es "all", mostrar todas las filas
+                if (tipoSeleccionado === 'all') {
+                    return true;
+                }
+
+                // Obtener el tipo de la fila actual
+                const row = tablaReservas.row(dataIndex).node();
+                const tipoFila = $(row).data('tipo');
+
+                // Retornar true si coincide con el filtro
+                return tipoFila == tipoSeleccionado;
+            }
+        );
+
+        // Manejar clicks en botones de filtro
+        $('.filter-btn').on('click', function() {
+            // Actualizar estado visual de botones
+            $('.filter-btn').removeClass('active');
+            $(this).addClass('active');
+
+            // Redibujar la tabla para aplicar el filtro
+            tablaReservas.draw();
+        });
+    });
+
+    // Función para ver detalles del pago
+    function verDetallesPago(pagoId) {
+        if (!pagoId) {
+            alert('No hay información de pago disponible');
+            return;
+        }
+
+        // Llamada AJAX para obtener los detalles del pago
+        $.ajax({
+            url: '/admin/reservas/detalles-pago/' + pagoId,
+            type: 'GET',
+            success: function(data) {
+                let estadoBadge = '';
+                switch(data.estadoPago) {
+                    case 'PENDIENTE':
+                        estadoBadge = '<span class="badge bg-warning">Pendiente</span>';
+                        break;
+                    case 'APROBADO':
+                        estadoBadge = '<span class="badge bg-success">Aprobado</span>';
+                        break;
+                    case 'RECHAZADO':
+                        estadoBadge = '<span class="badge bg-danger">Rechazado</span>';
+                        break;
+                    default:
+                        estadoBadge = '<span class="badge bg-secondary">Desconocido</span>';
+                }
+
+                let contenido = `
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>Información del Pago</h6>
+                            <p><strong>ID de Pago:</strong> ${data.id}</p>
+                            <p><strong>Cantidad:</strong> S/ ${data.cantidad}</p>
+                            <p><strong>Estado:</strong> ${estadoBadge}</p>
+                            <p><strong>Fecha:</strong> ${new Date(data.fechaPago).toLocaleString()}</p>
+                            <p><strong>Método:</strong> ${data.medioPago}</p>
+                            ${data.numeroTransaccion ? '<p><strong>Nº Transacción:</strong> ' + data.numeroTransaccion + '</p>' : ''}
+                `;
+
+                if (data.verificadoPor) {
+                    contenido += `
+                        <hr>
+                        <h6>Información de Verificación</h6>
+                        <p><strong>Verificado por:</strong> ${data.verificadoPor}</p>
+                        <p><strong>Fecha verificación:</strong> ${new Date(data.fechaVerificacion).toLocaleString()}</p>
+                    `;
+                }
+
+                if (data.observacionesAdmin) {
+                    contenido += `<p><strong>Observaciones:</strong> ${data.observacionesAdmin}</p>`;
+                }
+
+                contenido += '</div><div class="col-md-6">';
+
+                if (data.tipoPago === 'MANUAL') {
+                    contenido += `
+                        <h6>Datos de Transferencia</h6>
+                        ${data.datosCuenta ? '<pre>' + data.datosCuenta + '</pre>' : '<p>No hay datos de cuenta disponibles</p>'}
+                        <hr>
+                        <h6>Comprobante</h6>
+                    `;
+
+                    if (data.tieneComprobantes) {
+                        contenido += `
+                            <div class="text-center">
+                                <p class="text-info">📄 Comprobante disponible</p>
+                                <small>El usuario ha subido comprobante de pago</small>
+                            </div>
+                        `;
+                    } else {
+                        contenido += '<p class="text-muted">No hay comprobante disponible</p>';
+                    }
+                } else {
+                    contenido += `
+                        <h6>Pago con Tarjeta</h6>
+                        <p class="text-success">✅ Pago procesado automáticamente</p>
+                        <small class="text-muted">Los pagos con tarjeta se procesan automáticamente a través de la pasarela de pagos.</small>
+                    `;
+                }
+
+                contenido += '</div></div>';
+
+                $('#detallesPagoContent').html(contenido);
+                $('#modalDetallesPago').modal('show');
+            },
+            error: function(xhr, status, error) {
+                alert('Error al cargar los detalles del pago: ' + (xhr.responseText || error));
+            }
+        });
+    }
+
+    // Función para aprobar pago
+    function aprobarPago(pagoId) {
+        if (!pagoId) {
+            alert('ID de pago no válido');
+            return;
+        }
+
+        if (confirm('¿Está seguro de que desea aprobar este pago?')) {
+            $.ajax({
+                url: '/admin/reservas/aprobar-pago/' + pagoId,
+                type: 'POST',
+                beforeSend: function(xhr) {
+                    // Agregar token CSRF
+                    var token = $("meta[name='_csrf']").attr("content");
+                    var header = $("meta[name='_csrf_header']").attr("content");
+                    if (token && header) {
+                        xhr.setRequestHeader(header, token);
+                    }
+                },
+                success: function(response) {
+                    alert('Pago aprobado exitosamente');
+                    location.reload(); // Recargar la página para ver los cambios
+                },
+                error: function(xhr, status, error) {
+                    alert('Error al aprobar el pago: ' + (xhr.responseText || error));
+                }
+            });
+        }
+    }
+
+    // Función para rechazar pago
+    function rechazarPago(pagoId) {
+        if (!pagoId) {
+            alert('ID de pago no válido');
+            return;
+        }
+
+        $('#rechazarPagoId').val(pagoId);
+        $('#motivoRechazo').val('');
+        $('#rechazarPagoError').addClass('d-none');
+        $('#modalRechazarPago').modal('show');
+    }
+
+    // Manejar envío del formulario de rechazo
+    $('#formRechazarPago').on('submit', function(e) {
+        e.preventDefault();
+
+        const pagoId = $('#rechazarPagoId').val();
+        const motivo = $('#motivoRechazo').val().trim();
+
+        if (!motivo) {
+            $('#rechazarPagoError').text('El motivo del rechazo es obligatorio').removeClass('d-none');
+            return;
+        }
+
+        $.ajax({
+            url: '/admin/reservas/rechazar-pago/' + pagoId,
+            type: 'POST',
+            data: { motivo: motivo },
+            beforeSend: function(xhr) {
+                // Agregar token CSRF
+                var token = $("meta[name='_csrf']").attr("content");
+                var header = $("meta[name='_csrf_header']").attr("content");
+                if (token && header) {
+                    xhr.setRequestHeader(header, token);
                 }
             },
-            dom: '<"datatable-header"f>rt<"datatable-footer"p><"clear">'
+            success: function(response) {
+                alert('Pago rechazado exitosamente');
+                $('#modalRechazarPago').modal('hide');
+                location.reload(); // Recargar la página para ver los cambios
+            },
+            error: function(xhr, status, error) {
+                $('#rechazarPagoError').text('Error al rechazar el pago: ' + (xhr.responseText || error)).removeClass('d-none');
+            }
         });
     });
 </script>
+
+
 
 <script>
     feather.replace();
 </script>
 
 
-<script>
-    // Redirige a la página de edición
-    document.querySelectorAll(".edit-btn").forEach(btn => {
-        btn.addEventListener("click", () => {
-            window.location.href = "editar_servicio.html";
-        });
-    });
 
-    // Muestra modal de eliminación
-    document.querySelectorAll(".delete-btn").forEach(btn => {
-        btn.addEventListener("click", () => {
-            const modal = new bootstrap.Modal(document.getElementById('deleteModal'));
-            modal.show();
-        });
-    });
-
-    // Simula descarga PDF
-    document.querySelectorAll(".download-btn").forEach(btn => {
-        btn.addEventListener("click", () => {
-            window.location.href = "documento_servicio.pdf"; // Reemplaza con la URL real del PDF
-        });
-    });
-</script>
 
 
 <!-- Vendor JS -->

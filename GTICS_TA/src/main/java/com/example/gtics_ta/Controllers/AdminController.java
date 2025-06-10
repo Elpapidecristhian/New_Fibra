@@ -11,6 +11,9 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import jakarta.servlet.http.HttpSession;
+import java.sql.Timestamp;
+import java.time.LocalDate;
 import java.util.*;
 
 @Controller
@@ -48,6 +51,8 @@ public class AdminController {
     private FotosRepository fotosRepository;
     @Autowired
     private HorarioReservadoRepository horarioReservadoRepository;
+    @Autowired
+    private PagosRepository pagosRepository;
 
 
     // DASHBOARD PRINCIPAL
@@ -100,22 +105,180 @@ public class AdminController {
 
     // LISTAR RESERVAS
     @GetMapping("/reservas")
-    public String listarReservas(@RequestParam(value = "nombre", required = false) String nombre, Model model) {
+    public String listarReservas(@RequestParam(value = "nombre", required = false) String nombre,
+                                @RequestParam(value = "tipoEspacio", required = false) Integer tipoEspacio,
+                                Model model) {
         try {
+            // Actualizar reservas completadas antes de mostrar la lista
+            actualizarReservasCompletadas();
+
             List<Reservas> reservas;
-            if (nombre == null || nombre.isEmpty()) {
-                reservas = reservaRepository.findAll();
-            } else {
+
+            // Filtrar por tipo de espacio y nombre si se proporcionan
+            if (tipoEspacio != null && (nombre != null && !nombre.isEmpty())) {
+                reservas = reservaRepository.findByEspacioDeportivo_TipoEspacio_IdAndEspacioDeportivo_NombreContainingIgnoreCase(tipoEspacio, nombre);
+            } else if (tipoEspacio != null) {
+                reservas = reservaRepository.findByEspacioDeportivo_TipoEspacio_Id(tipoEspacio);
+            } else if (nombre != null && !nombre.isEmpty()) {
                 reservas = reservaRepository.findByEspacioDeportivo_NombreContainingIgnoreCase(nombre);
+            } else {
+                reservas = reservaRepository.findAll();
             }
+
             model.addAttribute("listaReservas", reservas);
+
+            // Cargar tipos de espacios para los botones de filtro
+            List<TipoEspacio> tiposEspacio = tipoEspacioRepository.findAllByOrderByNombreAsc();
+            model.addAttribute("tiposEspacio", tiposEspacio);
+
             System.out.println("Número de reservas encontradas: " + reservas.size());
         } catch (Exception e) {
             System.err.println("Error al cargar reservas: " + e.getMessage());
             e.printStackTrace();
             model.addAttribute("listaReservas", Collections.emptyList());
+            model.addAttribute("tiposEspacio", Collections.emptyList());
         }
         return "admin/reservas";
+    }
+
+    // APROBAR PAGO
+    @PostMapping("/reservas/aprobar-pago/{id}")
+    @ResponseBody
+    public ResponseEntity<String> aprobarPago(@PathVariable Integer id, HttpSession session) {
+        try {
+            Optional<Pagos> optPago = pagosRepository.findById(id);
+            if (optPago.isPresent()) {
+                Pagos pago = optPago.get();
+                Usuario admin = (Usuario) session.getAttribute("usuario");
+
+                // Actualizar estado del pago
+                pago.setEstadoPago(Pagos.EstadoPago.APROBADO);
+                pago.setFechaVerificacion(new Timestamp(System.currentTimeMillis()));
+                pago.setVerificadoPor(admin);
+                pago.setObservacionesAdmin(null); // Limpiar observaciones
+
+                pagosRepository.save(pago);
+
+                // Buscar y actualizar la reserva asociada
+                List<Reservas> reservasConPago = reservaRepository.findByPago_Id(id);
+
+                for (Reservas reserva : reservasConPago) {
+                    System.out.println("Procesando reserva ID: " + reserva.getId() + " con estado: " + reserva.getEstadoReserva());
+
+                    // Si la reserva estaba cancelada por admin, reactivarla
+                    if (reserva.getEstadoReserva() != null &&
+                        reserva.getEstadoReserva().equals(Reservas.EstadoReserva.CANCELADA_ADMIN)) {
+
+                        System.out.println("Reactivando reserva ID: " + reserva.getId());
+                        reserva.setEstadoReserva(Reservas.EstadoReserva.ACTIVA);
+                        reserva.setMotivoCancelacion(null); // Limpiar motivo de cancelación
+                        reserva.setFechaCancelacion(null); // Limpiar fecha de cancelación
+                        reserva.setCanceladoPor(null); // Limpiar quien canceló
+                        reservaRepository.save(reserva);
+                        System.out.println("Reserva ID " + reserva.getId() + " reactivada exitosamente");
+                    }
+                    // Si la reserva está activa, mantenerla activa
+                    else if (reserva.getEstadoReserva() != null &&
+                             reserva.getEstadoReserva().equals(Reservas.EstadoReserva.ACTIVA)) {
+                        System.out.println("Reserva ID " + reserva.getId() + " ya está activa, pago aprobado.");
+                    }
+                    else {
+                        System.out.println("Estado de reserva no reconocido: " + reserva.getEstadoReserva());
+                    }
+                }
+
+                return ResponseEntity.ok("Pago aprobado y reserva reactivada exitosamente");
+            } else {
+                return ResponseEntity.badRequest().body("Pago no encontrado");
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Error al aprobar el pago: " + e.getMessage());
+        }
+    }
+
+    // RECHAZAR PAGO
+    @PostMapping("/reservas/rechazar-pago/{id}")
+    @ResponseBody
+    public ResponseEntity<String> rechazarPago(@PathVariable Integer id,
+                                              @RequestParam String motivo,
+                                              HttpSession session) {
+        try {
+            Optional<Pagos> optPago = pagosRepository.findById(id);
+            if (optPago.isPresent()) {
+                Pagos pago = optPago.get();
+                Usuario admin = (Usuario) session.getAttribute("usuario");
+
+                // Actualizar estado del pago
+                pago.setEstadoPago(Pagos.EstadoPago.RECHAZADO);
+                pago.setFechaVerificacion(new Timestamp(System.currentTimeMillis()));
+                pago.setVerificadoPor(admin);
+                pago.setObservacionesAdmin(motivo);
+
+                pagosRepository.save(pago);
+
+                // Buscar y cancelar la reserva asociada
+                List<Reservas> reservasConPago = reservaRepository.findByPago_Id(id);
+
+                for (Reservas reserva : reservasConPago) {
+                    reserva.setEstadoReserva(Reservas.EstadoReserva.CANCELADA_ADMIN);
+                    reserva.setMotivoCancelacion("Pago rechazado: " + motivo);
+                    reserva.setFechaCancelacion(new Timestamp(System.currentTimeMillis()));
+                    reserva.setCanceladoPor(admin);
+                    reservaRepository.save(reserva);
+                }
+
+                return ResponseEntity.ok("Pago rechazado y reserva cancelada exitosamente");
+            } else {
+                return ResponseEntity.badRequest().body("Pago no encontrado");
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Error al rechazar el pago: " + e.getMessage());
+        }
+    }
+
+    // OBTENER DETALLES DE PAGO
+    @GetMapping("/reservas/detalles-pago/{id}")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> obtenerDetallesPago(@PathVariable Integer id) {
+        try {
+            Optional<Pagos> optPago = pagosRepository.findById(id);
+            if (optPago.isPresent()) {
+                Pagos pago = optPago.get();
+                Map<String, Object> detalles = new HashMap<>();
+
+                detalles.put("id", pago.getId());
+                detalles.put("cantidad", pago.getCantidad());
+                detalles.put("estadoPago", pago.getEstadoPago().name());
+                detalles.put("fechaPago", pago.getFechaPago());
+                detalles.put("numeroTransaccion", pago.getNumeroTransaccion());
+                detalles.put("observacionesAdmin", pago.getObservacionesAdmin());
+
+                if (pago.getMedioPago() != null) {
+                    detalles.put("medioPago", pago.getMedioPago().getNombre());
+                    detalles.put("tipoPago", pago.getMedioPago().getTipoPago().name());
+                    detalles.put("datosCuenta", pago.getMedioPago().getDatosCuenta());
+                }
+
+                if (pago.getVerificadoPor() != null) {
+                    detalles.put("verificadoPor", pago.getVerificadoPor().getNombres() + " " + pago.getVerificadoPor().getApellidos());
+                    detalles.put("fechaVerificacion", pago.getFechaVerificacion());
+                }
+
+                // Si hay fotos de comprobantes, agregar información
+                if (pago.getListaFotosComprobantes() != null) {
+                    detalles.put("tieneComprobantes", true);
+                    // Aquí podrías agregar las URLs de las fotos si es necesario
+                } else {
+                    detalles.put("tieneComprobantes", false);
+                }
+
+                return ResponseEntity.ok(detalles);
+            } else {
+                return ResponseEntity.notFound().build();
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(Collections.singletonMap("error", "Error al obtener detalles del pago: " + e.getMessage()));
+        }
     }
 
     // FORMULARIO PARA NUEVO SERVICIO
@@ -165,6 +328,8 @@ public class AdminController {
         model.addAttribute("tipos", tipoEspacioRepository.findAll());
         return "admin/agregarservicio_debug";
     }
+
+
 
     @PutMapping("/actualizar/{id}")
     @ResponseBody
@@ -303,6 +468,30 @@ public class AdminController {
             return "redirect:/admin";
         }
         return "redirect:/admin";
+    }
+
+    // Método para actualizar reservas completadas
+    private void actualizarReservasCompletadas() {
+        try {
+            LocalDate hoy = LocalDate.now();
+            List<Reservas> reservasActivas = reservaRepository.findAll().stream()
+                .filter(r -> r.getEstadoReserva() == Reservas.EstadoReserva.ACTIVA)
+                .filter(r -> r.getFechaReserva() != null && r.getFechaReserva().isBefore(hoy))
+                .filter(r -> r.getPago() != null && r.getPago().getEstadoPago() == Pagos.EstadoPago.APROBADO)
+                .toList();
+
+            for (Reservas reserva : reservasActivas) {
+                reserva.setEstadoReserva(Reservas.EstadoReserva.COMPLETADA);
+                reservaRepository.save(reserva);
+                System.out.println("Reserva ID " + reserva.getId() + " marcada como COMPLETADA");
+            }
+
+            if (!reservasActivas.isEmpty()) {
+                System.out.println("Se actualizaron " + reservasActivas.size() + " reservas a estado COMPLETADA");
+            }
+        } catch (Exception e) {
+            System.err.println("Error al actualizar reservas completadas: " + e.getMessage());
+        }
     }
 }
 
