@@ -1,6 +1,5 @@
 package com.example.gtics_ta.Config;
 
-import com.example.gtics_ta.Entity.Usuario;
 import com.example.gtics_ta.Repository.UsuarioRepository;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.context.annotation.Bean;
@@ -34,7 +33,7 @@ public class WebSecurityConfig {
         http.authorizeHttpRequests(auth -> auth
                 // Permitir recursos estáticos
                 .requestMatchers("/css/**", "/js/**", "/images/**", "/assets/**", "/front-ed/**", "/scss/**").permitAll()
-
+                .requestMatchers("/vecino/chatbot").authenticated() // solo usuarios logueados
                 .requestMatchers("/vecino/**").hasAnyAuthority("Vecino", "Admin")
                 .requestMatchers("/coordinador/**").hasAnyAuthority("Coordinador", "Admin", "SuperAdmin")
                 .requestMatchers("/admin/**").hasAnyAuthority("Admin", "SuperAdmin")
@@ -43,6 +42,10 @@ public class WebSecurityConfig {
                 .requestMatchers("/signup/**").permitAll()
                 .anyRequest().authenticated()
         );
+        http.csrf(csrf -> csrf
+                .ignoringRequestMatchers("/vecino/chatbot")
+        );
+
 
         http.formLogin(form -> form
                 .loginPage("/login")
@@ -55,7 +58,6 @@ public class WebSecurityConfig {
 
                     HttpSession session = request.getSession();
                     session.setAttribute("usuario", usuarioRepository.findByCorreo(authentication.getName()));
-
 
                     if (defaultSavedRequest != null) {
                         String targetURL = defaultSavedRequest.getRedirectUrl();
@@ -103,12 +105,13 @@ public class WebSecurityConfig {
     }
 
     @Bean
-    public UserDetailsManager users(DataSource dataSource) {
-        JdbcUserDetailsManager users = new JdbcUserDetailsManager(dataSource);
-        users.setUsersByUsernameQuery("SELECT correo, contrasenia, activo FROM gtics.usuario WHERE correo = ?");
+    public UserDetailsManager users() {
+        JdbcUserDetailsManager users = new JdbcUserDetailsManager(this.dataSource);
+        // REVERTIDO: Usar activo = 1 como funcionaba originalmente
+        users.setUsersByUsernameQuery("SELECT correo, contrasenia, activo FROM gtics.usuario WHERE correo = ? AND activo = 1");
         users.setAuthoritiesByUsernameQuery(
-                "SELECT u.correo, r.nombre FROM usuario u " +
-                        "INNER JOIN roles r ON u.id_rol = r.id_rol " +
+                "SELECT u.correo, r.nombre FROM gtics.usuario u " +
+                        "INNER JOIN gtics.roles r ON u.id_rol = r.id_rol " +
                         "WHERE u.correo = ? AND u.activo = 1"
         );
         return users;
