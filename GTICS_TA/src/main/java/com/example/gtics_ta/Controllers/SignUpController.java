@@ -34,7 +34,7 @@ public class SignUpController {
     @GetMapping(value = {"", "/"})
     public String mostrarFormularioRegistro(@ModelAttribute("usuario") Usuario usuario, Model model) {
         model.addAttribute("hoy", LocalDate.now());
-        return "/login/signup";
+        return "login/signup";
     }
 
     @PostMapping("/save")
@@ -44,22 +44,22 @@ public class SignUpController {
                                    RedirectAttributes attr,
                                    Model model) {
         if(bindingResult.hasErrors()) {
-            return "/login/signup";
+            return "login/signup";
         }
 
         if (!usuario.getContrasenia().equals(confirmarContrasenia)) {
             model.addAttribute("errorPswd", "Las contraseñas no coinciden.");
-            return "/login/signup";
+            return "login/signup";
         }
 
         if (usuarioRepository.existsByCorreo(usuario.getCorreo())) {
             model.addAttribute("errorEmail", "El correo ya está registrado.");
-            return "/login/signup";
+            return "login/signup";
         }
 
         if (usuarioRepository.existsByDni(usuario.getDni())) {
             model.addAttribute("errorDNI", "El DNI ya está registrado.");
-            return "/login/signup";
+            return "login/signup";
         }
 
 
@@ -83,10 +83,10 @@ public class SignUpController {
                 usuario.setDni(Integer.valueOf(dni));
             }
             model.addAttribute("usuario", usuario);
-            return "/login/signup";
+            return "login/signup";
         } catch (Exception e) {
             model.addAttribute("errorDNIConsulta", "No se pudo encontrar información del DNI");
-            return "/login/signup";
+            return "login/signup";
         }
     }
 

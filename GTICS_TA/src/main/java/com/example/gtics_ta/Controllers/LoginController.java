@@ -60,32 +60,32 @@ public class LoginController {
             }
         }
             model.addAttribute("msg", "El correo indicado no está registrado");
-        return "/login/recoverpass";
+        return "login/recoverpass";
     }
 
     @GetMapping("/resetpassword")
     public String mostrarFormularioReset(@RequestParam String token, Model model) {
         PasswordReset passwdreset = passwordResetRepository.findByToken(token);
         if (passwdreset == null || passwdreset.getExpiracion().isBefore(LocalDateTime.now())) {
-            return "/login/login";
+            return "login/login";
         }
         model.addAttribute("token", token);
-        return "/login/resetpassword";
+        return "login/resetpassword";
     }
 
     @PostMapping("/savenewpassword")
     public String procesarReset(@RequestParam String token, @RequestParam String nuevaContrasenia, @RequestParam String confirmContrasenia, Model model, RedirectAttributes attr) {
         PasswordReset passwordReset = passwordResetRepository.findByToken(token);
         if (passwordReset == null || passwordReset.getExpiracion().isBefore(LocalDateTime.now())) {
-            return "/login/login";
+            return "login/login";
         } else {
             if(nuevaContrasenia.length() < 8 ){
                 model.addAttribute("errorLength", "La contraseña debe contener al menos 8 caracteres");
-                return "/login/resetpassword";
+                return "login/resetpassword";
             } else {
                 if(!nuevaContrasenia.equals(confirmContrasenia)){
                     model.addAttribute("error", "Las contraseñas no coinciden");
-                    return "/login/resetpassword";
+                    return "login/resetpassword";
                 }else {
                     Usuario usuario = passwordReset.getUsuario();
                     usuario.setContrasenia(passwordEncoder.encode(nuevaContrasenia));
