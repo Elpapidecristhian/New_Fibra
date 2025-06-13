@@ -331,7 +331,7 @@ public class AdminController {
         document.add(new Paragraph("\n"));
 
         // Tabla de reservas
-        List<Reservas> reservas = reservaRepository.findByEspacioDeportivoId(idEspacio);
+        List<Reservas> reservas = reservaRepository .findByEspacioDeportivoId(idEspacio);
         if (!reservas.isEmpty()) {
             DeviceRgb celesteOscuro = new DeviceRgb(36, 118, 141);
 

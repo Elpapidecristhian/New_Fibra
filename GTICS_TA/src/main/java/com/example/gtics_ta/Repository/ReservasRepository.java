@@ -4,6 +4,7 @@ import com.example.gtics_ta.DTO.ResumenDTO;
 import com.example.gtics_ta.Entity.Reservas;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -97,4 +98,8 @@ public interface ReservasRepository extends JpaRepository<Reservas, Integer> {
             "GROUP BY HOUR(h.horaInicio) " +
             "ORDER BY HOUR(h.horaInicio)")
     List<Object[]> distribucionReservasPorHora();
+
+    @Query("SELECT r FROM Reservas r WHERE r.espacioDeportivo.id = :id")
+    List<Reservas> findByEspacioDeportivoId(@Param("id") Integer id);
+
 }
