@@ -50,7 +50,7 @@ public class AdminController {
     private ListaFotosRepository listaFotosRepository;
 
     @Autowired
-    private ReservaRepository reservaRepository;
+    private ReservasRepository reservaRepository;
     @Autowired
     private UsuarioRepository usuarioRepository;
     @Autowired

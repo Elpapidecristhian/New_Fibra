@@ -270,7 +270,7 @@
                 <h4 class="box-title">Observaciones</h4>
               </div>
               <!-- /.box-header -->
-              <form class="form" th:action="@{/coordinador/guardar-observacion}" method="post">
+              <form class="form" th:action="@{/coordinador/guardar-observacion}" method="post" enctype="multipart/form-data">
                 <div class="box-body">
                   <!-- Mostrar mensajes de éxito o error -->
                   <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
@@ -288,20 +288,14 @@
                   <h4 class="box-title text-info mb-0"><i class="ti-map-alt me-15"></i>Establecimiento</h4>
                   <hr class="my-15">
                   <div class="row">
-                    <div class="col-md-6">
+                    <div class="col-md-12">
                       <div class="form-group">
-                        <label class="form-label">Nombre del local</label>
-                        <input type="text" class="form-control" disabled placeholder="Diego Ferre">
-                      </div>
-                    </div>
-                    <div class="col-md-6">
-                      <div class="form-group">
-                        <label class="form-label">Tipo de servicio<span class="text-danger">*</span></label>
-                        <select id="tipo_servicio" name="tipoServicio" required class="form-select" >
-                          <option value="" disabled selected>Seleccione una opción</option>
-                          <option th:each="tipo : ${tiposEspacio}"
-                                  th:value="${tipo.id}"
-                                  th:text="${tipo.nombre}">
+                        <label class="form-label">Espacio Deportivo<span class="text-danger">*</span></label>
+                        <select id="espacioId" name="espacioId" required class="form-select">
+                          <option value="" disabled selected>Seleccione un espacio deportivo</option>
+                          <option th:each="espacio : ${espaciosDeportivos}"
+                                  th:value="${espacio.id}"
+                                  th:text="${espacio.nombre + ' - ' + espacio.ubicacion + ' (' + espacio.tipoEspacio.nombre + ')'}">
                           </option>
                         </select>
                       </div>
@@ -319,10 +313,33 @@
                       <label for="Option_2">📝 Observación General</label>
                     </div>
                   </div>
+
+                  <!-- Campo de prioridad (solo para reparaciones) -->
+                  <div class="form-group" id="prioridadGroup" style="margin-top: 15px;">
+                    <label class="form-label">Prioridad<span class="text-danger">*</span></label>
+                    <select name="prioridad" id="prioridad" class="form-select">
+                      <option value="BAJA">🟢 Baja - No urgente</option>
+                      <option value="MEDIA" selected>🟡 Media - Atención normal</option>
+                      <option value="ALTA">🟠 Alta - Requiere pronta atención</option>
+                      <option value="CRITICA">🔴 Crítica - Atención inmediata</option>
+                    </select>
+                  </div>
+
                   <div class="form-group" style="margin-top: 15px;">
                     <label class="form-label">Descripción<span class="text-danger">*</span></label>
                     <textarea rows="4" class="form-control" name="comentarios" id="comentarios" required
                               placeholder="Explique brevemente la situación por la cual el establecimiento requiere arreglos o alguna observación sobre este."></textarea>
+                  </div>
+
+                  <!-- Campo para subida de imágenes -->
+                  <div class="form-group" style="margin-top: 15px;">
+                    <label class="form-label">Imágenes de apoyo <small class="text-muted">(Opcional, máximo 4 imágenes)</small></label>
+                    <input type="file" class="form-control" name="imagenes" id="imagenes"
+                           accept="image/*" multiple>
+                    <small class="form-text text-muted">
+                      <i class="fa fa-info-circle"></i> Seleccione hasta 4 imágenes para documentar la observación
+                    </small>
+                    <div id="preview-imagenes" class="mt-2"></div>
                   </div>
                 </div>
                 <!-- /.box-body -->
@@ -365,7 +382,7 @@
   <div class="control-sidebar-bg"></div>
 </div>
 
-<!--Script del contador de horas!-->
+<!--Script del sistema de asistencia con geolocalización!-->
 <!-- ./wrapper -->
 <script>
   // Variables globales
@@ -373,14 +390,45 @@
   let intervaloContador = null;
   let intervaloReloj = null;
   let tiempoTranscurrido = 0;
+  let espaciosPermitidos = [];
+  let estadoAsistencia = {
+    tieneEntrada: false,
+    tieneSalida: false
+  };
 
-  // Configuración de ubicaciones (actualiza estas coordenadas)
-  const lugaresPermitidos = [
-    {nombre: "Complejo Diego Ferré", lat: -12.0775, lng: -77.0933},
-    {nombre: "Universidad Católica", lat: -12.069722, lng: -77.079722},
-    {nombre: "Monte de los Olivos", lat: -12.134648, lng: -76.986915}
-  ];
-  const RADIO_PERMITIDO = 5000; // 5km (ajustar según necesidad)
+  // Función para obtener espacios deportivos con coordenadas
+  async function cargarEspaciosPermitidos() {
+    try {
+      const response = await fetch('/coordinador/espacios-coordenadas');
+      const data = await response.json();
+
+      if (data.success) {
+        espaciosPermitidos = data.espacios;
+        console.log('Espacios cargados:', espaciosPermitidos.length);
+
+        if (espaciosPermitidos.length === 0) {
+          console.warn('No hay espacios con coordenadas configuradas');
+          document.getElementById('frase').textContent = 'No tienes horarios asignados para hoy. Contacta al administrador.';
+          document.getElementById('frase').style.color = '#ffc107';
+          // Deshabilitar botones
+          document.getElementById('btnEntrada').disabled = true;
+          document.getElementById('btnSalida').disabled = true;
+        } else {
+          console.log('Espacios disponibles:', espaciosPermitidos.map(e => e.nombre));
+          // Verificar estado de asistencia al cargar espacios
+          await cargarEstadoAsistencia();
+        }
+      } else {
+        console.error('Error al cargar espacios:', data.error);
+        document.getElementById('frase').textContent = 'Error al cargar la configuración de ubicaciones';
+        document.getElementById('frase').style.color = '#dc3545';
+      }
+    } catch (error) {
+      console.error('Error al cargar espacios:', error);
+      document.getElementById('frase').textContent = 'Error de conexión al cargar ubicaciones';
+      document.getElementById('frase').style.color = '#dc3545';
+    }
+  }
 
   // Función mejorada de geolocalización
   async function obtenerUbicacion() {
@@ -392,104 +440,250 @@
 
       const opciones = {
         enableHighAccuracy: true,
-        timeout: 10000,
-        maximumAge: 0
+        timeout: 15000,
+        maximumAge: 30000
       };
 
       navigator.geolocation.getCurrentPosition(
-              position => resolve(position.coords),
-              error => {
-                switch(error.code) {
-                  case error.PERMISSION_DENIED:
-                    reject("Debes permitir el acceso a tu ubicación para usar esta función");
-                    break;
-                  case error.POSITION_UNAVAILABLE:
-                    reject("No se pudo obtener tu ubicación");
-                    break;
-                  case error.TIMEOUT:
-                    reject("Tiempo de espera agotado al obtener ubicación");
-                    break;
-                  default:
-                    reject("Error desconocido al obtener ubicación");
-                }
-              },
-              opciones
+        position => resolve(position.coords),
+        error => {
+          switch(error.code) {
+            case error.PERMISSION_DENIED:
+              reject("Debes permitir el acceso a tu ubicación para usar esta función");
+              break;
+            case error.POSITION_UNAVAILABLE:
+              reject("No se pudo obtener tu ubicación. Verifica que el GPS esté activado.");
+              break;
+            case error.TIMEOUT:
+              reject("Tiempo de espera agotado al obtener ubicación");
+              break;
+            default:
+              reject("Error desconocido al obtener ubicación");
+          }
+        },
+        opciones
       );
     });
   }
 
-  // Función mejorada de validación
+  // Función de validación de ubicación
   async function validarUbicacion() {
     try {
+      if (espaciosPermitidos.length === 0) {
+        throw new Error("No tienes horarios asignados para hoy o no hay espacios con coordenadas configuradas");
+      }
+
       const coords = await obtenerUbicacion();
       console.log('Coordenadas obtenidas:', coords.latitude, coords.longitude);
 
-      const distancias = lugaresPermitidos.map(lugar => {
-        const distancia = calcularDistancia(
-                coords.latitude,
-                coords.longitude,
-                lugar.lat,
-                lugar.lng
-        );
-        console.log(`Distancia a ${lugar.nombre}: ${Math.round(distancia)}m`);
-        return distancia;
-      });
+      let dentroDeArea = false;
+      let espacioMasCercano = null;
+      let distanciaMinima = Infinity;
 
-      const valido = distancias.some(d => d <= RADIO_PERMITIDO);
-      if (!valido) {
-        const minima = Math.min(...distancias);
-        throw new Error(`Fuera del área permitida (${Math.round(minima)}m de distancia)`);
+      for (const espacio of espaciosPermitidos) {
+        if (espacio.latitud && espacio.longitud) {
+          const distancia = calcularDistancia(
+            coords.latitude,
+            coords.longitude,
+            parseFloat(espacio.latitud),
+            parseFloat(espacio.longitud)
+          );
+
+          const radioPermitido = espacio.radioCobertura || 100; // 100m por defecto
+
+          console.log(`Distancia a ${espacio.nombre}: ${Math.round(distancia)}m (radio: ${radioPermitido}m)`);
+
+          if (distancia <= radioPermitido) {
+            dentroDeArea = true;
+            break;
+          }
+
+          if (distancia < distanciaMinima) {
+            distanciaMinima = distancia;
+            espacioMasCercano = espacio;
+          }
+        }
       }
 
-      // Habilitar botones si es válido
-      document.getElementById('btnEntrada').disabled = false;
-      document.getElementById('btnSalida').disabled = false;
-      return true;
+      if (!dentroDeArea) {
+        const mensaje = espacioMasCercano
+          ? `Fuera del área permitida. Más cercano: ${espacioMasCercano.nombre} (${Math.round(distanciaMinima)}m)`
+          : "Fuera del área permitida de cualquier espacio deportivo";
+        throw new Error(mensaje);
+      }
+
+      // Habilitar botones según el estado actual
+      actualizarEstadoBotones();
+      return { coords, valido: true };
 
     } catch (error) {
-      console.error('Error:', error);
-      alert(error.message);
-      // Deshabilitar botones en caso de error
+      console.error('Error de ubicación:', error);
       document.getElementById('btnEntrada').disabled = true;
       document.getElementById('btnSalida').disabled = true;
-      return false;
+
+      // Mostrar error en la interfaz
+      document.getElementById('frase').textContent = error.message;
+      document.getElementById('frase').style.color = '#dc3545';
+
+      return { valido: false, error: error.message };
     }
   }
 
-  // Resto del código sin cambios...
-  // [Mantener funciones calcularDistancia, formatearTiempo, actualizarReloj, registrarAccion]
+  // Función para cargar estado actual de asistencia
+  async function cargarEstadoAsistencia() {
+    try {
+      const response = await fetch('/coordinador/estado-asistencia');
+      const data = await response.json();
 
-  // Inicialización mejorada
-  document.addEventListener('DOMContentLoaded', () => {
-    // Configurar eventos
-    document.getElementById('btnEntrada').addEventListener('click', () => registrarAccion('entrada'));
-    document.getElementById('btnSalida').addEventListener('click', () => registrarAccion('salida'));
+      if (data.success) {
+        estadoAsistencia = data;
+        actualizarEstadoBotones();
 
-    // Iniciar reloj
-    intervaloReloj = setInterval(actualizarReloj, 1000);
-    actualizarReloj();
-
-    // Validación inicial
-    validarUbicacion().then(valido => {
-      if(valido) {
-        // Programar validación periódica
-        setInterval(validarUbicacion, 120000);
+        if (data.tieneEntrada && !data.tieneSalida) {
+          // Ya marcó entrada, iniciar cronómetro
+          iniciarCronometro();
+        }
       }
-    });
-
-    // Forzar actualización de permisos
-    if(navigator.permissions) {
-      navigator.permissions.query({name:'geolocation'})
-              .then(permiso => {
-                permiso.onchange = () => {
-                  console.log('Estado del permiso cambiado:', permiso.state);
-                  validarUbicacion();
-                }
-              });
+    } catch (error) {
+      console.error('Error al cargar estado:', error);
     }
-  });
+  }
 
-  // Añade estas funciones al script
+  // Función para actualizar estado de botones
+  function actualizarEstadoBotones() {
+    const btnEntrada = document.getElementById('btnEntrada');
+    const btnSalida = document.getElementById('btnSalida');
+    const frase = document.getElementById('frase');
+
+    if (estadoAsistencia.tieneEntrada && estadoAsistencia.tieneSalida) {
+      // Ya completó su jornada
+      btnEntrada.disabled = true;
+      btnSalida.disabled = true;
+      frase.textContent = "Jornada completada";
+      frase.style.color = '#28a745';
+    } else if (estadoAsistencia.tieneEntrada) {
+      // Ya marcó entrada, puede marcar salida
+      btnEntrada.disabled = true;
+      btnSalida.disabled = false;
+      frase.textContent = "Tiempo trabajado:";
+      frase.style.color = '#007bff';
+    } else {
+      // Puede marcar entrada
+      btnEntrada.disabled = false;
+      btnSalida.disabled = true;
+      frase.textContent = "Marque su hora de entrada al complejo";
+      frase.style.color = '#6c757d';
+    }
+  }
+
+  // Función para iniciar cronómetro
+  function iniciarCronometro() {
+    if (estadoAsistencia.horaEntrada) {
+      const horaEntrada = new Date();
+      const [horas, minutos, segundos] = estadoAsistencia.horaEntrada.split(':');
+      horaEntrada.setHours(parseInt(horas), parseInt(minutos), parseInt(segundos));
+
+      const ahora = new Date();
+      tiempoTranscurrido = Math.floor((ahora - horaEntrada) / 1000);
+
+      inicioTrabajo = horaEntrada;
+
+      // Iniciar cronómetro
+      intervaloContador = setInterval(() => {
+        tiempoTranscurrido++;
+        document.getElementById('hora').textContent = formatearTiempo(tiempoTranscurrido);
+      }, 1000);
+    }
+  }
+
+  // Función para registrar entrada
+  async function registrarEntrada() {
+    try {
+      const validacion = await validarUbicacion();
+      if (!validacion.valido) return;
+
+      const coords = validacion.coords;
+
+      const formData = new FormData();
+      formData.append('latitud', coords.latitude);
+      formData.append('longitud', coords.longitude);
+
+      const response = await fetch('/coordinador/registrar-entrada', {
+        method: 'POST',
+        body: formData
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        estadoAsistencia.tieneEntrada = true;
+        estadoAsistencia.horaEntrada = data.horaEntrada;
+
+        iniciarCronometro();
+        actualizarEstadoBotones();
+
+        let mensaje = 'Entrada registrada exitosamente';
+        if (data.estado === 'TARDE' && data.minutosRetraso) {
+          mensaje += ` (${data.minutosRetraso} minutos de retraso)`;
+        }
+
+        alert(mensaje);
+      } else {
+        alert('Error: ' + data.error);
+      }
+    } catch (error) {
+      alert('Error de conexión: ' + error.message);
+    }
+  }
+
+  // Función para registrar salida
+  async function registrarSalida() {
+    try {
+      const validacion = await validarUbicacion();
+      if (!validacion.valido) return;
+
+      const coords = validacion.coords;
+
+      const formData = new FormData();
+      formData.append('latitud', coords.latitude);
+      formData.append('longitud', coords.longitude);
+
+      const response = await fetch('/coordinador/registrar-salida', {
+        method: 'POST',
+        body: formData
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        estadoAsistencia.tieneSalida = true;
+        estadoAsistencia.horaSalida = data.horaSalida;
+        estadoAsistencia.horasTrabajadas = data.horasTrabajadas;
+
+        // Detener cronómetro
+        clearInterval(intervaloContador);
+        inicioTrabajo = null;
+
+        actualizarEstadoBotones();
+
+        let mensaje = `Salida registrada exitosamente. Horas trabajadas: ${data.horasTrabajadas}`;
+        if (data.estado === 'TARDE') {
+          mensaje += ' (No cumplió con las horas mínimas)';
+        }
+
+        alert(mensaje);
+
+        // Restaurar reloj normal
+        actualizarReloj();
+      } else {
+        alert('Error: ' + data.error);
+      }
+    } catch (error) {
+      alert('Error de conexión: ' + error.message);
+    }
+  }
+
+  // Funciones auxiliares
   function calcularDistancia(lat1, lon1, lat2, lon2) {
     const R = 6371e3; // Radio de la Tierra en metros
     const φ1 = lat1 * Math.PI / 180;
@@ -531,58 +725,63 @@
     }
   }
 
-  async function registrarAccion(tipo) {
-    try {
-      const ubicacionValida = await validarUbicacion();
-      if (!ubicacionValida) return;
+  // Inicialización principal
+  document.addEventListener('DOMContentLoaded', async function() {
+    // Configurar eventos de botones
+    document.getElementById('btnEntrada').addEventListener('click', registrarEntrada);
+    document.getElementById('btnSalida').addEventListener('click', registrarSalida);
 
-      const ahora = new Date();
+    // Iniciar reloj
+    intervaloReloj = setInterval(actualizarReloj, 1000);
+    actualizarReloj();
 
-      if (tipo === 'entrada') {
-        inicioTrabajo = ahora;
-        tiempoTranscurrido = 0;
+    // Cargar configuración inicial
+    await cargarEspaciosPermitidos();
+    // cargarEstadoAsistencia se llama desde cargarEspaciosPermitidos si hay espacios
 
-        // Iniciar cronómetro
-        intervaloContador = setInterval(() => {
-          tiempoTranscurrido++;
-          document.getElementById('hora').textContent = formatearTiempo(tiempoTranscurrido);
-        }, 1000);
+    // Validación inicial de ubicación
+    setTimeout(() => {
+      validarUbicacion().then(resultado => {
+        if (resultado.valido) {
+          console.log('Ubicación válida, sistema listo');
+          // Programar validación periódica cada 2 minutos
+          setInterval(validarUbicacion, 120000);
+        }
+      });
+    }, 1000);
 
-        // Actualizar UI
-        document.getElementById('frase').textContent = "Tiempo trabajado:";
-        document.getElementById('btnEntrada').disabled = true;
-        document.getElementById('btnSalida').disabled = false;
+    // Configurar formulario de observaciones
+    configurarFormularioObservaciones();
+  });
 
-      } else if (tipo === 'salida') {
-        // Detener cronómetro
-        clearInterval(intervaloContador);
-        inicioTrabajo = null;
-
-        // Restaurar reloj normal
-        document.getElementById('frase').textContent = "Marque su hora de entrada";
-        document.getElementById('btnEntrada').disabled = false;
-        document.getElementById('btnSalida').disabled = true;
-        actualizarReloj();
-      }
-
-      console.log(`${tipo.toUpperCase()} registrada a las ${ahora.toLocaleTimeString()}`);
-
-    } catch (error) {
-      alert(`Error: ${error.message}`);
-    }
-  }
-
-  // Script para mejorar la experiencia del formulario de observaciones
-  document.addEventListener('DOMContentLoaded', function() {
-    const tipoServicioSelect = document.getElementById('tipo_servicio');
+  // Configuración del formulario de observaciones
+  function configurarFormularioObservaciones() {
+    const espacioSelect = document.getElementById('espacioId');
     const comentariosTextarea = document.getElementById('comentarios');
     const radioButtons = document.querySelectorAll('input[name="tipoComentario"]');
+    const prioridadGroup = document.getElementById('prioridadGroup');
+
+    // Configurar previsualización de imágenes
+    configurarPreviewImagenes();
+
+    // Mostrar/ocultar campo de prioridad según tipo de comentario
+    function togglePrioridad() {
+      const tipoSeleccionado = document.querySelector('input[name="tipoComentario"]:checked').value;
+      if (tipoSeleccionado === 'reparacion') {
+        prioridadGroup.style.display = 'block';
+        document.getElementById('prioridad').required = true;
+      } else {
+        prioridadGroup.style.display = 'none';
+        document.getElementById('prioridad').required = false;
+      }
+      actualizarPlaceholder();
+    }
 
     // Actualizar placeholder según el tipo de comentario seleccionado
     function actualizarPlaceholder() {
       const tipoSeleccionado = document.querySelector('input[name="tipoComentario"]:checked').value;
       if (tipoSeleccionado === 'reparacion') {
-        comentariosTextarea.placeholder = 'Describa detalladamente el problema o reparación necesaria. Incluya ubicación específica, urgencia y cualquier detalle relevante para el mantenimiento.';
+        comentariosTextarea.placeholder = '🔧 Describa detalladamente el problema o reparación necesaria. Incluya ubicación específica, urgencia y cualquier detalle relevante para el mantenimiento.';
       } else {
         comentariosTextarea.placeholder = '📝 Comparta su observación general sobre el espacio deportivo. Puede incluir sugerencias de mejora, comentarios sobre el estado actual o cualquier aspecto relevante.';
       }
@@ -590,19 +789,20 @@
 
     // Agregar event listeners a los radio buttons
     radioButtons.forEach(radio => {
-      radio.addEventListener('change', actualizarPlaceholder);
+      radio.addEventListener('change', togglePrioridad);
     });
 
     // Validación del formulario
     const form = document.querySelector('form');
     form.addEventListener('submit', function(e) {
-      const tipoServicio = tipoServicioSelect.value;
+      const espacioId = espacioSelect.value;
       const comentarios = comentariosTextarea.value.trim();
+      const tipoComentario = document.querySelector('input[name="tipoComentario"]:checked').value;
 
-      if (!tipoServicio) {
+      if (!espacioId) {
         e.preventDefault();
-        alert('⚠️ Por favor, seleccione un tipo de servicio.');
-        tipoServicioSelect.focus();
+        alert('⚠️ Por favor, seleccione un espacio deportivo.');
+        espacioSelect.focus();
         return;
       }
 
@@ -621,12 +821,11 @@
       }
 
       // Confirmación antes de enviar
-      const tipoComentario = document.querySelector('input[name="tipoComentario"]:checked').value;
       const tipoTexto = tipoComentario === 'reparacion' ? 'reporte de mantenimiento' : 'observación';
-      const tipoServicioTexto = tipoServicioSelect.options[tipoServicioSelect.selectedIndex].text;
+      const espacioTexto = espacioSelect.options[espacioSelect.selectedIndex].text;
 
       const confirmacion = confirm(
-        `¿Está seguro de enviar este ${tipoTexto} para el tipo de servicio "${tipoServicioTexto}"?\n\n` +
+        `¿Está seguro de enviar este ${tipoTexto} para "${espacioTexto}"?\n\n` +
         `Descripción: ${comentarios.substring(0, 100)}${comentarios.length > 100 ? '...' : ''}`
       );
 
@@ -635,8 +834,8 @@
       }
     });
 
-    // Inicializar placeholder
-    actualizarPlaceholder();
+    // Inicializar estado
+    togglePrioridad();
 
     // Auto-dismiss alerts después de 5 segundos
     setTimeout(function() {
@@ -647,7 +846,77 @@
         }
       });
     }, 5000);
-  });
+  }
+
+  // Configurar previsualización de imágenes
+  function configurarPreviewImagenes() {
+    const inputImagenes = document.getElementById('imagenes');
+    const previewContainer = document.getElementById('preview-imagenes');
+
+    inputImagenes.addEventListener('change', function(e) {
+      const files = Array.from(e.target.files);
+
+      // Validar número máximo de archivos
+      if (files.length > 4) {
+        alert('⚠️ Máximo 4 imágenes permitidas');
+        e.target.value = '';
+        previewContainer.innerHTML = '';
+        return;
+      }
+
+      // Limpiar preview anterior
+      previewContainer.innerHTML = '';
+
+      // Crear preview para cada imagen
+      files.forEach((file, index) => {
+        if (file.type.startsWith('image/')) {
+          const reader = new FileReader();
+          reader.onload = function(e) {
+            const previewDiv = document.createElement('div');
+            previewDiv.className = 'd-inline-block me-2 mb-2 position-relative';
+            previewDiv.style.width = '100px';
+            previewDiv.style.height = '100px';
+
+            previewDiv.innerHTML = `
+              <img src="${e.target.result}"
+                   class="img-thumbnail"
+                   style="width: 100%; height: 100%; object-fit: cover;">
+              <button type="button"
+                      class="btn btn-danger btn-sm position-absolute top-0 end-0"
+                      style="padding: 2px 6px; font-size: 10px;"
+                      onclick="eliminarImagenPreview(this, ${index})">
+                <i class="fa fa-times"></i>
+              </button>
+            `;
+
+            previewContainer.appendChild(previewDiv);
+          };
+          reader.readAsDataURL(file);
+        }
+      });
+    });
+  }
+
+  // Función para eliminar imagen del preview
+  function eliminarImagenPreview(button, index) {
+    const inputImagenes = document.getElementById('imagenes');
+    const previewContainer = document.getElementById('preview-imagenes');
+
+    // Remover el preview
+    button.parentElement.remove();
+
+    // Crear nuevo FileList sin el archivo eliminado
+    const dt = new DataTransfer();
+    const files = Array.from(inputImagenes.files);
+
+    files.forEach((file, i) => {
+      if (i !== index) {
+        dt.items.add(file);
+      }
+    });
+
+    inputImagenes.files = dt.files;
+  }
 
 </script>
 
