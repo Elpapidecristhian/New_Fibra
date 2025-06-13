@@ -3,13 +3,8 @@ package com.example.gtics_ta.Entity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.lang.Nullable;
-
-import java.beans.ConstructorProperties;
-import java.sql.Time;
-import java.time.LocalDate;
+import java.math.BigDecimal;
 import java.time.LocalTime;
-import java.util.Timer;
 
 @Getter
 @Setter
@@ -47,4 +42,14 @@ public class EspaciosDeportivos {
     @ManyToOne
     @JoinColumn(name = "id_lista_fotos")
     private ListaFotos listaFotos;
+
+    // Campos de geolocalización
+    @Column(name = "latitud", precision = 10, scale = 8)
+    private BigDecimal latitud;
+
+    @Column(name = "longitud", precision = 11, scale = 8)
+    private BigDecimal longitud;
+
+    @Column(name = "radio_cobertura")
+    private Integer radioCobertura = 100;
 }

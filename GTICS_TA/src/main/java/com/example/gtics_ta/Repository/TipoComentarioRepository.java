@@ -8,10 +8,10 @@ import java.util.List;
 
 @Repository
 public interface TipoComentarioRepository extends JpaRepository<TipoComentario, Integer> {
-    
+
     // Buscar tipo de comentario por nombre
     TipoComentario findByNombre(String nombre);
-    
+
     // Buscar todos los tipos ordenados por nombre
     List<TipoComentario> findAllByOrderByNombreAsc();
 }

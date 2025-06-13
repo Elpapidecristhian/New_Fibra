@@ -1,12 +1,15 @@
 package com.example.gtics_ta.Controllers;
 
+import com.example.gtics_ta.DTO.ChatMessageDTO;
 import com.example.gtics_ta.DTO.HorariosConsultaDTO;
 import com.example.gtics_ta.Entity.*;
 import com.example.gtics_ta.Repository.*;
+import com.example.gtics_ta.Services.ChatbotService;
 import com.example.gtics_ta.Services.MailService;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -28,6 +31,8 @@ import java.util.*;
 @Controller
 @RequestMapping("/vecino")
 public class VecinoController {
+    @Autowired
+    private ChatbotService chatbotService;
     @Autowired
     EspaciosDeportivosRepository espaciosDeportivosRepository;
     @Autowired
@@ -176,7 +181,7 @@ public class VecinoController {
                     attr.addFlashAttribute("msg", "Reserva cancelada correctamente. Su dinero será reembolsado en un plazo de dos semanas.");
                 }
             } else {
-                attr.addFlashAttribute("error", "No puede cancelar una reserva para hoy o en el pasado.");
+                attr.addFlashAttribute("error", "Solo puede cancelar una reserva con un plazo de antelación de un día.");
             }
         } else {
             attr.addFlashAttribute("error", "No se encontró la reserva.");
@@ -214,6 +219,16 @@ public class VecinoController {
         return "vecino/reservar";
     }
 
+    @GetMapping("/horarios-disponibles")
+    @ResponseBody
+    public List<HorariosConsultaDTO> obtenerHorariosPorFecha(
+            @RequestParam("fecha") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fecha,
+            @RequestParam("idEspacio") Integer idEspacio) {
+
+        return horariosRepository.obtenerHorariosConsulta(fecha, idEspacio);
+    }
+
+
     @PostMapping("/guardarreserva")
     public String guardarreserva(@ModelAttribute("reserva") Reservas reserva) {
         Timestamp timestamp = new Timestamp(System.currentTimeMillis());
@@ -227,6 +242,7 @@ public class VecinoController {
         //Pago chancado
         Pagos pago = new Pagos();
         pago.setId(1);
+        pago.setCantidad(reserva.getEspacioDeportivo().getCostoHorario());
         reserva.setPago(pago);
 
         horarioReservadoRepository.save(horarioReservado);
@@ -274,6 +290,7 @@ public class VecinoController {
 
         String fileName = file.getOriginalFilename();
 
+        assert fileName != null;
         if (fileName.contains("..")){
             model.addAttribute("msg","Debe ingresar un archivo válido");
             return "vecino/perfil";
@@ -360,6 +377,15 @@ public class VecinoController {
         }
     }
 
+    @PostMapping("/chatbot")
+    @ResponseBody
+    public ResponseEntity<ChatMessageDTO> responder(@RequestBody ChatMessageDTO mensaje) {
+        String respuesta = chatbotService.generarRespuesta(mensaje.getMensajeUsuario());
+        ChatMessageDTO respuestaDTO = new ChatMessageDTO();
+        respuestaDTO.setMensajeUsuario(mensaje.getMensajeUsuario());
+        respuestaDTO.setRespuestaBot(respuesta);
+        return ResponseEntity.ok(respuestaDTO);
+    }
 
 
 }

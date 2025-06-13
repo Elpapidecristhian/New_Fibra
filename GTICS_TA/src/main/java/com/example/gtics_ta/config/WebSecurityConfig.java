@@ -47,6 +47,7 @@ public class WebSecurityConfig {
         http.formLogin(form -> form
                 .loginPage("/login")
                 .loginProcessingUrl("/procesar-login")
+                .failureUrl("/login?errorcred=true")
                 .successHandler((request, response, authentication) -> {
                     RedirectStrategy redirectStrategy = new DefaultRedirectStrategy();
                     DefaultSavedRequest defaultSavedRequest =
@@ -104,11 +105,10 @@ public class WebSecurityConfig {
     @Bean
     public UserDetailsManager users(DataSource dataSource) {
         JdbcUserDetailsManager users = new JdbcUserDetailsManager(dataSource);
-        // CORREGIDO: Agregar activo = 1 en la primera query y esquema completo en la segunda
-        users.setUsersByUsernameQuery("SELECT correo, contrasenia, activo FROM gtics.usuario WHERE correo = ? AND activo = 1");
+        users.setUsersByUsernameQuery("SELECT correo, contrasenia, activo FROM gtics.usuario WHERE correo = ?");
         users.setAuthoritiesByUsernameQuery(
-                "SELECT u.correo, r.nombre FROM gtics.usuario u " +
-                        "INNER JOIN gtics.roles r ON u.id_rol = r.id_rol " +
+                "SELECT u.correo, r.nombre FROM usuario u " +
+                        "INNER JOIN roles r ON u.id_rol = r.id_rol " +
                         "WHERE u.correo = ? AND u.activo = 1"
         );
         return users;

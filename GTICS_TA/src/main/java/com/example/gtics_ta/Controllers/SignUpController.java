@@ -1,10 +1,14 @@
 package com.example.gtics_ta.Controllers;
 
 import com.example.gtics_ta.DTO.ReniecDTO;
+import com.example.gtics_ta.Entity.AccountActivate;
 import com.example.gtics_ta.Entity.Usuario;
+import com.example.gtics_ta.Repository.AccountActivateRepository;
 import com.example.gtics_ta.Repository.RolRepository;
 import com.example.gtics_ta.Repository.UsuarioRepository;
+import com.example.gtics_ta.Services.MailService;
 import com.example.gtics_ta.Services.ReniecService;
+import com.fasterxml.jackson.databind.annotation.JsonAppend;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -15,6 +19,9 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.LocalDate;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
 @Controller
 @RequestMapping("/signup")
@@ -30,6 +37,12 @@ public class SignUpController {
 
     @Autowired
     private ReniecService reniecService;
+
+    @Autowired
+    private AccountActivateRepository accountActivateRepository;
+
+    @Autowired
+    private MailService emailService;
 
     @GetMapping(value = {"", "/"})
     public String mostrarFormularioRegistro(@ModelAttribute("usuario") Usuario usuario, Model model) {
@@ -66,26 +79,57 @@ public class SignUpController {
         usuario.setContrasenia(passwordEncoder.encode(usuario.getContrasenia()));
         usuario.setActivo(true);
         usuario.setRol(rolRepository.findByNombre("Vecino"));
+        usuario.setActivo(false);
 
         usuarioRepository.save(usuario);
 
-        attr.addFlashAttribute("exito", "Usuario registrado correctamente.");
+        String token = UUID.randomUUID().toString();
+        AccountActivate accountActivate = new AccountActivate();
+        accountActivate.setUsuario(usuario);
+        accountActivate.setToken(token);
+        accountActivateRepository.save(accountActivate);
+
+        String link = "https://3.89.234.107:8080/signup/activarcuenta?token=" + token;
+        Map<String, Object> datos = new HashMap<>();
+        datos.put("nombre", usuario.getNombres() + " " + usuario.getApellidos());
+        datos.put("urlConfirmacion", link);
+
+        emailService.enviarCorreoConPlantilla(usuario.getCorreo(), "Activa tu cuenta", "email/bienvenida", datos);
+
+        attr.addFlashAttribute("msg", "Usuario registrado correctamente. \nRevise su correo para activar su cuenta");
         return "redirect:/login";
+    }
+
+    @GetMapping("/activarcuenta")
+    public String activarCuenta(@RequestParam("token") String token, Model model) {
+        AccountActivate activate = accountActivateRepository.findByToken(token);
+        if (activate == null) {
+            return "/login/login";
+        } else {
+            Usuario usuario = activate.getUsuario();
+            usuario.setActivo(true);
+            usuarioRepository.save(usuario);
+            accountActivateRepository.delete(activate);
+            model.addAttribute("usuario", usuario);
+            return "/login/cuentaactiva";
+        }
     }
 
     @PostMapping("/buscardni")
     public String buscarDNI(@RequestParam("dni") String dni, Model model, @ModelAttribute("usuario") Usuario usuario) {
         try {
-            ReniecDTO respuesta = reniecService.consultaPorDNI(String.valueOf(usuario.getDni()));
+            ReniecDTO respuesta = reniecService.consultaPorDNI(dni);
             if (respuesta != null) {
                 usuario.setNombres(respuesta.getNombres());
                 usuario.setApellidos(respuesta.getApellidoPaterno() + " " + respuesta.getApellidoMaterno());
                 usuario.setDni(Integer.valueOf(dni));
             }
             model.addAttribute("usuario", usuario);
+            model.addAttribute("hoy", LocalDate.now());
             return "login/signup";
         } catch (Exception e) {
             model.addAttribute("errorDNIConsulta", "No se pudo encontrar información del DNI");
+            model.addAttribute("hoy", LocalDate.now());
             return "login/signup";
         }
     }

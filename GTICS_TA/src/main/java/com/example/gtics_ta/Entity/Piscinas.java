@@ -1,9 +1,6 @@
 package com.example.gtics_ta.Entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -15,8 +12,9 @@ public class Piscinas {
     @Id
     @Column(name = "id_espacio")
     private int idEspacio;
+    @Enumerated(EnumType.STRING)
     @Column(name = "tipo_piscina")
-    private String tipoPiscina;
+    private TipoPiscina tipoPiscina;
     @Column(name = "profundidad_min")
     private float profundidadMin;
     @Column(name = "profundidad_max")
@@ -26,4 +24,8 @@ public class Piscinas {
     private String requisitos;
     @Column(name = "num_carril_max")
     private int numCarrilMax;
+
+    public enum TipoPiscina {
+        Olimpica, Publica
+    }
 }

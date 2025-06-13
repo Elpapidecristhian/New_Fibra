@@ -11,6 +11,7 @@ import lombok.Setter;
 public class TipoEspacio {
     @Id
     @Column(name = "id_tipo_espacio")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
     private String nombre;
 }

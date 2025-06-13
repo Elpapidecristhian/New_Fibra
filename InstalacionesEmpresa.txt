@@ -169,3 +169,6 @@ AIzaSyB41DRUbKWJHPxaFjMAwdrzWzbVKartNGg
 # IMPORTANTE: La empresa debe solicitar acceso oficial a RENIEC y reemplazar estos valores
 # Proceso: https://www.gob.pe/13549-solicitar-acceso-al-servicio-de-verificacion-de-identidad-de-personas-en-reniec-utilizar-web-service-de-datos
 # Costo por consulta: S/ 0.40 según documentación oficial
+Client ID
+1016939485745-6s0n5cmnugjvd8ps8teedrtd8mgvdfss.apps.googleusercontent.com
+Secreto del cliente

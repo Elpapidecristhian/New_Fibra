@@ -33,7 +33,7 @@ public class WebSecurityConfig {
         http.authorizeHttpRequests(auth -> auth
                 // Permitir recursos estáticos
                 .requestMatchers("/css/**", "/js/**", "/images/**", "/assets/**", "/front-ed/**", "/scss/**").permitAll()
-
+                .requestMatchers("/vecino/chatbot").authenticated() // solo usuarios logueados
                 .requestMatchers("/vecino/**").hasAnyAuthority("Vecino", "Admin")
                 .requestMatchers("/coordinador/**").hasAnyAuthority("Coordinador", "Admin", "SuperAdmin")
                 .requestMatchers("/admin/**").hasAnyAuthority("Admin", "SuperAdmin")
@@ -42,6 +42,10 @@ public class WebSecurityConfig {
                 .requestMatchers("/signup/**").permitAll()
                 .anyRequest().authenticated()
         );
+        http.csrf(csrf -> csrf
+                .ignoringRequestMatchers("/vecino/chatbot")
+        );
+
 
         http.formLogin(form -> form
                 .loginPage("/login")

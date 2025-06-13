@@ -221,6 +221,27 @@
                       
                       <div class="card-text">
                         <p class="mb-2" th:text="${comentario.contenido}">Contenido de la observación</p>
+
+                        <!-- Mostrar imágenes si existen -->
+                        <div th:if="${comentario.listaFotos != null and !#lists.isEmpty(comentario.listaFotos.fotos)}" class="mb-3">
+                          <h6 class="text-muted mb-2">
+                            <i class="fa fa-image me-1"></i>Imágenes adjuntas:
+                          </h6>
+                          <div class="row">
+                            <div th:each="foto : ${comentario.listaFotos.fotos}" class="col-md-3 col-sm-4 col-6 mb-2">
+                              <div class="position-relative">
+                                <img th:src="${foto.fotoUrl}"
+                                     class="img-thumbnail observacion-imagen"
+                                     style="width: 100%; height: 120px; object-fit: cover; cursor: pointer;"
+                                     th:alt="'Imagen de observación'"
+                                     onclick="mostrarImagenCompleta(this.src)">
+                                <small class="text-muted d-block text-center mt-1"
+                                       th:text="${foto.fotoNombre}">Nombre imagen</small>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
                         <small class="text-muted">
                           <i class="fa fa-map-marker me-1"></i>
                           Tipo: <span th:text="${comentario.espacio.tipoEspacio.nombre}">Tipo de espacio</span>
@@ -248,6 +269,31 @@
 
 </div>
 
+<!-- Modal para mostrar imagen completa -->
+<div class="modal fade" id="imagenModal" tabindex="-1" aria-labelledby="imagenModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="imagenModalLabel">
+          <i class="fa fa-image me-2"></i>Imagen de observación
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body text-center">
+        <img id="imagenCompleta" src="" class="img-fluid" alt="Imagen completa">
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+          <i class="fa fa-times me-1"></i>Cerrar
+        </button>
+        <a id="descargarImagen" href="" download class="btn btn-primary">
+          <i class="fa fa-download me-1"></i>Descargar
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- Vendor JS -->
 <script th:src="@{/js/vendors.min.js}"></script>
 <script th:src="@{/js/pages/chat-popup.js}"></script>
@@ -255,6 +301,35 @@
 
 <!-- Rhythm Admin App -->
 <script th:src="@{/js/template.js}"></script>
+
+<script>
+// Función para mostrar imagen en modal
+function mostrarImagenCompleta(src) {
+    const modal = new bootstrap.Modal(document.getElementById('imagenModal'));
+    const imagenCompleta = document.getElementById('imagenCompleta');
+    const descargarImagen = document.getElementById('descargarImagen');
+
+    imagenCompleta.src = src;
+    descargarImagen.href = src;
+
+    modal.show();
+}
+
+// Agregar efecto hover a las imágenes
+document.addEventListener('DOMContentLoaded', function() {
+    const imagenes = document.querySelectorAll('.observacion-imagen');
+    imagenes.forEach(img => {
+        img.addEventListener('mouseenter', function() {
+            this.style.transform = 'scale(1.05)';
+            this.style.transition = 'transform 0.2s ease';
+        });
+
+        img.addEventListener('mouseleave', function() {
+            this.style.transform = 'scale(1)';
+        });
+    });
+});
+</script>
 
 </body>
 </html>

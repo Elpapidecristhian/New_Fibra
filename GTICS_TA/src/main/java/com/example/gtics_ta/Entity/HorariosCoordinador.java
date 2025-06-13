@@ -14,6 +14,7 @@ import java.util.Date;
 @Table(name = "horarioscoordinador")
 public class HorariosCoordinador {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_horarios_coordinador")
     private int id;
     @ManyToOne

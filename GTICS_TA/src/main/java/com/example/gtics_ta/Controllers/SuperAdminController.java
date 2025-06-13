@@ -3,7 +3,7 @@ import com.example.gtics_ta.DTO.ResumenDTO;
 import com.example.gtics_ta.DTO.SuperadminDTO;
 import com.example.gtics_ta.Entity.Rol;
 import com.example.gtics_ta.Repository.EspaciosDeportivosRepository;
-import com.example.gtics_ta.Repository.ReservaRepository;
+import com.example.gtics_ta.Repository.ReservasRepository;
 import com.example.gtics_ta.Repository.RolRepository;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import com.example.gtics_ta.Repository.UsuarioRepository;
 import com.example.gtics_ta.Entity.Usuario;
 
-import javax.naming.Binding;
+
 import java.time.Month;
 import java.time.format.TextStyle;
 import java.util.ArrayList;
@@ -41,7 +41,7 @@ public class SuperAdminController {
     private EspaciosDeportivosRepository espaciosDeportivosRepository;
 
     @Autowired
-    private ReservaRepository reservaRepository;
+    private ReservasRepository reservaRepository;
 
     @GetMapping(value = {"","/"})
     public String Dashboard(Model model) {
@@ -128,7 +128,12 @@ public class SuperAdminController {
         dto.setReservasUltimos3MesesLista(cantidades3Meses);
         dto.setCantidadTotalReservas(reservaRepository.contarTotalReservas());
         dto.setCantidadReservasHoy(reservaRepository.contarReservasHoy());
-
+        System.out.println("Meses 3 últimos: " + dto.getMesesUltimos3Meses());
+        System.out.println("Totales 3 últimos: " + dto.getRecaudacionUltimos3Meses());
+        System.out.println("Reservas 3 últimos: " + dto.getReservasUltimos3MesesLista());
+        System.out.println("Meses Anual: " + dto.getMesesAnuales());
+        System.out.println("Totales Anual: " + dto.getRecaudacionAnualPorMes());
+        System.out.println("Reservas Anual: " + dto.getReservasAnualesPorMes());
         return "Usuario_Superadmin/Dashboard";
     }
 

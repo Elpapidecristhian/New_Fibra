@@ -56,8 +56,8 @@ public class Comentarios {
     private Boolean requiereMantenimiento = false;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "prioridad_mantenimiento")
-    private PrioridadMantenimiento prioridadMantenimiento;
+    @Column(name = "prioridad_usuario")
+    private PrioridadUsuario prioridadUsuario;
 
     @Column(name = "notas_admin", columnDefinition = "TEXT")
     private String notasAdmin;
@@ -111,7 +111,7 @@ public class Comentarios {
         COMENTARIO, REPARACION
     }
 
-    public enum PrioridadMantenimiento {
+    public enum PrioridadUsuario {
         BAJA, MEDIA, ALTA, CRITICA
     }
 }
