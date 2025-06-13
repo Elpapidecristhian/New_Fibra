@@ -19,6 +19,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.LocalDate;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 @Controller
@@ -87,11 +89,12 @@ public class SignUpController {
         accountActivate.setToken(token);
         accountActivateRepository.save(accountActivate);
 
-        String link = "3.89.234.107:8080/signup/activarcuenta?token=" + token;
-        String asunto = "Hola " + usuario.getNombres() + " " + usuario.getApellidos() + ".\n" +
-                        "Para activar tu cuenta solo tienes que entrar al siguente enlace: " + link;
+        String link = "https://3.89.234.107:8080/signup/activarcuenta?token=" + token;
+        Map<String, Object> datos = new HashMap<>();
+        datos.put("nombre", usuario.getNombres() + " " + usuario.getApellidos());
+        datos.put("urlConfirmacion", link);
 
-        emailService.enviarCorreo(usuario.getCorreo(), "Activa tu cuenta", asunto);
+        emailService.enviarCorreoConPlantilla(usuario.getCorreo(), "Activa tu cuenta", "email/bienvenida", datos);
 
         attr.addFlashAttribute("msg", "Usuario registrado correctamente. \nRevise su correo para activar su cuenta");
         return "redirect:/login";

@@ -16,6 +16,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 @Controller
@@ -44,9 +46,14 @@ public class LoginController {
         if(email!= null){
             if(usuarioRepository.existsByCorreo(email)) {
                 String token = UUID.randomUUID().toString();
-                String link = "3.89.234.107:8080/login/resetpassword?token=" + token;
-                emailService.enviarCorreo(email, "Recupera tu contraseña",
-                        "Haz clic en el siguiente enlace para restablecer tu contraseña:\n" + link + "\n Recuerde que este código tiene validez de una hora.");
+                String link = "https://3.89.234.107:8080/login/resetpassword?token=" + token;
+
+                Usuario usuario = usuarioRepository.findByCorreo(email);
+                Map<String, Object> datos = new HashMap<>();
+                datos.put("nombre", usuario.getNombres() + " " + usuario.getApellidos());
+                datos.put("url", link);
+
+                emailService.enviarCorreoConPlantilla(email, "Recupera tu contraseña", "email/recuperarPasswd", datos);
 
                 PasswordReset passwordReset = new PasswordReset();
                 passwordReset.setToken(token);
