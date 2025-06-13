@@ -128,7 +128,12 @@ public class SuperAdminController {
         dto.setReservasUltimos3MesesLista(cantidades3Meses);
         dto.setCantidadTotalReservas(reservaRepository.contarTotalReservas());
         dto.setCantidadReservasHoy(reservaRepository.contarReservasHoy());
-
+        System.out.println("Meses 3 últimos: " + dto.getMesesUltimos3Meses());
+        System.out.println("Totales 3 últimos: " + dto.getRecaudacionUltimos3Meses());
+        System.out.println("Reservas 3 últimos: " + dto.getReservasUltimos3MesesLista());
+        System.out.println("Meses Anual: " + dto.getMesesAnuales());
+        System.out.println("Totales Anual: " + dto.getRecaudacionAnualPorMes());
+        System.out.println("Reservas Anual: " + dto.getReservasAnualesPorMes());
         return "Usuario_Superadmin/Dashboard";
     }
 

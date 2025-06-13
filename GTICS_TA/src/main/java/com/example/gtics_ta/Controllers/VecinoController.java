@@ -1,8 +1,10 @@
 package com.example.gtics_ta.Controllers;
 
+import com.example.gtics_ta.DTO.ChatMessageDTO;
 import com.example.gtics_ta.DTO.HorariosConsultaDTO;
 import com.example.gtics_ta.Entity.*;
 import com.example.gtics_ta.Repository.*;
+import com.example.gtics_ta.Services.ChatbotService;
 import com.example.gtics_ta.Services.MailService;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
@@ -28,6 +30,8 @@ import java.util.*;
 @Controller
 @RequestMapping("/vecino")
 public class VecinoController {
+    @Autowired
+    private ChatbotService chatbotService;
     @Autowired
     EspaciosDeportivosRepository espaciosDeportivosRepository;
     @Autowired
@@ -360,6 +364,15 @@ public class VecinoController {
         }
     }
 
+    @PostMapping("/chatbot")
+    @ResponseBody
+    public ResponseEntity<ChatMessageDTO> responder(@RequestBody ChatMessageDTO mensaje) {
+        String respuesta = chatbotService.generarRespuesta(mensaje.getMensajeUsuario());
+        ChatMessageDTO respuestaDTO = new ChatMessageDTO();
+        respuestaDTO.setMensajeUsuario(mensaje.getMensajeUsuario());
+        respuestaDTO.setRespuestaBot(respuesta);
+        return ResponseEntity.ok(respuestaDTO);
+    }
 
 
 }

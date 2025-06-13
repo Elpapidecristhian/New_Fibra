@@ -29,7 +29,8 @@ public interface ReservaRepository extends JpaRepository<Reservas, Integer> {
     SELECT MONTH(r.fecha_reserva) AS mes, SUM(p.cantidad) AS total, COUNT(*) AS reservas
     FROM reservas r
     JOIN pagos p ON r.id_pagos = p.id_pagos
-    WHERE r.fecha_reserva >= DATE_FORMAT(DATE_SUB(CURDATE(), INTERVAL 2 MONTH), '%Y-%m-01')
+    WHERE p.estado_pago = 'APROBADO'
+      AND r.fecha_reserva >= DATE_FORMAT(DATE_SUB(CURDATE(), INTERVAL 2 MONTH), '%Y-%m-01')
       AND r.fecha_reserva < DATE_ADD(LAST_DAY(CURDATE()), INTERVAL 1 DAY)
     GROUP BY MONTH(r.fecha_reserva)
     ORDER BY mes
@@ -41,13 +42,16 @@ public interface ReservaRepository extends JpaRepository<Reservas, Integer> {
     SELECT MONTH(r.fecha_reserva) AS mes, SUM(p.cantidad) AS total, COUNT(*) AS reservas
     FROM reservas r
     JOIN pagos p ON r.id_pagos = p.id_pagos
-    WHERE YEAR(r.fecha_reserva) = YEAR(CURDATE())
+    WHERE p.estado_pago = 'APROBADO'
+      AND YEAR(r.fecha_reserva) = YEAR(CURDATE())
     GROUP BY MONTH(r.fecha_reserva)
     ORDER BY MONTH(r.fecha_reserva)
 """, nativeQuery = true)
     List<Object[]> reporteMensualAnual();
+
+
     @Query(value = """
-    SELECT ed.nombre, COUNT(*) as cantidad
+    SELECT ed.nombre, COUNT(*) AS cantidad
     FROM reservas r
     JOIN espaciosdeportivos ed ON r.id_espacio = ed.id_espacio
     GROUP BY ed.nombre
@@ -85,5 +89,6 @@ public interface ReservaRepository extends JpaRepository<Reservas, Integer> {
             "GROUP BY HOUR(h.horaInicio) " +
             "ORDER BY HOUR(h.horaInicio)")
     List<Object[]> distribucionReservasPorHora();
+    List<Reservas> findByEspacioDeportivoId(Integer idEspacio);
 
 }
