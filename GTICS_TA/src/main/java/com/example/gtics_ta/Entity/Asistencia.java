@@ -16,6 +16,7 @@ import java.util.Date;
 @Table(name = "asistencia")
 public class Asistencia {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_asistencia")
     private int id;
     @DateTimeFormat(pattern = "yyyy-MM-dd")
