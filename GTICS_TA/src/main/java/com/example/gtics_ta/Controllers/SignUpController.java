@@ -47,7 +47,7 @@ public class SignUpController {
     @GetMapping(value = {"", "/"})
     public String mostrarFormularioRegistro(@ModelAttribute("usuario") Usuario usuario, Model model) {
         model.addAttribute("hoy", LocalDate.now());
-        return "/login/signup";
+        return "login/signup";
     }
 
     @PostMapping("/save")
@@ -57,22 +57,22 @@ public class SignUpController {
                                    RedirectAttributes attr,
                                    Model model) {
         if(bindingResult.hasErrors()) {
-            return "/login/signup";
+            return "login/signup";
         }
 
         if (!usuario.getContrasenia().equals(confirmarContrasenia)) {
             model.addAttribute("errorPswd", "Las contraseñas no coinciden.");
-            return "/login/signup";
+            return "login/signup";
         }
 
         if (usuarioRepository.existsByCorreo(usuario.getCorreo())) {
             model.addAttribute("errorEmail", "El correo ya está registrado.");
-            return "/login/signup";
+            return "login/signup";
         }
 
         if (usuarioRepository.existsByDni(usuario.getDni())) {
             model.addAttribute("errorDNI", "El DNI ya está registrado.");
-            return "/login/signup";
+            return "login/signup";
         }
 
 
@@ -104,14 +104,14 @@ public class SignUpController {
     public String activarCuenta(@RequestParam("token") String token, Model model) {
         AccountActivate activate = accountActivateRepository.findByToken(token);
         if (activate == null) {
-            return "/login/login";
+            return "login/login";
         } else {
             Usuario usuario = activate.getUsuario();
             usuario.setActivo(true);
             usuarioRepository.save(usuario);
             accountActivateRepository.delete(activate);
             model.addAttribute("usuario", usuario);
-            return "/login/cuentaactiva";
+            return "login/cuentaactiva";
         }
     }
 
@@ -126,11 +126,11 @@ public class SignUpController {
             }
             model.addAttribute("usuario", usuario);
             model.addAttribute("hoy", LocalDate.now());
-            return "/login/signup";
+            return "login/signup";
         } catch (Exception e) {
             model.addAttribute("errorDNIConsulta", "No se pudo encontrar información del DNI");
             model.addAttribute("hoy", LocalDate.now());
-            return "/login/signup";
+            return "login/signup";
         }
     }
 
