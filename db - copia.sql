@@ -327,6 +327,22 @@ DEFAULT CHARACTER SET = utf8mb3;
 
 
 -- -----------------------------------------------------
+-- Table `gtics`.`passwdreset`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `gtics`.`passwdreset` (
+  `id_usuario` INT NOT NULL,
+  `token` VARCHAR(255) NOT NULL,
+  `expiracion` DATETIME(6) NULL DEFAULT NULL,
+  PRIMARY KEY (`token`),
+  INDEX `fk_passwdreset_usuario1_idx` (`id_usuario` ASC) VISIBLE,
+  CONSTRAINT `fk_passwdreset_usuario1`
+    FOREIGN KEY (`id_usuario`)
+    REFERENCES `gtics`.`usuario` (`id_usuario`))
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb3;
+
+
+-- -----------------------------------------------------
 -- Table `gtics`.`piscinas`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `gtics`.`piscinas` (
@@ -412,67 +428,77 @@ DEFAULT CHARACTER SET = utf8mb3;
 
 
 -- -----------------------------------------------------
--- Table `gtics`.`tipocomentario` - DEPRECATED: Se reemplaza por ENUM
+-- Table `gtics`.`accountactivate`
 -- -----------------------------------------------------
--- Esta tabla se mantiene por compatibilidad pero se recomienda usar el ENUM en comentarios
-
+CREATE TABLE IF NOT EXISTS `gtics`.`accountactivate` (
+  `token` VARCHAR(100) NOT NULL,
+  `id_usuario` INT NOT NULL,
+  PRIMARY KEY (`token`),
+  UNIQUE INDEX `token_UNIQUE` (`token` ASC) VISIBLE,
+  INDEX `fk_accountactivate_usuario1_idx` (`id_usuario` ASC) VISIBLE,
+  CONSTRAINT `fk_accountactivate_usuario1`
+    FOREIGN KEY (`id_usuario`)
+    REFERENCES `gtics`.`usuario` (`id_usuario`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
 
 -- -----------------------------------------------------
 -- Table `gtics`.`comentarios`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `gtics`.`comentarios` (
-  `id_comentarios` INT NOT NULL AUTO_INCREMENT,
-  `id_espacio` INT NOT NULL,
-  `id_usuario` INT NOT NULL,
-  `tipo_comentario` ENUM('COMENTARIO', 'REPARACION') NOT NULL DEFAULT 'COMENTARIO' COMMENT 'Tipo de comentario usando ENUM',
-  `contenido` TEXT NOT NULL,
-  `prioridad_usuario` ENUM('BAJA', 'MEDIA', 'ALTA', 'CRITICA') NULL COMMENT 'Prioridad indicada por el usuario (solo para tipo REPARACION)',
-  `id_lista_fotos` INT NULL COMMENT 'Fotos adjuntas al comentario',
-  `fecha_creacion` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  `fecha_actualizacion` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  `activo` TINYINT DEFAULT 1 COMMENT 'Si el comentario está activo o fue eliminado',
-  `revisado_por_admin` TINYINT DEFAULT 0 COMMENT 'Si el admin ya revisó el comentario',
-  `requiere_mantenimiento` TINYINT DEFAULT 0 COMMENT 'Si el admin determina que requiere mantenimiento',
-  `notas_admin` TEXT NULL COMMENT 'Notas internas del admin para programar mantenimiento',
-  `fecha_revision` TIMESTAMP NULL COMMENT 'Fecha de revisión del administrador',
-  `revisado_por` INT NULL COMMENT 'ID del admin que revisó',
-  `id_mantenimiento_generado` INT NULL COMMENT 'ID del mantenimiento generado a partir de este comentario',
-  PRIMARY KEY (`id_comentarios`),
-  INDEX `fk_comentarios_espaciosdeportivos1_idx` (`id_espacio` ASC) VISIBLE,
-  INDEX `fk_comentarios_usuario1_idx` (`id_usuario` ASC) VISIBLE,
-  INDEX `fk_comentarios_listafotos1_idx` (`id_lista_fotos` ASC) VISIBLE,
-  INDEX `fk_comentarios_revisado_por_idx` (`revisado_por` ASC) VISIBLE,
-  INDEX `fk_comentarios_mantenimiento_idx` (`id_mantenimiento_generado` ASC) VISIBLE,
-  INDEX `idx_comentarios_tipo` (`tipo_comentario` ASC) VISIBLE,
-  INDEX `idx_comentarios_fecha` (`fecha_creacion` ASC) VISIBLE,
-  INDEX `idx_comentarios_revision` (`revisado_por_admin` ASC) VISIBLE,
-  INDEX `idx_comentarios_mantenimiento_req` (`requiere_mantenimiento` ASC) VISIBLE,
-  CONSTRAINT `fk_comentarios_espaciosdeportivos1`
+    `id_comentarios` INT NOT NULL AUTO_INCREMENT,
+    `id_espacio` INT NOT NULL,
+    `id_usuario` INT NOT NULL,
+    `tipo_comentario` ENUM('COMENTARIO', 'REPARACION') NOT NULL DEFAULT 'COMENTARIO' COMMENT 'Tipo de comentario usando ENUM',
+    `contenido` TEXT NOT NULL,
+    `prioridad_usuario` ENUM('BAJA', 'MEDIA', 'ALTA', 'CRITICA') NULL COMMENT 'Prioridad indicada por el usuario (solo para tipo REPARACION)',
+    `id_lista_fotos` INT NULL COMMENT 'Fotos adjuntas al comentario',
+    `fecha_creacion` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    `fecha_actualizacion` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    `activo` TINYINT DEFAULT 1 COMMENT 'Si el comentario está activo o fue eliminado',
+    `revisado_por_admin` TINYINT DEFAULT 0 COMMENT 'Si el admin ya revisó el comentario',
+    `requiere_mantenimiento` TINYINT DEFAULT 0 COMMENT 'Si el admin determina que requiere mantenimiento',
+    `notas_admin` TEXT NULL COMMENT 'Notas internas del admin para programar mantenimiento',
+    `fecha_revision` TIMESTAMP NULL COMMENT 'Fecha de revisión del administrador',
+    `revisado_por` INT NULL COMMENT 'ID del admin que revisó',
+    `id_mantenimiento_generado` INT NULL COMMENT 'ID del mantenimiento generado a partir de este comentario',
+    PRIMARY KEY (`id_comentarios`),
+    INDEX `fk_comentarios_espaciosdeportivos1_idx` (`id_espacio` ASC) VISIBLE,
+    INDEX `fk_comentarios_usuario1_idx` (`id_usuario` ASC) VISIBLE,
+    INDEX `fk_comentarios_listafotos1_idx` (`id_lista_fotos` ASC) VISIBLE,
+    INDEX `fk_comentarios_revisado_por_idx` (`revisado_por` ASC) VISIBLE,
+    INDEX `fk_comentarios_mantenimiento_idx` (`id_mantenimiento_generado` ASC) VISIBLE,
+    INDEX `idx_comentarios_tipo` (`tipo_comentario` ASC) VISIBLE,
+    INDEX `idx_comentarios_fecha` (`fecha_creacion` ASC) VISIBLE,
+    INDEX `idx_comentarios_revision` (`revisado_por_admin` ASC) VISIBLE,
+    INDEX `idx_comentarios_mantenimiento_req` (`requiere_mantenimiento` ASC) VISIBLE,
+    CONSTRAINT `fk_comentarios_espaciosdeportivos1`
     FOREIGN KEY (`id_espacio`)
     REFERENCES `gtics`.`espaciosdeportivos` (`id_espacio`)
-    ON DELETE CASCADE
-    ON UPDATE NO ACTION,
-  CONSTRAINT `fk_comentarios_usuario1`
+                                                              ON DELETE CASCADE
+                                                              ON UPDATE NO ACTION,
+    CONSTRAINT `fk_comentarios_usuario1`
     FOREIGN KEY (`id_usuario`)
     REFERENCES `gtics`.`usuario` (`id_usuario`)
-    ON DELETE CASCADE
-    ON UPDATE NO ACTION,
-  CONSTRAINT `fk_comentarios_listafotos1`
+                                                              ON DELETE CASCADE
+                                                              ON UPDATE NO ACTION,
+    CONSTRAINT `fk_comentarios_listafotos1`
     FOREIGN KEY (`id_lista_fotos`)
     REFERENCES `gtics`.`listafotos` (`id_lista_fotos`)
-    ON DELETE SET NULL
-    ON UPDATE NO ACTION,
-  CONSTRAINT `fk_comentarios_revisado_por`
+                                                              ON DELETE SET NULL
+                                                              ON UPDATE NO ACTION,
+    CONSTRAINT `fk_comentarios_revisado_por`
     FOREIGN KEY (`revisado_por`)
     REFERENCES `gtics`.`usuario` (`id_usuario`)
-    ON DELETE SET NULL
-    ON UPDATE NO ACTION,
-  CONSTRAINT `fk_comentarios_mantenimiento_generado`
+                                                              ON DELETE SET NULL
+                                                              ON UPDATE NO ACTION,
+    CONSTRAINT `fk_comentarios_mantenimiento_generado`
     FOREIGN KEY (`id_mantenimiento_generado`)
     REFERENCES `gtics`.`mantenimiento` (`id_mantenimiento`)
-    ON DELETE SET NULL
-    ON UPDATE NO ACTION)
-ENGINE = InnoDB;
+                                                              ON DELETE SET NULL
+                                                              ON UPDATE NO ACTION)
+    ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
