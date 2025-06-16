@@ -2,6 +2,8 @@ package com.example.gtics_ta.Config;
 
 import com.example.gtics_ta.Repository.UsuarioRepository;
 import jakarta.servlet.http.HttpSession;
+import org.springframework.security.web.csrf.CsrfTokenRepository;
+import org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -14,6 +16,8 @@ import org.springframework.security.provisioning.UserDetailsManager;
 import org.springframework.security.web.DefaultRedirectStrategy;
 import org.springframework.security.web.RedirectStrategy;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.csrf.CsrfTokenRepository;
+import org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository;
 import org.springframework.security.web.savedrequest.DefaultSavedRequest;
 
 import javax.sql.DataSource;
@@ -32,7 +36,9 @@ public class WebSecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http, UsuarioRepository usuarioRepository) throws Exception {
         http.authorizeHttpRequests(auth -> auth
                 // Permitir recursos estáticos
-                .requestMatchers("/css/**", "/js/**", "/images/**", "/assets/**", "/front-ed/**", "/scss/**").permitAll()
+                .requestMatchers("/css/**", "/js/**", "/images/**", "/assets/**", "/front-end/**", "/scss/**", "/static/**").permitAll()
+                // Permitir páginas de error
+                .requestMatchers("/error").permitAll()
 
                 .requestMatchers("/vecino/**").hasAnyAuthority("Vecino", "Admin")
                 .requestMatchers("/coordinador/**").hasAnyAuthority("Coordinador", "Admin", "SuperAdmin")
@@ -92,6 +98,17 @@ public class WebSecurityConfig {
                 .permitAll()
         );
 
+        // Configurar manejo de excepciones
+        http.exceptionHandling(exceptions -> exceptions
+                .accessDeniedPage("/login?error=access-denied")
+        );
+
+        // Configurar CSRF para formularios multipart
+        http.csrf(csrf -> csrf
+                .csrfTokenRepository(csrfTokenRepository())
+                .ignoringRequestMatchers("/vecino/guardarreserva")
+        );
+
         return http.build();
     }
 
@@ -103,13 +120,21 @@ public class WebSecurityConfig {
     @Bean
     public UserDetailsManager users() {
         JdbcUserDetailsManager users = new JdbcUserDetailsManager(this.dataSource);
-        // REVERTIDO: Usar activo = 1 como funcionaba originalmente
-        users.setUsersByUsernameQuery("SELECT correo, contrasenia, activo FROM gtics.usuario WHERE correo = ? AND activo = 1");
+        users.setUsersByUsernameQuery("SELECT correo, contrasenia, activo FROM gtics_2.usuario WHERE correo = ? AND activo = 1");
         users.setAuthoritiesByUsernameQuery(
-                "SELECT u.correo, r.nombre FROM gtics.usuario u " +
-                        "INNER JOIN gtics.roles r ON u.id_rol = r.id_rol " +
+                "SELECT u.correo, r.nombre FROM gtics_2.usuario u " +
+                        "INNER JOIN gtics_2.roles r ON u.id_rol = r.id_rol " +
                         "WHERE u.correo = ? AND u.activo = 1"
         );
         return users;
     }
+
+    @Bean
+    public CsrfTokenRepository csrfTokenRepository() {
+        HttpSessionCsrfTokenRepository repository = new HttpSessionCsrfTokenRepository();
+        repository.setHeaderName("X-CSRF-TOKEN");
+        return repository;
+    }
+
+
 }

@@ -4,14 +4,23 @@ import com.example.gtics_ta.DTO.AdminDTO;
 import com.example.gtics_ta.DTO.ServicioDTO;
 import com.example.gtics_ta.Entity.*;
 import com.example.gtics_ta.Repository.*;
+import com.example.gtics_ta.Services.ImageService;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import jakarta.servlet.http.HttpSession;
+import jakarta.validation.Valid;
+import java.io.IOException;
+import java.net.URI;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.util.*;
@@ -54,6 +63,13 @@ public class AdminController {
     @Autowired
     private PagosRepository pagosRepository;
 
+    @Autowired
+    private ImageService imageService;
+
+
+
+
+
 
     // DASHBOARD PRINCIPAL
     @GetMapping(value = {"","/"})
@@ -93,6 +109,85 @@ public class AdminController {
     @GetMapping("/dashboard")
     public String mostrarDashboard(Model model) {
         return dashboard(model);
+    }
+
+    // PERFIL DE USUARIO ADMIN
+    @GetMapping("/perfil")
+    public String mostrarPerfil(HttpSession session, Model model) {
+        Usuario usuario = (Usuario) session.getAttribute("usuario");
+        if (usuario == null) {
+            return "redirect:/login";
+        }
+        model.addAttribute("usuario", usuario);
+        return "admin/perfil";
+    }
+
+    @PostMapping("/guardarperfil")
+    public String guardarPerfil(@ModelAttribute("usuario") @Valid Usuario usuario, BindingResult bindingResult,
+                               @RequestParam("archivo") MultipartFile file, HttpSession session, Model model) {
+        if(bindingResult.hasErrors()) {
+            return "admin/perfil";
+        }
+
+        if(file.isEmpty()) {
+            model.addAttribute("msg", "Debe seleccionar una imagen");
+            return "admin/perfil";
+        }
+
+        try {
+            // Obtener usuario real de la sesión
+            Usuario usuarioSesion = (Usuario) session.getAttribute("usuario");
+            if (usuarioSesion == null) {
+                model.addAttribute("msg", "Sesión expirada");
+                return "admin/perfil";
+            }
+
+            // Usar el nuevo servicio de imágenes con S3
+            imageService.uploadUserProfileImage(usuarioSesion, file);
+
+            // Actualizar usuario en sesión
+            session.setAttribute("usuario", usuarioSesion);
+
+            model.addAttribute("msg", "Imagen de perfil actualizada exitosamente");
+            return "redirect:/admin/perfil";
+        } catch (Exception e) {
+            model.addAttribute("msg", "Error al subir la imagen: " + e.getMessage());
+            e.printStackTrace(); // Para ver el error en consola
+            return "admin/perfil";
+        }
+    }
+
+    @GetMapping("/profileimage/{id}")
+    public ResponseEntity<byte[]> mostrarImagenPerfil(@PathVariable("id") Integer id) {
+        Optional<Usuario> optusuario = usuarioRepository.findById(id);
+        if(optusuario.isPresent()) {
+            Usuario usuario = optusuario.get();
+
+            // Si tiene URL de S3, redirigir
+            if (usuario.getFotoUrl() != null && !usuario.getFotoUrl().isEmpty()) {
+                return ResponseEntity.status(HttpStatus.FOUND)
+                        .location(URI.create(usuario.getFotoUrl()))
+                        .build();
+            }
+
+            // Fallback para imágenes BLOB (migración)
+            byte[] image = usuario.getFoto();
+            if (image == null) {
+                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+            }
+
+            String tipoArchivo = usuario.getFotoTipoArchivo();
+            if (tipoArchivo == null || tipoArchivo.isBlank()) {
+                tipoArchivo = "application/octet-stream"; // tipo MIME por defecto
+            }
+
+            HttpHeaders httpHeaders = new HttpHeaders();
+            httpHeaders.setContentType(MediaType.parseMediaType(tipoArchivo));
+
+            return new ResponseEntity<>(image, httpHeaders, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
     }
 
     // LISTAR SERVICIOS
@@ -265,9 +360,20 @@ public class AdminController {
                 }
 
                 // Si hay fotos de comprobantes, agregar información
-                if (pago.getListaFotosComprobantes() != null) {
+                if (pago.getListaFotosComprobantes() != null &&
+                    pago.getListaFotosComprobantes().getFotos() != null &&
+                    !pago.getListaFotosComprobantes().getFotos().isEmpty()) {
                     detalles.put("tieneComprobantes", true);
-                    // Aquí podrías agregar las URLs de las fotos si es necesario
+
+                    // Agregar URLs de las fotos
+                    List<Map<String, String>> comprobantes = new ArrayList<>();
+                    for (Fotos foto : pago.getListaFotosComprobantes().getFotos()) {
+                        Map<String, String> comprobante = new HashMap<>();
+                        comprobante.put("url", foto.getFotoUrl());
+                        comprobante.put("nombre", foto.getFotoNombre());
+                        comprobantes.add(comprobante);
+                    }
+                    detalles.put("comprobantes", comprobantes);
                 } else {
                     detalles.put("tieneComprobantes", false);
                 }
@@ -381,51 +487,9 @@ public class AdminController {
 
     @PostMapping("/guardarservicio")
     public String guardarServicio(@ModelAttribute("servicioDTO") ServicioDTO servicioDTO, @RequestParam("archivos") MultipartFile[] files ){
-        // Validar que se hayan subido archivos
-        if(files == null || files.length == 0 || files[0].isEmpty()) {
-            return "admin/agregarservicio_debug";
-        }
-
-        // Validar máximo 4 imágenes
-        if(files.length > 4) {
-            return "admin/agregarservicio_debug";
-        }
-
         try {
-            // Crear lista de fotos
-            ListaFotos listaFotos = new ListaFotos();
-            listaFotosRepository.save(listaFotos);
-
-            // Procesar cada archivo
-            for(MultipartFile file : files) {
-                if(!file.isEmpty()) {
-                    String fileName = file.getOriginalFilename();
-
-                    // Validar nombre de archivo
-                    if (fileName.contains("..")) {
-                        continue; // Saltar archivo inválido
-                    }
-
-                    // Validar tamaño (5MB máximo)
-                    if (file.getSize() > 5 * 1024 * 1024) {
-                        continue; // Saltar archivo muy grande
-                    }
-
-                    // Validar tipo de archivo
-                    String contentType = file.getContentType();
-                    if (contentType == null || !contentType.startsWith("image/")) {
-                        continue; // Saltar archivo que no es imagen
-                    }
-
-                    // Crear y guardar foto
-                    Fotos foto = new Fotos();
-                    foto.setFoto(file.getBytes());
-                    foto.setFotoNombre(fileName);
-                    foto.setFotoTipoArchivo(contentType);
-                    foto.setListaFotos(listaFotos);
-                    fotosRepository.save(foto);
-                }
-            }
+            // Usar el nuevo servicio de imágenes con S3
+            ListaFotos listaFotos = imageService.uploadServiceImages(files);
             EspaciosDeportivos espaciosDeportivos = servicioDTO.getEspacio();
             espaciosDeportivos.setListaFotos(listaFotos);
 
@@ -493,5 +557,6 @@ public class AdminController {
             System.err.println("Error al actualizar reservas completadas: " + e.getMessage());
         }
     }
+
 }
 

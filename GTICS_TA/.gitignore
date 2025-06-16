@@ -31,3 +31,8 @@ build/
 
 ### VS Code ###
 .vscode/
+
+## S3 ##
+# Archivos de entorno (contienen credenciales)
+.env
+*.env

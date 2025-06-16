@@ -2,6 +2,8 @@ package com.example.gtics_ta.Controllers;
 
 import com.example.gtics_ta.Entity.*;
 import com.example.gtics_ta.Repository.*;
+import com.example.gtics_ta.Services.ImageService;
+import com.example.gtics_ta.Services.AsistenciaService;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +19,11 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.http.HttpHeaders;
 
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.net.URI;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Controller
@@ -32,49 +38,78 @@ public class CoordinadorController {
     // TipoComentarioRepository ya no se usa - ahora usamos ENUM
     @Autowired
     private EspaciosDeportivosRepository espaciosDeportivosRepository;
+    @Autowired
+    private ImageService imageService;
+
+    @Autowired
+    private AsistenciaService asistenciaService;
 
     @GetMapping("/perfil")
     public String coordinadorPerfil(@ModelAttribute("usuario") Usuario usuario, HttpSession session, Model model) {
-        usuario = (Usuario) session.getAttribute("usuario");
-        model.addAttribute("usuario", usuario);
+        Usuario usuarioSesion = (Usuario) session.getAttribute("usuario");
+        if (usuarioSesion == null) {
+            return "redirect:/login";
+        }
+
+        // Recargar usuario desde la base de datos para obtener datos más recientes
+        Usuario usuarioActualizado = usuarioRepository.findById(usuarioSesion.getId()).orElse(usuarioSesion);
+
+        model.addAttribute("usuario", usuarioActualizado);
         return "coordinador/perfil";
     }
 
     @PostMapping("/guardarperfil")
-    public String guardarPerfil(@ModelAttribute("usuario") @Valid Usuario usuario, BindingResult bindingResult, @RequestParam("archivo") MultipartFile file , Model model) {
+    public String guardarPerfil(@ModelAttribute("usuario") @Valid Usuario usuario, BindingResult bindingResult,
+                               @RequestParam("archivo") MultipartFile file, HttpSession session, Model model) {
         if(bindingResult.hasErrors()) {
             return "coordinador/perfil";
         }
 
         if(file.isEmpty()) {
-            return "coordinador/perfil";
-        }
-
-        String fileName = file.getOriginalFilename();
-
-        if (fileName.contains("..")){
-            model.addAttribute("msg","Debe ingresar un archivo válido");
+            model.addAttribute("msg", "Debe seleccionar una imagen");
             return "coordinador/perfil";
         }
 
         try {
-            usuario.setFoto(file.getBytes());
-            usuario.setFotoNombre(fileName);
-            usuario.setFotoTipoArchivo(file.getContentType());
-            usuarioRepository.save(usuario);
-            return "redirect:/coordinador/perfil?id=" + usuario.getId();
+            // Obtener usuario real de la sesión
+            Usuario usuarioSesion = (Usuario) session.getAttribute("usuario");
+            if (usuarioSesion == null) {
+                model.addAttribute("msg", "Sesión expirada");
+                return "coordinador/perfil";
+            }
+
+            // Usar el nuevo servicio de imágenes con S3
+            imageService.uploadUserProfileImage(usuarioSesion, file);
+
+            // Recargar usuario actualizado desde la base de datos
+            Usuario usuarioActualizado = usuarioRepository.findById(usuarioSesion.getId()).orElse(usuarioSesion);
+
+            // Actualizar usuario en sesión con los datos más recientes
+            session.setAttribute("usuario", usuarioActualizado);
+
+            model.addAttribute("msg", "Imagen de perfil actualizada exitosamente");
+            return "redirect:/coordinador/perfil";
         } catch (Exception e) {
-            e.printStackTrace();
+            model.addAttribute("msg", "Error al subir la imagen: " + e.getMessage());
+            e.printStackTrace(); // Para ver el error en consola
             return "coordinador/perfil";
         }
     }
 
-    @GetMapping("/image/{id}")
-    public ResponseEntity<byte[]> mostrarImagen(@PathVariable("id") Integer id) {
+    @GetMapping("/profileimage/{id}")
+    public ResponseEntity<byte[]> mostrarImagenPerfil(@PathVariable("id") Integer id) {
         Optional<Usuario> optusuario = usuarioRepository.findById(id);
         if(optusuario.isPresent()) {
             Usuario usuario = optusuario.get();
 
+            // Si tiene URL de S3, redirigir
+            if (usuario.getFotoUrl() != null && !usuario.getFotoUrl().isEmpty()) {
+                return ResponseEntity.status(HttpStatus.FOUND)
+                        .location(URI.create(usuario.getFotoUrl()))
+                        .build();
+            }
+
+            // Fallback para imágenes BLOB (migración)
             byte[] image = usuario.getFoto();
             if (image == null) {
                 return new ResponseEntity<>(HttpStatus.NO_CONTENT);
@@ -86,15 +121,11 @@ public class CoordinadorController {
             }
 
             HttpHeaders httpHeaders = new HttpHeaders();
-            httpHeaders.setContentType(
-                    MediaType.parseMediaType(usuario.getFotoTipoArchivo()));
+            httpHeaders.setContentType(MediaType.parseMediaType(tipoArchivo));
 
-            return new ResponseEntity<>(
-                    image,
-                    httpHeaders,
-                    HttpStatus.OK);
+            return new ResponseEntity<>(image, httpHeaders, HttpStatus.OK);
         } else {
-            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
 
@@ -111,18 +142,7 @@ public class CoordinadorController {
         return "coordinador/principal";
     }
 
-    @GetMapping("/foto/{id}")
-    public ResponseEntity<byte[]> mostrarFoto(@PathVariable Integer id) {
-        Usuario usuario = usuarioRepository.findById(id).orElse(null);
-        if (usuario != null && usuario.getFoto() != null) {
-            byte[] foto = usuario.getFoto();
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.IMAGE_JPEG); // O ajusta según tu formato
-            return new ResponseEntity<>(foto, headers, HttpStatus.OK);
-        } else {
-            return ResponseEntity.notFound().build();
-        }
-    }
+
 
 
     @PostMapping("/actualizar/{id}")
@@ -146,9 +166,11 @@ public class CoordinadorController {
     }
 
     @PostMapping("/guardar-observacion")
-    public String guardarObservacion(@RequestParam("tipoServicio") Integer tipoServicioId,
+    public String guardarObservacion(@RequestParam("espacioId") Integer espacioId,
                                      @RequestParam("tipoComentario") String tipoComentario,
+                                     @RequestParam(value = "prioridad", required = false) String prioridad,
                                      @RequestParam("comentarios") String contenido,
+                                     @RequestParam(value = "imagenes", required = false) MultipartFile[] imagenes,
                                      HttpSession session,
                                      RedirectAttributes redirectAttributes) {
 
@@ -160,9 +182,9 @@ public class CoordinadorController {
                 return "redirect:/login";
             }
 
-            // Validar que se haya seleccionado un tipo de servicio
-            if (tipoServicioId == null) {
-                redirectAttributes.addFlashAttribute("error", "Debe seleccionar un tipo de servicio.");
+            // Validar que se haya seleccionado un espacio
+            if (espacioId == null) {
+                redirectAttributes.addFlashAttribute("error", "Debe seleccionar un espacio deportivo.");
                 return "redirect:/coordinador/principal";
             }
 
@@ -172,18 +194,16 @@ public class CoordinadorController {
                 return "redirect:/coordinador/principal";
             }
 
-            // Buscar el primer espacio deportivo del tipo seleccionado
-            // (Puedes modificar esto para permitir seleccionar un espacio específico)
-            List<EspaciosDeportivos> espacios = espaciosDeportivosRepository.findByTipoEspacio_Id(tipoServicioId);
-            if (espacios.isEmpty()) {
-                redirectAttributes.addFlashAttribute("error", "No se encontraron espacios para el tipo de servicio seleccionado.");
+            // Buscar el espacio deportivo seleccionado
+            Optional<EspaciosDeportivos> espacioOpt = espaciosDeportivosRepository.findById(espacioId);
+            if (espacioOpt.isEmpty()) {
+                redirectAttributes.addFlashAttribute("error", "El espacio deportivo seleccionado no existe.");
                 return "redirect:/coordinador/principal";
             }
 
-            EspaciosDeportivos espacio = espacios.get(0); // Tomar el primer espacio del tipo
+            EspaciosDeportivos espacio = espacioOpt.get();
 
             // Determinar el tipo de comentario basado en la selección del radio button
-            // Ahora usamos ENUM en lugar de la tabla TipoComentario
             Comentarios.TipoComentario tipoComentarioEnum;
             if ("reparacion".equals(tipoComentario)) {
                 tipoComentarioEnum = Comentarios.TipoComentario.REPARACION;
@@ -198,12 +218,43 @@ public class CoordinadorController {
             comentario.setTipoComentario(tipoComentarioEnum);
             comentario.setContenido(contenido.trim());
 
+            // Establecer prioridad solo para reparaciones
+            if (tipoComentarioEnum == Comentarios.TipoComentario.REPARACION && prioridad != null) {
+                try {
+                    Comentarios.PrioridadUsuario prioridadEnum = Comentarios.PrioridadUsuario.valueOf(prioridad.toUpperCase());
+                    comentario.setPrioridadUsuario(prioridadEnum);
+                } catch (IllegalArgumentException e) {
+                    // Si la prioridad no es válida, usar MEDIA por defecto
+                    comentario.setPrioridadUsuario(Comentarios.PrioridadUsuario.MEDIA);
+                }
+            }
+
+            // Manejar subida de imágenes si se proporcionaron
+            boolean imagenesSubidas = false;
+            if (imagenes != null && imagenes.length > 0 && !imagenes[0].isEmpty()) {
+                try {
+                    ListaFotos listaFotos = imageService.uploadServiceImages(imagenes);
+                    comentario.setListaFotos(listaFotos);
+                    imagenesSubidas = true;
+                } catch (Exception e) {
+                    // Log del error pero continuar con el guardado del comentario
+                    System.err.println("Error al subir imágenes: " + e.getMessage());
+                    redirectAttributes.addFlashAttribute("warning",
+                        "La observación se guardó correctamente, pero hubo un error al subir las imágenes: " + e.getMessage());
+                }
+            }
+
             comentariosRepository.save(comentario);
 
             // Mensaje de éxito
             String tipoMensaje = tipoComentarioEnum == Comentarios.TipoComentario.REPARACION ? "reporte de reparación" : "observación";
-            redirectAttributes.addFlashAttribute("success",
-                "Su " + tipoMensaje + " ha sido registrado exitosamente para el espacio: " + espacio.getNombre());
+            String mensaje = "Su " + tipoMensaje + " ha sido registrado exitosamente para el espacio: " + espacio.getNombre();
+
+            if (imagenesSubidas && imagenes != null) {
+                mensaje += " con " + imagenes.length + " imagen(es) adjunta(s)";
+            }
+
+            redirectAttributes.addFlashAttribute("success", mensaje);
 
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error",
@@ -225,6 +276,149 @@ public class CoordinadorController {
         model.addAttribute("comentarios", misComentarios);
 
         return "coordinador/mis-observaciones";
+    }
+
+    // ==================== ENDPOINTS DE ASISTENCIA ====================
+
+    /**
+     * Obtiene los espacios deportivos con coordenadas para validación de ubicación
+     */
+    @GetMapping("/espacios-coordenadas")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> obtenerEspaciosCoordenadas() {
+        try {
+            List<EspaciosDeportivos> espacios = asistenciaService.obtenerEspaciosConCoordenadas();
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("espacios", espacios);
+            response.put("success", true);
+
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", false);
+            response.put("error", e.getMessage());
+            return ResponseEntity.status(500).body(response);
+        }
+    }
+
+    /**
+     * Registra la entrada del coordinador
+     */
+    @PostMapping("/registrar-entrada")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> registrarEntrada(@RequestParam("latitud") BigDecimal latitud,
+                                                               @RequestParam("longitud") BigDecimal longitud,
+                                                               HttpSession session) {
+        Map<String, Object> response = new HashMap<>();
+
+        try {
+            Usuario coordinador = (Usuario) session.getAttribute("usuario");
+            if (coordinador == null) {
+                response.put("success", false);
+                response.put("error", "Sesión expirada");
+                return ResponseEntity.status(401).body(response);
+            }
+
+            Asistencia asistencia = asistenciaService.registrarEntrada(coordinador, latitud, longitud);
+
+            response.put("success", true);
+            response.put("message", "Entrada registrada exitosamente");
+            response.put("horaEntrada", asistencia.getHoraEntrada().toString());
+            response.put("estado", asistencia.getEstadoAsistencia().name());
+            if (asistencia.getMinutosRetraso() > 0) {
+                response.put("minutosRetraso", asistencia.getMinutosRetraso());
+            }
+
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("error", e.getMessage());
+            return ResponseEntity.status(400).body(response);
+        }
+    }
+
+    /**
+     * Registra la salida del coordinador
+     */
+    @PostMapping("/registrar-salida")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> registrarSalida(@RequestParam("latitud") BigDecimal latitud,
+                                                              @RequestParam("longitud") BigDecimal longitud,
+                                                              HttpSession session) {
+        Map<String, Object> response = new HashMap<>();
+
+        try {
+            Usuario coordinador = (Usuario) session.getAttribute("usuario");
+            if (coordinador == null) {
+                response.put("success", false);
+                response.put("error", "Sesión expirada");
+                return ResponseEntity.status(401).body(response);
+            }
+
+            Asistencia asistencia = asistenciaService.registrarSalida(coordinador, latitud, longitud);
+
+            response.put("success", true);
+            response.put("message", "Salida registrada exitosamente");
+            response.put("horaSalida", asistencia.getHoraSalida().toString());
+            response.put("horasTrabajadas", asistencia.getHorasTrabajadas());
+            response.put("estado", asistencia.getEstadoAsistencia().name());
+
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("error", e.getMessage());
+            return ResponseEntity.status(400).body(response);
+        }
+    }
+
+    /**
+     * Obtiene el estado actual de asistencia del coordinador
+     */
+    @GetMapping("/estado-asistencia")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> obtenerEstadoAsistencia(HttpSession session) {
+        Map<String, Object> response = new HashMap<>();
+
+        try {
+            Usuario coordinador = (Usuario) session.getAttribute("usuario");
+            if (coordinador == null) {
+                response.put("success", false);
+                response.put("error", "Sesión expirada");
+                return ResponseEntity.status(401).body(response);
+            }
+
+            Optional<Asistencia> asistenciaOpt = asistenciaService.obtenerAsistenciaHoy(coordinador);
+
+            if (asistenciaOpt.isPresent()) {
+                Asistencia asistencia = asistenciaOpt.get();
+                response.put("success", true);
+                response.put("tieneEntrada", asistencia.getHoraEntrada() != null);
+                response.put("tieneSalida", asistencia.getHoraSalida() != null);
+
+                if (asistencia.getHoraEntrada() != null) {
+                    response.put("horaEntrada", asistencia.getHoraEntrada().toString());
+                }
+                if (asistencia.getHoraSalida() != null) {
+                    response.put("horaSalida", asistencia.getHoraSalida().toString());
+                    response.put("horasTrabajadas", asistencia.getHorasTrabajadas());
+                }
+                response.put("estado", asistencia.getEstadoAsistencia().name());
+            } else {
+                response.put("success", true);
+                response.put("tieneEntrada", false);
+                response.put("tieneSalida", false);
+            }
+
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("error", e.getMessage());
+            return ResponseEntity.status(500).body(response);
+        }
     }
 
 }

@@ -172,3 +172,20 @@ AIzaSyB41DRUbKWJHPxaFjMAwdrzWzbVKartNGg
 Client ID
 1016939485745-6s0n5cmnugjvd8ps8teedrtd8mgvdfss.apps.googleusercontent.com
 Secreto del cliente
+
+PARTE DE ASISTENCIAS
+### Consultas Útiles
+```sql
+-- Asistencias del mes actual
+SELECT * FROM asistencia 
+WHERE MONTH(fecha) = MONTH(CURDATE()) 
+AND YEAR(fecha) = YEAR(CURDATE());
+
+-- Coordinadores con más retrasos
+SELECT u.nombres, AVG(a.minutos_retraso) as promedio_retraso
+FROM asistencia a
+JOIN horarioscoordinador hc ON a.id_horarios_coordinador = hc.id_horarios_coordinador
+JOIN usuario u ON hc.id_usuario = u.id_usuario
+WHERE a.estado_asistencia = 'TARDE'
+GROUP BY u.id_usuario
+ORDER BY promedio_retraso DESC;

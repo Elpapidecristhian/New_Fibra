@@ -19,4 +19,7 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Integer> {
     boolean existsByCorreo(String correo);
 
     boolean existsByDni(Integer dni);
+
+    // Buscar usuarios por rol
+    List<Usuario> findByRol_IdRol(Integer idRol);
 }

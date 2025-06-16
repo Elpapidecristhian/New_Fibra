@@ -545,13 +545,21 @@
                         <h6>Comprobante</h6>
                     `;
 
-                    if (data.tieneComprobantes) {
-                        contenido += `
-                            <div class="text-center">
-                                <p class="text-info">📄 Comprobante disponible</p>
-                                <small>El usuario ha subido comprobante de pago</small>
-                            </div>
-                        `;
+                    if (data.tieneComprobantes && data.comprobantes) {
+                        contenido += `<div class="text-center">`;
+                        data.comprobantes.forEach((comprobante, index) => {
+                            contenido += `
+                                <div class="mb-2">
+                                    <p class="text-info mb-1">📄 Comprobante ${index + 1}</p>
+                                    <a href="${comprobante.url}" target="_blank" class="btn btn-sm btn-outline-primary">
+                                        <i class="fas fa-eye"></i> Ver Comprobante
+                                    </a>
+                                    <br>
+                                    <small class="text-muted">${comprobante.nombre || 'Archivo'}</small>
+                                </div>
+                            `;
+                        });
+                        contenido += `</div>`;
                     } else {
                         contenido += '<p class="text-muted">No hay comprobante disponible</p>';
                     }

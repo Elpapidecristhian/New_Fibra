@@ -3,7 +3,7 @@ import com.example.gtics_ta.DTO.ResumenDTO;
 import com.example.gtics_ta.DTO.SuperadminDTO;
 import com.example.gtics_ta.Entity.Rol;
 import com.example.gtics_ta.Repository.EspaciosDeportivosRepository;
-import com.example.gtics_ta.Repository.ReservaRepository;
+import com.example.gtics_ta.Repository.ReservasRepository;
 import com.example.gtics_ta.Repository.RolRepository;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,7 +41,7 @@ public class SuperAdminController {
     private EspaciosDeportivosRepository espaciosDeportivosRepository;
 
     @Autowired
-    private ReservaRepository reservaRepository;
+    private ReservasRepository reservasRepository;
 
     @GetMapping(value = {"","/"})
     public String Dashboard(Model model) {
@@ -51,7 +51,7 @@ public class SuperAdminController {
         dto.setTotalUsuariosBaneados(usuarioRepository.countByActivo(false));
         dto.setEspaciosDisponibles(espaciosDeportivosRepository.countByOperativo(true));
         dto.setEspaciosOcupados(espaciosDeportivosRepository.countByOperativo(false));
-        List<Object[]> porcentajes = reservaRepository.porcentajeReservasPorServicio();
+        List<Object[]> porcentajes = reservasRepository.porcentajeReservasPorServicio();
         List<String> nombres = new ArrayList<>();
         List<Long> cantidades = new ArrayList<>();
 
@@ -64,7 +64,7 @@ public class SuperAdminController {
         dto.setCantidadServiciosPorcentaje(cantidades);
 
 
-        List<Object[]> topServicios = reservaRepository.top10ServiciosMasReservados();
+        List<Object[]> topServicios = reservasRepository.top10ServiciosMasReservados();
         List<String> nombresServicios = new ArrayList<>();
         List<Long> cantidadReservas = new ArrayList<>();
 
@@ -76,7 +76,7 @@ public class SuperAdminController {
         dto.setNombresServiciosTop(nombresServicios);
         dto.setCantidadReservasTop(cantidadReservas);
 
-        List<Object[]> resultados = reservaRepository.resumenUltimosTresMesesRaw();
+        List<Object[]> resultados = reservasRepository.resumenUltimosTresMesesRaw();
         Object[] fila = resultados.isEmpty() ? new Object[]{0.0, 0L} : resultados.get(0);
 
         ResumenDTO resumen3m = new ResumenDTO(
@@ -87,16 +87,16 @@ public class SuperAdminController {
         dto.setTotalRecaudadoUltimos3Meses(resumen3m.getTotal());
         dto.setReservasUltimos3Meses(resumen3m.getCantidad().intValue());
 
-        ResumenDTO resumenAnual = reservaRepository.resumenAnual();
+        ResumenDTO resumenAnual = reservasRepository.resumenAnual();
         dto.setTotalRecaudadoAnual(resumenAnual.getTotal());
         dto.setReservasAnuales((int) resumenAnual.getCantidad().longValue());
 
         model.addAttribute("dashboard", dto);
-        List<Object[]> dataMensual = reservaRepository.reporteMensualUltimos3Meses();
+        List<Object[]> dataMensual = reservasRepository.reporteMensualUltimos3Meses();
         List<String> meses = new ArrayList<>();
         List<Double> totales = new ArrayList<>();
         List<Long> cantidades3Meses  = new ArrayList<>();
-        List<Object[]> dataAnual = reservaRepository.reporteMensualAnual(); // <-- asegúrate de tener esta query
+        List<Object[]> dataAnual = reservasRepository.reporteMensualAnual(); // <-- asegúrate de tener esta query
         List<String> mesesAnual = new ArrayList<>();
         List<Double> totalesAnual = new ArrayList<>();
         List<Long> cantidadesAnual = new ArrayList<>();
@@ -126,8 +126,8 @@ public class SuperAdminController {
         dto.setMesesUltimos3Meses(meses);
         dto.setRecaudacionUltimos3Meses(totales);
         dto.setReservasUltimos3MesesLista(cantidades3Meses);
-        dto.setCantidadTotalReservas(reservaRepository.contarTotalReservas());
-        dto.setCantidadReservasHoy(reservaRepository.contarReservasHoy());
+        dto.setCantidadTotalReservas(reservasRepository.contarTotalReservas());
+        dto.setCantidadReservasHoy(reservasRepository.contarReservasHoy());
 
         return "Usuario_Superadmin/Dashboard";
     }

@@ -4,6 +4,7 @@ import com.example.gtics_ta.DTO.HorariosConsultaDTO;
 import com.example.gtics_ta.Entity.*;
 import com.example.gtics_ta.Repository.*;
 import com.example.gtics_ta.Services.MailService;
+import com.example.gtics_ta.Services.ImageService;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,12 +19,15 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.math.BigDecimal;
+import java.net.URI;
 import java.sql.Timestamp;
 import java.text.ParseException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import jakarta.servlet.http.HttpServletRequest;
 
 @Controller
 @RequestMapping("/vecino")
@@ -50,6 +54,12 @@ public class VecinoController {
     private FotosRepository fotosRepository;
     @Autowired
     private MailService emailService;
+    @Autowired
+    private ImageService imageService;
+    @Autowired
+    private MediosPagoRepository mediosPagoRepository;
+    @Autowired
+    private PagosRepository pagosRepository;
 
     @GetMapping(value = {"","/"})
     public String vistaInicial(Model model) {
@@ -210,43 +220,122 @@ public class VecinoController {
             model.addAttribute("listaHorarios", listaHorarios);
             String hoy = LocalDate.now().format(DateTimeFormatter.ISO_DATE);
             model.addAttribute("minDate", hoy);
+
+            // Cargar medios de pago activos
+            List<MediosPago> mediosPago = mediosPagoRepository.findAll().stream()
+                .filter(MediosPago::getActivo)
+                .toList();
+            model.addAttribute("mediosPago", mediosPago);
         }
         return "vecino/reservar";
     }
 
     @PostMapping("/guardarreserva")
-    public String guardarreserva(@ModelAttribute("reserva") Reservas reserva) {
-        Timestamp timestamp = new Timestamp(System.currentTimeMillis());
-        reserva.setFechaRegistro(timestamp);
+    public String guardarreserva(@ModelAttribute("reserva") Reservas reserva,
+                                @RequestParam("medioPagoId") int medioPagoId,
+                                @RequestParam(value = "numeroTarjeta", required = false) String numeroTarjeta,
+                                @RequestParam(value = "nombreTarjeta", required = false) String nombreTarjeta,
+                                @RequestParam(value = "fechaExpiracion", required = false) String fechaExpiracion,
+                                @RequestParam(value = "cvv", required = false) String cvv,
+                                @RequestParam(value = "numeroTransaccion", required = false) String numeroTransaccion,
+                                @RequestParam(value = "comprobantes", required = false) MultipartFile[] comprobantes,
+                                HttpServletRequest request,
+                                RedirectAttributes redirectAttributes) {
+        try {
+            Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+            reserva.setFechaRegistro(timestamp);
 
-        //Creacion del Horario Reservado
-        HorarioReservado horarioReservado = new HorarioReservado();
-        horarioReservado.setFecha(reserva.getFechaReserva());
-        horarioReservado.setHorario(reserva.getHorario());
+            // Obtener medio de pago seleccionado
+            Optional<MediosPago> optMedioPago = mediosPagoRepository.findById(medioPagoId);
+            if (!optMedioPago.isPresent()) {
+                redirectAttributes.addFlashAttribute("error", "Medio de pago no válido");
+                return "redirect:/vecino/espacios";
+            }
 
-        //Pago chancado
-        Pagos pago = new Pagos();
-        pago.setId(1);
-        reserva.setPago(pago);
+            MediosPago medioPago = optMedioPago.get();
 
-        horarioReservadoRepository.save(horarioReservado);
-        reservasRepository.save(reserva);
+            // Crear pago
+            Pagos pago = new Pagos();
+            pago.setMedioPago(medioPago);
+            pago.setCantidad(BigDecimal.valueOf(reserva.getEspacioDeportivo().getCostoHorario()));
+            pago.setIpUsuario(request.getRemoteAddr());
+            pago.setUserAgent(request.getHeader("User-Agent"));
 
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("d 'de' MMMM 'de' yyyy", new Locale("es", "ES"));
-        LocalDateTime fechaReserva = reserva.getFechaRegistro().toLocalDateTime();
-        String fechaReservaString = fechaReserva.format(formatter);
-        String asunto = "Confirmación de Reserva #" + reserva.getId();
-        String cuerpo = "Id de Reserva #" + reserva.getId() + "\n" +
-                        fechaReservaString + "\n" +
-                        "Espacio: " + reserva.getEspacioDeportivo().getNombre() + "\n" +
-                        "Fecha de Reserva: " + reserva.getFechaReserva().toString() + "\n" +
-                        "Horario: " + reserva.getHorario().getHoraInicio() + "-" + reserva.getHorario().getHoraFin() + "\n" +
-                        "Medio de Pago: " + "Yape" + "\n" +
-                        "Total: S/." + reserva.getPago().getCantidad() + "25";
+            // Procesar según tipo de pago
+            if (medioPago.getTipoPago() == MediosPago.TipoPago.AUTOMATICO) {
+                // Pago con tarjeta - simular pasarela
+                pago.setEstadoPago(Pagos.EstadoPago.APROBADO);
+                pago.setCodigoAutorizacion("AUTH" + System.currentTimeMillis());
+                pago.setDatosPasarela("{\"numeroTarjeta\":\"****" + numeroTarjeta.substring(numeroTarjeta.length()-4) + "\",\"nombreTarjeta\":\"" + nombreTarjeta + "\"}");
+                pago.setFechaVerificacion(timestamp);
+            } else {
+                // Pago manual - requiere verificación
+                pago.setEstadoPago(Pagos.EstadoPago.PENDIENTE);
+                pago.setNumeroTransaccion(numeroTransaccion);
 
+                // Subir comprobantes si existen
+                if (comprobantes != null && comprobantes.length > 0 && !comprobantes[0].isEmpty()) {
+                    try {
+                        ListaFotos listaFotosComprobantes = imageService.uploadPaymentReceipts(comprobantes);
+                        pago.setListaFotosComprobantes(listaFotosComprobantes);
+                    } catch (Exception e) {
+                        redirectAttributes.addFlashAttribute("error", "Error al subir comprobantes: " + e.getMessage());
+                        return "redirect:/vecino/espacios";
+                    }
+                }
+            }
 
-        emailService.enviarCorreo(reserva.getUsuario().getCorreo(), asunto, cuerpo);
-        return "redirect:/vecino/espacios";
+            // Guardar pago
+            Pagos pagoGuardado = pagosRepository.save(pago);
+            reserva.setPago(pagoGuardado);
+
+            // Crear horario reservado
+            HorarioReservado horarioReservado = new HorarioReservado();
+            horarioReservado.setFecha(reserva.getFechaReserva());
+            horarioReservado.setHorario(reserva.getHorario());
+
+            horarioReservadoRepository.save(horarioReservado);
+            reservasRepository.save(reserva);
+
+            // Enviar email de confirmación
+            enviarEmailConfirmacion(reserva);
+
+            if (medioPago.getTipoPago() == MediosPago.TipoPago.AUTOMATICO) {
+                redirectAttributes.addFlashAttribute("success", "Reserva confirmada. Pago procesado exitosamente.");
+            } else {
+                redirectAttributes.addFlashAttribute("success", "Reserva creada. Su pago está pendiente de verificación por el administrador.");
+            }
+
+            return "redirect:/vecino/reservas";
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Error al procesar la reserva: " + e.getMessage());
+            return "redirect:/vecino/espacios";
+        }
+    }
+
+    private void enviarEmailConfirmacion(Reservas reserva) {
+        try {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("d 'de' MMMM 'de' yyyy", new Locale("es", "ES"));
+            LocalDateTime fechaReserva = reserva.getFechaRegistro().toLocalDateTime();
+            String fechaReservaString = fechaReserva.format(formatter);
+            String asunto = "Confirmación de Reserva #" + reserva.getId();
+
+            String estadoPago = reserva.getPago().getEstadoPago() == Pagos.EstadoPago.APROBADO ?
+                "Confirmado" : "Pendiente de verificación";
+
+            String cuerpo = "Id de Reserva #" + reserva.getId() + "\n" +
+                            fechaReservaString + "\n" +
+                            "Espacio: " + reserva.getEspacioDeportivo().getNombre() + "\n" +
+                            "Fecha de Reserva: " + reserva.getFechaReserva().toString() + "\n" +
+                            "Horario: " + reserva.getHorario().getHoraInicio() + "-" + reserva.getHorario().getHoraFin() + "\n" +
+                            "Medio de Pago: " + reserva.getPago().getMedioPago().getNombre() + "\n" +
+                            "Estado del Pago: " + estadoPago + "\n" +
+                            "Total: S/." + reserva.getPago().getCantidad();
+
+            emailService.enviarCorreo(reserva.getUsuario().getCorreo(), asunto, cuerpo);
+        } catch (Exception e) {
+            System.err.println("Error enviando email de confirmación: " + e.getMessage());
+        }
     }
 
     //*********************************************************************************************
@@ -263,36 +352,35 @@ public class VecinoController {
     }
 
     @PostMapping("/guardarperfil")
-    public String guardarPerfil(@ModelAttribute("usuario") @Valid Usuario usuario, BindingResult bindingResult, @RequestParam("archivo") MultipartFile file , Model model) {
+    public String guardarPerfil(@ModelAttribute("usuario") @Valid Usuario usuario, BindingResult bindingResult, @RequestParam("archivo") MultipartFile file, HttpSession session, Model model) {
         if(bindingResult.hasErrors()) {
             return "vecino/perfil";
         }
 
         if(file.isEmpty()) {
-            return "vecino/perfil";
-        }
-
-        String fileName = file.getOriginalFilename();
-
-        if (fileName.contains("..")){
-            model.addAttribute("msg","Debe ingresar un archivo válido");
-            return "vecino/perfil";
-        }
-
-        String contentType = file.getContentType();
-        if (contentType == null || !contentType.matches("image/(jpeg|png|jpg|gif|bmp|webp)")) {
-            model.addAttribute("msg", "El archivo debe ser una imagen (jpg, png, gif, etc)");
+            model.addAttribute("msg", "Debe seleccionar una imagen");
             return "vecino/perfil";
         }
 
         try {
-            usuario.setFoto(file.getBytes());
-            usuario.setFotoNombre(fileName);
-            usuario.setFotoTipoArchivo(contentType);
-            usuarioRepository.save(usuario);
+            // Obtener usuario real de la sesión
+            Usuario usuarioSesion = (Usuario) session.getAttribute("usuario");
+            if (usuarioSesion == null) {
+                model.addAttribute("msg", "Sesión expirada");
+                return "vecino/perfil";
+            }
+
+            // Usar el nuevo servicio de imágenes con S3
+            imageService.uploadUserProfileImage(usuarioSesion, file);
+
+            // Actualizar usuario en sesión
+            session.setAttribute("usuario", usuarioSesion);
+
+            model.addAttribute("msg", "Imagen de perfil actualizada exitosamente");
             return "redirect:/vecino/perfil";
         } catch (Exception e) {
-            e.printStackTrace();
+            model.addAttribute("msg", "Error al subir la imagen: " + e.getMessage());
+            e.printStackTrace(); // Para ver el error en consola
             return "vecino/perfil";
         }
     }
@@ -309,6 +397,14 @@ public class VecinoController {
         if(optusuario.isPresent()) {
             Usuario usuario = optusuario.get();
 
+            // Si tiene URL de S3, redirigir
+            if (usuario.getFotoUrl() != null && !usuario.getFotoUrl().isEmpty()) {
+                return ResponseEntity.status(HttpStatus.FOUND)
+                        .location(URI.create(usuario.getFotoUrl()))
+                        .build();
+            }
+
+            // Fallback para imágenes BLOB (migración)
             byte[] image = usuario.getFoto();
             if (image == null) {
                 return new ResponseEntity<>(HttpStatus.NO_CONTENT);
@@ -359,6 +455,64 @@ public class VecinoController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
+
+    // OBTENER DETALLES DE RESERVA CON COMPROBANTES
+    @GetMapping("/reservas/detalles/{id}")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> obtenerDetallesReserva(@PathVariable Integer id) {
+        try {
+            Optional<Reservas> optReserva = reservasRepository.findById(id);
+            if (optReserva.isPresent()) {
+                Reservas reserva = optReserva.get();
+                Map<String, Object> detalles = new HashMap<>();
+
+                // Información de la reserva
+                detalles.put("id", reserva.getId());
+                detalles.put("espacio", reserva.getEspacioDeportivo().getNombre());
+                detalles.put("fechaReserva", reserva.getFechaReserva());
+                detalles.put("horario", reserva.getHorario().getHoraInicio() + " - " + reserva.getHorario().getHoraFin());
+                detalles.put("fechaRegistro", reserva.getFechaRegistro());
+
+                // Información del pago
+                if (reserva.getPago() != null) {
+                    Pagos pago = reserva.getPago();
+                    detalles.put("idPago", pago.getId());
+                    detalles.put("montoPagado", pago.getCantidad());
+                    detalles.put("estadoPago", pago.getEstadoPago().name());
+                    detalles.put("fechaPago", pago.getFechaPago());
+                    detalles.put("medioPago", pago.getMedioPago().getNombre());
+                    detalles.put("numeroTransaccion", pago.getNumeroTransaccion());
+
+                    // Si hay fotos de comprobantes, agregar información
+                    if (pago.getListaFotosComprobantes() != null &&
+                        pago.getListaFotosComprobantes().getFotos() != null &&
+                        !pago.getListaFotosComprobantes().getFotos().isEmpty()) {
+                        detalles.put("tieneComprobantes", true);
+
+                        // Agregar URLs de las fotos
+                        List<Map<String, String>> comprobantes = new ArrayList<>();
+                        for (Fotos foto : pago.getListaFotosComprobantes().getFotos()) {
+                            Map<String, String> comprobante = new HashMap<>();
+                            comprobante.put("url", foto.getFotoUrl());
+                            comprobante.put("nombre", foto.getFotoNombre());
+                            comprobantes.add(comprobante);
+                        }
+                        detalles.put("comprobantes", comprobantes);
+                    } else {
+                        detalles.put("tieneComprobantes", false);
+                    }
+                }
+
+                return ResponseEntity.ok(detalles);
+            } else {
+                return ResponseEntity.notFound().build();
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(Collections.singletonMap("error", "Error al obtener detalles de la reserva: " + e.getMessage()));
+        }
+    }
+
+
 
 
 

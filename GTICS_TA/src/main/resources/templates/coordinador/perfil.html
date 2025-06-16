@@ -110,7 +110,8 @@
                                     <p class="pt-5 fs-14 mb-0 fw-700 text-primary" th:text="${usuario.nombres + ' ' + usuario.apellidos}"></p>
                                     <small class="fs-10 mb-0 text-uppercase text-mute" th:text="${usuario.rol.nombre}"></small>
                                 </div>
-                                <img th:src="@{/images/avatar/avatar-1.png}" class="avatar rounded-10 bg-primary-light h-40 w-40" alt="" />
+                                <img th:src="@{|/coordinador/profileimage/${usuario.getId()}?t=${#dates.format(#dates.createNow(), 'yyyyMMddHHmmss')}|}" class="avatar rounded-10 bg-primary-light h-40 w-40" alt=""
+                                     onerror="this.onerror=null;this.src='/images/avatar/avatar-1.png';" />
                             </div>
                         </a>
                     </li>
@@ -274,7 +275,8 @@
                                 <h6 class="widget-user-desc text-white" th:text="${usuario.rol.nombre}"></h6>
                             </div>
                             <div class="widget-user-image">
-                                <img class="rounded-circle"  th:src="@{|image/${usuario.getId()}|}" alt="User Avatar">
+                                <img class="rounded-circle h-100 w-100" th:src="@{|/coordinador/profileimage/${usuario.getId()}?t=${#dates.format(#dates.createNow(), 'yyyyMMddHHmmss')}|}" alt="User Avatar"
+                                     onerror="this.onerror=null;this.src='/images/avatar/avatar-1.png';">
                             </div>
                             <div class="box-footer">
                                 <div class="justify-content-center">

@@ -8,19 +8,19 @@ SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,N
 -- Schema mydb
 -- -----------------------------------------------------
 -- -----------------------------------------------------
--- Schema gtics
+-- Schema gtics_2
 -- -----------------------------------------------------
 
 -- -----------------------------------------------------
--- Schema gtics
+-- Schema gtics_2
 -- -----------------------------------------------------
-CREATE SCHEMA IF NOT EXISTS `gtics` DEFAULT CHARACTER SET utf8mb3 ;
-USE `gtics` ;
+CREATE SCHEMA IF NOT EXISTS `gtics_2` DEFAULT CHARACTER SET utf8mb3 ;
+USE `gtics_2` ;
 
 -- -----------------------------------------------------
--- Table `gtics`.`roles`
+-- Table `gtics_2`.`roles`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `gtics`.`roles` (
+CREATE TABLE IF NOT EXISTS `gtics_2`.`roles` (
   `id_rol` INT NOT NULL AUTO_INCREMENT,
   `nombre` VARCHAR(45) NOT NULL,
   PRIMARY KEY (`id_rol`))
@@ -30,9 +30,9 @@ DEFAULT CHARACTER SET = utf8mb3;
 
 
 -- -----------------------------------------------------
--- Table `gtics`.`usuario`
+-- Table `gtics_2`.`usuario`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `gtics`.`usuario` (
+CREATE TABLE IF NOT EXISTS `gtics_2`.`usuario` (
   `id_usuario` INT NOT NULL AUTO_INCREMENT,
   `nombres` VARCHAR(45) NOT NULL,
   `apellidos` VARCHAR(45) NOT NULL,
@@ -46,22 +46,23 @@ CREATE TABLE IF NOT EXISTS `gtics`.`usuario` (
   `foto_nombre` VARCHAR(50) NULL,
   `foto_tipo_archivo` VARCHAR(15) NULL,
   `activo` TINYINT NOT NULL,
+  `foto_url` VARCHAR(500) NULL, 
   `fecha_nacimiento` DATE NULL DEFAULT NULL,
   PRIMARY KEY (`id_usuario`, `id_rol`),
   UNIQUE INDEX `dni_UNIQUE` (`dni` ASC) VISIBLE,
   INDEX `fk_Usuario_Roles_idx` (`id_rol` ASC) VISIBLE,
   CONSTRAINT `fk_Usuario_Roles`
     FOREIGN KEY (`id_rol`)
-    REFERENCES `gtics`.`roles` (`id_rol`))
+    REFERENCES `gtics_2`.`roles` (`id_rol`))
 ENGINE = InnoDB
 AUTO_INCREMENT = 2
 DEFAULT CHARACTER SET = utf8mb3;
 
 
 -- -----------------------------------------------------
--- Table `gtics`.`listafotos`
+-- Table `gtics_2`.`listafotos`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `gtics`.`listafotos` (
+CREATE TABLE IF NOT EXISTS `gtics_2`.`listafotos` (
   `id_lista_fotos` INT NOT NULL AUTO_INCREMENT,
   PRIMARY KEY (`id_lista_fotos`))
 ENGINE = InnoDB
@@ -70,9 +71,9 @@ DEFAULT CHARACTER SET = utf8mb3;
 
 
 -- -----------------------------------------------------
--- Table `gtics`.`tipoespacio`
+-- Table `gtics_2`.`tipoespacio`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `gtics`.`tipoespacio` (
+CREATE TABLE IF NOT EXISTS `gtics_2`.`tipoespacio` (
   `id_tipo_espacio` INT NOT NULL AUTO_INCREMENT,
   `nombre` VARCHAR(45) NOT NULL,
   PRIMARY KEY (`id_tipo_espacio`))
@@ -82,9 +83,9 @@ DEFAULT CHARACTER SET = utf8mb3;
 
 
 -- -----------------------------------------------------
--- Table `gtics`.`espaciosdeportivos`
+-- Table `gtics_2`.`espaciosdeportivos`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `gtics`.`espaciosdeportivos` (
+CREATE TABLE IF NOT EXISTS `gtics_2`.`espaciosdeportivos` (
   `id_espacio` INT NOT NULL AUTO_INCREMENT,
   `nombre` VARCHAR(45) NOT NULL,
   `ubicacion` VARCHAR(45) NOT NULL,
@@ -108,19 +109,19 @@ CREATE TABLE IF NOT EXISTS `gtics`.`espaciosdeportivos` (
   INDEX `fk_EspaciosDeportivos_ListaFotos1_idx` (`id_lista_fotos` ASC) VISIBLE,
   CONSTRAINT `fk_EspaciosDeportivos_ListaFotos1`
     FOREIGN KEY (`id_lista_fotos`)
-    REFERENCES `gtics`.`listafotos` (`id_lista_fotos`),
+    REFERENCES `gtics_2`.`listafotos` (`id_lista_fotos`),
   CONSTRAINT `fk_EspaciosDeportivos_TipoEspacio1`
     FOREIGN KEY (`id_tipo_espacio`)
-    REFERENCES `gtics`.`tipoespacio` (`id_tipo_espacio`))
+    REFERENCES `gtics_2`.`tipoespacio` (`id_tipo_espacio`))
 ENGINE = InnoDB
 AUTO_INCREMENT = 2
 DEFAULT CHARACTER SET = utf8mb3;
 
 
 -- -----------------------------------------------------
--- Table `gtics`.`horarioscoordinador`
+-- Table `gtics_2`.`horarioscoordinador`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `gtics`.`horarioscoordinador` (
+CREATE TABLE IF NOT EXISTS `gtics_2`.`horarioscoordinador` (
   `id_horarios_coordinador` INT NOT NULL AUTO_INCREMENT,
   `id_usuario` INT NOT NULL,
   `id_espacio` INT NOT NULL,
@@ -133,21 +134,21 @@ CREATE TABLE IF NOT EXISTS `gtics`.`horarioscoordinador` (
   INDEX `fk_horarioscoordinador_espaciosdeportivos1_idx` (`id_espacio` ASC) VISIBLE,
   CONSTRAINT `fk_horarioscoordinador_usuario1`
     FOREIGN KEY (`id_usuario`)
-    REFERENCES `gtics`.`usuario` (`id_usuario`)
+    REFERENCES `gtics_2`.`usuario` (`id_usuario`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `fk_horarioscoordinador_espaciosdeportivos1`
     FOREIGN KEY (`id_espacio`)
-    REFERENCES `gtics`.`espaciosdeportivos` (`id_espacio`)
+    REFERENCES `gtics_2`.`espaciosdeportivos` (`id_espacio`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `gtics`.`asistencia`
+-- Table `gtics_2`.`asistencia`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `gtics`.`asistencia` (
+CREATE TABLE IF NOT EXISTS `gtics_2`.`asistencia` (
   `id_asistencia` INT NOT NULL AUTO_INCREMENT,
   `fecha` DATE NOT NULL,
   `horas_trabajadas` VARCHAR(45) NOT NULL,
@@ -164,12 +165,12 @@ CREATE TABLE IF NOT EXISTS `gtics`.`asistencia` (
   INDEX `fk_asistencia_registrado_por_idx` (`registrado_por` ASC) VISIBLE,
   CONSTRAINT `fk_asistencia_horarioscoordinador1`
     FOREIGN KEY (`id_horarios_coordinador`)
-    REFERENCES `gtics`.`horarioscoordinador` (`id_horarios_coordinador`)
+    REFERENCES `gtics_2`.`horarioscoordinador` (`id_horarios_coordinador`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `fk_asistencia_registrado_por`
     FOREIGN KEY (`registrado_por`)
-    REFERENCES `gtics`.`usuario` (`id_usuario`)
+    REFERENCES `gtics_2`.`usuario` (`id_usuario`)
     ON DELETE SET NULL
     ON UPDATE NO ACTION)
 ENGINE = InnoDB
@@ -177,9 +178,9 @@ DEFAULT CHARACTER SET = utf8mb3;
 
 
 -- -----------------------------------------------------
--- Table `gtics`.`canchasfutbol`
+-- Table `gtics_2`.`canchasfutbol`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `gtics`.`canchasfutbol` (
+CREATE TABLE IF NOT EXISTS `gtics_2`.`canchasfutbol` (
   `id_espacio` INT NOT NULL AUTO_INCREMENT,
   `tipo_superficie` ENUM('Grass', 'Losa') NOT NULL,
   `iluminacion_nocturna` TINYINT NOT NULL,
@@ -190,15 +191,15 @@ CREATE TABLE IF NOT EXISTS `gtics`.`canchasfutbol` (
   INDEX `fk_canchasfutbol_espaciosdeportivos1_idx` (`id_espacio` ASC) VISIBLE,
   CONSTRAINT `fk_canchasfutbol_espaciosdeportivos1`
     FOREIGN KEY (`id_espacio`)
-    REFERENCES `gtics`.`espaciosdeportivos` (`id_espacio`))
+    REFERENCES `gtics_2`.`espaciosdeportivos` (`id_espacio`))
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8mb3;
 
 
 -- -----------------------------------------------------
--- Table `gtics`.`estadios`
+-- Table `gtics_2`.`estadios`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `gtics`.`estadios` (
+CREATE TABLE IF NOT EXISTS `gtics_2`.`estadios` (
   `id_espacio` INT NOT NULL,
   `aforo` INT NOT NULL,
   `uso_permitido` VARCHAR(150) NOT NULL,
@@ -208,33 +209,34 @@ CREATE TABLE IF NOT EXISTS `gtics`.`estadios` (
   PRIMARY KEY (`id_espacio`),
   CONSTRAINT `fk_estadios_espaciosdeportivos1`
     FOREIGN KEY (`id_espacio`)
-    REFERENCES `gtics`.`espaciosdeportivos` (`id_espacio`))
+    REFERENCES `gtics_2`.`espaciosdeportivos` (`id_espacio`))
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8mb3;
 
 
 -- -----------------------------------------------------
--- Table `gtics`.`fotos`
+-- Table `gtics_2`.`fotos`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `gtics`.`fotos` (
+CREATE TABLE IF NOT EXISTS `gtics_2`.`fotos` (
   `id_fotos` INT NOT NULL AUTO_INCREMENT,
   `foto` BLOB NOT NULL,
   `id_lista_fotos` INT NOT NULL,
   `foto_nombre` VARCHAR(50) NOT NULL,
   `foto_tipo_archivo` VARCHAR(15) NOT NULL,
+  `foto_url` VARCHAR(255) NOT NULL,
   PRIMARY KEY (`id_fotos`),
   INDEX `fk_Fotos_ListaFotos1_idx` (`id_lista_fotos` ASC) VISIBLE,
   CONSTRAINT `fk_Fotos_ListaFotos1`
     FOREIGN KEY (`id_lista_fotos`)
-    REFERENCES `gtics`.`listafotos` (`id_lista_fotos`))
+    REFERENCES `gtics_2`.`listafotos` (`id_lista_fotos`))
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8mb3;
 
 
 -- -----------------------------------------------------
--- Table `gtics`.`horarios`
+-- Table `gtics_2`.`horarios`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `gtics`.`horarios` (
+CREATE TABLE IF NOT EXISTS `gtics_2`.`horarios` (
   `id_horarios` INT NOT NULL AUTO_INCREMENT,
   `hora_inicio` TIME NOT NULL,
   `hora_fin` TIME NOT NULL,
@@ -243,16 +245,16 @@ CREATE TABLE IF NOT EXISTS `gtics`.`horarios` (
   INDEX `fk_Horarios_EspaciosDeportivos1_idx` (`id_espacio` ASC) VISIBLE,
   CONSTRAINT `fk_Horarios_EspaciosDeportivos1`
     FOREIGN KEY (`id_espacio`)
-    REFERENCES `gtics`.`espaciosdeportivos` (`id_espacio`))
+    REFERENCES `gtics_2`.`espaciosdeportivos` (`id_espacio`))
 ENGINE = InnoDB
 AUTO_INCREMENT = 13
 DEFAULT CHARACTER SET = utf8mb3;
 
 
 -- -----------------------------------------------------
--- Table `gtics`.`horarioreservado`
+-- Table `gtics_2`.`horarioreservado`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `gtics`.`horarioreservado` (
+CREATE TABLE IF NOT EXISTS `gtics_2`.`horarioreservado` (
   `id_horario_reservado` INT NOT NULL AUTO_INCREMENT,
   `fecha` DATE NOT NULL,
   `id_horarios` INT NOT NULL,
@@ -260,16 +262,16 @@ CREATE TABLE IF NOT EXISTS `gtics`.`horarioreservado` (
   INDEX `fk_HorarioReservado_Horarios1_idx` (`id_horarios` ASC) VISIBLE,
   CONSTRAINT `fk_HorarioReservado_Horarios1`
     FOREIGN KEY (`id_horarios`)
-    REFERENCES `gtics`.`horarios` (`id_horarios`))
+    REFERENCES `gtics_2`.`horarios` (`id_horarios`))
 ENGINE = InnoDB
 AUTO_INCREMENT = 13
 DEFAULT CHARACTER SET = utf8mb3;
 
 
 -- -----------------------------------------------------
--- Table `gtics`.`mediospago`
+-- Table `gtics_2`.`mediospago`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `gtics`.`mediospago` (
+CREATE TABLE IF NOT EXISTS `gtics_2`.`mediospago` (
   `id_medios_pago` INT NOT NULL AUTO_INCREMENT,
   `nombre` VARCHAR(45) NOT NULL,
   `tipo_pago` ENUM('AUTOMATICO', 'MANUAL') NOT NULL COMMENT 'AUTOMATICO=tarjeta, MANUAL=transferencia/yape/plin',
@@ -285,9 +287,9 @@ DEFAULT CHARACTER SET = utf8mb3;
 
 
 -- -----------------------------------------------------
--- Table `gtics`.`pagos`
+-- Table `gtics_2`.`pagos`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `gtics`.`pagos` (
+CREATE TABLE IF NOT EXISTS `gtics_2`.`pagos` (
   `id_pagos` INT NOT NULL AUTO_INCREMENT,
   `cantidad` DECIMAL(10, 2) NOT NULL,
   `id_medios_pago` INT NOT NULL,
@@ -310,15 +312,15 @@ CREATE TABLE IF NOT EXISTS `gtics`.`pagos` (
   INDEX `idx_pagos_fecha` (`fecha_pago` ASC) VISIBLE,
   CONSTRAINT `fk_Pagos_MediosPago1`
     FOREIGN KEY (`id_medios_pago`)
-    REFERENCES `gtics`.`mediospago` (`id_medios_pago`),
+    REFERENCES `gtics_2`.`mediospago` (`id_medios_pago`),
   CONSTRAINT `fk_pagos_verificado_por`
     FOREIGN KEY (`verificado_por`)
-    REFERENCES `gtics`.`usuario` (`id_usuario`)
+    REFERENCES `gtics_2`.`usuario` (`id_usuario`)
     ON DELETE SET NULL
     ON UPDATE NO ACTION,
   CONSTRAINT `fk_pagos_lista_fotos_comprobantes`
     FOREIGN KEY (`id_lista_fotos_comprobantes`)
-    REFERENCES `gtics`.`listafotos` (`id_lista_fotos`)
+    REFERENCES `gtics_2`.`listafotos` (`id_lista_fotos`)
     ON DELETE SET NULL
     ON UPDATE NO ACTION)
 ENGINE = InnoDB
@@ -327,9 +329,9 @@ DEFAULT CHARACTER SET = utf8mb3;
 
 
 -- -----------------------------------------------------
--- Table `gtics`.`piscinas`
+-- Table `gtics_2`.`piscinas`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `gtics`.`piscinas` (
+CREATE TABLE IF NOT EXISTS `gtics_2`.`piscinas` (
   `id_espacio` INT NOT NULL AUTO_INCREMENT,
   `tipo_piscina` ENUM('Olimpica', 'Publica') NOT NULL,
   `profundidad_min` FLOAT NOT NULL,
@@ -340,15 +342,15 @@ CREATE TABLE IF NOT EXISTS `gtics`.`piscinas` (
   PRIMARY KEY (`id_espacio`),
   CONSTRAINT `fk_piscinas_espaciosdeportivos1`
     FOREIGN KEY (`id_espacio`)
-    REFERENCES `gtics`.`espaciosdeportivos` (`id_espacio`))
+    REFERENCES `gtics_2`.`espaciosdeportivos` (`id_espacio`))
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8mb3;
 
 
 -- -----------------------------------------------------
--- Table `gtics`.`pistasatletismo`
+-- Table `gtics_2`.`pistasatletismo`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `gtics`.`pistasatletismo` (
+CREATE TABLE IF NOT EXISTS `gtics_2`.`pistasatletismo` (
   `id_espacio` INT NOT NULL,
   `tipo_superficie` ENUM('Tartan', 'Asfalto', 'Tierra') NOT NULL,
   `longitud` FLOAT NOT NULL,
@@ -356,15 +358,15 @@ CREATE TABLE IF NOT EXISTS `gtics`.`pistasatletismo` (
   PRIMARY KEY (`id_espacio`),
   CONSTRAINT `fk_pistasatletismo_espaciosdeportivos1`
     FOREIGN KEY (`id_espacio`)
-    REFERENCES `gtics`.`espaciosdeportivos` (`id_espacio`))
+    REFERENCES `gtics_2`.`espaciosdeportivos` (`id_espacio`))
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8mb3;
 
 
 -- -----------------------------------------------------
--- Table `gtics`.`reservas`
+-- Table `gtics_2`.`reservas`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `gtics`.`reservas` (
+CREATE TABLE IF NOT EXISTS `gtics_2`.`reservas` (
   `id_reservas` INT NOT NULL AUTO_INCREMENT,
   `id_usuario` INT NOT NULL,
   `id_espacio` INT NOT NULL,
@@ -389,38 +391,31 @@ CREATE TABLE IF NOT EXISTS `gtics`.`reservas` (
   INDEX `idx_reservas_fecha` (`fecha_reserva` ASC) VISIBLE,
   CONSTRAINT `fk_Reservas_EspaciosDeportivos1`
     FOREIGN KEY (`id_espacio`)
-    REFERENCES `gtics`.`espaciosdeportivos` (`id_espacio`),
+    REFERENCES `gtics_2`.`espaciosdeportivos` (`id_espacio`),
   CONSTRAINT `fk_Reservas_Pagos1`
     FOREIGN KEY (`id_pagos`)
-    REFERENCES `gtics`.`pagos` (`id_pagos`),
+    REFERENCES `gtics_2`.`pagos` (`id_pagos`),
   CONSTRAINT `fk_Reservas_Usuario1`
     FOREIGN KEY (`id_usuario`)
-    REFERENCES `gtics`.`usuario` (`id_usuario`),
+    REFERENCES `gtics_2`.`usuario` (`id_usuario`),
   CONSTRAINT `fk_reservas_horarios1`
     FOREIGN KEY (`id_horarios`)
-    REFERENCES `gtics`.`horarios` (`id_horarios`)
+    REFERENCES `gtics_2`.`horarios` (`id_horarios`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `fk_reservas_cancelado_por`
     FOREIGN KEY (`cancelado_por`)
-    REFERENCES `gtics`.`usuario` (`id_usuario`)
+    REFERENCES `gtics_2`.`usuario` (`id_usuario`)
     ON DELETE SET NULL
     ON UPDATE NO ACTION)
 ENGINE = InnoDB
 AUTO_INCREMENT = 2
 DEFAULT CHARACTER SET = utf8mb3;
 
-
 -- -----------------------------------------------------
--- Table `gtics`.`tipocomentario` - DEPRECATED: Se reemplaza por ENUM
+-- Table `gtics_2`.`comentarios`
 -- -----------------------------------------------------
--- Esta tabla se mantiene por compatibilidad pero se recomienda usar el ENUM en comentarios
-
-
--- -----------------------------------------------------
--- Table `gtics`.`comentarios`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `gtics`.`comentarios` (
+CREATE TABLE IF NOT EXISTS `gtics_2`.`comentarios` (
   `id_comentarios` INT NOT NULL AUTO_INCREMENT,
   `id_espacio` INT NOT NULL,
   `id_usuario` INT NOT NULL,
@@ -437,6 +432,7 @@ CREATE TABLE IF NOT EXISTS `gtics`.`comentarios` (
   `fecha_revision` TIMESTAMP NULL COMMENT 'Fecha de revisión del administrador',
   `revisado_por` INT NULL COMMENT 'ID del admin que revisó',
   `id_mantenimiento_generado` INT NULL COMMENT 'ID del mantenimiento generado a partir de este comentario',
+  `prioridad_mantenimiento` ENUM('ALTA', 'BAJA', 'CRITICA', 'MEDIA') NULL,
   PRIMARY KEY (`id_comentarios`),
   INDEX `fk_comentarios_espaciosdeportivos1_idx` (`id_espacio` ASC) VISIBLE,
   INDEX `fk_comentarios_usuario1_idx` (`id_usuario` ASC) VISIBLE,
@@ -449,36 +445,36 @@ CREATE TABLE IF NOT EXISTS `gtics`.`comentarios` (
   INDEX `idx_comentarios_mantenimiento_req` (`requiere_mantenimiento` ASC) VISIBLE,
   CONSTRAINT `fk_comentarios_espaciosdeportivos1`
     FOREIGN KEY (`id_espacio`)
-    REFERENCES `gtics`.`espaciosdeportivos` (`id_espacio`)
+    REFERENCES `gtics_2`.`espaciosdeportivos` (`id_espacio`)
     ON DELETE CASCADE
     ON UPDATE NO ACTION,
   CONSTRAINT `fk_comentarios_usuario1`
     FOREIGN KEY (`id_usuario`)
-    REFERENCES `gtics`.`usuario` (`id_usuario`)
+    REFERENCES `gtics_2`.`usuario` (`id_usuario`)
     ON DELETE CASCADE
     ON UPDATE NO ACTION,
   CONSTRAINT `fk_comentarios_listafotos1`
     FOREIGN KEY (`id_lista_fotos`)
-    REFERENCES `gtics`.`listafotos` (`id_lista_fotos`)
+    REFERENCES `gtics_2`.`listafotos` (`id_lista_fotos`)
     ON DELETE SET NULL
     ON UPDATE NO ACTION,
   CONSTRAINT `fk_comentarios_revisado_por`
     FOREIGN KEY (`revisado_por`)
-    REFERENCES `gtics`.`usuario` (`id_usuario`)
+    REFERENCES `gtics_2`.`usuario` (`id_usuario`)
     ON DELETE SET NULL
     ON UPDATE NO ACTION,
   CONSTRAINT `fk_comentarios_mantenimiento_generado`
     FOREIGN KEY (`id_mantenimiento_generado`)
-    REFERENCES `gtics`.`mantenimiento` (`id_mantenimiento`)
+    REFERENCES `gtics_2`.`mantenimiento` (`id_mantenimiento`)
     ON DELETE SET NULL
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `gtics`.`mantenimiento`
+-- Table `gtics_2`.`mantenimiento`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `gtics`.`mantenimiento` (
+CREATE TABLE IF NOT EXISTS `gtics_2`.`mantenimiento` (
   `id_mantenimiento` INT NOT NULL AUTO_INCREMENT,
   `id_espacio` INT NOT NULL,
   `tipo_mantenimiento` ENUM('PREVENTIVO', 'MEJORA', 'LIMPIEZA_PROFUNDA') NOT NULL COMMENT 'Tipo de mantenimiento',
@@ -500,6 +496,8 @@ CREATE TABLE IF NOT EXISTS `gtics`.`mantenimiento` (
   `fecha_actualizacion` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `reservas_canceladas` INT DEFAULT 0 COMMENT 'Número de reservas canceladas por este mantenimiento',
   `notificaciones_enviadas` TINYINT DEFAULT 0 COMMENT 'Si se enviaron notificaciones a usuarios afectados',
+  `costo_estimado` DECIMAL(10,2) NULL,
+  `costo_real` DECIMAL(10,2) NULL,
   PRIMARY KEY (`id_mantenimiento`),
   INDEX `fk_mantenimiento_espaciosdeportivos1_idx` (`id_espacio` ASC) VISIBLE,
   INDEX `fk_mantenimiento_creado_por_idx` (`creado_por` ASC) VISIBLE,
@@ -508,12 +506,12 @@ CREATE TABLE IF NOT EXISTS `gtics`.`mantenimiento` (
   INDEX `idx_mantenimiento_tipo` (`tipo_mantenimiento` ASC) VISIBLE,
   CONSTRAINT `fk_mantenimiento_espaciosdeportivos1`
     FOREIGN KEY (`id_espacio`)
-    REFERENCES `gtics`.`espaciosdeportivos` (`id_espacio`)
+    REFERENCES `gtics_2`.`espaciosdeportivos` (`id_espacio`)
     ON DELETE CASCADE
     ON UPDATE NO ACTION,
   CONSTRAINT `fk_mantenimiento_creado_por`
     FOREIGN KEY (`creado_por`)
-    REFERENCES `gtics`.`usuario` (`id_usuario`)
+    REFERENCES `gtics_2`.`usuario` (`id_usuario`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `chk_mantenimiento_fechas` CHECK (`fecha_fin` >= `fecha_inicio`),
@@ -532,17 +530,17 @@ DEFAULT CHARACTER SET = utf8mb3;
 -- -----------------------------------------------------
 -- Agregar relación de mantenimiento en reservas
 -- -----------------------------------------------------
-ALTER TABLE `gtics`.`reservas`
+ALTER TABLE `gtics_2`.`reservas`
 ADD CONSTRAINT `fk_reservas_mantenimiento`
     FOREIGN KEY (`id_mantenimiento`)
-    REFERENCES `gtics`.`mantenimiento` (`id_mantenimiento`)
+    REFERENCES `gtics_2`.`mantenimiento` (`id_mantenimiento`)
     ON DELETE SET NULL
     ON UPDATE NO ACTION;
 
 -- -----------------------------------------------------
 -- Tabla de historial de cambios de estado de reservas
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `gtics`.`historial_reservas` (
+CREATE TABLE IF NOT EXISTS `gtics_2`.`historial_reservas` (
   `id_historial` INT NOT NULL AUTO_INCREMENT,
   `id_reserva` INT NOT NULL,
   `estado_anterior` VARCHAR(50) NULL,
@@ -556,12 +554,12 @@ CREATE TABLE IF NOT EXISTS `gtics`.`historial_reservas` (
   INDEX `idx_historial_fecha` (`fecha_cambio` ASC) VISIBLE,
   CONSTRAINT `fk_historial_reservas`
     FOREIGN KEY (`id_reserva`)
-    REFERENCES `gtics`.`reservas` (`id_reservas`)
+    REFERENCES `gtics_2`.`reservas` (`id_reservas`)
     ON DELETE CASCADE
     ON UPDATE NO ACTION,
   CONSTRAINT `fk_historial_usuario`
     FOREIGN KEY (`cambiado_por`)
-    REFERENCES `gtics`.`usuario` (`id_usuario`)
+    REFERENCES `gtics_2`.`usuario` (`id_usuario`)
     ON DELETE SET NULL
     ON UPDATE NO ACTION)
 ENGINE = InnoDB
@@ -570,7 +568,7 @@ DEFAULT CHARACTER SET = utf8mb3;
 -- -----------------------------------------------------
 -- Tabla de notificaciones para usuarios
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `gtics`.`notificaciones` (
+CREATE TABLE IF NOT EXISTS `gtics_2`.`notificaciones` (
   `id_notificacion` INT NOT NULL AUTO_INCREMENT,
   `id_usuario` INT NOT NULL,
   `tipo_notificacion` ENUM('CANCELACION_RESERVA', 'MANTENIMIENTO_PROGRAMADO', 'RECORDATORIO_RESERVA', 'CAMBIO_HORARIO', 'PROMOCION') NOT NULL,
@@ -589,17 +587,17 @@ CREATE TABLE IF NOT EXISTS `gtics`.`notificaciones` (
   INDEX `idx_notificaciones_fecha` (`fecha_creacion` ASC) VISIBLE,
   CONSTRAINT `fk_notificaciones_usuario`
     FOREIGN KEY (`id_usuario`)
-    REFERENCES `gtics`.`usuario` (`id_usuario`)
+    REFERENCES `gtics_2`.`usuario` (`id_usuario`)
     ON DELETE CASCADE
     ON UPDATE NO ACTION,
   CONSTRAINT `fk_notificaciones_reserva`
     FOREIGN KEY (`id_reserva`)
-    REFERENCES `gtics`.`reservas` (`id_reservas`)
+    REFERENCES `gtics_2`.`reservas` (`id_reservas`)
     ON DELETE SET NULL
     ON UPDATE NO ACTION,
   CONSTRAINT `fk_notificaciones_mantenimiento`
     FOREIGN KEY (`id_mantenimiento`)
-    REFERENCES `gtics`.`mantenimiento` (`id_mantenimiento`)
+    REFERENCES `gtics_2`.`mantenimiento` (`id_mantenimiento`)
     ON DELETE SET NULL
     ON UPDATE NO ACTION)
 ENGINE = InnoDB
@@ -610,9 +608,9 @@ DEFAULT CHARACTER SET = utf8mb3;
 -- -----------------------------------------------------
 
 -- -----------------------------------------------------
--- Table `gtics`.`historial_pagos`
+-- Table `gtics_2`.`historial_pagos`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `gtics`.`historial_pagos` (
+CREATE TABLE IF NOT EXISTS `gtics_2`.`historial_pagos` (
   `id_historial_pago` INT NOT NULL AUTO_INCREMENT,
   `id_pago` INT NOT NULL,
   `estado_anterior` VARCHAR(50) NULL,
@@ -627,110 +625,89 @@ CREATE TABLE IF NOT EXISTS `gtics`.`historial_pagos` (
   INDEX `idx_historial_pagos_fecha` (`fecha_cambio` ASC) VISIBLE,
   CONSTRAINT `fk_historial_pagos_pago`
     FOREIGN KEY (`id_pago`)
-    REFERENCES `gtics`.`pagos` (`id_pagos`)
+    REFERENCES `gtics_2`.`pagos` (`id_pagos`)
     ON DELETE CASCADE
     ON UPDATE NO ACTION,
   CONSTRAINT `fk_historial_pagos_usuario`
     FOREIGN KEY (`cambiado_por`)
-    REFERENCES `gtics`.`usuario` (`id_usuario`)
+    REFERENCES `gtics_2`.`usuario` (`id_usuario`)
     ON DELETE SET NULL
     ON UPDATE NO ACTION)
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8mb3;
 
--- -----------------------------------------------------
--- Datos iniciales para medios de pago
--- -----------------------------------------------------
-INSERT INTO `gtics`.`mediospago` (`id_medios_pago`, `nombre`, `tipo_pago`, `requiere_verificacion`, `activo`, `descripcion`, `datos_cuenta`, `icono`) VALUES
-(1, 'Tarjeta de Crédito/Débito', 'AUTOMATICO', 0, 1, 'Pago con tarjeta a través de pasarela segura', NULL, 'credit-card.png'),
-(2, 'Transferencia Bancaria', 'MANUAL', 1, 1, 'Transferencia a cuenta bancaria', 'Banco: BCP\nCuenta: 123-456789-0-12\nCCI: 00212312345678901234', 'bank-transfer.png'),
-(3, 'Yape', 'MANUAL', 1, 1, 'Pago mediante Yape', 'Número Yape: 987654321\nNombre: Espacios Deportivos SAC', 'yape.png'),
-(4, 'Plin', 'MANUAL', 1, 1, 'Pago mediante Plin', 'Número Plin: 987654321\nNombre: Espacios Deportivos SAC', 'plin.png');
 
--- -----------------------------------------------------
--- Agregar relación de mantenimiento en reservas
--- -----------------------------------------------------
-ALTER TABLE `gtics`.`reservas`
-ADD CONSTRAINT `fk_reservas_mantenimiento`
-    FOREIGN KEY (`id_mantenimiento`)
-    REFERENCES `gtics`.`mantenimiento` (`id_mantenimiento`)
-    ON DELETE SET NULL
-    ON UPDATE NO ACTION;
 
--- -----------------------------------------------------
--- Tabla de historial de cambios de estado de reservas
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `gtics`.`historial_reservas` (
-  `id_historial` INT NOT NULL AUTO_INCREMENT,
+
+
+
+CREATE TABLE IF NOT EXISTS `gtics_2`.`asignacion_coordinador` (
+  `id_asignacion` INT NOT NULL AUTO_INCREMENT,
+  `estado_asignacion` ENUM('CANCELADA', 'COMPLETADA', 'CONFIRMADA', 'EN_PROGRESO', 'PENDIENTE') NOT NULL,
+  `fecha_actualizacion` DATETIME(6) NOT NULL,
+  `fecha_asignacion` DATE NOT NULL,
+  `fecha_creacion` DATETIME(6) NOT NULL,
+  `hora_inicio` TIME(6) NOT NULL,
+  `hora_fin` TIME(6) NOT NULL,
+  `observaciones` TEXT NULL,
+  `ubicacion` VARCHAR(200) NULL,
+  `asignado_por` INT NOT NULL,
+  `id_coordinador` INT NOT NULL,
   `id_reserva` INT NOT NULL,
-  `estado_anterior` VARCHAR(50) NULL,
-  `estado_nuevo` VARCHAR(50) NOT NULL,
-  `motivo` VARCHAR(255) NULL,
-  `cambiado_por` INT NULL,
-  `fecha_cambio` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id_historial`),
-  INDEX `fk_historial_reservas_idx` (`id_reserva` ASC) VISIBLE,
-  INDEX `fk_historial_usuario_idx` (`cambiado_por` ASC) VISIBLE,
-  INDEX `idx_historial_fecha` (`fecha_cambio` ASC) VISIBLE,
-  CONSTRAINT `fk_historial_reservas`
-    FOREIGN KEY (`id_reserva`)
-    REFERENCES `gtics`.`reservas` (`id_reservas`)
+  PRIMARY KEY (`id_asignacion`),
+  INDEX `fk_asignacion_coordinador_asignado_por_idx` (`asignado_por` ASC) VISIBLE,
+  INDEX `fk_asignacion_coordinador_id_coordinador_idx` (`id_coordinador` ASC) VISIBLE,
+  INDEX `fk_asignacion_coordinador_reservas_idx` (`id_reserva` ASC) VISIBLE,
+  CONSTRAINT `fk_asignacion_coordinador_asignado_por`
+    FOREIGN KEY (`asignado_por`)
+    REFERENCES `gtics_2`.`usuario` (`id_usuario`)
     ON DELETE CASCADE
     ON UPDATE NO ACTION,
-  CONSTRAINT `fk_historial_usuario`
-    FOREIGN KEY (`cambiado_por`)
-    REFERENCES `gtics`.`usuario` (`id_usuario`)
-    ON DELETE SET NULL
-    ON UPDATE NO ACTION)
+  CONSTRAINT `fk_asignacion_coordinador_id_coordinador`
+    FOREIGN KEY (`id_coordinador`)
+    REFERENCES `gtics_2`.`usuario` (`id_usuario`)
+    ON DELETE CASCADE
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_asignacion_coordinador_reservas`
+    FOREIGN KEY (`id_reserva`)
+    REFERENCES `gtics_2`.`reservas` (`id_reservas`)
+    ON DELETE CASCADE
+    ON UPDATE NO ACTION
+)
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8mb3;
 
 -- -----------------------------------------------------
--- Tabla de notificaciones para usuarios
+-- Table `gtics`.`accountactivate`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `gtics`.`notificaciones` (
-  `id_notificacion` INT NOT NULL AUTO_INCREMENT,
+CREATE TABLE IF NOT EXISTS `gtics_2`.`accountactivate` (
+  `token` VARCHAR(100) NOT NULL,
   `id_usuario` INT NOT NULL,
-  `tipo_notificacion` ENUM('CANCELACION_RESERVA', 'MANTENIMIENTO_PROGRAMADO', 'RECORDATORIO_RESERVA', 'CAMBIO_HORARIO', 'PROMOCION') NOT NULL,
-  `titulo` VARCHAR(100) NOT NULL,
-  `mensaje` TEXT NOT NULL,
-  `leida` TINYINT DEFAULT 0,
-  `fecha_creacion` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  `fecha_lectura` TIMESTAMP NULL,
-  `id_reserva` INT NULL COMMENT 'Reserva relacionada si aplica',
-  `id_mantenimiento` INT NULL COMMENT 'Mantenimiento relacionado si aplica',
-  PRIMARY KEY (`id_notificacion`),
-  INDEX `fk_notificaciones_usuario_idx` (`id_usuario` ASC) VISIBLE,
-  INDEX `fk_notificaciones_reserva_idx` (`id_reserva` ASC) VISIBLE,
-  INDEX `fk_notificaciones_mantenimiento_idx` (`id_mantenimiento` ASC) VISIBLE,
-  INDEX `idx_notificaciones_leida` (`leida` ASC) VISIBLE,
-  INDEX `idx_notificaciones_fecha` (`fecha_creacion` ASC) VISIBLE,
-  CONSTRAINT `fk_notificaciones_usuario`
+  PRIMARY KEY (`token`),
+  UNIQUE INDEX `token_UNIQUE` (`token` ASC) VISIBLE,
+  INDEX `fk_accountactivate_usuario1_idx` (`id_usuario` ASC) VISIBLE,
+  CONSTRAINT `fk_accountactivate_usuario1`
     FOREIGN KEY (`id_usuario`)
-    REFERENCES `gtics`.`usuario` (`id_usuario`)
-    ON DELETE CASCADE
-    ON UPDATE NO ACTION,
-  CONSTRAINT `fk_notificaciones_reserva`
-    FOREIGN KEY (`id_reserva`)
-    REFERENCES `gtics`.`reservas` (`id_reservas`)
-    ON DELETE SET NULL
-    ON UPDATE NO ACTION,
-  CONSTRAINT `fk_notificaciones_mantenimiento`
-    FOREIGN KEY (`id_mantenimiento`)
-    REFERENCES `gtics`.`mantenimiento` (`id_mantenimiento`)
-    ON DELETE SET NULL
+    REFERENCES `gtics_2`.`usuario` (`id_usuario`)
+    ON DELETE NO ACTION
     ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `gtics`.`passwdreset`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `gtics_2`.`passwdreset` (
+  `id_usuario` INT NOT NULL,
+  `token` VARCHAR(255) NOT NULL,
+  `expiracion` DATETIME(6) NULL DEFAULT NULL,
+  PRIMARY KEY (`token`),
+  INDEX `fk_passwdreset_usuario1_idx` (`id_usuario` ASC) VISIBLE,
+  CONSTRAINT `fk_passwdreset_usuario1`
+    FOREIGN KEY (`id_usuario`)
+    REFERENCES `gtics_2`.`usuario` (`id_usuario`))
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8mb3;
-
--- -----------------------------------------------------
--- Trigger eliminado: Cualquier usuario puede comentar
--- -----------------------------------------------------
-
--- -----------------------------------------------------
--- Procedimientos eliminados: La lógica se maneja desde Java
--- -----------------------------------------------------
-
 
 
 SET SQL_MODE=@OLD_SQL_MODE;

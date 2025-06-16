@@ -59,7 +59,13 @@ public class Usuario implements Serializable {
     @Column(name = "fecha_nacimiento")
     private LocalDate fechaNacimiento;
 
+    // Cambio: Almacenar URL de S3 en lugar de BLOB
+    @Column(name = "foto_url", length = 500)
+    private String fotoUrl;
+
+    // Mantener campo BLOB temporalmente para migración
     @Lob
+    @Column(name = "foto")
     private byte[] foto;
 
     @Column(name = "foto_nombre")

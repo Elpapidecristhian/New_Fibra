@@ -28,10 +28,10 @@
 	<header class="main-header">
 		<div class="d-flex align-items-center logo-box justify-content-center">
 			<!-- Logo -->
-			<a href="principal.html" class="logo">
+			<a href="/static/assets/vendor_components/jquery-validation-1.17.0/demo/requirejs/index.html" class="logo">
 				<!-- logo-->
 				<div class="logo-mini w-150 text-center">
-					<span class="light-logo"><img src="/images/logo-sanMiguel.png" alt="logo"></span>
+					<span class="light-logo"><img th:src="@{/images/logo-sanMiguel.png}" alt="logo"></span>
 				</div>
 			</a>
 		</div>
@@ -103,7 +103,8 @@
 														<td th:text="${reserva.getPago().getMedioPago().getNombre()}"></td>
 														<td th:text="${#dates.format(reserva.getFechaRegistro(), 'dd/MM/yyyy HH:mm:ss')}"></td>
 														<td>
-															<button type="button" class="btn btn-primary" data-bs-toggle="modal" th:attr="data-bs-target=${'#modal-' + reserva.getId()}">
+															<button type="button" class="btn btn-primary" th:onclick="'verDetallesReserva(' + ${reserva.getId()} + ')'">
+
 																<i class="mdi mdi-eye"></i>
 															</button>
 															<button type="button" class="btn btn-danger" data-bs-toggle="modal" th:attr="data-bs-target=${'#modal-cancel-' + reserva.getId()}"
@@ -135,21 +136,20 @@
 	  </div>
   </div>
   <!-- /.content-wrapper -->
-		<div th:each="reserva, idx : ${listaReservas}" class="modal center-modal fade" th:id="'modal-' + ${reserva.getId()}" tabindex="-1">
-			<div class="modal-dialog">
+		<!-- Modal dinámico para detalles de reserva -->
+		<div class="modal center-modal fade" id="modalDetallesReserva" tabindex="-1">
+			<div class="modal-dialog modal-lg">
 				<div class="modal-content">
 					<div class="modal-header">
-						<h5 th:utext="'Reserva ' + ${idx.index + 1}" class="modal-title"></h5>
+						<h5 class="modal-title">Detalles de la Reserva</h5>
 						<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 					</div>
-					<div class="modal-body">
-						<p><strong>Espacio: </strong><span th:text="${reserva.getEspacioDeportivo().getNombre()}"></span></p>
-						<p><strong>Fecha de Reserva: </strong><span th:text="${#temporals.format(reserva.fechaReserva, 'dd/MM/yyyy')}"></span></p>
-						<p><strong>Horario Reservado: </strong><span th:text="${reserva.getHorario().getHoraInicio()} + '-' + ${reserva.getHorario().getHoraFin()}"></span></p>
-						<p><strong>Id Pago: </strong><span th:text="${reserva.getPago().getId()}"></span></p>
-						<p><strong>Monto Pagado: </strong><span th:text="${reserva.getPago().getCantidad()}"></span></p>
-						<p><strong>Medio de Pago: </strong><span th:text="${reserva.getPago().getMedioPago().getNombre()}"></span></p>
-						<p><strong>Fecha de Pago: </strong><span th:text="${reserva.getFechaRegistro()}"></span></p>
+					<div class="modal-body" id="contenidoDetallesReserva">
+						<div class="text-center">
+							<div class="spinner-border" role="status">
+								<span class="visually-hidden">Cargando...</span>
+							</div>
+						</div>
 					</div>
 					<div class="modal-footer modal-footer-uniform">
 						<button type="button" class="btn btn-success" data-bs-dismiss="modal">Cerrar</button>
@@ -485,7 +485,7 @@
 		Swal.fire({
 			icon: 'success',
 			title: 'Éxito',
-			text: [[${msg}]],
+			text: "[[${msg}]]",
 			confirmButtonText: 'OK'
 		});
 	</script>
@@ -494,9 +494,111 @@
 		Swal.fire({
 			icon: 'error',
 			title: 'Error',
-			text: [[${error}]],
+			text: "[[${error}]]",
 			confirmButtonText: 'OK'
 		});
+	</script>
+
+	<script>
+		function verDetallesReserva(reservaId) {
+			console.log('Abriendo detalles para reserva ID:', reservaId);
+
+			// Obtener elementos del DOM
+			const modal = document.getElementById('modalDetallesReserva');
+			const contenido = document.getElementById('contenidoDetallesReserva');
+
+			// Mostrar modal con spinner
+			const modalInstance = new bootstrap.Modal(modal);
+			modalInstance.show();
+
+			contenido.innerHTML = `
+				<div class="text-center">
+					<div class="spinner-border" role="status">
+						<span class="visually-hidden">Cargando...</span>
+					</div>
+				</div>
+			`;
+
+			// Cargar datos de la reserva
+			fetch(`/vecino/reservas/detalles/${reservaId}`)
+				.then(response => {
+					console.log('Response status:', response.status);
+					if (!response.ok) {
+						throw new Error('Error en la respuesta del servidor');
+					}
+					return response.json();
+				})
+				.then(data => {
+					console.log('Datos recibidos:', data);
+					let contenidoHtml = `
+						<div class="row">
+							<div class="col-md-6">
+								<h6>Información de la Reserva</h6>
+								<p><strong>Espacio:</strong> ${data.espacio}</p>
+								<p><strong>Fecha de Reserva:</strong> ${new Date(data.fechaReserva).toLocaleDateString()}</p>
+								<p><strong>Horario:</strong> ${data.horario}</p>
+								<p><strong>Fecha de Registro:</strong> ${new Date(data.fechaRegistro).toLocaleString()}</p>
+							</div>
+							<div class="col-md-6">
+								<h6>Información del Pago</h6>
+								<p><strong>Monto:</strong> S/ ${data.montoPagado}</p>
+								<p><strong>Estado:</strong> ${getEstadoBadge(data.estadoPago)}</p>
+								<p><strong>Medio de Pago:</strong> ${data.medioPago}</p>
+								${data.numeroTransaccion ? '<p><strong>Nº Transacción:</strong> ' + data.numeroTransaccion + '</p>' : ''}
+							</div>
+						</div>
+					`;
+
+					// Agregar sección de comprobantes si existen
+					if (data.tieneComprobantes && data.comprobantes) {
+						contenidoHtml += `
+							<hr>
+							<h6>Comprobantes de Pago</h6>
+							<div class="row">
+						`;
+						data.comprobantes.forEach((comprobante, index) => {
+							contenidoHtml += `
+								<div class="col-md-6 mb-3">
+									<div class="card">
+										<div class="card-body text-center">
+											<p class="card-title">📄 Comprobante ${index + 1}</p>
+											<a href="${comprobante.url}" target="_blank" class="btn btn-primary btn-sm">
+												<i class="fas fa-download"></i> Descargar
+											</a>
+											<br>
+											<small class="text-muted">${comprobante.nombre || 'Archivo'}</small>
+										</div>
+									</div>
+								</div>
+							`;
+						});
+						contenidoHtml += `</div>`;
+					}
+
+					contenido.innerHTML = contenidoHtml;
+				})
+				.catch(error => {
+					console.error('Error:', error);
+					contenido.innerHTML = `
+						<div class="alert alert-danger">
+							<strong>Error:</strong> No se pudieron cargar los detalles de la reserva.
+						</div>
+					`;
+				});
+		}
+
+		function getEstadoBadge(estado) {
+			switch(estado) {
+				case 'APROBADO':
+					return '<span class="badge bg-success">Aprobado</span>';
+				case 'PENDIENTE':
+					return '<span class="badge bg-warning">Pendiente</span>';
+				case 'RECHAZADO':
+					return '<span class="badge bg-danger">Rechazado</span>';
+				default:
+					return '<span class="badge bg-secondary">' + estado + '</span>';
+			}
+		}
 	</script>
 
 

@@ -20,6 +20,13 @@ public class Fotos {
     private String fotoNombre;
     @Column(name = "foto_tipo_archivo")
     private String fotoTipoArchivo;
+
+    // Cambio: Almacenar URL de S3 en lugar de BLOB
+    @Column(name = "foto_url", length = 500)
+    private String fotoUrl;
+
+    // Mantener campo BLOB temporalmente para migración
     @Lob
+    @Column(name = "foto")
     private byte[] foto;
 }
