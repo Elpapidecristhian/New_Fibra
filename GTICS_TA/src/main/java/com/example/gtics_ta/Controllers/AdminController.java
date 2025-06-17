@@ -20,6 +20,7 @@ import org.springframework.web.multipart.MultipartFile;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.net.URI;
 import java.sql.Timestamp;
 import java.time.LocalDate;
@@ -486,7 +487,11 @@ public class AdminController {
 
 
     @PostMapping("/guardarservicio")
-    public String guardarServicio(@ModelAttribute("servicioDTO") ServicioDTO servicioDTO, @RequestParam("archivos") MultipartFile[] files ){
+    public String guardarServicio(@ModelAttribute("servicioDTO") ServicioDTO servicioDTO,
+                                 @RequestParam("archivos") MultipartFile[] files,
+                                 @RequestParam(value = "latitud", required = false) String latitudStr,
+                                 @RequestParam(value = "longitud", required = false) String longitudStr,
+                                 @RequestParam(value = "mapsUrl", required = false) String mapsUrl){
         try {
             // Usar el nuevo servicio de imágenes con S3
             ListaFotos listaFotos = imageService.uploadServiceImages(files);
@@ -499,6 +504,36 @@ public class AdminController {
                 espaciosDeportivos.setTipoEspacio(tipoEspacio);
             }
 
+            // Procesar coordenadas de geolocalización
+            if (latitudStr != null && !latitudStr.trim().isEmpty() &&
+                longitudStr != null && !longitudStr.trim().isEmpty()) {
+                try {
+                    BigDecimal latitud = new BigDecimal(latitudStr.trim());
+                    BigDecimal longitud = new BigDecimal(longitudStr.trim());
+
+                    // Validar que las coordenadas estén en un rango razonable para Lima
+                    if (latitud.compareTo(new BigDecimal("-12.5")) >= 0 &&
+                        latitud.compareTo(new BigDecimal("-11.5")) <= 0 &&
+                        longitud.compareTo(new BigDecimal("-77.5")) >= 0 &&
+                        longitud.compareTo(new BigDecimal("-76.5")) <= 0) {
+
+                        espaciosDeportivos.setLatitud(latitud);
+                        espaciosDeportivos.setLongitud(longitud);
+
+                        // Establecer URL del mapa si se proporciona
+                        if (mapsUrl != null && !mapsUrl.trim().isEmpty()) {
+                            espaciosDeportivos.setMapsUrl(mapsUrl.trim());
+                        }
+
+                        System.out.println("Coordenadas guardadas - Lat: " + latitud + ", Lng: " + longitud);
+                    } else {
+                        System.out.println("Coordenadas fuera del rango válido para Lima - Lat: " + latitud + ", Lng: " + longitud);
+                    }
+                } catch (NumberFormatException e) {
+                    System.err.println("Error al convertir coordenadas: " + e.getMessage());
+                }
+            }
+
             // Establecer operativo como true por defecto
             espaciosDeportivos.setOperativo(true);
 
@@ -508,30 +543,47 @@ public class AdminController {
                 espaciosDeportivosRepository.save(espaciosDeportivos);
                 piscina.setIdEspacio(espaciosDeportivos.getId());
                 piscinaRepository.save(piscina);
+                System.out.println("Piscina guardada con ID: " + espaciosDeportivos.getId());
             } else if (espaciosDeportivos.getTipoEspacio() != null && espaciosDeportivos.getTipoEspacio().getId() != null && espaciosDeportivos.getTipoEspacio().getId() == 2) {
                 CanchasFutbol canchasFutbol = servicioDTO.getCancha();
                 espaciosDeportivosRepository.save(espaciosDeportivos);
                 canchasFutbol.setIdEspacio(espaciosDeportivos.getId());
                 canchasFutbolRepository.save(canchasFutbol);
+                System.out.println("Cancha de fútbol guardada con ID: " + espaciosDeportivos.getId());
             } else if (espaciosDeportivos.getTipoEspacio() != null && espaciosDeportivos.getTipoEspacio().getId() != null && espaciosDeportivos.getTipoEspacio().getId() == 3) {
                 PistasAtletismo pistasAtletismo = servicioDTO.getPista();
                 espaciosDeportivosRepository.save(espaciosDeportivos);
                 pistasAtletismo.setIdEspacio(espaciosDeportivos.getId());
                 pistasAtletismoRepository.save(pistasAtletismo);
+                System.out.println("Pista de atletismo guardada con ID: " + espaciosDeportivos.getId());
             } else if (espaciosDeportivos.getTipoEspacio() != null && espaciosDeportivos.getTipoEspacio().getId() != null && espaciosDeportivos.getTipoEspacio().getId() == 4) {
                 Estadios estadios = servicioDTO.getEstadios();
                 espaciosDeportivosRepository.save(espaciosDeportivos);
                 estadios.setIdEspacio(espaciosDeportivos.getId());
                 estadiosRepository.save(estadios);
+                System.out.println("Estadio guardado con ID: " + espaciosDeportivos.getId());
             } else {
                 // Si no hay tipo específico, solo guardar el espacio deportivo
                 espaciosDeportivosRepository.save(espaciosDeportivos);
+                System.out.println("Espacio deportivo guardado con ID: " + espaciosDeportivos.getId());
             }
+
+            // Log de información de geolocalización guardada
+            if (espaciosDeportivos.getLatitud() != null && espaciosDeportivos.getLongitud() != null) {
+                System.out.println("Servicio guardado con geolocalización:");
+                System.out.println("- Nombre: " + espaciosDeportivos.getNombre());
+                System.out.println("- Ubicación: " + espaciosDeportivos.getUbicacion());
+                System.out.println("- Latitud: " + espaciosDeportivos.getLatitud());
+                System.out.println("- Longitud: " + espaciosDeportivos.getLongitud());
+                System.out.println("- Maps URL: " + espaciosDeportivos.getMapsUrl());
+            }
+
         } catch (Exception e) {
+            System.err.println("Error al guardar servicio: " + e.getMessage());
             e.printStackTrace();
-            return "redirect:/admin";
+            return "redirect:/admin/nuevo?error=true";
         }
-        return "redirect:/admin";
+        return "redirect:/admin?success=true";
     }
 
     // Método para actualizar reservas completadas

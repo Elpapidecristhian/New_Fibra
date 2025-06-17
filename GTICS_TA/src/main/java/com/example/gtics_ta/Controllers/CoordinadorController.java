@@ -312,6 +312,7 @@ public class CoordinadorController {
                                                                HttpSession session) {
         Map<String, Object> response = new HashMap<>();
 
+
         try {
             Usuario coordinador = (Usuario) session.getAttribute("usuario");
             if (coordinador == null) {

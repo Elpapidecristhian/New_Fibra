@@ -441,8 +441,8 @@
 
       const opciones = {
         enableHighAccuracy: true,
-        timeout: 15000,
-        maximumAge: 30000
+        timeout: 10000,
+        maximumAge: 0
       };
 
       navigator.geolocation.getCurrentPosition(
@@ -490,7 +490,7 @@
             parseFloat(espacio.longitud)
           );
 
-          const radioPermitido = espacio.radioCobertura || 100; // 100m por defecto
+          const radioPermitido = espacio.radioCobertura || 1700; // 100m por defecto
 
           console.log(`Distancia a ${espacio.nombre}: ${Math.round(distancia)}m (radio: ${radioPermitido}m)`);
 
@@ -562,6 +562,7 @@
       btnSalida.disabled = true;
       frase.textContent = "Jornada completada";
       frase.style.color = '#28a745';
+      System.out.println("Ingreso exitoso");
     } else if (estadoAsistencia.tieneEntrada) {
       // Ya marcó entrada, puede marcar salida
       btnEntrada.disabled = true;

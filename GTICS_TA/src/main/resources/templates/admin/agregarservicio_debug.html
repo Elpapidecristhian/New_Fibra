@@ -11,8 +11,6 @@
   <link rel="stylesheet" th:href="@{/css/style.css}">
   <link rel="stylesheet" th:href="@{/css/skin_color.css}">
 
-  <!-- Google Maps API -->
-  <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB8gglF9Vdl-dlam3umZipOmq92nPlCEng&libraries=places&callback=initMap"></script>
 
   <!-- Custom CSS para wizard -->
   <style>
@@ -176,8 +174,12 @@
                   <div class="form-group">
                     <label for="ubicacionInput" class="form-label">Ubicación: <span class="text-danger">*</span></label>
                     <div class="input-group">
-                      <input type="text" th:field="*{espacio.ubicacion}" class="form-control required" id="ubicacionInput"
-                             placeholder="Ingrese la dirección en San Miguel, Lima" required>
+                      <gmpx-place-autocomplete
+                              id="autocompleteEl"
+                              input-id="ubicacionInput"
+                              style="width: 100%; display: block;"
+                      ></gmpx-place-autocomplete>
+                      <input type="text" id="ubicacionInput" class="form-control required" placeholder="Ingrese la dirección en San Miguel, Lima" required>
                       <button type="button" class="btn btn-primary" id="geocodificarBtn" onclick="geocodificarDireccion()">
                         <i class="fa fa-map-marker"></i> Geocodificar
                       </button>
@@ -463,8 +465,8 @@
                     </div>
                     <div class="col-md-4">
                       <div class="form-group">
-                        <label for="longitud" class="form-label">Longitud (metros):</label>
-                        <input type="number" step="0.01" th:field="*{pista.longitud}" class="form-control" id="longitud" placeholder="400">
+                        <label for="longitudMetros" class="form-label">Longitud (metros):</label>
+                        <input type="number" step="0.01" th:field="*{pista.longitud}" class="form-control" id="longitudMetros" placeholder="400">
                       </div>
                     </div>
                     <div class="col-md-4">
@@ -560,77 +562,61 @@
   let marker;
   let geocoder;
   let autocomplete;
+  let placesService;
 
-  // Inicializar Google Maps (callback desde la API)
-  function initMap() {
+  // Función principal para inicializar Google Maps
+  function initializeGoogleMaps() {
     try {
       // Verificar que Google Maps esté disponible
       if (!window.google || !window.google.maps) {
         throw new Error('Google Maps API no está disponible');
       }
 
+      console.log('Inicializando Google Maps...');
+
       // Coordenadas de San Miguel, Lima, Perú
       const sanMiguelCenter = { lat: -12.0776, lng: -77.0865 };
 
-      // Crear el mapa
+      // Crear el mapa con configuración moderna
       map = new google.maps.Map(document.getElementById('map'), {
         zoom: 15,
         center: sanMiguelCenter,
         mapTypeId: 'roadmap',
         streetViewControl: false,
         mapTypeControl: true,
-        fullscreenControl: true
+        fullscreenControl: true,
+        gestureHandling: 'cooperative',
+        mapId: 'DEMO_MAP_ID' // Para usar características modernas
       });
 
-      // Inicializar geocoder
+      // Inicializar servicios
       geocoder = new google.maps.Geocoder();
+      placesService = new google.maps.places.PlacesService(map);
 
-      // Crear marcador arrastrable
-      marker = new google.maps.Marker({
-        position: sanMiguelCenter,
-        map: map,
-        draggable: true,
-        title: 'Arrastre para ajustar la ubicación',
-        animation: google.maps.Animation.DROP
-      });
-
-      // Configurar autocomplete para el input de ubicación
-      const ubicacionInput = document.getElementById('ubicacionInput');
-      if (ubicacionInput && google.maps.places) {
-        autocomplete = new google.maps.places.Autocomplete(ubicacionInput, {
-          bounds: new google.maps.LatLngBounds(
-            new google.maps.LatLng(-12.1200, -77.1200), // SW - área más amplia
-            new google.maps.LatLng(-12.0400, -77.0400)  // NE
-          ),
-          strictBounds: false,
-          componentRestrictions: { country: 'pe' },
-          types: ['address'],
-          fields: ['geometry', 'formatted_address', 'name']
+      // Crear marcador arrastrable usando AdvancedMarkerElement (moderno)
+      if (google.maps.marker && google.maps.marker.AdvancedMarkerElement) {
+        marker = new google.maps.marker.AdvancedMarkerElement({
+          position: sanMiguelCenter,
+          map: map,
+          gmpDraggable: true,
+          title: 'Arrastre para ajustar la ubicación'
         });
-
-        // Listener para cuando se selecciona una dirección del autocomplete
-        autocomplete.addListener('place_changed', function() {
-          const place = autocomplete.getPlace();
-          if (place.geometry && place.geometry.location) {
-            actualizarMapa(place.geometry.location);
-            document.getElementById('mapaContainer').style.display = 'block';
-          }
+      } else {
+        // Fallback al marcador clásico
+        marker = new google.maps.Marker({
+          position: sanMiguelCenter,
+          map: map,
+          draggable: true,
+          title: 'Arrastre para ajustar la ubicación',
+          animation: google.maps.Animation.DROP
         });
       }
 
-      // Listener para cuando se arrastra el marcador
-      marker.addListener('dragend', function() {
-        const position = marker.getPosition();
-        actualizarCoordenadas(position.lat(), position.lng());
-        actualizarMapsUrl(position.lat(), position.lng());
+      // Configurar autocomplete moderno
+      setupAutocomplete();
 
-        // Geocodificación inversa para actualizar la dirección
-        geocoder.geocode({ location: position }, function(results, status) {
-          if (status === 'OK' && results[0]) {
-            document.getElementById('ubicacionInput').value = results[0].formatted_address;
-          }
-        });
-      });
+      // Configurar eventos del marcador
+      setupMarkerEvents();
 
       mostrarInfoServicioMapa('✅ Google Maps cargado correctamente');
       console.log('Google Maps inicializado correctamente');
@@ -640,6 +626,78 @@
       mostrarInfoServicioMapa('❌ Error al cargar Google Maps - Verifique la API key');
       mostrarMensajeApiKey();
     }
+  }
+
+  // Configurar autocomplete moderno
+  function setupAutocomplete() {
+    const ubicacionInput = document.getElementById('ubicacionInput');
+    if (!ubicacionInput || !google.maps.places) {
+      console.warn('Places API no disponible o input no encontrado');
+      return;
+    }
+
+    try {
+      // Usar PlaceAutocompleteElement si está disponible (moderno)
+      if (customElements.get('gmpx-place-autocomplete')) {
+        const autocompleteElement = document.getElementById('autocompleteEl');
+
+        autocompleteElement.addEventListener('gmpx-placechange', async (event) => {
+          const place = await event.detail.place;
+
+          if (place && place.geometry && place.geometry.location) {
+            actualizarMapa(place.geometry.location);
+
+            const address = place.formatted_address || place.name || '';
+            document.getElementById('ubicacionInput').value = address;
+            document.getElementById('mapaContainer').style.display = 'block';
+            mostrarInfoServicioMapa(`✅ Dirección seleccionada: ${address}`);
+          }
+        });
+      }else {
+        // Fallback al Autocomplete clásico
+        autocomplete = new google.maps.places.Autocomplete(ubicacionInput, {
+          bounds: new google.maps.LatLngBounds(
+            new google.maps.LatLng(-12.1200, -77.1200), // SW
+            new google.maps.LatLng(-12.0400, -77.0400)  // NE
+          ),
+          strictBounds: false,
+          componentRestrictions: { country: 'pe' },
+          types: ['address'],
+          fields: ['geometry', 'formatted_address', 'name', 'place_id']
+        });
+
+        autocomplete.addListener('place_changed', function() {
+          const place = autocomplete.getPlace();
+          if (place.geometry && place.geometry.location) {
+            actualizarMapa(place.geometry.location);
+            document.getElementById('mapaContainer').style.display = 'block';
+          }
+        });
+      }
+    } catch (error) {
+      console.error('Error configurando autocomplete:', error);
+    }
+  }
+
+  // Configurar eventos del marcador
+  function setupMarkerEvents() {
+    const eventName = marker.gmpDraggable ? 'gmp-dragend' : 'dragend';
+
+    marker.addListener(eventName, function() {
+      const position = marker.position || marker.getPosition();
+      const lat = position.lat();
+      const lng = position.lng();
+
+      actualizarCoordenadas(lat, lng);
+      actualizarMapsUrl(lat, lng);
+
+      // Geocodificación inversa para actualizar la dirección
+      geocoder.geocode({ location: position }, function(results, status) {
+        if (status === 'OK' && results[0]) {
+          document.getElementById('ubicacionInput').value = results[0].formatted_address;
+        }
+      });
+    });
   }
 
   // Mostrar mensaje sobre API key
@@ -710,6 +768,8 @@
       direccionCompleta += ', Lima, Perú';
     }
 
+    console.log('Geocodificando dirección:', direccionCompleta);
+
     // Geocodificar con Google Maps
     geocoder.geocode({
       address: direccionCompleta,
@@ -723,46 +783,84 @@
       btn.disabled = false;
       btn.innerHTML = '<i class="fa fa-map-marker"></i> Geocodificar';
 
+      console.log('Resultado geocodificación:', status, results);
+
       if (status === 'OK' && results.length > 0) {
         const location = results[0].geometry.location;
+        const lat = typeof location.lat === 'function' ? location.lat() : location.lat;
+        const lng = typeof location.lng === 'function' ? location.lng() : location.lng;
+
+        console.log('Coordenadas encontradas:', lat, lng);
+
         actualizarMapa(location);
         document.getElementById('mapaContainer').style.display = 'block';
-        mostrarInfoServicioMapa('✅ Ubicación encontrada');
+        mostrarInfoServicioMapa('✅ Ubicación encontrada: ' + results[0].formatted_address);
+
+        // Actualizar el input con la dirección formateada
+        document.getElementById('ubicacionInput').value = results[0].formatted_address;
       } else {
-        console.warn('Geocodificación falló:', status);
-        mostrarInfoServicioMapa('❌ No se pudo encontrar la dirección');
-        alert('No se pudo encontrar la dirección. Verifique que esté en San Miguel, Lima.');
+        console.warn('Geocodificación falló:', status, results);
+        let mensaje = 'No se pudo encontrar la dirección.';
+
+        if (status === 'ZERO_RESULTS') {
+          mensaje = 'No se encontraron resultados para esta dirección.';
+        } else if (status === 'OVER_QUERY_LIMIT') {
+          mensaje = 'Se ha excedido el límite de consultas. Intente más tarde.';
+        } else if (status === 'REQUEST_DENIED') {
+          mensaje = 'Solicitud denegada. Verifique la configuración de la API.';
+        } else if (status === 'INVALID_REQUEST') {
+          mensaje = 'Solicitud inválida. Verifique la dirección ingresada.';
+        }
+
+        mostrarInfoServicioMapa('❌ ' + mensaje);
+        alert(mensaje + ' Verifique que la dirección esté en San Miguel, Lima.');
       }
     });
   }
 
   // Actualizar la posición del mapa y marcador
   function actualizarMapa(location) {
+    if (!map || !marker) {
+      console.error('Mapa o marcador no inicializados');
+      return;
+    }
+
+    const lat = typeof location.lat === 'function' ? location.lat() : location.lat;
+    const lng = typeof location.lng === 'function' ? location.lng() : location.lng;
+
+    console.log('Actualizando mapa con coordenadas:', lat, lng);
+
     map.setCenter(location);
-    marker.setPosition(location);
-    actualizarCoordenadas(location.lat(), location.lng());
-    actualizarMapsUrl(location.lat(), location.lng());
+
+    // Actualizar posición del marcador según el tipo
+    if (marker.position !== undefined) {
+      // AdvancedMarkerElement
+      marker.position = location;
+    } else {
+      // Marker clásico
+      marker.setPosition(location);
+    }
+
+    actualizarCoordenadas(lat, lng);
+    actualizarMapsUrl(lat, lng);
   }
 
   // Actualizar los campos ocultos de coordenadas
   function actualizarCoordenadas(lat, lng) {
+    console.log('Actualizando coordenadas:', lat, lng);
     document.getElementById('latitud').value = lat.toFixed(8);
     document.getElementById('longitud').value = lng.toFixed(8);
+
+    // Mostrar las coordenadas en la interfaz para debug
+    mostrarInfoServicioMapa(`📍 Coordenadas: ${lat.toFixed(6)}, ${lng.toFixed(6)}`);
   }
 
   // Actualizar el campo mapsUrl
   function actualizarMapsUrl(lat, lng) {
-    const mapsUrl = `https://www.google.com/maps?q=${lat},${lng}`;
+    const mapsUrl = `https://www.google.com/maps?q=${lat},${lng}&z=15`;
     document.getElementById('mapsUrl').value = mapsUrl;
+    console.log('URL del mapa actualizada:', mapsUrl);
   }
-
-
-
-
-
-
-
-
 
   // Función para seleccionar tipo de servicio
   function seleccionarTipoServicio(tipo, id) {
@@ -852,10 +950,37 @@
     // Inicializar wizard
     initializeWizard();
 
+    // Agregar listener para detectar cuando el usuario escribe en el input de ubicación
+    const ubicacionInput = document.getElementById('ubicacionInput');
+    if (ubicacionInput) {
+      ubicacionInput.addEventListener('input', function() {
+        // Ocultar el mapa si el usuario está escribiendo una nueva dirección
+        if (this.value.length > 3) {
+          console.log('Usuario escribiendo dirección:', this.value);
+        }
+      });
+
+      ubicacionInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          geocodificarDireccion();
+        }
+      });
+    }
   });
 
   feather.replace();
 </script>
+
+<!-- Google Maps API with proper async loading -->
+<script>
+  // Global function to initialize maps - must be defined before API loads
+  window.initMap = function() {
+    console.log('initMap called from Google Maps API');
+    initializeGoogleMaps();
+  };
+</script>
+<script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB8gglF9Vdl-dlam3umZipOmq92nPlCEng&libraries=places&callback=initMap&loading=async"></script>
 
 </body>
 </html>

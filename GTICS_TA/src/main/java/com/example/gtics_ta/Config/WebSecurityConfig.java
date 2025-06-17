@@ -106,7 +106,7 @@ public class WebSecurityConfig {
         // Configurar CSRF para formularios multipart
         http.csrf(csrf -> csrf
                 .csrfTokenRepository(csrfTokenRepository())
-                .ignoringRequestMatchers("/vecino/guardarreserva")
+                .ignoringRequestMatchers("/vecino/guardarreserva","/coordinador/**")
         );
 
         return http.build();
