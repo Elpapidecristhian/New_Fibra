@@ -496,6 +496,13 @@ public class AdminController {
             // Usar el nuevo servicio de imágenes con S3
             ListaFotos listaFotos = imageService.uploadServiceImages(files);
             EspaciosDeportivos espaciosDeportivos = servicioDTO.getEspacio();
+
+            //Validar si la dirección cambió para forzar geocodificación
+            if (servicioDTO.getDireccion() != null && !servicioDTO.getDireccion().equals(espaciosDeportivos.getUbicacion())) {
+                System.out.println("La dirección ha cambiado. Por favor geocodifica de nuevo.");
+                return "admin/agregarservicio_debug"; // Volver al formulario sin guardar
+            }
+
             espaciosDeportivos.setListaFotos(listaFotos);
 
             // Asegurar que el TipoEspacio esté correctamente configurado
@@ -586,7 +593,7 @@ public class AdminController {
         return "redirect:/admin?success=true";
     }
 
-    // Método para actualizar reservas completadas
+    // Metodo para actualizar reservas completadas
     private void actualizarReservasCompletadas() {
         try {
             LocalDate hoy = LocalDate.now();

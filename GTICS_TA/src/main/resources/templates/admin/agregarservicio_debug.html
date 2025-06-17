@@ -1,4 +1,4 @@
-<!--  --><!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head>
   <meta charset="utf-8">
@@ -326,9 +326,13 @@
 
               <!-- Campos ocultos -->
               <input type="hidden" th:field="*{espacio.tipoEspacio.id}" id="tipoEspacioId" value="1">
+              <input type="hidden" th:field="*{espacio.ubicacion}" id="ubicacionHidden">
               <input type="hidden" th:field="*{espacio.latitud}" id="latitud">
               <input type="hidden" th:field="*{espacio.longitud}" id="longitud">
               <input type="hidden" th:field="*{espacio.mapsUrl}" id="mapsUrl">
+              <!-- Este input servira para verificar si el usuario modifico la dirección!-->
+              <input type="hidden" th:field="*{direccion}" id="direccionHidden">
+
 
               <!-- Campos específicos dinámicos -->
               <div id="serviceSpecificFields">
@@ -586,7 +590,7 @@
         mapTypeControl: true,
         fullscreenControl: true,
         gestureHandling: 'cooperative',
-        mapId: 'DEMO_MAP_ID' // Para usar características modernas
+        mapId: null
       });
 
       // Inicializar servicios
@@ -642,13 +646,20 @@
         const autocompleteElement = document.getElementById('autocompleteEl');
 
         autocompleteElement.addEventListener('gmpx-placechange', async (event) => {
-          const place = await event.detail.place;
+          const place = event.detail.place;
 
           if (place && place.geometry && place.geometry.location) {
             actualizarMapa(place.geometry.location);
 
             const address = place.formatted_address || place.name || '';
             document.getElementById('ubicacionInput').value = address;
+
+            //Campos ocultos para cuando se modifique input ubicación
+            document.getElementById('latitud').value = place.geometry.location.lat();
+            document.getElementById('longitud').value = place.geometry.location.lng();
+            document.getElementById('mapsUrl').value = `https://www.google.com/maps?q=${place.geometry.location.lat()},${place.geometry.location.lng()}`;
+            document.getElementById('ubicacionHidden').value = address;
+
             document.getElementById('mapaContainer').style.display = 'block';
             mostrarInfoServicioMapa(`✅ Dirección seleccionada: ${address}`);
           }
@@ -671,6 +682,13 @@
           if (place.geometry && place.geometry.location) {
             actualizarMapa(place.geometry.location);
             document.getElementById('mapaContainer').style.display = 'block';
+
+            //Campos ocultos para autocompletar
+            document.getElementById('latitud').value = place.geometry.location.lat();
+            document.getElementById('longitud').value = place.geometry.location.lng();
+            document.getElementById('mapsUrl').value = `https://www.google.com/maps?q=${place.geometry.location.lat()},${place.geometry.location.lng()}`;
+            document.getElementById('ubicacionHidden').value = place.formatted_address || place.name || '';
+            document.getElementById('ubicacionInput').value = place.formatted_address || place.name || '';
           }
         });
       }
@@ -695,28 +713,15 @@
       geocoder.geocode({ location: position }, function(results, status) {
         if (status === 'OK' && results[0]) {
           document.getElementById('ubicacionInput').value = results[0].formatted_address;
+
+          //Actualizar también campo oculto tras mover marcador
+          document.getElementById('ubicacionHidden').value = results[0].formatted_address;
+          document.getElementById('latitud').value = lat;
+          document.getElementById('longitud').value = lng;
+          document.getElementById('mapsUrl').value = `https://www.google.com/maps?q=${lat},${lng}`;
         }
       });
     });
-  }
-
-  // Mostrar mensaje sobre API key
-  function mostrarMensajeApiKey() {
-    const mapContainer = document.getElementById('map');
-    mapContainer.innerHTML = `
-      <div style="padding: 20px; text-align: center; background-color: #f8f9fa; border: 1px solid #dee2e6; border-radius: 5px;">
-        <h5 style="color: #dc3545; margin-bottom: 15px;">⚠️ Google Maps no disponible</h5>
-        <p style="margin-bottom: 10px;"><strong>Para usar Google Maps necesitas tu propia API key:</strong></p>
-        <ol style="text-align: left; display: inline-block; margin-bottom: 15px;">
-          <li>Ve a <a href="https://console.cloud.google.com/" target="_blank">Google Cloud Console</a></li>
-          <li>Crea un proyecto nuevo</li>
-          <li>Habilita: Maps JavaScript API, Places API, Geocoding API</li>
-          <li>Crea una API key en "Credenciales"</li>
-          <li>Reemplaza la clave en el código</li>
-        </ol>
-        <p style="color: #6c757d; font-size: 0.9em;">Google ofrece $200 USD gratis mensualmente - suficiente para desarrollo</p>
-      </div>
-    `;
   }
 
   // Manejar errores de carga de Google Maps
@@ -734,10 +739,10 @@
       mapServiceInfo.textContent = mensaje;
       mapInfo.style.display = 'block';
 
-      // Ocultar después de 3 segundos
+      // Ocultar después de 10 segundos
       setTimeout(() => {
         mapInfo.style.display = 'none';
-      }, 3000);
+      }, 10000);
     }
   }
 
@@ -796,10 +801,15 @@
         document.getElementById('mapaContainer').style.display = 'block';
         mostrarInfoServicioMapa('✅ Ubicación encontrada: ' + results[0].formatted_address);
 
+        // Asignar coordenadas y dirección al formulario (inputs hidden)
+        document.getElementById('latitud').value = lat;
+        document.getElementById('longitud').value = lng;
+        document.getElementById('mapsUrl').value = `https://www.google.com/maps?q=${lat},${lng}`;
+        document.getElementById('ubicacionHidden').value = results[0].formatted_address;
+
         // Actualizar el input con la dirección formateada
         document.getElementById('ubicacionInput').value = results[0].formatted_address;
       } else {
-        console.warn('Geocodificación falló:', status, results);
         let mensaje = 'No se pudo encontrar la dirección.';
 
         if (status === 'ZERO_RESULTS') {
@@ -810,10 +820,18 @@
           mensaje = 'Solicitud denegada. Verifique la configuración de la API.';
         } else if (status === 'INVALID_REQUEST') {
           mensaje = 'Solicitud inválida. Verifique la dirección ingresada.';
+        } else if (status === 'UNKNOWN_ERROR') {
+        mensaje = 'Error desconocido. Intente nuevamente.';
         }
 
         mostrarInfoServicioMapa('❌ ' + mensaje);
-        alert(mensaje + ' Verifique que la dirección esté en San Miguel, Lima.');
+
+        // NO actualizar inputs con results[0] porque no hay datos válidos
+        document.getElementById('latitud').value = '';
+        document.getElementById('longitud').value = '';
+        document.getElementById('mapsUrl').value = '';
+        document.getElementById('ubicacionHidden').value = '';
+
       }
     });
   }
