@@ -9,4 +9,5 @@ import java.util.List;
 @Repository
 public interface ReservasRepository extends JpaRepository<Reservas, Integer> {
     List<Reservas> findByEspacioDeportivo_NombreContainingIgnoreCase(String nombre);
+    List<Reservas> findByUsuarioId(Integer id);
 }

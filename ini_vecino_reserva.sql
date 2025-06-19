@@ -13,12 +13,15 @@ INSERT INTO tipoespacio (id_tipo_espacio, nombre) VALUES (1, 'Piscina');
 INSERT INTO tipoespacio (id_tipo_espacio, nombre) VALUES (2, 'Canchas Fútbol');
 INSERT INTO tipoespacio (id_tipo_espacio, nombre) VALUES (3, 'Pistas de Atletismo');
 INSERT INTO tipoespacio (id_tipo_espacio, nombre) VALUES (4, 'Estadios');
+INSERT INTO tipoespacio (id_tipo_espacio, nombre) VALUES (5, 'Gimnasios');
 
 INSERT INTO listafotos (id_lista_fotos) VALUES (1);
 
 INSERT INTO espaciosdeportivos (id_espacio, nombre, ubicacion, id_tipo_espacio, id_lista_fotos, descripcion_corta, descripcion_larga, num_contacto, correo_contacto, operativo, costo_horario, maps_url, hora_abre, hora_cierra) VALUES (1, 'Piscina Diego Ferre', 'San Miguel', 1, 1, 'Esta es una descripcion corta', 'Esta es una descripcion laaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaarga', 111222333, 'a20220378@pucp.edu.pe', true, 10.0, 'https://acortar.link/4DdNym', '09:00', '21:00');
+INSERT INTO espaciosdeportivos (id_espacio, nombre, ubicacion, id_tipo_espacio, id_lista_fotos, descripcion_corta, descripcion_larga, num_contacto, correo_contacto, operativo, costo_horario, maps_url, hora_abre, hora_cierra) VALUES (2, 'Gimnasio', 'San Miguel', 5, 1, 'Esta es una descripcion corta', 'Esta es una descripcion laaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaarga', 111222333, 'a20220378@pucp.edu.pe', true, 25.0, 'https://acortar.link/4DdNym', '09:00', '21:00');
 
 INSERT INTO piscinas(id_espacio, tipo_piscina, profundidad_min, profundidad_max, is_climatizada, requisitos, num_carril_max) VALUES (1, 'Olímpica', 1.0, 2.5, true, 'Llevar gorro y lentes para piscina', 8);
+INSERT INTO gimnasios(id_espacio, cantidad_maquinas, tipos_maquinas, tiene_sauna, tiene_duchas, costo_semanal, costo_mensual, costo_anual) VALUES (2, 20, 'Yo q se', true, true, 10.0, 20.0, 30.0);
 
 INSERT INTO horarios(hora_inicio, hora_fin, id_espacio, id_horarios) VALUES ('9:00:00', '10:00:00', 1, 1);
 INSERT INTO horarios(hora_inicio, hora_fin, id_espacio, id_horarios) VALUES ('10:00:00', '11:00:00', 1, 2);
