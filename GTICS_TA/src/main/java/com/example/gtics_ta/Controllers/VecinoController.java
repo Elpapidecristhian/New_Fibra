@@ -4,12 +4,11 @@ import com.example.gtics_ta.DTO.ChatMessageDTO;
 import com.example.gtics_ta.DTO.HorariosConsultaDTO;
 import com.example.gtics_ta.Entity.*;
 import com.example.gtics_ta.Repository.*;
-import com.example.gtics_ta.Services.ChatbotService;
 import com.example.gtics_ta.Services.MailService;
+import com.example.gtics_ta.Services.OpenAiService;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -31,8 +30,9 @@ import java.util.*;
 @Controller
 @RequestMapping("/vecino")
 public class VecinoController {
+
     @Autowired
-    private ChatbotService chatbotService;
+    private OpenAiService openAiService;
     @Autowired
     EspaciosDeportivosRepository espaciosDeportivosRepository;
     @Autowired
@@ -56,7 +56,7 @@ public class VecinoController {
     @Autowired
     private MailService emailService;
 
-    @GetMapping(value = {"","/"})
+    @GetMapping(value = {"", "/"})
     public String vistaInicial(Model model) {
         return "redirect:/vecino/espacios";
     }
@@ -76,21 +76,24 @@ public class VecinoController {
         List<EspaciosDeportivos> espacios;
 
         if (id != null) {
-            if(nombre != null && !nombre.isEmpty()) {
+            if (nombre != null && !nombre.isEmpty()) {
                 espacios = espaciosDeportivosRepository.findByTipoEspacio_IdAndNombreContaining(id, nombre);
-            }else {
+            } else {
                 espacios = espaciosDeportivosRepository.findByTipoEspacio_Id(id);
             }
         } else {
-            if(nombre != null && !nombre.isEmpty()) {
+            if (nombre != null && !nombre.isEmpty()) {
                 espacios = espaciosDeportivosRepository.findByNombreContaining(nombre);
-            }
-            else {
+            } else {
                 espacios = espaciosDeportivosRepository.findAll();
             }
         }
-        if(fecha != null && fecha.isEmpty()){fecha = LocalDate.now().format(DateTimeFormatter.ISO_DATE);}
-        if(fecha == null){fecha = LocalDate.now().format(DateTimeFormatter.ISO_DATE);}
+        if (fecha != null && fecha.isEmpty()) {
+            fecha = LocalDate.now().format(DateTimeFormatter.ISO_DATE);
+        }
+        if (fecha == null) {
+            fecha = LocalDate.now().format(DateTimeFormatter.ISO_DATE);
+        }
         String hoy = LocalDate.now().format(DateTimeFormatter.ISO_DATE);
 
         Map<Integer, Integer> primerasFotos = new HashMap<>();
@@ -112,17 +115,17 @@ public class VecinoController {
     }
 
     @GetMapping("/detalles")
-    public String espacioDetalles(Model model, @RequestParam(name = "idEspacio") int id, @RequestParam(name = "fecha") String fecha){
+    public String espacioDetalles(Model model, @RequestParam(name = "idEspacio") int id, @RequestParam(name = "fecha") String fecha) {
         Optional<EspaciosDeportivos> optEspacio = espaciosDeportivosRepository.findById(id);
         Piscinas piscina;
         CanchasFutbol canchaFutbol;
         PistasAtletismo pista;
         Estadios estadio;
 
-        if(optEspacio.isPresent()) {
+        if (optEspacio.isPresent()) {
             EspaciosDeportivos espacio = optEspacio.get();
             model.addAttribute("espacio", espacio);
-            if(espacio.getTipoEspacio().getId() == 1){
+            if (espacio.getTipoEspacio().getId() == 1) {
                 piscina = piscinasRepository.findByIdEspacio(espacio.getId());
                 model.addAttribute("piscina", piscina);
             } else if (espacio.getTipoEspacio().getId() == 2) {
@@ -137,7 +140,7 @@ public class VecinoController {
             }
             model.addAttribute("fecha", fecha);
             List<Fotos> fotos = fotosRepository.findByListaFotosId(espacio.getListaFotos().getId());
-            if(!fotos.isEmpty()) {
+            if (!fotos.isEmpty()) {
                 Integer fotoId = fotos.get(0).getId();
                 model.addAttribute("fotoId", fotoId);
             } else {
@@ -155,7 +158,7 @@ public class VecinoController {
 
     @GetMapping("/reservas")
     public String listarReservas(@RequestParam(value = "nombre", required = false) String nombre, Model model) {
-        List<Reservas> reservas= (nombre == null || nombre.isEmpty()) ?
+        List<Reservas> reservas = (nombre == null || nombre.isEmpty()) ?
                 reservasRepository.findAll() :
                 reservasRepository.findByEspacioDeportivo_NombreContainingIgnoreCase(nombre);
         model.addAttribute("listaReservas", reservas);
@@ -181,7 +184,7 @@ public class VecinoController {
                     attr.addFlashAttribute("msg", "Reserva cancelada correctamente. Su dinero será reembolsado en un plazo de dos semanas.");
                 }
             } else {
-                attr.addFlashAttribute("error", "Solo puede cancelar una reserva con un plazo de antelación de un día.");
+                attr.addFlashAttribute("error", "No puede cancelar una reserva para hoy o en el pasado.");
             }
         } else {
             attr.addFlashAttribute("error", "No se encontró la reserva.");
@@ -198,13 +201,13 @@ public class VecinoController {
     @GetMapping("/reservar")
     public String reservar(Model model, @ModelAttribute("reserva") Reservas reservas, HttpSession session, @RequestParam(name = "idEspacio") int idEspacio, @RequestParam(name = "fecha") String fecha) throws ParseException {
         LocalDate fechaconv = LocalDate.parse(fecha);
-        if(fechaconv.isBefore(LocalDate.now())) {
+        if (fechaconv.isBefore(LocalDate.now())) {
             return "redirect:/vecino/";
         }
         Usuario usuario = (Usuario) session.getAttribute("usuario");
         Optional<EspaciosDeportivos> optespacio = espaciosDeportivosRepository.findById(idEspacio);
 
-        if( optespacio.isPresent()) {
+        if (optespacio.isPresent()) {
             reservas = new Reservas();
             EspaciosDeportivos espacio = optespacio.get();
             List<HorariosConsultaDTO> listaHorarios = horariosRepository.obtenerHorariosConsulta(fechaconv, espacio.getId());
@@ -219,16 +222,6 @@ public class VecinoController {
         return "vecino/reservar";
     }
 
-    @GetMapping("/horarios-disponibles")
-    @ResponseBody
-    public List<HorariosConsultaDTO> obtenerHorariosPorFecha(
-            @RequestParam("fecha") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fecha,
-            @RequestParam("idEspacio") Integer idEspacio) {
-
-        return horariosRepository.obtenerHorariosConsulta(fecha, idEspacio);
-    }
-
-
     @PostMapping("/guardarreserva")
     public String guardarreserva(@ModelAttribute("reserva") Reservas reserva) {
         Timestamp timestamp = new Timestamp(System.currentTimeMillis());
@@ -242,7 +235,6 @@ public class VecinoController {
         //Pago chancado
         Pagos pago = new Pagos();
         pago.setId(1);
-        pago.setCantidad(reserva.getEspacioDeportivo().getCostoHorario());
         reserva.setPago(pago);
 
         horarioReservadoRepository.save(horarioReservado);
@@ -253,12 +245,12 @@ public class VecinoController {
         String fechaReservaString = fechaReserva.format(formatter);
         String asunto = "Confirmación de Reserva #" + reserva.getId();
         String cuerpo = "Id de Reserva #" + reserva.getId() + "\n" +
-                        fechaReservaString + "\n" +
-                        "Espacio: " + reserva.getEspacioDeportivo().getNombre() + "\n" +
-                        "Fecha de Reserva: " + reserva.getFechaReserva().toString() + "\n" +
-                        "Horario: " + reserva.getHorario().getHoraInicio() + "-" + reserva.getHorario().getHoraFin() + "\n" +
-                        "Medio de Pago: " + "Yape" + "\n" +
-                        "Total: S/." + reserva.getPago().getCantidad() + "25";
+                fechaReservaString + "\n" +
+                "Espacio: " + reserva.getEspacioDeportivo().getNombre() + "\n" +
+                "Fecha de Reserva: " + reserva.getFechaReserva().toString() + "\n" +
+                "Horario: " + reserva.getHorario().getHoraInicio() + "-" + reserva.getHorario().getHoraFin() + "\n" +
+                "Medio de Pago: " + "Yape" + "\n" +
+                "Total: S/." + reserva.getPago().getCantidad() + "25";
 
 
         emailService.enviarCorreo(reserva.getUsuario().getCorreo(), asunto, cuerpo);
@@ -279,20 +271,19 @@ public class VecinoController {
     }
 
     @PostMapping("/guardarperfil")
-    public String guardarPerfil(@ModelAttribute("usuario") @Valid Usuario usuario, BindingResult bindingResult, @RequestParam("archivo") MultipartFile file , Model model) {
-        if(bindingResult.hasErrors()) {
+    public String guardarPerfil(@ModelAttribute("usuario") @Valid Usuario usuario, BindingResult bindingResult, @RequestParam("archivo") MultipartFile file, Model model) {
+        if (bindingResult.hasErrors()) {
             return "vecino/perfil";
         }
 
-        if(file.isEmpty()) {
+        if (file.isEmpty()) {
             return "vecino/perfil";
         }
 
         String fileName = file.getOriginalFilename();
 
-        assert fileName != null;
-        if (fileName.contains("..")){
-            model.addAttribute("msg","Debe ingresar un archivo válido");
+        if (fileName.contains("..")) {
+            model.addAttribute("msg", "Debe ingresar un archivo válido");
             return "vecino/perfil";
         }
 
@@ -323,7 +314,7 @@ public class VecinoController {
     @GetMapping("/profileimage/{id}")
     public ResponseEntity<byte[]> mostrarImagenPefil(@PathVariable("id") Integer id) {
         Optional<Usuario> optusuario = usuarioRepository.findById(id);
-        if(optusuario.isPresent()) {
+        if (optusuario.isPresent()) {
             Usuario usuario = optusuario.get();
 
             byte[] image = usuario.getFoto();
@@ -351,7 +342,7 @@ public class VecinoController {
     @GetMapping("/image/{id}")
     public ResponseEntity<byte[]> mostrarImagen(@PathVariable("id") Integer id) {
         Optional<Fotos> optfotos = fotosRepository.findById(id);
-        if(optfotos.isPresent()) {
+        if (optfotos.isPresent()) {
             Fotos fotos = optfotos.get();
 
             byte[] image = fotos.getFoto();
@@ -372,20 +363,36 @@ public class VecinoController {
                     httpHeaders,
                     HttpStatus.OK);
 
-        }else {
+        } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
 
-    @PostMapping("/chatbot")
+
+    @PostMapping("/api/chatbot")
     @ResponseBody
-    public ResponseEntity<ChatMessageDTO> responder(@RequestBody ChatMessageDTO mensaje) {
-        String respuesta = chatbotService.generarRespuesta(mensaje.getMensajeUsuario());
-        ChatMessageDTO respuestaDTO = new ChatMessageDTO();
-        respuestaDTO.setMensajeUsuario(mensaje.getMensajeUsuario());
-        respuestaDTO.setRespuestaBot(respuesta);
-        return ResponseEntity.ok(respuestaDTO);
+    public ResponseEntity<Map<String, String>> preguntar(@RequestBody Map<String, String> body) {
+        String pregunta = body.get("pregunta");
+        Map<String, String> json = new HashMap<>();
+
+        if (pregunta == null || pregunta.trim().isEmpty()) {
+            json.put("respuestaBot", "La pregunta está vacía.");
+            return ResponseEntity.badRequest().body(json);
+        }
+
+        try {
+            ChatMessageDTO dto = new ChatMessageDTO();
+            dto.setMensajeUsuario(pregunta);
+            String respuesta = openAiService.generarRespuesta(dto);
+            json.put("respuestaBot", respuesta);
+            return ResponseEntity.ok(json);
+        } catch (Exception e) {
+            e.printStackTrace();
+            json.put("respuestaBot", "Error al procesar la pregunta.");
+            return ResponseEntity.status(500).body(json);
+        }
     }
+
 
 
 }

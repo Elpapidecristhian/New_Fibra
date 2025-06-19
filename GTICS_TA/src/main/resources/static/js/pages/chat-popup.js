@@ -8,12 +8,12 @@ $(function () {
 
     generate_message(msg, 'self');
 
-    fetch('/vecino/chatbot', {
+    fetch('/vecino/api/chatbot', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({ mensajeUsuario: msg })
+      body: JSON.stringify({ pregunta: msg })
     })
         .then(response => response.json())
         .then(data => {
