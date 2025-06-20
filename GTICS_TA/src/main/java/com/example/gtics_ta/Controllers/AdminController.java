@@ -510,6 +510,7 @@ public class AdminController {
                                   @RequestParam(value = "latitud", required = false) String latitudStr,
                                   @RequestParam(value = "longitud", required = false) String longitudStr,
                                   @RequestParam(value = "mapsUrl", required = false) String mapsUrl){
+
         try {
             // Usar el nuevo servicio de imágenes con S3
             ListaFotos listaFotos = imageService.uploadServiceImages(files);
@@ -611,7 +612,7 @@ public class AdminController {
         return "redirect:/admin?success=true";
     }
 
-    // Método para actualizar reservas completadas
+    // Metodo para actualizar reservas completadas
     private void actualizarReservasCompletadas() {
         try {
             LocalDate hoy = LocalDate.now();
