@@ -42,34 +42,34 @@ public class OpenAiService {
 
         try {
             // PREGUNTA DE PRECIO
-            if (mensaje.contains("precio") && mensaje.contains("piscina")) {
-                Optional<EspaciosDeportivos> piscinaOpt = espaciosDeportivosRepository.findAll()
+            if (mensaje.contains("precio") || mensaje.contains("cuesta")) {
+                Optional<EspaciosDeportivos> espacioOpt = espaciosDeportivosRepository.findAll()
                         .stream()
-                        .filter(e -> e.getNombre().toLowerCase().contains("piscina"))
+                        .filter(e -> mensaje.contains(e.getNombre().toLowerCase()))
                         .findFirst();
 
-                if (piscinaOpt.isPresent()) {
-                    float costo = piscinaOpt.get().getCostoHorario();
+                if (espacioOpt.isPresent()) {
+                    float costo = espacioOpt.get().getCostoHorario();
                     String prompt = """
                             El usuario preguntó: "%s".
-                            El precio por hora para la piscina es S/%.2f.
-                            Redáctale una respuesta clara y amigable para informarle.
-                            """.formatted(mensajeDTO.getMensajeUsuario(), costo);
+                            El precio por hora del espacio deportivo llamado '%s' es S/%.2f.
+                            Redáctale una respuesta clara y amable con esa información.
+                            """.formatted(mensajeDTO.getMensajeUsuario(), espacioOpt.get().getNombre(), costo);
                     return llamarAGpt(prompt);
                 } else {
-                    return "No se encontró información sobre la piscina.";
+                    return "No se encontró información sobre el espacio deportivo indicado.";
                 }
             }
 
             // PREGUNTA DE HORARIOS
             if (mensaje.contains("horarios") || mensaje.contains("disponibilidad")) {
-                Optional<EspaciosDeportivos> piscinaOpt = espaciosDeportivosRepository.findAll()
+                Optional<EspaciosDeportivos> espacioOpt = espaciosDeportivosRepository.findAll()
                         .stream()
-                        .filter(e -> e.getNombre().toLowerCase().contains("piscina"))
+                        .filter(e -> mensaje.contains(e.getNombre().toLowerCase()))
                         .findFirst();
 
-                if (piscinaOpt.isPresent()) {
-                    List<HorariosConsultaDTO> horarios = horariosRepository.obtenerHorariosConsulta(LocalDate.now(), piscinaOpt.get().getId());
+                if (espacioOpt.isPresent()) {
+                    List<HorariosConsultaDTO> horarios = horariosRepository.obtenerHorariosConsulta(LocalDate.now(), espacioOpt.get().getId());
                     StringBuilder disponibles = new StringBuilder();
 
                     for (HorariosConsultaDTO h : horarios) {
@@ -78,29 +78,30 @@ public class OpenAiService {
                         }
                     }
 
+                    if (disponibles.length() == 0) {
+                        return "No hay horarios disponibles hoy para el espacio solicitado.";
+                    }
+
                     String prompt = """
                             El usuario preguntó: "%s".
-                            Los horarios disponibles hoy para la piscina son:
+                            Hoy hay disponibilidad en los siguientes horarios para '%s':
                             %s
-                            Redáctale una respuesta útil y cordial.
-                            """.formatted(mensajeDTO.getMensajeUsuario(), disponibles.toString());
-
+                            Redacta la respuesta con tono informativo y cordial.
+                            """.formatted(mensajeDTO.getMensajeUsuario(), espacioOpt.get().getNombre(), disponibles.toString());
                     return llamarAGpt(prompt);
                 } else {
-                    return "No se encontró información de horarios para la piscina.";
+                    return "No se encontró información sobre el espacio deportivo indicado.";
                 }
             }
 
             // PREGUNTA DE RESERVAS
             if (mensaje.contains("cuántas reservas") || mensaje.contains("reservas totales")) {
                 long total = reservasRepository.contarTotalReservas();
-
                 String prompt = """
                         El usuario preguntó: "%s".
-                        Actualmente hay %d reservas registradas en el sistema.
-                        Redáctalo de forma clara y natural.
+                        Hay %d reservas registradas en el sistema.
+                        Redacta una respuesta cordial y clara para informar.
                         """.formatted(mensajeDTO.getMensajeUsuario(), total);
-
                 return llamarAGpt(prompt);
             }
 
@@ -109,11 +110,14 @@ public class OpenAiService {
                 List<Object[]> resumen = reservasRepository.reporteMensualUltimos3Meses();
                 if (!resumen.isEmpty()) {
                     Object[] ultimo = resumen.get(resumen.size() - 1);
-                    Double total = (Double) ultimo[1];
+                    Double total = ultimo[1] != null ? (Double) ultimo[1] : 0.0;
+                    if (total == 0.0) {
+                        return "No se han registrado pagos en el último mes.";
+                    }
                     String prompt = """
                             El usuario preguntó: "%s".
-                            En el último mes se ha recaudado un total aproximado de S/.%.2f.
-                            Responde con esa información de forma clara y amable.
+                            En el último mes se ha recaudado S/.%.2f.
+                            Redacta una respuesta clara y amable.
                             """.formatted(mensajeDTO.getMensajeUsuario(), total);
                     return llamarAGpt(prompt);
                 } else {
@@ -121,12 +125,21 @@ public class OpenAiService {
                 }
             }
 
+            // PREGUNTA DE DEVOLUCIONES
+            if (mensaje.contains("devolución") || mensaje.contains("reembolso")) {
+                String prompt = """
+                        El usuario preguntó: "%s".
+                        Responde que el administrador se pondrá en contacto para atender su solicitud de devolución.
+                        Redacta con un tono empático y profesional.
+                        """.formatted(mensajeDTO.getMensajeUsuario());
+                return llamarAGpt(prompt);
+            }
+
             // RESPUESTA POR DEFECTO
             String fallbackPrompt = """
                     El usuario preguntó: "%s".
-                    No tengo datos específicos para su pregunta, pero puedes redactar una respuesta cordial pidiéndole más detalles o explicando los temas que puede consultar.
+                    No tengo información específica para esta consulta. Redacta una respuesta cordial pidiéndole que sea más específico o que consulte sobre reservas, horarios, pagos, precios o devoluciones.
                     """.formatted(mensajeDTO.getMensajeUsuario());
-
             return llamarAGpt(fallbackPrompt);
 
         } catch (Exception e) {
@@ -134,11 +147,10 @@ public class OpenAiService {
             return "Ocurrió un error al procesar tu pregunta. Intenta nuevamente más tarde.";
         }
     }
+
     private String llamarAGpt(String prompt) {
         try {
-            // Crea el cuerpo JSON con ObjectMapper (evita errores de formato)
             ObjectMapper mapper = new ObjectMapper();
-
             ObjectNode requestJson = mapper.createObjectNode();
             requestJson.put("model", "gpt-3.5-turbo");
 
@@ -168,9 +180,6 @@ public class OpenAiService {
             HttpClient client = HttpClient.newHttpClient();
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
-            System.out.println("🧠 Respuesta OpenAI JSON:");
-            System.out.println(response.body());
-
             JsonNode root = mapper.readTree(response.body());
 
             if (root.has("choices")) {
@@ -194,7 +203,4 @@ public class OpenAiService {
             return "No se pudo generar una respuesta en este momento. Motivo técnico: " + e.getMessage();
         }
     }
-
-
-
 }
