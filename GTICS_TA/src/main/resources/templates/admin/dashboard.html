@@ -99,51 +99,12 @@
         </ul>
       </div>
 
-      <div th:replace="fragments :: navbarAdmin"></div>
+        <div th:replace="fragments :: navbarAdmin"></div>
+
     </nav>
   </header>
 
-  <aside class="main-sidebar">
-    <!-- sidebar-->
-    <section class="sidebar position-relative">
-      <div class="multinav">
-        <div class="multinav-scroll" style="height: 100%;">
-          <!-- sidebar menu-->
-          <ul class="sidebar-menu" data-widget="tree">
-            <li>
-              <a href="Admin_Dashboard.html">
-                <i data-feather="monitor"></i>
-                <span>Dashboard</span>
-              </a>
-            </li>
-
-            <li>
-              <a href="Admin_Reservas.html">
-                <i data-feather="calendar"></i>
-                <span>Reservas</span>
-              </a>
-            </li>
-
-            <li>
-              <a href="Admin_Servicios.html">
-                <i data-feather="target"></i>
-                <span>Servicios</span>
-              </a>
-            </li>
-
-              <li>
-                  <a href="#" class="nav-link" onclick="document.getElementById('logoutForm2').submit(); return false;">
-                      <i data-feather="log-out"></i>
-                      <span>Cerrar sesión</span>
-                  </a>
-                  <form id="logoutForm2" th:action="@{/logout}" method="post" style="display: none;"></form>
-              </li>
-          </ul>
-        </div>
-      </div>
-    </section>
-  </aside>
-  <aside th:replace="fragments :: sideBarAdmin"></aside>
+    <aside th:replace="fragments :: sideBarAdmin"></aside>
 
 
     <!-- Left side column. contains the logo and sidebar -->

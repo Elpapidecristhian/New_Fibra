@@ -48,6 +48,9 @@
                                         <span class="input-group-text  bg-transparent"><i class="ti-lock"></i></span>
                                         <input type="password" class="form-control ps-15 bg-transparent" name="password" placeholder="Contraseña">
                                     </div>
+                                    <div th:if="${param.errorcred}" class="alert alert-danger">
+                                        Usuario o contraseña incorrectos. Intenta nuevamente.
+                                    </div>
                                 </div>
                                 <div class="row" style="margin-top: 10px;">
                                     <div class="col-6">

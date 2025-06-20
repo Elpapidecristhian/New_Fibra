@@ -131,6 +131,17 @@
 								<p class="card-title" th:unless="${estadio.isIluminacionProfesionalDisponible()}">Iluminación Profesional Disponible: No</p>
 							</div>
 						</div>
+						<div th:if="${espacio.getTipoEspacio().getId()==5}" class="card">
+							<div class="card-body">
+								<p class="card-title" th:text="'Aforo: ' + ${espacio.getAforo()}"></p>
+								<p class="card-title" th:text="'Cantidad de Maquinas: ' + ${gimnasio.getCantidadMaquinas()}"></p>
+								<p class="card-title" th:text="'Tipos de Maquinas: ' + ${gimnasio.getTiposMaquinas()}"></p>
+								<p class="card-title" th:if="${gimnasio.getTieneDuchas()}">Duchas Disponibles: Sí</p>
+								<p class="card-title" th:unless="${gimnasio.getTieneDuchas()}">Duchas Disponibles: No</p>
+								<p class="card-title" th:if="${gimnasio.getTieneSauna()}">Sauna Disponible: Sí</p>
+								<p class="card-title" th:unless="${gimnasio.getTieneSauna()}">Sauna Disponible: No</p>
+							</div>
+						</div>
 						<a th:href="${espacio.getMapsUrl()}" target="_blank" class="waves-effect waves-light btn btn-dark mb-5"><i class="fa fa-map-marker"></i> Ver Ubicacion</a>
 						<a th:href="@{/vecino/reservar(idEspacio=${espacio.id}, fecha=${fecha})}" class="waves-effect waves-light btn btn-primary mb-5">Reservar</a>
 						<!-- /.card -->

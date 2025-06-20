@@ -15,6 +15,7 @@ INSERT INTO tipoespacio (id_tipo_espacio, nombre) VALUES (1, 'Piscina');
 INSERT INTO tipoespacio (id_tipo_espacio, nombre) VALUES (2, 'Canchas Fútbol');
 INSERT INTO tipoespacio (id_tipo_espacio, nombre) VALUES (3, 'Pistas de Atletismo');
 INSERT INTO tipoespacio (id_tipo_espacio, nombre) VALUES (4, 'Estadios');
+INSERT INTO tipoespacio (id_tipo_espacio, nombre) VALUES (5, 'Gimnasios');
 
 INSERT INTO listafotos (id_lista_fotos) VALUES (1);
 INSERT INTO listafotos (id_lista_fotos) VALUES (2);
@@ -22,15 +23,17 @@ INSERT INTO listafotos (id_lista_fotos) VALUES (3);
 INSERT INTO listafotos (id_lista_fotos) VALUES (4);
 INSERT INTO listafotos (id_lista_fotos) VALUES (5);
 
-INSERT INTO fotos (id_fotos, foto, id_lista_fotos, foto_nombre, foto_tipo_archivo) 
+INSERT INTO fotos (id_fotos, foto, id_lista_fotos, foto_nombre, foto_tipo_archivo)
 VALUES (1, LOAD_FILE('ruta_a_imagen.jpg'), 1, 'medidas_lg.jpg', 'image/jpeg');
 
+INSERT INTO espaciosdeportivos (id_espacio, nombre, ubicacion, id_tipo_espacio, id_lista_fotos, descripcion_corta, descripcion_larga, num_contacto, correo_contacto, operativo, costo_horario, maps_url, hora_abre, hora_cierra) VALUES (1, 'Piscina Diego Ferre', 'San Miguel', 1, 1, 'Esta es una descripcion corta', 'Esta es una descripcion laaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaarga', 111222333, 'a20220378@pucp.edu.pe', true, 10.0, 'https://acortar.link/4DdNym', '09:00', '21:00');
+INSERT INTO espaciosdeportivos (id_espacio, nombre, ubicacion, id_tipo_espacio, id_lista_fotos, descripcion_corta, descripcion_larga, num_contacto, correo_contacto, operativo, costo_horario, maps_url, hora_abre, hora_cierra) VALUES (2, 'Gimnasio', 'San Miguel', 5, 1, 'Esta es una descripcion corta', 'Esta es una descripcion laaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaarga', 111222333, 'a20220378@pucp.edu.pe', true, 25.0, 'https://acortar.link/4DdNym', '09:00', '21:00');
 INSERT INTO `espaciosdeportivos` (
     id_espacio, nombre, ubicacion, id_tipo_espacio, id_lista_fotos,
     descripcion_corta, descripcion_larga, num_contacto, correo_contacto,
     hora_abre, hora_cierra, operativo, costo_horario, aforo,
     latitud, longitud, radio_cobertura, maps_url
-) VALUES 
+) VALUES
 (1, 'Piscina Diego Ferre', 'San Miguel', 1, 1,
  'Esta es una descripcion corta',
  'Esta es una descripcion laaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaarga',
@@ -67,6 +70,7 @@ INSERT INTO `espaciosdeportivos` (
  -12.08516404, -77.09591446, 200, 'https://maps.app.goo.gl/ZtmUUgHnHjQqEsaE7');
 
 INSERT INTO piscinas(id_espacio, tipo_piscina, profundidad_min, profundidad_max, is_climatizada, requisitos, num_carril_max) VALUES (1, 'Olímpica', 1.0, 2.5, true, 'Llevar gorro y lentes para piscina', 8);
+INSERT INTO gimnasios(id_espacio, cantidad_maquinas, tipos_maquinas, tiene_sauna, tiene_duchas, costo_semanal, costo_mensual, costo_anual) VALUES (2, 20, 'Yo q se', true, true, 10.0, 20.0, 30.0);
 
 INSERT INTO horarios(hora_inicio, hora_fin, id_espacio, id_horarios) VALUES ('9:00:00', '10:00:00', 1, 1);
 INSERT INTO horarios(hora_inicio, hora_fin, id_espacio, id_horarios) VALUES ('10:00:00', '11:00:00', 1, 2);
@@ -80,7 +84,7 @@ INSERT INTO horarios(hora_inicio, hora_fin, id_espacio, id_horarios) VALUES ('18
 
 
 -- 6. Insertar horarios para cada espacio
-INSERT IGNORE INTO horarios (`id_horarios`, `hora_inicio`, `hora_fin`, `id_espacio`) VALUES 
+INSERT IGNORE INTO horarios (`id_horarios`, `hora_inicio`, `hora_fin`, `id_espacio`) VALUES
 -- Horarios para Cancha (id_espacio = 2)
 (13, '08:00:00', '10:00:00', 2),
 (14, '10:00:00', '12:00:00', 2),
@@ -103,20 +107,20 @@ INSERT INTO mediospago (`nombre`, `tipo_pago`, `requiere_verificacion`, `activo`
 ('Yape', 'MANUAL', 1, 1, 'Pago mediante Yape', 'Número Yape: 987654321\nNombre: Espacios Deportivos SAC', 'yape.png'),
 ('Plin', 'MANUAL', 1, 1, 'Pago mediante Plin', 'Número Plin: 987654321\nNombre: Espacios Deportivos SAC', 'plin.png');
 
-INSERT IGNORE INTO pagos (`id_pagos`, `cantidad`, `id_medios_pago`, `estado_pago`, `fecha_pago`, `numero_transaccion`) VALUES 
+INSERT IGNORE INTO pagos (`id_pagos`, `cantidad`, `id_medios_pago`, `estado_pago`, `fecha_pago`, `numero_transaccion`) VALUES
 (1, 25.00, 3, 'PENDIENTE', '2024-01-15 10:30:00', 'YAPE-20240115-001'),
 (2, 80.00, 2, 'PENDIENTE', '2024-01-15 14:20:00', 'TRANS-20240115-002'),
 (3, 15.00, 1, 'APROBADO', '2024-01-16 09:15:00', 'CARD-20240116-003'),
-(4, 25.00, 3, 'APROBADO', '2024-01-16 16:45:00', 'YAPE-20240116-004'), 
+(4, 25.00, 3, 'APROBADO', '2024-01-16 16:45:00', 'YAPE-20240116-004'),
 (5, 200.00, 2, 'PENDIENTE', '2024-01-17 11:30:00', 'TRANS-20240117-005');
 
 -- Reservas
-INSERT IGNORE INTO reservas 
-(`id_reservas`, `id_usuario`, `id_espacio`, `id_pagos`, `id_horarios`, `registro_timestamp`, `fecha_reserva`, `estado_reserva`) VALUES 
+INSERT IGNORE INTO reservas
+(`id_reservas`, `id_usuario`, `id_espacio`, `id_pagos`, `id_horarios`, `registro_timestamp`, `fecha_reserva`, `estado_reserva`) VALUES
 -- Reservas para Piscina (id_tipo_espacio = 1)
 (1, 1, 1, 1, 1, '2024-01-15 10:30:00', '2025-01-20', 'ACTIVA'),
 (2, 2, 1, 4, 4, '2024-01-16 16:45:00', '2025-01-22', 'ACTIVA'),
--- Reservas para Cancha (id_tipo_espacio = 2)  
+-- Reservas para Cancha (id_tipo_espacio = 2)
 (3, 2, 2, 2, 8, '2024-01-15 14:20:00', '2025-06-21', 'ACTIVA'),
 -- Reservas para Pista (id_tipo_espacio = 3)
 (4, 3, 3, 3, 11, '2024-01-16 09:15:00', '2025-07-23', 'ACTIVA'),
@@ -125,9 +129,9 @@ INSERT IGNORE INTO reservas
 (6, 1, 4, 5, 15, '2024-01-17 11:30:00', '2025-08-25', 'ACTIVA');
 
 -- Horario para coordinador
-INSERT INTO horarioscoordinador 
+INSERT INTO horarioscoordinador
 (id_usuario, id_espacio, hora_entrada, hora_salida, fecha_inicio, fecha_fin)
-VALUES 
+VALUES
 (
     4,                      -- id_usuario (Ariana Zuñiga)
     6,                      -- id_espacio
@@ -145,7 +149,7 @@ VALUES
 -- Insertar horario para la semana actual (Lunes a Viernes, 8:00 - 16:00)
 -- INSERT IGNORE INTO horarioscoordinador (
 --    id_usuario, id_espacio, hora_entrada, hora_salida, fecha_inicio, fecha_fin
--- ) VALUES 
+-- ) VALUES
 -- (@coordinador_id, @espacio_id, '08:00:00', '16:00:00',
  -- DATE(DATE_ADD(CURDATE(), INTERVAL (1-DAYOFWEEK(CURDATE())) DAY)),
  -- DATE(DATE_ADD(CURDATE(), INTERVAL (5-DAYOFWEEK(CURDATE())) DAY)));
@@ -179,8 +183,8 @@ INSERT INTO espaciosdeportivos (
 (
     'Loma Amarilla',
     'Av. Monte de los Olivos 286, Santiago de Surco 15039',
-    1,                  
-    1,                  
+    1,
+    1,
     'Parque recreativo con áreas verdes',
     'Espacio ideal para actividades al aire libre y recreativas, rodeado de naturaleza.',
     987654321,
@@ -198,8 +202,8 @@ INSERT INTO espaciosdeportivos (
 (
     'PUCP',
     'Av. Universitaria 1801, San Miguel 15088',
-    2,                 
-    2,                 
+    2,
+    2,
     'Campus universitario moderno y amplio',
     'La PUCP ofrece espacios académicos, culturales y recreativos, con amplias zonas verdes y de estudio.',
     912345678,

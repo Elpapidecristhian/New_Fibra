@@ -14,6 +14,7 @@ import java.util.List;
 public interface ReservasRepository extends JpaRepository<Reservas, Integer> {
 
     /* Métodos de consulta derivados */
+    List<Reservas> findByUsuarioId(Integer id);
     List<Reservas> findByEspacioDeportivo_NombreContainingIgnoreCase(String nombre);
     List<Reservas> findByEspacioDeportivo_TipoEspacio_Id(Integer tipoEspacioId);
     List<Reservas> findByEspacioDeportivo_TipoEspacio_IdAndEspacioDeportivo_NombreContainingIgnoreCase(Integer tipoEspacioId, String nombre);

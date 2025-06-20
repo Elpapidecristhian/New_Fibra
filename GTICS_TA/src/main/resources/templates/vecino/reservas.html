@@ -78,7 +78,7 @@
                                 </div>
                                 <div class="box-body">
                                     <div class="table-responsive">
-                                        <table id="example1" class="table table-bordered table-striped">
+                                        <table id="example3" class="table table-bordered table-striped">
                                             <thead>
                                                 <tr>
                                                     <th>#</th>
@@ -130,6 +130,77 @@
 			<!-- /.col -->
 		  </div>
 		  <!-- /.row -->
+	  	<div class="row">
+
+				<div class="col-12">
+
+					<div class="box">
+
+						<!-- /.box-header -->
+						<div class="box-body">
+							<div class="table-responsive">
+
+								<div class="col-12">
+									<div class="box">
+										<div class="box-header with-border">
+											<h3 class="box-title">Mis Suscripciones </h3> <!-- Título traducido -->
+										</div>
+										<div class="box-body">
+											<div class="table-responsive">
+												<table id="example3" class="table table-bordered table-striped">
+													<thead>
+													<tr>
+														<th>#</th>
+														<th>Espacio</th>
+														<th>Fecha de Inicio</th>
+														<th>Fecha de Fin</th>
+														<th>Tipo de Suscripción</th>
+														<th>Estado</th>
+														<th>Medio de Pago</th>
+														<th>Fecha de Pago</th>
+														<th>Acciones</th>
+													</tr>
+													</thead>
+													<tbody>
+													<tr th:if="${#lists.isEmpty(listaSuscripciones)}">
+														<td colspan="9" class="text-center">No tiene ninguna suscripción.</td>
+													</tr>
+													<th:block th:each="suscripcion, idx : ${listaSuscripciones}">
+														<tr>
+															<td th:text="${idx.index +1}"></td>
+															<td th:text="${suscripcion.getEspacio().getNombre()}"></td>
+															<td th:text="${#temporals.format(suscripcion.getFechaInicio(), 'dd/MM/yyyy')}"></td>
+															<td th:text="${#temporals.format(suscripcion.getFechaFin(), 'dd/MM/yyyy')}"></td>
+															<td th:text="${suscripcion.getTipoSuscripcion()}"></td>
+															<td th:text="${suscripcion.estado ? 'Activo' : 'Inactivo'}"></td>
+															<td th:text="${suscripcion.getPagos().getMedioPago().getNombre()}"></td>
+															<td th:text="${#temporals.format(suscripcion.getFechaRegistro(), 'dd/MM/yyyy HH:mm:ss')}"></td>
+															<td>
+																<button type="button" class="btn btn-primary" data-bs-toggle="modal" th:attr="data-bs-target=${'#modal-' + suscripcion.getId()}">
+																	<i class="mdi mdi-eye"></i>
+																</button>
+																<button type="button" class="btn btn-danger" data-bs-toggle="modal" th:attr="data-bs-target=${'#modal-cancel-' + suscripcion.getId()}"
+																		th:disabled="${suscripcion.getFechaFin().isBefore(hoy)}">
+																	<i class="mdi mdi-cancel"></i>
+																</button>
+															</td>
+														</tr>
+													</th:block>
+													</tbody>
+												</table>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+							<!-- /.box-body -->
+						</div>
+						<!-- /.box-body -->
+					</div>
+					<!-- /.box -->
+				</div>
+				<!-- /.col -->
+			</div>
 		</section>
 		<!-- /.content -->
 	  
@@ -174,6 +245,58 @@
 					<form th:action="@{/vecino/cancelarreserva}" method="post">
 						<input type="hidden" th:value="${reserva.getId()}" name="id">
 						<button type="submit" class="btn btn-danger">Cancelar Reserva</button>
+						<button type="button" class="btn btn-success" data-bs-dismiss="modal">Cerrar</button>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- /.modal -->
+
+
+	<!-- /.Suscripciones Modal -->
+	<!-- /.content-wrapper -->
+	<div th:each="suscripcion, idx : ${listaSuscripciones}" class="modal center-modal fade" th:id="'modal-' + ${suscripcion.getId()}" tabindex="-1">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 th:utext="'Suscripción ' + ${idx.index + 1}" class="modal-title"></h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<div class="modal-body">
+					<p><strong>Espacio: </strong><span th:text="${suscripcion.getEspacio().getNombre()}"></span></p>
+					<p><strong>Fecha de Inicio: </strong><span th:text="${#temporals.format(suscripcion.getFechaInicio(), 'dd/MM/yyyy')}"></span></p>
+					<p><strong>Fecha de Fin: </strong><span th:text="${#temporals.format(suscripcion.getFechaFin(), 'dd/MM/yyyy')}"></span></p>
+					<p><strong>Tipo Suscripción: </strong><span th:text="${suscripcion.getTipoSuscripcion()}"></span></p>
+					<p><strong>Estado: </strong><span th:text="${suscripcion.estado ? 'Activo' : 'Inactivo'}"></span></p>
+					<p><strong>Id Pago: </strong><span th:text="${suscripcion.getPagos().getId()}"></span></p>
+					<p><strong>Monto Pagado: </strong><span th:text="${suscripcion.getPagos().getCantidad()}"></span></p>
+					<p><strong>Medio de Pago: </strong><span th:text="${suscripcion.getPagos().getMedioPago().getNombre()}"></span></p>
+					<p><strong>Fecha de Pago: </strong><span th:text="${#temporals.format(suscripcion.getFechaRegistro())}"></span></p>
+				</div>
+				<div class="modal-footer modal-footer-uniform">
+					<button type="button" class="btn btn-success" data-bs-dismiss="modal">Cerrar</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- /.modal -->
+	<!-- /.content-wrapper -->
+	<div th:each="suscripcion, idx : ${listaSuscripciones}" class="modal center-modal fade" th:id="'modal-cancel-' + ${suscripcion.getId()}" tabindex="-1">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 th:utext="'Cancelar Suscripcion ' + ${idx.index + 1}" class="modal-title"></h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<div class="modal-body">
+					<p><strong>¿Está seguro que quiere cancelar su suscripción?</strong></p>
+					<p><strong>Esta acción es irreversible</strong></p>
+				</div>
+				<div class="modal-footer modal-footer-uniform">
+					<form th:action="@{/vecino/cancelarsuscripcion}" method="post">
+						<input type="hidden" th:value="${suscripcion.getId()}" name="id">
+						<button type="submit" class="btn btn-danger">Cancelar Suscripción</button>
 						<button type="button" class="btn btn-success" data-bs-dismiss="modal">Cerrar</button>
 					</form>
 				</div>

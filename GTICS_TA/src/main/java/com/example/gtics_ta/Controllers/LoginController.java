@@ -16,6 +16,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 @Controller
@@ -37,16 +39,21 @@ public class LoginController {
     }
 
     @GetMapping("/recoverpassword")
-    public String mostrarFormularioRecover() {return "/login/recoverpass";}
+    public String mostrarFormularioRecover() {return "login/recoverpass";}
 
     @PostMapping("/requestrecover")
     public String sendEecoverEmail(@RequestParam String email, Model model, RedirectAttributes attr) {
         if(email!= null){
             if(usuarioRepository.existsByCorreo(email)) {
                 String token = UUID.randomUUID().toString();
-                String link = "localhost:8080/login/resetpassword?token=" + token;
-                emailService.enviarCorreo(email, "Recupera tu contraseña",
-                        "Haz clic en el siguiente enlace para restablecer tu contraseña:\n" + link + "\n Recuerde que este código tiene validez de una hora.");
+                String link = "https://3.89.234.107:8080/login/resetpassword?token=" + token;
+
+                Usuario usuario = usuarioRepository.findByCorreo(email);
+                Map<String, Object> datos = new HashMap<>();
+                datos.put("nombre", usuario.getNombres() + " " + usuario.getApellidos());
+                datos.put("url", link);
+
+                emailService.enviarCorreoConPlantilla(email, "Recupera tu contraseña", "email/recuperarPasswd", datos);
 
                 PasswordReset passwordReset = new PasswordReset();
                 passwordReset.setToken(token);
@@ -60,28 +67,28 @@ public class LoginController {
             }
         }
             model.addAttribute("msg", "El correo indicado no está registrado");
-        return "/login/recoverpass";
+        return "login/recoverpass";
     }
 
     @GetMapping("/resetpassword")
     public String mostrarFormularioReset(@RequestParam String token, Model model) {
         PasswordReset passwdreset = passwordResetRepository.findByToken(token);
         if (passwdreset == null || passwdreset.getExpiracion().isBefore(LocalDateTime.now())) {
-            return "/login/login";
+            return "login/login";
         }
         model.addAttribute("token", token);
-        return "/login/resetpassword";
+        return "login/resetpassword";
     }
 
     @PostMapping("/savenewpassword")
     public String procesarReset(@RequestParam String token, @RequestParam String nuevaContrasenia, @RequestParam String confirmContrasenia, Model model, RedirectAttributes attr) {
         PasswordReset passwordReset = passwordResetRepository.findByToken(token);
         if (passwordReset == null || passwordReset.getExpiracion().isBefore(LocalDateTime.now())) {
-            return "/login/login";
+            return "login/login";
         } else {
             if(nuevaContrasenia.length() < 8 ){
                 model.addAttribute("errorLength", "La contraseña debe contener al menos 8 caracteres");
-                return "/login/resetpassword";
+                return "login/resetpassword";
             } else {
                 if(!nuevaContrasenia.equals(confirmContrasenia)){
                     model.addAttribute("error", "Las contraseñas no coinciden");

@@ -1,6 +1,9 @@
 package com.example.gtics_ta.Controllers;
-
 import com.example.gtics_ta.DTO.AdminDTO;
+import com.itextpdf.kernel.colors.DeviceRgb;
+import com.itextpdf.layout.element.Paragraph;
+import com.itextpdf.kernel.colors.ColorConstants;
+import com.itextpdf.layout.properties.*;
 import com.example.gtics_ta.DTO.ServicioDTO;
 import com.example.gtics_ta.Entity.*;
 import com.example.gtics_ta.Repository.*;

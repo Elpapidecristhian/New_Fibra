@@ -19,6 +19,7 @@ public class Usuario implements Serializable {
 
     @Id
     @Column(name = "id_usuario")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     @NotBlank(message="Los nombres on obligatorios")
     @Size(max = 50, message = "Los nombres no pueden exceder los 50 caracteres")

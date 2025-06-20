@@ -10,6 +10,7 @@ import com.example.gtics_ta.Services.ImageService;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -58,6 +59,10 @@ public class VecinoController {
     private FotosRepository fotosRepository;
     @Autowired
     private MailService emailService;
+    @Autowired
+    private SuscripcionesRepository suscripcionesRepository;
+    @Autowired
+    private GimnasiosRepository gimnasiosRepository;
     @Autowired
     private ImageService imageService;
     @Autowired
@@ -127,6 +132,7 @@ public class VecinoController {
         CanchasFutbol canchaFutbol;
         PistasAtletismo pista;
         Estadios estadio;
+        Gimnasios gimnasio;
 
         if(optEspacio.isPresent()) {
             EspaciosDeportivos espacio = optEspacio.get();
@@ -143,6 +149,9 @@ public class VecinoController {
             } else if (espacio.getTipoEspacio().getId() == 4) {
                 estadio = estadiosRepository.findByIdEspacio(espacio.getId());
                 model.addAttribute("estadio", estadio);
+            } else if (espacio.getTipoEspacio().getId() == 5) {
+                gimnasio = gimnasiosRepository.findByIdEspacios(espacio.getId());
+                model.addAttribute("gimnasio", gimnasio);
             }
             model.addAttribute("fecha", fecha);
             List<Fotos> fotos = fotosRepository.findByListaFotosId(espacio.getListaFotos().getId());
@@ -163,11 +172,12 @@ public class VecinoController {
     //*********************************************************************************************
 
     @GetMapping("/reservas")
-    public String listarReservas(@RequestParam(value = "nombre", required = false) String nombre, Model model) {
-        List<Reservas> reservas= (nombre == null || nombre.isEmpty()) ?
-                reservasRepository.findAll() :
-                reservasRepository.findByEspacioDeportivo_NombreContainingIgnoreCase(nombre);
+    public String listarReservas(Model model, HttpSession session) {
+        Usuario usuario = (Usuario) session.getAttribute("usuario");
+        List<Reservas> reservas = reservasRepository.findByUsuarioId(usuario.getId());
+        List<Suscripciones> suscripciones = suscripcionesRepository.findByUsuarioId(usuario.getId());
         model.addAttribute("listaReservas", reservas);
+        model.addAttribute("listaSuscripciones", suscripciones);
         model.addAttribute("hoy", LocalDate.now());
         return "vecino/reservas";
     }
@@ -190,10 +200,29 @@ public class VecinoController {
                     attr.addFlashAttribute("msg", "Reserva cancelada correctamente. Su dinero será reembolsado en un plazo de dos semanas.");
                 }
             } else {
-                attr.addFlashAttribute("error", "No puede cancelar una reserva para hoy o en el pasado.");
+                attr.addFlashAttribute("error", "Solo puede cancelar una reserva con un plazo de antelación de un día.");
             }
         } else {
             attr.addFlashAttribute("error", "No se encontró la reserva.");
+        }
+        return "redirect:/vecino/reservas";
+    }
+
+    @PostMapping("/cancelarsuscripcion")
+    public String cancelarSuscripcion(@RequestParam Integer id, RedirectAttributes attr) {
+        Optional<Suscripciones> optSub = suscripcionesRepository.findById(id);
+        if (optSub.isPresent()){
+            Suscripciones suscripciones = optSub.get();
+            LocalDate hoy = LocalDate.now();
+            LocalDate fechaFin = suscripciones.getFechaFin();
+            if(fechaFin.isAfter(hoy)){
+                suscripciones.setEstado(false);
+                attr.addFlashAttribute("msg", "Suscripción cancelada correctamente.");
+            } else {
+                attr.addFlashAttribute("error", "No deberías poder ver esto.");
+            }
+        } else {
+            attr.addFlashAttribute("error", "No se encontró la suscripción.");
         }
         return "redirect:/vecino/reservas";
     }
@@ -205,7 +234,7 @@ public class VecinoController {
     //*********************************************************************************************
 
     @GetMapping("/reservar")
-    public String reservar(Model model, @ModelAttribute("reserva") Reservas reservas, HttpSession session, @RequestParam(name = "idEspacio") int idEspacio, @RequestParam(name = "fecha") String fecha) throws ParseException {
+    public String reservar(Model model, @ModelAttribute("reserva") Reservas reserva, HttpSession session, @RequestParam(name = "idEspacio") int idEspacio, @RequestParam(name = "fecha") String fecha) throws ParseException {
         LocalDate fechaconv = LocalDate.parse(fecha);
         if(fechaconv.isBefore(LocalDate.now())) {
             return "redirect:/vecino/";
@@ -214,13 +243,12 @@ public class VecinoController {
         Optional<EspaciosDeportivos> optespacio = espaciosDeportivosRepository.findById(idEspacio);
 
         if( optespacio.isPresent()) {
-            reservas = new Reservas();
             EspaciosDeportivos espacio = optespacio.get();
             List<HorariosConsultaDTO> listaHorarios = horariosRepository.obtenerHorariosConsulta(fechaconv, espacio.getId());
-            reservas.setUsuario(usuario);
-            reservas.setEspacioDeportivo(espacio);
-            reservas.setFechaReserva(fechaconv);
-            model.addAttribute("reserva", reservas);
+            reserva.setUsuario(usuario);
+            reserva.setEspacioDeportivo(espacio);
+            reserva.setFechaReserva(fechaconv);
+            model.addAttribute("reserva", reserva);
             model.addAttribute("listaHorarios", listaHorarios);
             String hoy = LocalDate.now().format(DateTimeFormatter.ISO_DATE);
             model.addAttribute("minDate", hoy);
@@ -230,9 +258,21 @@ public class VecinoController {
                 .filter(MediosPago::getActivo)
                 .toList();
             model.addAttribute("mediosPago", mediosPago);
+        } else {
+            return "redirect:/vecino/";
         }
         return "vecino/reservar";
     }
+
+    @GetMapping("/horarios-disponibles")
+    @ResponseBody
+    public List<HorariosConsultaDTO> obtenerHorariosPorFecha(
+            @RequestParam("fecha") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fecha,
+            @RequestParam("idEspacio") Integer idEspacio) {
+
+        return horariosRepository.obtenerHorariosConsulta(fecha, idEspacio);
+    }
+
 
     @PostMapping("/guardarreserva")
     public String guardarreserva(@ModelAttribute("reserva") Reservas reserva,
@@ -270,7 +310,7 @@ public class VecinoController {
                 // Pago con tarjeta - simular pasarela
                 pago.setEstadoPago(Pagos.EstadoPago.APROBADO);
                 pago.setCodigoAutorizacion("AUTH" + System.currentTimeMillis());
-                pago.setDatosPasarela("{\"numeroTarjeta\":\"****" + numeroTarjeta.substring(numeroTarjeta.length()-4) + "\",\"nombreTarjeta\":\"" + nombreTarjeta + "\"}");
+                pago.setDatosPasarela("{\"numeroTarjeta\":\"****" + numeroTarjeta.substring(numeroTarjeta.length() - 4) + "\",\"nombreTarjeta\":\"" + nombreTarjeta + "\"}");
                 pago.setFechaVerificacion(timestamp);
             } else {
                 // Pago manual - requiere verificación
@@ -303,8 +343,18 @@ public class VecinoController {
             horarioReservadoRepository.save(horarioReservado);
             reservasRepository.save(reserva);
 
-            // Enviar email de confirmación
-            enviarEmailConfirmacion(reserva);
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("d 'de' MMMM 'de' yyyy", new Locale("es", "ES"));
+            LocalDateTime fechaReserva = reserva.getFechaRegistro().toLocalDateTime();
+            String fechaReservaString = fechaReserva.format(formatter);
+            String asunto = "Confirmación de Reserva #" + reserva.getId();
+            Map<String, Object> datos = new HashMap<>();
+            datos.put("idReserva", reserva.getId());
+            datos.put("nombreEspacio", reserva.getEspacioDeportivo().getNombre());
+            datos.put("fechaReserva", fechaReservaString);
+            datos.put("horario", reserva.getHorario().getHoraInicio() + "-" + reserva.getHorario().getHoraFin());
+            datos.put("medioPago", pago.getMedioPago().getNombre());
+            datos.put("total", reserva.getEspacioDeportivo().getCostoHorario());
+            emailService.enviarCorreoConPlantilla(reserva.getUsuario().getCorreo(), asunto, "email/reserva", datos);
 
             if (medioPago.getTipoPago() == MediosPago.TipoPago.AUTOMATICO) {
                 redirectAttributes.addFlashAttribute("success", "Reserva confirmada. Pago procesado exitosamente.");
@@ -322,29 +372,76 @@ public class VecinoController {
         }
     }
 
-    private void enviarEmailConfirmacion(Reservas reserva) {
-        try {
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("d 'de' MMMM 'de' yyyy", new Locale("es", "ES"));
-            LocalDateTime fechaReserva = reserva.getFechaRegistro().toLocalDateTime();
-            String fechaReservaString = fechaReserva.format(formatter);
-            String asunto = "Confirmación de Reserva #" + reserva.getId();
+    //*********************************************************************************************
+    //
+    //                                    Suscribirse
+    //
+    //*********************************************************************************************
 
-            String estadoPago = reserva.getPago().getEstadoPago() == Pagos.EstadoPago.APROBADO ?
-                "Confirmado" : "Pendiente de verificación";
+    @GetMapping("/suscribirse")
+    public String suscribirse(Model model, @ModelAttribute("suscripcion") Suscripciones suscripcion, HttpSession session, @RequestParam("idEspacio") Integer idEspacio) {
+        Usuario usuario = (Usuario) session.getAttribute("usuario");
 
-            String cuerpo = "Id de Reserva #" + reserva.getId() + "\n" +
-                            fechaReservaString + "\n" +
-                            "Espacio: " + reserva.getEspacioDeportivo().getNombre() + "\n" +
-                            "Fecha de Reserva: " + reserva.getFechaReserva().toString() + "\n" +
-                            "Horario: " + reserva.getHorario().getHoraInicio() + "-" + reserva.getHorario().getHoraFin() + "\n" +
-                            "Medio de Pago: " + reserva.getPago().getMedioPago().getNombre() + "\n" +
-                            "Estado del Pago: " + estadoPago + "\n" +
-                            "Total: S/." + reserva.getPago().getCantidad();
-
-            emailService.enviarCorreo(reserva.getUsuario().getCorreo(), asunto, cuerpo);
-        } catch (Exception e) {
-            System.err.println("Error enviando email de confirmación: " + e.getMessage());
+        Optional<EspaciosDeportivos> optEspacio = espaciosDeportivosRepository.findById(idEspacio);
+        if(optEspacio.isPresent()) {
+            EspaciosDeportivos espacio = optEspacio.get();
+            Gimnasios gimnasio = gimnasiosRepository.findByIdEspacios(espacio.getId());
+            suscripcion.setUsuario(usuario);
+            suscripcion.setEspacio(espacio);
+            model.addAttribute("gimnasio", gimnasio);
+            model.addAttribute("suscripcion", suscripcion);
+            model.addAttribute("minDate", LocalDate.now());
+            return "vecino/suscribirse";
+        } else {
+            return "redirect:/vecino/";
         }
+    }
+
+    @PostMapping("/guardarsuscripcion")
+    public String guardarSuscripcion(@ModelAttribute("suscripcion") Suscripciones suscripcion){
+        suscripcion.setFechaRegistro(LocalDateTime.now());
+        LocalDate fechaFin = switch (suscripcion.getTipoSuscripcion().toUpperCase()) {
+            case "SEMANAL" -> suscripcion.getFechaInicio().plusDays(7);
+            case "MENSUAL" -> suscripcion.getFechaInicio().plusMonths(1);
+            case "ANUAL" -> suscripcion.getFechaInicio().plusYears(1);
+            default -> suscripcion.getFechaInicio();
+        };
+        suscripcion.setFechaFin(fechaFin);
+        suscripcion.setEstado(true);
+
+        Gimnasios gimnasio = gimnasiosRepository.findByIdEspacios(suscripcion.getEspacio().getId());
+
+        Pagos pago = new Pagos();
+        float costo = switch (suscripcion.getTipoSuscripcion()) {
+            case "SEMANAL" -> gimnasio.getCostoSemanal();
+            case "MENSUAL" -> gimnasio.getCostoMensual();
+            case "ANUAL" -> gimnasio.getCostoAnual();
+            default -> 0;
+        };
+        pago.setCantidad(BigDecimal.valueOf(costo));
+        Optional<MediosPago> optMedioPago = mediosPagoRepository.findById(1);
+        MediosPago mediosPago = optMedioPago.get();
+        pago.setMedioPago(mediosPago);
+        pagosRepository.save(pago);
+        suscripcion.setPagos(pago);
+
+        suscripcionesRepository.save(suscripcion);
+
+        String asunto = "Confirmación de Suscripción #" + suscripcion.getId();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("d 'de' MMMM 'de' yyyy", new Locale("es", "ES"));
+        LocalDateTime fechaRegistro = suscripcion.getFechaRegistro();
+        String fechaRegistroStr = fechaRegistro.format(formatter);
+        Map<String, Object> datos = new HashMap<>();
+        datos.put("idSuscripcion", suscripcion.getId());
+        datos.put("nombreGimnasio", suscripcion.getEspacio().getNombre());
+        datos.put("fechaInicio", suscripcion.getFechaInicio().format(formatter));
+        datos.put("fechaFin", suscripcion.getFechaFin().format(formatter));
+        datos.put("tipoSuscripcion", suscripcion.getTipoSuscripcion());
+        datos.put("fechaPago", fechaRegistroStr);
+        datos.put("medioPago", pago.getMedioPago().getNombre());
+        datos.put("costoTotal", pago.getCantidad());
+        emailService.enviarCorreoConPlantilla(suscripcion.getUsuario().getCorreo(), asunto, "email/suscripcion", datos);
+        return "redirect:/vecino/espacios";
     }
 
     //*********************************************************************************************

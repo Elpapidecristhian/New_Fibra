@@ -91,6 +91,7 @@
 								<option th:selected="${tipoSeleccionado==1}" value="1">Piscinas</option>
 								<option th:selected="${tipoSeleccionado==3}" value="3">Pistas de Atletismo</option>
 								<option th:selected="${tipoSeleccionado==4}" value="4">Estadios</option>
+								<option th:selected="${tipoSeleccionado==5}" value="5">Gimnasios</option>
 							</select>
 
 							<div class="help-bt mt-2">
@@ -125,7 +126,12 @@
 
 								<div class="card-footer justify-content-between d-flex">
 									<a th:href="@{/vecino/detalles(idEspacio=${espacio.id}, fecha=${fechaSeleccionada})}" class="btn btn-primary">Detalles</a>
-									<a th:href="@{/vecino/reservar(idEspacio=${espacio.id}, fecha=${fechaSeleccionada})}" class="btn btn-info">Reservar</a>
+									<th:block th:if="${espacio.getTipoEspacio().getId() == 5}">
+										<a th:href="@{/vecino/suscribirse(idEspacio=${espacio.id})}" class="btn btn-info">Suscribirse</a>
+									</th:block>
+									<th:block th:unless="${espacio.getTipoEspacio().getId() == 5}">
+										<a th:href="@{/vecino/reservar(idEspacio=${espacio.id}, fecha=${fechaSeleccionada})}" class="btn btn-info">Reservar</a>
+									</th:block>
 								</div>
 							</div>
 						</div>

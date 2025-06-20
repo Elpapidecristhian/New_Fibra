@@ -40,7 +40,7 @@
                       <label class="form-label" for="dni">Ingrese su DNI para buscar sus datos</label>
                       <div class="input-group mb-3">
                         <span class="input-group-text bg-transparent"><i class="ti-receipt"></i></span>
-                        <input type="number" name="dni" class="form-control ps-15 bg-transparent" id="dni" placeholder="DNI" required th:classappend="${errorDNIConsulta != null ?'is-invalid':''}">
+                        <input type="text" name="dni" class="form-control ps-15 bg-transparent" maxlength="8" id="dni" placeholder="DNI" required th:classappend="${errorDNIConsulta != null ?'is-invalid':''}">
                         <div class="invalid-feedback" th:if="${errorDNIConsulta != null}" th:text="${errorDNIConsulta}"></div>
                       </div>
                     </div>
@@ -149,6 +149,13 @@
 <script src="/js/vendors.min.js"></script>
 <script src="/js/pages/chat-popup.js"></script>
 <script src="/assets/icons/feather-icons/feather.min.js"></script>
+<script>
+  document.getElementById('dni').addEventListener('input', function (e) {
+    this.value = this.value.replace(/\D/g, '');
+  });
+</script>
+
+
 
 
 </body>
