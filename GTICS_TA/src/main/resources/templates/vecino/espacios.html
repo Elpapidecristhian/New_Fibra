@@ -24,8 +24,13 @@
 			<!-- Logo -->
 			<a href="/static/assets/vendor_components/jquery-validation-1.17.0/demo/requirejs/index.html" class="logo">
 				<!-- logo-->
-				<div class="logo-mini w-150 text-center">
-					<span class="light-logo"><img th:src="@{/images/logo-sanMiguel.png}" alt="logo"></span>
+				<div class="logo-mini w-50">
+					<span class="light-logo"><img src="/images/san_miguel_logo.png" alt="logo"></span>
+					<span class="dark-logo"><img src="/images/san_miguel_logo.png" alt="logo"></span>
+				</div>
+				<div class="logo-lg">
+					<span class="light-logo"><img src="/images/san_miguel.png" alt="logo"></span>
+					<span class="dark-logo"><img src="/images/san_miguel.png" alt="logo"></span>
 				</div>
 			</a>
 		</div>
@@ -89,10 +94,10 @@
 							</select>
 
 							<div class="help-bt mt-2">
-								<a th:href="@{/vecino}" class="waves-effect waves-light btn btn-primary">Limpiar </a>
+								<a th:href="@{/vecino}" class="waves-effect waves-light btn btn-primary">Limpiar Filtros</a>
 							</div>
 							<div class="help-bt mt-2">
-								<button type="submit" class="waves-effect waves-light btn btn-success">Aplicar</button>
+								<button type="submit" class="waves-effect waves-light btn btn-success">Aplicar Filtros</button>
 							</div>
 						</div>
 					</div>
@@ -172,33 +177,15 @@
 						¡Hola! Soy San miguelito, puedo responder cualquier duda que tengas o ayudarte en el proceso de la reserva de un espacio.
 					</div>
 				</div>
-				<div class="chat-msg self">
-					<div class="d-flex align-items-center justify-content-end">
-						<div class="mx-10">
-							<a href="#" class="text-dark hover-primary fw-bold">Tú</a>
-							<p class="text-muted fs-12 mb-0">Ahora</p>
-						</div>
-						<span class="msg-avatar">
-                                <img src="/images/avatar/3.jpg" class="avatar avatar-lg">
-                            </span>
-					</div>
-					<div class="cm-msg-text">
-						Deseo realizar una reserva
-					</div>
-				</div>
+
 				<div class="chat-msg user">
 					<div class="d-flex align-items-center">
                             <span class="msg-avatar">
                                 <img src="/images/avatar/chatbot.png" class="avatar avatar-lg">
                             </span>
-						<div class="mx-10">
-							<a href="#" class="text-dark hover-primary fw-bold">San Miguelito</a>
-							<p class="text-muted fs-12 mb-0">Ahora</p>
-						</div>
+
 					</div>
-					<div class="cm-msg-text">
-						¡Por supuesto!<br>¿Qué lugar deseas reservar?
-					</div>
+
 				</div>
 			</div><!--chat-log -->
 		</div>

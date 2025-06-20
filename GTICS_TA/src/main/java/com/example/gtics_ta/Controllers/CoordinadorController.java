@@ -60,7 +60,7 @@ public class CoordinadorController {
 
     @PostMapping("/guardarperfil")
     public String guardarPerfil(@ModelAttribute("usuario") @Valid Usuario usuario, BindingResult bindingResult,
-                               @RequestParam("archivo") MultipartFile file, HttpSession session, Model model) {
+                                @RequestParam("archivo") MultipartFile file, HttpSession session, Model model) {
         if(bindingResult.hasErrors()) {
             return "coordinador/perfil";
         }
@@ -147,8 +147,8 @@ public class CoordinadorController {
 
     @PostMapping("/actualizar/{id}")
     public String actualizarPerfilUsuario(@PathVariable Integer id,
-                                @RequestParam("celular") String celular,
-                                @RequestParam("foto") MultipartFile foto) {
+                                          @RequestParam("celular") String celular,
+                                          @RequestParam("foto") MultipartFile foto) {
 
         Usuario usuario = usuarioRepository.findById(id).orElse(null);
         if (usuario != null) {
@@ -240,7 +240,7 @@ public class CoordinadorController {
                     // Log del error pero continuar con el guardado del comentario
                     System.err.println("Error al subir imágenes: " + e.getMessage());
                     redirectAttributes.addFlashAttribute("warning",
-                        "La observación se guardó correctamente, pero hubo un error al subir las imágenes: " + e.getMessage());
+                            "La observación se guardó correctamente, pero hubo un error al subir las imágenes: " + e.getMessage());
                 }
             }
 
@@ -258,7 +258,7 @@ public class CoordinadorController {
 
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error",
-                "Ocurrió un error al guardar la observación: " + e.getMessage());
+                    "Ocurrió un error al guardar la observación: " + e.getMessage());
         }
 
         return "redirect:/coordinador/principal";
@@ -308,9 +308,10 @@ public class CoordinadorController {
     @PostMapping("/registrar-entrada")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> registrarEntrada(@RequestParam("latitud") BigDecimal latitud,
-                                                               @RequestParam("longitud") BigDecimal longitud,
-                                                               HttpSession session) {
+                                                                @RequestParam("longitud") BigDecimal longitud,
+                                                                HttpSession session) {
         Map<String, Object> response = new HashMap<>();
+
 
         try {
             Usuario coordinador = (Usuario) session.getAttribute("usuario");
@@ -345,8 +346,8 @@ public class CoordinadorController {
     @PostMapping("/registrar-salida")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> registrarSalida(@RequestParam("latitud") BigDecimal latitud,
-                                                              @RequestParam("longitud") BigDecimal longitud,
-                                                              HttpSession session) {
+                                                               @RequestParam("longitud") BigDecimal longitud,
+                                                               HttpSession session) {
         Map<String, Object> response = new HashMap<>();
 
         try {

@@ -39,7 +39,7 @@ public class WebSecurityConfig {
                 .requestMatchers("/css/**", "/js/**", "/images/**", "/assets/**", "/front-end/**", "/scss/**", "/static/**").permitAll()
                 // Permitir páginas de error
                 .requestMatchers("/error").permitAll()
-
+                .requestMatchers("/vecino/api/chatbot").permitAll() // solo usuarios logueados
                 .requestMatchers("/vecino/**").hasAnyAuthority("Vecino", "Admin")
                 .requestMatchers("/coordinador/**").hasAnyAuthority("Coordinador", "Admin", "SuperAdmin")
                 .requestMatchers("/admin/**").hasAnyAuthority("Admin", "SuperAdmin")
@@ -48,7 +48,9 @@ public class WebSecurityConfig {
                 .requestMatchers("/signup/**").permitAll()
                 .anyRequest().authenticated()
         );
-
+        http.csrf(csrf -> csrf
+                .ignoringRequestMatchers("/vecino/api/chatbot")
+        );
         http.formLogin(form -> form
                 .loginPage("/login")
                 .loginProcessingUrl("/procesar-login")
@@ -106,7 +108,7 @@ public class WebSecurityConfig {
         // Configurar CSRF para formularios multipart
         http.csrf(csrf -> csrf
                 .csrfTokenRepository(csrfTokenRepository())
-                .ignoringRequestMatchers("/vecino/guardarreserva")
+                .ignoringRequestMatchers("/vecino/guardarreserva","/coordinador/**")
         );
 
         return http.build();

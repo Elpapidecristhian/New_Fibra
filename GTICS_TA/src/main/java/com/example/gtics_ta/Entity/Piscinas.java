@@ -20,7 +20,7 @@ public class Piscinas {
     @Column(name = "profundidad_max")
     private float profundidadMax;
     @Column(name = "is_climatizada")
-    private boolean isClimatizada;
+    private boolean Climatizada;
     private String requisitos;
     @Column(name = "num_carril_max")
     private int numCarrilMax;

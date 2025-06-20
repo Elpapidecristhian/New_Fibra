@@ -1,8 +1,10 @@
 package com.example.gtics_ta.Controllers;
 
+import com.example.gtics_ta.DTO.ChatMessageDTO;
 import com.example.gtics_ta.DTO.HorariosConsultaDTO;
 import com.example.gtics_ta.Entity.*;
 import com.example.gtics_ta.Repository.*;
+import com.example.gtics_ta.Services.OpenAiService;
 import com.example.gtics_ta.Services.MailService;
 import com.example.gtics_ta.Services.ImageService;
 import jakarta.servlet.http.HttpSession;
@@ -32,6 +34,8 @@ import jakarta.servlet.http.HttpServletRequest;
 @Controller
 @RequestMapping("/vecino")
 public class VecinoController {
+    @Autowired
+    private OpenAiService openAiService;
     @Autowired
     EspaciosDeportivosRepository espaciosDeportivosRepository;
     @Autowired
@@ -280,6 +284,8 @@ public class VecinoController {
                         pago.setListaFotosComprobantes(listaFotosComprobantes);
                     } catch (Exception e) {
                         redirectAttributes.addFlashAttribute("error", "Error al subir comprobantes: " + e.getMessage());
+                        e.printStackTrace();
+                        System.out.println(e.getMessage());
                         return "redirect:/vecino/espacios";
                     }
                 }
@@ -309,6 +315,9 @@ public class VecinoController {
             return "redirect:/vecino/reservas";
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", "Error al procesar la reserva: " + e.getMessage());
+            e.printStackTrace();
+
+            System.out.println(e.getMessage());
             return "redirect:/vecino/espacios";
         }
     }
@@ -512,7 +521,29 @@ public class VecinoController {
         }
     }
 
+    @PostMapping("/api/chatbot")
+    @ResponseBody
+    public ResponseEntity<Map<String, String>> preguntar(@RequestBody Map<String, String> body) {
+        String pregunta = body.get("pregunta");
+        Map<String, String> json = new HashMap<>();
 
+        if (pregunta == null || pregunta.trim().isEmpty()) {
+            json.put("respuestaBot", "La pregunta está vacía.");
+            return ResponseEntity.badRequest().body(json);
+        }
+
+        try {
+            ChatMessageDTO dto = new ChatMessageDTO();
+            dto.setMensajeUsuario(pregunta);
+            String respuesta = openAiService.generarRespuesta(dto);
+            json.put("respuestaBot", respuesta);
+            return ResponseEntity.ok(json);
+        } catch (Exception e) {
+            e.printStackTrace();
+            json.put("respuestaBot", "Error al procesar la pregunta.");
+            return ResponseEntity.status(500).body(json);
+        }
+    }
 
 
 

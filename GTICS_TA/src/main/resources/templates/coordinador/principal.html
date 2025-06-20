@@ -441,28 +441,28 @@
 
       const opciones = {
         enableHighAccuracy: true,
-        timeout: 15000,
-        maximumAge: 30000
+        timeout: 10000,
+        maximumAge: 0
       };
 
       navigator.geolocation.getCurrentPosition(
-        position => resolve(position.coords),
-        error => {
-          switch(error.code) {
-            case error.PERMISSION_DENIED:
-              reject("Debes permitir el acceso a tu ubicación para usar esta función");
-              break;
-            case error.POSITION_UNAVAILABLE:
-              reject("No se pudo obtener tu ubicación. Verifica que el GPS esté activado.");
-              break;
-            case error.TIMEOUT:
-              reject("Tiempo de espera agotado al obtener ubicación");
-              break;
-            default:
-              reject("Error desconocido al obtener ubicación");
-          }
-        },
-        opciones
+              position => resolve(position.coords),
+              error => {
+                switch(error.code) {
+                  case error.PERMISSION_DENIED:
+                    reject("Debes permitir el acceso a tu ubicación para usar esta función");
+                    break;
+                  case error.POSITION_UNAVAILABLE:
+                    reject("No se pudo obtener tu ubicación. Verifica que el GPS esté activado.");
+                    break;
+                  case error.TIMEOUT:
+                    reject("Tiempo de espera agotado al obtener ubicación");
+                    break;
+                  default:
+                    reject("Error desconocido al obtener ubicación");
+                }
+              },
+              opciones
       );
     });
   }
@@ -484,13 +484,13 @@
       for (const espacio of espaciosPermitidos) {
         if (espacio.latitud && espacio.longitud) {
           const distancia = calcularDistancia(
-            coords.latitude,
-            coords.longitude,
-            parseFloat(espacio.latitud),
-            parseFloat(espacio.longitud)
+                  coords.latitude,
+                  coords.longitude,
+                  parseFloat(espacio.latitud),
+                  parseFloat(espacio.longitud)
           );
 
-          const radioPermitido = espacio.radioCobertura || 100; // 100m por defecto
+          const radioPermitido = espacio.radioCobertura || 1700; // 100m por defecto
 
           console.log(`Distancia a ${espacio.nombre}: ${Math.round(distancia)}m (radio: ${radioPermitido}m)`);
 
@@ -508,8 +508,8 @@
 
       if (!dentroDeArea) {
         const mensaje = espacioMasCercano
-          ? `Fuera del área permitida. Más cercano: ${espacioMasCercano.nombre} (${Math.round(distanciaMinima)}m)`
-          : "Fuera del área permitida de cualquier espacio deportivo";
+                ? `Fuera del área permitida. Más cercano: ${espacioMasCercano.nombre} (${Math.round(distanciaMinima)}m)`
+                : "Fuera del área permitida de cualquier espacio deportivo";
         throw new Error(mensaje);
       }
 
@@ -562,6 +562,7 @@
       btnSalida.disabled = true;
       frase.textContent = "Jornada completada";
       frase.style.color = '#28a745';
+      System.out.println("Ingreso exitoso");
     } else if (estadoAsistencia.tieneEntrada) {
       // Ya marcó entrada, puede marcar salida
       btnEntrada.disabled = true;
@@ -826,8 +827,8 @@
       const espacioTexto = espacioSelect.options[espacioSelect.selectedIndex].text;
 
       const confirmacion = confirm(
-        `¿Está seguro de enviar este ${tipoTexto} para "${espacioTexto}"?\n\n` +
-        `Descripción: ${comentarios.substring(0, 100)}${comentarios.length > 100 ? '...' : ''}`
+              `¿Está seguro de enviar este ${tipoTexto} para "${espacioTexto}"?\n\n` +
+              `Descripción: ${comentarios.substring(0, 100)}${comentarios.length > 100 ? '...' : ''}`
       );
 
       if (!confirmacion) {

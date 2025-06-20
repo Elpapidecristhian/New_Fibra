@@ -5,7 +5,25 @@ import com.example.gtics_ta.DTO.ServicioDTO;
 import com.example.gtics_ta.Entity.*;
 import com.example.gtics_ta.Repository.*;
 import com.example.gtics_ta.Services.ImageService;
-
+import com.itextpdf.io.image.ImageData;
+import com.itextpdf.io.image.ImageDataFactory;
+import com.itextpdf.kernel.colors.ColorConstants;
+import com.itextpdf.kernel.pdf.PdfDocument;
+import com.itextpdf.kernel.pdf.PdfWriter;
+import com.itextpdf.layout.Document;
+import com.itextpdf.layout.element.Cell;
+import com.itextpdf.layout.element.Image;
+import com.itextpdf.layout.element.Paragraph;
+import com.itextpdf.layout.element.Table;
+import com.itextpdf.layout.properties.HorizontalAlignment;
+import com.itextpdf.layout.properties.TextAlignment;
+import jakarta.servlet.http.HttpServletResponse;
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import com.itextpdf.kernel.colors.DeviceRgb;
+import com.itextpdf.layout.element.Paragraph;
+import com.itextpdf.kernel.colors.ColorConstants;
+import com.itextpdf.layout.properties.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -20,6 +38,7 @@ import org.springframework.web.multipart.MultipartFile;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.net.URI;
 import java.sql.Timestamp;
 import java.time.LocalDate;
@@ -486,17 +505,58 @@ public class AdminController {
 
 
     @PostMapping("/guardarservicio")
-    public String guardarServicio(@ModelAttribute("servicioDTO") ServicioDTO servicioDTO, @RequestParam("archivos") MultipartFile[] files ){
+    public String guardarServicio(@ModelAttribute("servicioDTO") ServicioDTO servicioDTO,
+                                  @RequestParam("archivos") MultipartFile[] files,
+                                  @RequestParam(value = "latitud", required = false) String latitudStr,
+                                  @RequestParam(value = "longitud", required = false) String longitudStr,
+                                  @RequestParam(value = "mapsUrl", required = false) String mapsUrl){
         try {
             // Usar el nuevo servicio de imágenes con S3
             ListaFotos listaFotos = imageService.uploadServiceImages(files);
             EspaciosDeportivos espaciosDeportivos = servicioDTO.getEspacio();
+
+            //Validar si la dirección cambió para forzar geocodificación
+            if (servicioDTO.getDireccion() != null && !servicioDTO.getDireccion().equals(espaciosDeportivos.getUbicacion())) {
+                System.out.println("La dirección ha cambiado. Por favor geocodifica de nuevo.");
+                return "admin/agregarservicio_debug"; // Volver al formulario sin guardar
+            }
+
             espaciosDeportivos.setListaFotos(listaFotos);
 
             // Asegurar que el TipoEspacio esté correctamente configurado
             if(espaciosDeportivos.getTipoEspacio() != null && espaciosDeportivos.getTipoEspacio().getId() != null) {
                 TipoEspacio tipoEspacio = tipoEspacioRepository.findById(espaciosDeportivos.getTipoEspacio().getId()).orElse(null);
                 espaciosDeportivos.setTipoEspacio(tipoEspacio);
+            }
+
+            // Procesar coordenadas de geolocalización
+            if (latitudStr != null && !latitudStr.trim().isEmpty() &&
+                    longitudStr != null && !longitudStr.trim().isEmpty()) {
+                try {
+                    BigDecimal latitud = new BigDecimal(latitudStr.trim());
+                    BigDecimal longitud = new BigDecimal(longitudStr.trim());
+
+                    // Validar que las coordenadas estén en un rango razonable para Lima
+                    if (latitud.compareTo(new BigDecimal("-12.5")) >= 0 &&
+                            latitud.compareTo(new BigDecimal("-11.5")) <= 0 &&
+                            longitud.compareTo(new BigDecimal("-77.5")) >= 0 &&
+                            longitud.compareTo(new BigDecimal("-76.5")) <= 0) {
+
+                        espaciosDeportivos.setLatitud(latitud);
+                        espaciosDeportivos.setLongitud(longitud);
+
+                        // Establecer URL del mapa si se proporciona
+                        if (mapsUrl != null && !mapsUrl.trim().isEmpty()) {
+                            espaciosDeportivos.setMapsUrl(mapsUrl.trim());
+                        }
+
+                        System.out.println("Coordenadas guardadas - Lat: " + latitud + ", Lng: " + longitud);
+                    } else {
+                        System.out.println("Coordenadas fuera del rango válido para Lima - Lat: " + latitud + ", Lng: " + longitud);
+                    }
+                } catch (NumberFormatException e) {
+                    System.err.println("Error al convertir coordenadas: " + e.getMessage());
+                }
             }
 
             // Establecer operativo como true por defecto
@@ -508,30 +568,47 @@ public class AdminController {
                 espaciosDeportivosRepository.save(espaciosDeportivos);
                 piscina.setIdEspacio(espaciosDeportivos.getId());
                 piscinaRepository.save(piscina);
+                System.out.println("Piscina guardada con ID: " + espaciosDeportivos.getId());
             } else if (espaciosDeportivos.getTipoEspacio() != null && espaciosDeportivos.getTipoEspacio().getId() != null && espaciosDeportivos.getTipoEspacio().getId() == 2) {
                 CanchasFutbol canchasFutbol = servicioDTO.getCancha();
                 espaciosDeportivosRepository.save(espaciosDeportivos);
                 canchasFutbol.setIdEspacio(espaciosDeportivos.getId());
                 canchasFutbolRepository.save(canchasFutbol);
+                System.out.println("Cancha de fútbol guardada con ID: " + espaciosDeportivos.getId());
             } else if (espaciosDeportivos.getTipoEspacio() != null && espaciosDeportivos.getTipoEspacio().getId() != null && espaciosDeportivos.getTipoEspacio().getId() == 3) {
                 PistasAtletismo pistasAtletismo = servicioDTO.getPista();
                 espaciosDeportivosRepository.save(espaciosDeportivos);
                 pistasAtletismo.setIdEspacio(espaciosDeportivos.getId());
                 pistasAtletismoRepository.save(pistasAtletismo);
+                System.out.println("Pista de atletismo guardada con ID: " + espaciosDeportivos.getId());
             } else if (espaciosDeportivos.getTipoEspacio() != null && espaciosDeportivos.getTipoEspacio().getId() != null && espaciosDeportivos.getTipoEspacio().getId() == 4) {
                 Estadios estadios = servicioDTO.getEstadios();
                 espaciosDeportivosRepository.save(espaciosDeportivos);
                 estadios.setIdEspacio(espaciosDeportivos.getId());
                 estadiosRepository.save(estadios);
+                System.out.println("Estadio guardado con ID: " + espaciosDeportivos.getId());
             } else {
                 // Si no hay tipo específico, solo guardar el espacio deportivo
                 espaciosDeportivosRepository.save(espaciosDeportivos);
+                System.out.println("Espacio deportivo guardado con ID: " + espaciosDeportivos.getId());
             }
+
+            // Log de información de geolocalización guardada
+            if (espaciosDeportivos.getLatitud() != null && espaciosDeportivos.getLongitud() != null) {
+                System.out.println("Servicio guardado con geolocalización:");
+                System.out.println("- Nombre: " + espaciosDeportivos.getNombre());
+                System.out.println("- Ubicación: " + espaciosDeportivos.getUbicacion());
+                System.out.println("- Latitud: " + espaciosDeportivos.getLatitud());
+                System.out.println("- Longitud: " + espaciosDeportivos.getLongitud());
+                System.out.println("- Maps URL: " + espaciosDeportivos.getMapsUrl());
+            }
+
         } catch (Exception e) {
+            System.err.println("Error al guardar servicio: " + e.getMessage());
             e.printStackTrace();
-            return "redirect:/admin";
+            return "redirect:/admin/nuevo?error=true";
         }
-        return "redirect:/admin";
+        return "redirect:/admin?success=true";
     }
 
     // Método para actualizar reservas completadas
@@ -557,6 +634,195 @@ public class AdminController {
             System.err.println("Error al actualizar reservas completadas: " + e.getMessage());
         }
     }
+
+    //reportes
+    @GetMapping("/servicios/exportar-reporte-pdf")
+    public void exportarReportePdf(@RequestParam("id") int idEspacio, HttpServletResponse response) throws Exception {
+        EspaciosDeportivos espacio = espaciosRepository.findById(idEspacio).orElse(null);
+        if (espacio == null) {
+            response.sendError(HttpServletResponse.SC_NOT_FOUND, "Espacio no encontrado");
+            return;
+        }
+
+        String nombreServicio = espacio.getNombre();
+
+        // Obtener imagen
+        byte[] imagen = null;
+        if (espacio.getListaFotos() != null) {
+            List<Fotos> fotos = fotosRepository.findByListaFotosId(espacio.getListaFotos().getId());
+            if (!fotos.isEmpty()) {
+                imagen = fotos.get(0).getFoto();
+            }
+        }
+
+        // Configurar PDF
+        response.setContentType("application/pdf");
+        response.setHeader("Content-Disposition", "attachment; filename=reporte_servicio_" + idEspacio + ".pdf");
+
+        PdfWriter writer = new PdfWriter(response.getOutputStream());
+        PdfDocument pdf = new PdfDocument(writer);
+        Document document = new Document(pdf);
+
+        // Logo
+        String imagePath = "src/main/resources/static/images/logo-sanMiguel.png";
+        ImageData imageData = ImageDataFactory.create(imagePath);
+        Image logo = new Image(imageData);
+        logo.setHorizontalAlignment(HorizontalAlignment.CENTER);
+        logo.setWidth(60);
+        document.add(logo);
+
+        // Título
+        Paragraph titulo = new Paragraph("Reporte de Servicio Deportivo")
+                .setTextAlignment(TextAlignment.CENTER)
+                .setBold()
+                .setFontSize(16);
+        document.add(titulo);
+
+        Paragraph subtitulo = new Paragraph(nombreServicio)
+                .setTextAlignment(TextAlignment.CENTER)
+                .setFontSize(13);
+        document.add(subtitulo);
+
+        // Imagen del espacio
+        if (imagen != null) {
+            Image img = new Image(ImageDataFactory.create(imagen))
+                    .scaleToFit(200, 200)
+                    .setHorizontalAlignment(HorizontalAlignment.CENTER);
+            document.add(img);
+            document.add(new Paragraph("\n"));
+        }
+
+        // Datos del servicio
+        document.add(new Paragraph("Tipo: " + espacio.getTipoEspacio().getNombre()));
+        document.add(new Paragraph("Ubicación: " + espacio.getUbicacion()));
+        document.add(new Paragraph("Horario: " + espacio.getHoraAbre() + " - " + espacio.getHoraCierra()));
+        document.add(new Paragraph("Correo: " + espacio.getCorreoContacto()));
+        document.add(new Paragraph("\n"));
+
+        // Tabla de reservas
+        List<Reservas> reservas = reservaRepository .findByEspacioDeportivoId(idEspacio);
+        if (!reservas.isEmpty()) {
+            DeviceRgb celesteOscuro = new DeviceRgb(36, 118, 141);
+
+            Table table = new Table(5);
+            table.setWidth(UnitValue.createPercentValue(100)); // ✅ Alternativa válida en iText 7
+
+            table.setHorizontalAlignment(HorizontalAlignment.CENTER);
+
+            // Encabezados
+            table.addHeaderCell(new Cell().add(new Paragraph("Usuario"))
+                    .setBackgroundColor(celesteOscuro)
+                    .setFontColor(ColorConstants.WHITE)  // <- Letras blancas
+                    .setTextAlignment(TextAlignment.CENTER)
+                    .setBold()
+                    .setPadding(5));
+
+            table.addHeaderCell(new Cell().add(new Paragraph("Fecha"))
+                    .setBackgroundColor(celesteOscuro)
+                    .setFontColor(ColorConstants.WHITE)
+                    .setTextAlignment(TextAlignment.CENTER)
+                    .setBold()
+                    .setPadding(5));
+
+            table.addHeaderCell(new Cell().add(new Paragraph("Horario"))
+                    .setBackgroundColor(celesteOscuro)
+                    .setFontColor(ColorConstants.WHITE)
+                    .setTextAlignment(TextAlignment.CENTER)
+                    .setBold()
+                    .setPadding(5));
+
+            table.addHeaderCell(new Cell().add(new Paragraph("Medio Pago"))
+                    .setBackgroundColor(celesteOscuro)
+                    .setFontColor(ColorConstants.WHITE)
+                    .setTextAlignment(TextAlignment.CENTER)
+                    .setBold()
+                    .setPadding(5));
+
+            table.addHeaderCell(new Cell().add(new Paragraph("Monto"))
+                    .setBackgroundColor(celesteOscuro)
+                    .setFontColor(ColorConstants.WHITE)
+                    .setTextAlignment(TextAlignment.CENTER)
+                    .setBold()
+                    .setPadding(5));
+
+            // Filas de datos
+            for (Reservas r : reservas) {
+                table.addCell(new Cell().add(new Paragraph(r.getUsuario().getNombres() + " " + r.getUsuario().getApellidos())).setTextAlignment(TextAlignment.CENTER).setPadding(4));
+                table.addCell(new Cell().add(new Paragraph(r.getFechaReserva().toString())).setTextAlignment(TextAlignment.CENTER).setPadding(4));
+                table.addCell(new Cell().add(new Paragraph(r.getHorario().getHoraInicio() + " - " + r.getHorario().getHoraFin())).setTextAlignment(TextAlignment.CENTER).setPadding(4));
+                table.addCell(new Cell().add(new Paragraph(r.getPago().getMedioPago().getNombre())).setTextAlignment(TextAlignment.CENTER).setPadding(4));
+                table.addCell(new Cell().add(new Paragraph("S/ " + r.getPago().getCantidad())).setTextAlignment(TextAlignment.CENTER).setPadding(4));
+            }
+
+            document.add(new Paragraph("Reservas realizadas:").setBold());
+            document.add(table);
+        } else {
+            document.add(new Paragraph("No se han registrado reservas para este servicio."));
+        }
+
+        document.close();
+    }
+
+    @GetMapping("/servicios/exportar-reporte-excel")
+    public void exportarReporteExcel(@RequestParam("id") int idEspacio, HttpServletResponse response) throws Exception {
+        EspaciosDeportivos espacio = espaciosRepository.findById(idEspacio).orElse(null);
+        if (espacio == null) {
+            response.sendError(HttpServletResponse.SC_NOT_FOUND, "Espacio no encontrado");
+            return;
+        }
+
+        List<Reservas> reservas = reservaRepository.findByEspacioDeportivoId(idEspacio);
+
+        // Crear workbook y hoja
+        Workbook workbook = new XSSFWorkbook();
+        Sheet sheet = workbook.createSheet("Reservas");
+
+        // Estilo de encabezado
+        CellStyle headerStyle = workbook.createCellStyle();
+        Font font = workbook.createFont();
+        font.setBold(true);
+        font.setColor(IndexedColors.WHITE.getIndex());
+        headerStyle.setFont(font);
+        headerStyle.setFillForegroundColor(IndexedColors.DARK_BLUE.getIndex());
+        headerStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+        headerStyle.setAlignment(org.apache.poi.ss.usermodel.HorizontalAlignment.CENTER);
+
+        // Crear fila de encabezado
+        Row header = sheet.createRow(0);
+        String[] columnas = {"Usuario", "Fecha", "Horario", "Medio Pago", "Monto"};
+
+        for (int i = 0; i < columnas.length; i++) {
+            org.apache.poi.ss.usermodel.Cell cell = header.createCell(i);
+            cell.setCellValue(columnas[i]);
+            cell.setCellStyle(headerStyle);
+        }
+
+        // Filas de contenido
+        int fila = 1;
+        for (Reservas r : reservas) {
+            Row dataRow = sheet.createRow(fila++);
+            dataRow.createCell(0).setCellValue(r.getUsuario().getNombres() + " " + r.getUsuario().getApellidos());
+            dataRow.createCell(1).setCellValue(r.getFechaReserva().toString());
+            dataRow.createCell(2).setCellValue(r.getHorario().getHoraInicio() + " - " + r.getHorario().getHoraFin());
+            dataRow.createCell(3).setCellValue(r.getPago().getMedioPago().getNombre());
+            dataRow.createCell(4).setCellValue("S/ " + r.getPago().getCantidad());
+        }
+
+        // Autoajustar columnas
+        for (int i = 0; i < columnas.length; i++) {
+            sheet.autoSizeColumn(i);
+        }
+
+        // Configurar descarga
+        response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+        response.setHeader("Content-Disposition", "attachment; filename=reporte_servicio_" + idEspacio + ".xlsx");
+
+        // Escribir archivo
+        workbook.write(response.getOutputStream());
+        workbook.close();
+    }
+
+
 
 }
 
