@@ -26,7 +26,6 @@ INSERT INTO listafotos (id_lista_fotos) VALUES (5);
 INSERT INTO fotos (id_fotos, foto, id_lista_fotos, foto_nombre, foto_tipo_archivo)
 VALUES (1, LOAD_FILE('ruta_a_imagen.jpg'), 1, 'medidas_lg.jpg', 'image/jpeg');
 
-INSERT INTO espaciosdeportivos (id_espacio, nombre, ubicacion, id_tipo_espacio, id_lista_fotos, descripcion_corta, descripcion_larga, num_contacto, correo_contacto, operativo, costo_horario, maps_url, hora_abre, hora_cierra) VALUES (1, 'Piscina Diego Ferre', 'San Miguel', 1, 1, 'Esta es una descripcion corta', 'Esta es una descripcion laaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaarga', 111222333, 'a20220378@pucp.edu.pe', true, 10.0, 'https://acortar.link/4DdNym', '09:00', '21:00');
 INSERT INTO espaciosdeportivos (id_espacio, nombre, ubicacion, id_tipo_espacio, id_lista_fotos, descripcion_corta, descripcion_larga, num_contacto, correo_contacto, operativo, costo_horario, maps_url, hora_abre, hora_cierra) VALUES (2, 'Gimnasio', 'San Miguel', 5, 1, 'Esta es una descripcion corta', 'Esta es una descripcion laaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaarga', 111222333, 'a20220378@pucp.edu.pe', true, 25.0, 'https://acortar.link/4DdNym', '09:00', '21:00');
 INSERT INTO `espaciosdeportivos` (
     id_espacio, nombre, ubicacion, id_tipo_espacio, id_lista_fotos,
@@ -41,28 +40,28 @@ INSERT INTO `espaciosdeportivos` (
  '09:00:00', '21:00:00', 1, 10.0, 30,
  -12.06308641, -77.08134412, 150, 'https://maps.app.goo.gl/Gmt7mV7DKHSBCQRaA'),
 
-(2, 'Piscina Olímpica San Miguel', 'Complejo Deportivo San Miguel', 1, 1,
+(3, 'Piscina Olímpica San Miguel', 'Complejo Deportivo San Miguel', 1, 1,
  'Piscina olímpica de 50 metros',
  'Piscina olímpica de 50 metros con 8 carriles, ideal para natación recreativa y competitiva',
  987654321, 'piscina@sanmiguel.gob.pe',
  '06:00:00', '22:00:00', 1, 25.00, 50,
  -12.07650000, -77.03680000, 100, 'https://maps.app.goo.gl/69SE2DU3uieoSx6A9'),
 
-(3, 'Cancha de Fútbol Principal', 'Complejo Deportivo San Miguel', 2, 2,
+(4, 'Cancha de Fútbol Principal', 'Complejo Deportivo San Miguel', 2, 2,
  'Cancha de fútbol con césped natural',
  'Cancha de fútbol profesional con césped natural, iluminación nocturna y graderías',
  987654322, 'cancha@sanmiguel.gob.pe',
  '06:00:00', '23:00:00', 1, 80.00, 200,
  -12.07660497, -77.09124934, 150, 'https://maps.app.goo.gl/ZtpUgxiE4GJEs3yN6'),
 
-(4, 'Pista de Atletismo', 'Complejo Deportivo San Miguel', 3, 3,
+(5, 'Pista de Atletismo', 'Complejo Deportivo San Miguel', 3, 3,
  'Pista de atletismo de 400 metros',
  'Pista de atletismo de 400 metros con superficie de tartán, 8 carriles',
  987654323, 'pista@sanmiguel.gob.pe',
  '05:00:00', '21:00:00', 1, 15.00, 100,
  -12.07660497, -77.09124934, 150, 'https://maps.app.goo.gl/ZtpUgxiE4GJEs3yN6'),
 
-(5, 'Adelfo Magallanes', 'Estadio Municipal San Miguel', 4, 4,
+(6, 'Adelfo Magallanes', 'Estadio Municipal San Miguel', 4, 4,
  'Estadio municipal con capacidad para 5000 personas',
  'Estadio municipal con césped natural, iluminación profesional y capacidad para 5000 espectadores',
  987654324, 'estadio@sanmiguel.gob.pe',

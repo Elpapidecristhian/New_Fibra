@@ -653,6 +653,39 @@
     // Datos de medios de pago se obtendrán del DOM
     const mediosPagoData = {};
 
+    function cargarHorarios() {
+        const fecha = document.getElementById('wdate2').value;
+        const idEspacio = document.getElementById('idEspacio').value;
+
+        if (!fecha || !idEspacio) return;
+
+        fetch(`/vecino/horarios-disponibles?fecha=${fecha}&idEspacio=${idEspacio}`)
+            .then(response => response.json())
+            .then(data => {
+                const container = document.getElementById('horarios-container');
+                container.innerHTML = '';
+
+                data.forEach((horario, idx) => {
+                    const btn = document.createElement('button');
+                    btn.type = 'button';
+                    btn.className = 'waves-effect waves-light btn mb-5 ' +
+                        (horario.reservado === 1 ? 'btn-danger-light' : 'btn-primary-light');
+                    btn.id = 'btn-horario-' + idx;
+                    btn.textContent = horario.horaInicio + ' - ' + horario.horaFin;
+                    btn.disabled = horario.reservado === 1;
+                    btn.onclick = function () {
+                        selectHorario(this, horario.idHorarios);
+                    };
+
+                    container.appendChild(btn);
+
+                    // Salto de línea cada 3 botones
+                    if ((idx + 1) % 3 === 0) container.appendChild(document.createElement('br'));
+                });
+            })
+            .catch(error => console.error('Error al cargar horarios:', error));
+    }
+
     function selectHorario(button, horarioId) {
         // Quitar clase 'active' de todos los botones
         document.querySelectorAll('#horarios-container .btn').forEach(btn => btn.classList.remove('active'));
@@ -663,6 +696,7 @@
         // Actualizar el valor del input hidden con el id del horario seleccionado
         document.getElementById('horarioSeleccionado').value = horarioId;
     }
+
 
     function selectPaymentMethod(cardElement) {
         // Quitar selección anterior

@@ -196,7 +196,8 @@ public class VecinoController {
                                 reserva.getFechaReserva()));
                 if (optHorarioReservado.isPresent()) {
                     horarioReservadoRepository.delete(optHorarioReservado.get());
-                    reservasRepository.delete(reserva);
+                    reserva.setEstadoReserva(Reservas.EstadoReserva.CANCELADA_USUARIO);
+                    reservasRepository.save(reserva);
                     attr.addFlashAttribute("msg", "Reserva cancelada correctamente. Su dinero será reembolsado en un plazo de dos semanas.");
                 }
             } else {
@@ -215,14 +216,13 @@ public class VecinoController {
             Suscripciones suscripciones = optSub.get();
             LocalDate hoy = LocalDate.now();
             LocalDate fechaFin = suscripciones.getFechaFin();
-            if(fechaFin.isAfter(hoy)){
-                suscripciones.setEstado(false);
-                attr.addFlashAttribute("msg", "Suscripción cancelada correctamente.");
-            } else {
-                attr.addFlashAttribute("error", "No deberías poder ver esto.");
-            }
+            suscripciones.setEstado(false);
+            suscripcionesRepository.save(suscripciones);
+            attr.addFlashAttribute("msg", "Suscripción cancelada correctamente.");
+
         } else {
             attr.addFlashAttribute("error", "No se encontró la suscripción.");
+            System.out.println("No se encontró la suscripcion");
         }
         return "redirect:/vecino/reservas";
     }
@@ -391,6 +391,10 @@ public class VecinoController {
             model.addAttribute("gimnasio", gimnasio);
             model.addAttribute("suscripcion", suscripcion);
             model.addAttribute("minDate", LocalDate.now());
+            List<MediosPago> mediosPago = mediosPagoRepository.findAll().stream()
+                    .filter(MediosPago::getActivo)
+                    .toList();
+            model.addAttribute("mediosPago", mediosPago);
             return "vecino/suscribirse";
         } else {
             return "redirect:/vecino/";
@@ -398,7 +402,70 @@ public class VecinoController {
     }
 
     @PostMapping("/guardarsuscripcion")
-    public String guardarSuscripcion(@ModelAttribute("suscripcion") Suscripciones suscripcion){
+    public String guardarSuscripcion(@ModelAttribute("suscripcion") Suscripciones suscripcion,
+                                     @RequestParam("medioPagoId") int medioPagoId,
+                                     @RequestParam(value = "numeroTarjeta", required = false) String numeroTarjeta,
+                                     @RequestParam(value = "nombreTarjeta", required = false) String nombreTarjeta,
+                                     @RequestParam(value = "fechaExpiracion", required = false) String fechaExpiracion,
+                                     @RequestParam(value = "cvv", required = false) String cvv,
+                                     @RequestParam(value = "numeroTransaccion", required = false) String numeroTransaccion,
+                                     @RequestParam(value = "comprobantes", required = false) MultipartFile[] comprobantes,
+                                     HttpServletRequest request,
+                                     RedirectAttributes redirectAttributes) {
+        Gimnasios gimnasio = gimnasiosRepository.findByIdEspacios(suscripcion.getEspacio().getId());
+        float costo = switch (suscripcion.getTipoSuscripcion()) {
+            case "SEMANAL" -> gimnasio.getCostoSemanal();
+            case "MENSUAL" -> gimnasio.getCostoMensual();
+            case "ANUAL" -> gimnasio.getCostoAnual();
+            default -> 0;
+        };
+
+        // Obtener medio de pago seleccionado
+        Optional<MediosPago> optMedioPago = mediosPagoRepository.findById(medioPagoId);
+        if (!optMedioPago.isPresent()) {
+            redirectAttributes.addFlashAttribute("error", "Medio de pago no válido");
+            return "redirect:/vecino/espacios";
+        }
+
+        MediosPago medioPago = optMedioPago.get();
+
+        // Crear pago
+        Pagos pago = new Pagos();
+        pago.setMedioPago(medioPago);
+        pago.setCantidad(BigDecimal.valueOf(costo));
+        pago.setIpUsuario(request.getRemoteAddr());
+        pago.setUserAgent(request.getHeader("User-Agent"));
+
+        // Procesar según tipo de pago
+        if (medioPago.getTipoPago() == MediosPago.TipoPago.AUTOMATICO) {
+            // Pago con tarjeta - simular pasarela
+            pago.setEstadoPago(Pagos.EstadoPago.APROBADO);
+            pago.setCodigoAutorizacion("AUTH" + System.currentTimeMillis());
+            pago.setDatosPasarela("{\"numeroTarjeta\":\"****" + numeroTarjeta.substring(numeroTarjeta.length() - 4) + "\",\"nombreTarjeta\":\"" + nombreTarjeta + "\"}");
+            pago.setFechaVerificacion(Timestamp.valueOf(LocalDateTime.now()));
+        } else {
+            // Pago manual - requiere verificación
+            pago.setEstadoPago(Pagos.EstadoPago.PENDIENTE);
+            pago.setNumeroTransaccion(numeroTransaccion);
+
+            // Subir comprobantes si existen
+            if (comprobantes != null && comprobantes.length > 0 && !comprobantes[0].isEmpty()) {
+                try {
+                    ListaFotos listaFotosComprobantes = imageService.uploadPaymentReceipts(comprobantes);
+                    pago.setListaFotosComprobantes(listaFotosComprobantes);
+                } catch (Exception e) {
+                    redirectAttributes.addFlashAttribute("error", "Error al subir comprobantes: " + e.getMessage());
+                    e.printStackTrace();
+                    System.out.println(e.getMessage());
+                    return "redirect:/vecino/espacios";
+                }
+            }
+        }
+
+        // Guardar pago
+        Pagos pagoGuardado = pagosRepository.save(pago);
+        suscripcion.setPagos(pagoGuardado);
+
         suscripcion.setFechaRegistro(LocalDateTime.now());
         LocalDate fechaFin = switch (suscripcion.getTipoSuscripcion().toUpperCase()) {
             case "SEMANAL" -> suscripcion.getFechaInicio().plusDays(7);
@@ -409,21 +476,6 @@ public class VecinoController {
         suscripcion.setFechaFin(fechaFin);
         suscripcion.setEstado(true);
 
-        Gimnasios gimnasio = gimnasiosRepository.findByIdEspacios(suscripcion.getEspacio().getId());
-
-        Pagos pago = new Pagos();
-        float costo = switch (suscripcion.getTipoSuscripcion()) {
-            case "SEMANAL" -> gimnasio.getCostoSemanal();
-            case "MENSUAL" -> gimnasio.getCostoMensual();
-            case "ANUAL" -> gimnasio.getCostoAnual();
-            default -> 0;
-        };
-        pago.setCantidad(BigDecimal.valueOf(costo));
-        Optional<MediosPago> optMedioPago = mediosPagoRepository.findById(1);
-        MediosPago mediosPago = optMedioPago.get();
-        pago.setMedioPago(mediosPago);
-        pagosRepository.save(pago);
-        suscripcion.setPagos(pago);
 
         suscripcionesRepository.save(suscripcion);
 

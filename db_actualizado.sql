@@ -364,11 +364,11 @@ DEFAULT CHARACTER SET = utf8mb3;
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `gtics`.`fotos` (
   `id_fotos` INT NOT NULL AUTO_INCREMENT,
-  `foto` BLOB NOT NULL,
+  `foto` BLOB NULL,
   `id_lista_fotos` INT NOT NULL,
-  `foto_nombre` VARCHAR(50) NOT NULL,
-  `foto_tipo_archivo` VARCHAR(15) NOT NULL,
-  `foto_url` VARCHAR(255) NOT NULL,
+  `foto_nombre` VARCHAR(50) NULL,
+  `foto_tipo_archivo` VARCHAR(15) NULL,
+  `foto_url` VARCHAR(255) NULL,
   PRIMARY KEY (`id_fotos`),
   INDEX `fk_Fotos_ListaFotos1_idx` (`id_lista_fotos` ASC) VISIBLE,
   CONSTRAINT `fk_Fotos_ListaFotos1`

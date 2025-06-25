@@ -85,6 +85,7 @@
                                                     <th>Espacio</th>
                                                     <th>Fecha de Reserva</th>
                                                     <th>Horario</th>
+													<th>Estado</th>
                                                     <th>Medio de Pago</th>
                                                     <th>Fecha de Pago</th>
                                                     <th>Acciones</th>
@@ -92,7 +93,7 @@
                                             </thead>
 											<tbody>
 											<tr th:if="${#lists.isEmpty(listaReservas)}">
-												<td colspan="7" class="text-center">No ha hecho ninguna reserva.</td>
+												<td colspan="8" class="text-center">No ha hecho ninguna reserva.</td>
 											</tr>
 												<th:block th:each="reserva, idx : ${listaReservas}">
 													<tr>
@@ -100,6 +101,7 @@
 														<td th:text="${reserva.espacioDeportivo.getNombre()}"></td>
 														<td th:text="${#temporals.format(reserva.fechaReserva, 'dd/MM/yyyy')}"></td>
 														<td th:text="${reserva.getHorario().getHoraInicio()} + '-' + ${reserva.getHorario().getHoraFin()}"></td>
+														<td th:text="${reserva.getEstadoReserva()}"></td>
 														<td th:text="${reserva.getPago().getMedioPago().getNombre()}"></td>
 														<td th:text="${#dates.format(reserva.getFechaRegistro(), 'dd/MM/yyyy HH:mm:ss')}"></td>
 														<td>
@@ -180,7 +182,8 @@
 																	<i class="mdi mdi-eye"></i>
 																</button>
 																<button type="button" class="btn btn-danger" data-bs-toggle="modal" th:attr="data-bs-target=${'#modal-cancel-' + suscripcion.getId()}"
-																		th:disabled="${suscripcion.getFechaFin().isBefore(hoy)}">
+																		th:disabled="${suscripcion.getFechaFin().isBefore(hoy) || !suscripcion.isEstado()}"
+																		>
 																	<i class="mdi mdi-cancel"></i>
 																</button>
 															</td>
