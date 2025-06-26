@@ -167,7 +167,7 @@ public class VecinoController {
 
     //*********************************************************************************************
     //
-    //                                    Lista de Reservas
+    //                                Lista de Reservas/Sucripciones
     //
     //*********************************************************************************************
 
@@ -182,8 +182,119 @@ public class VecinoController {
         return "vecino/reservas";
     }
 
+    @GetMapping("/reservas/detalles/{id}")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> obtenerDetallesReserva(@PathVariable Integer id) {
+        try {
+            Optional<Reservas> optReserva = reservasRepository.findById(id);
+            if (optReserva.isPresent()) {
+                Reservas reserva = optReserva.get();
+                Map<String, Object> detalles = new HashMap<>();
+
+                // Información de la reserva
+                detalles.put("id", reserva.getId());
+                detalles.put("espacio", reserva.getEspacioDeportivo().getNombre());
+                detalles.put("fechaReserva", reserva.getFechaReserva());
+                detalles.put("horario", reserva.getHorario().getHoraInicio() + " - " + reserva.getHorario().getHoraFin());
+                detalles.put("fechaRegistro", reserva.getFechaRegistro());
+
+                // Información del pago
+                if (reserva.getPago() != null) {
+                    Pagos pago = reserva.getPago();
+                    detalles.put("idPago", pago.getId());
+                    detalles.put("montoPagado", pago.getCantidad());
+                    detalles.put("estadoPago", pago.getEstadoPago().name());
+                    detalles.put("fechaPago", pago.getFechaPago());
+                    detalles.put("medioPago", pago.getMedioPago().getNombre());
+                    detalles.put("numeroTransaccion", pago.getNumeroTransaccion());
+
+                    // Si hay fotos de comprobantes, agregar información
+                    if (pago.getListaFotosComprobantes() != null &&
+                            pago.getListaFotosComprobantes().getFotos() != null &&
+                            !pago.getListaFotosComprobantes().getFotos().isEmpty()) {
+                        detalles.put("tieneComprobantes", true);
+
+                        // Agregar URLs de las fotos
+                        List<Map<String, String>> comprobantes = new ArrayList<>();
+                        for (Fotos foto : pago.getListaFotosComprobantes().getFotos()) {
+                            Map<String, String> comprobante = new HashMap<>();
+                            comprobante.put("url", foto.getFotoUrl());
+                            comprobante.put("nombre", foto.getFotoNombre());
+                            comprobantes.add(comprobante);
+                        }
+                        detalles.put("comprobantes", comprobantes);
+                    } else {
+                        detalles.put("tieneComprobantes", false);
+                    }
+                }
+
+                return ResponseEntity.ok(detalles);
+            } else {
+                return ResponseEntity.notFound().build();
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(Collections.singletonMap("error", "Error al obtener detalles de la reserva: " + e.getMessage()));
+        }
+    }
+
+    @GetMapping("/reservas/detallesubs/{id}")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> obtenerDetallesSuscripciones(@PathVariable Integer id) {
+        try {
+            Optional<Suscripciones> optSub = suscripcionesRepository.findById(id);
+            if (optSub.isPresent()) {
+                Suscripciones suscripcion = optSub.get();
+                Map<String, Object> detalles = new HashMap<>();
+
+                // Información de la reserva
+                detalles.put("id", suscripcion.getId());
+                detalles.put("espacio", suscripcion.getEspacio().getNombre());
+                detalles.put("tipoSuscripcion", suscripcion.getTipoSuscripcion());
+                detalles.put("fechaInicio", suscripcion.getFechaInicio());
+                detalles.put("fechaFin", suscripcion.getFechaFin());
+                detalles.put("fechaRegistro", suscripcion.getFechaRegistro());
+
+                // Información del pago
+                if (suscripcion.getPagos() != null) {
+                    Pagos pago = suscripcion.getPagos();
+                    detalles.put("idPago", pago.getId());
+                    detalles.put("montoPagado", pago.getCantidad());
+                    detalles.put("estadoPago", pago.getEstadoPago().name());
+                    detalles.put("fechaPago", pago.getFechaPago());
+                    detalles.put("medioPago", pago.getMedioPago().getNombre());
+                    detalles.put("numeroTransaccion", pago.getNumeroTransaccion());
+
+                    // Si hay fotos de comprobantes, agregar información
+                    if (pago.getListaFotosComprobantes() != null &&
+                            pago.getListaFotosComprobantes().getFotos() != null &&
+                            !pago.getListaFotosComprobantes().getFotos().isEmpty()) {
+                        detalles.put("tieneComprobantes", true);
+
+                        // Agregar URLs de las fotos
+                        List<Map<String, String>> comprobantes = new ArrayList<>();
+                        for (Fotos foto : pago.getListaFotosComprobantes().getFotos()) {
+                            Map<String, String> comprobante = new HashMap<>();
+                            comprobante.put("url", foto.getFotoUrl());
+                            comprobante.put("nombre", foto.getFotoNombre());
+                            comprobantes.add(comprobante);
+                        }
+                        detalles.put("comprobantes", comprobantes);
+                    } else {
+                        detalles.put("tieneComprobantes", false);
+                    }
+                }
+
+                return ResponseEntity.ok(detalles);
+            } else {
+                return ResponseEntity.notFound().build();
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(Collections.singletonMap("error", "Error al obtener detalles de la suscripcion: " + e.getMessage()));
+        }
+    }
+
     @PostMapping("/cancelarreserva")
-    public String cancelarReserva(@RequestParam Integer id, RedirectAttributes attr) {
+    public String cancelarReserva(@RequestParam("id") Integer id, RedirectAttributes attr) {
         Optional<Reservas> optReserva = reservasRepository.findById(id);
         if (optReserva.isPresent()) {
             Reservas reserva = optReserva.get();
@@ -514,33 +625,31 @@ public class VecinoController {
         if(bindingResult.hasErrors()) {
             return "vecino/perfil";
         }
+        usuarioRepository.save(usuario);
+        if(!file.isEmpty()){
+            try {
+                // Obtener usuario real de la sesión
+                Usuario usuarioSesion = (Usuario) session.getAttribute("usuario");
+                if (usuarioSesion == null) {
+                    model.addAttribute("msg", "Sesión expirada");
+                    return "vecino/perfil";
+                }
 
-        if(file.isEmpty()) {
-            model.addAttribute("msg", "Debe seleccionar una imagen");
-            return "vecino/perfil";
-        }
+                // Usar el nuevo servicio de imágenes con S3
+                imageService.uploadUserProfileImage(usuarioSesion, file);
 
-        try {
-            // Obtener usuario real de la sesión
-            Usuario usuarioSesion = (Usuario) session.getAttribute("usuario");
-            if (usuarioSesion == null) {
-                model.addAttribute("msg", "Sesión expirada");
+                // Actualizar usuario en sesión
+                session.setAttribute("usuario", usuarioSesion);
+
+                model.addAttribute("msg", "Imagen de perfil actualizada exitosamente");
+                return "redirect:/vecino/perfil";
+            } catch (Exception e) {
+                model.addAttribute("msg", "Error al subir la imagen: " + e.getMessage());
+                e.printStackTrace(); // Para ver el error en consola
                 return "vecino/perfil";
             }
-
-            // Usar el nuevo servicio de imágenes con S3
-            imageService.uploadUserProfileImage(usuarioSesion, file);
-
-            // Actualizar usuario en sesión
-            session.setAttribute("usuario", usuarioSesion);
-
-            model.addAttribute("msg", "Imagen de perfil actualizada exitosamente");
-            return "redirect:/vecino/perfil";
-        } catch (Exception e) {
-            model.addAttribute("msg", "Error al subir la imagen: " + e.getMessage());
-            e.printStackTrace(); // Para ver el error en consola
-            return "vecino/perfil";
         }
+        return "vecino/perfil";
     }
 
     //*********************************************************************************************
@@ -614,61 +723,12 @@ public class VecinoController {
         }
     }
 
-    // OBTENER DETALLES DE RESERVA CON COMPROBANTES
-    @GetMapping("/reservas/detalles/{id}")
-    @ResponseBody
-    public ResponseEntity<Map<String, Object>> obtenerDetallesReserva(@PathVariable Integer id) {
-        try {
-            Optional<Reservas> optReserva = reservasRepository.findById(id);
-            if (optReserva.isPresent()) {
-                Reservas reserva = optReserva.get();
-                Map<String, Object> detalles = new HashMap<>();
 
-                // Información de la reserva
-                detalles.put("id", reserva.getId());
-                detalles.put("espacio", reserva.getEspacioDeportivo().getNombre());
-                detalles.put("fechaReserva", reserva.getFechaReserva());
-                detalles.put("horario", reserva.getHorario().getHoraInicio() + " - " + reserva.getHorario().getHoraFin());
-                detalles.put("fechaRegistro", reserva.getFechaRegistro());
-
-                // Información del pago
-                if (reserva.getPago() != null) {
-                    Pagos pago = reserva.getPago();
-                    detalles.put("idPago", pago.getId());
-                    detalles.put("montoPagado", pago.getCantidad());
-                    detalles.put("estadoPago", pago.getEstadoPago().name());
-                    detalles.put("fechaPago", pago.getFechaPago());
-                    detalles.put("medioPago", pago.getMedioPago().getNombre());
-                    detalles.put("numeroTransaccion", pago.getNumeroTransaccion());
-
-                    // Si hay fotos de comprobantes, agregar información
-                    if (pago.getListaFotosComprobantes() != null &&
-                        pago.getListaFotosComprobantes().getFotos() != null &&
-                        !pago.getListaFotosComprobantes().getFotos().isEmpty()) {
-                        detalles.put("tieneComprobantes", true);
-
-                        // Agregar URLs de las fotos
-                        List<Map<String, String>> comprobantes = new ArrayList<>();
-                        for (Fotos foto : pago.getListaFotosComprobantes().getFotos()) {
-                            Map<String, String> comprobante = new HashMap<>();
-                            comprobante.put("url", foto.getFotoUrl());
-                            comprobante.put("nombre", foto.getFotoNombre());
-                            comprobantes.add(comprobante);
-                        }
-                        detalles.put("comprobantes", comprobantes);
-                    } else {
-                        detalles.put("tieneComprobantes", false);
-                    }
-                }
-
-                return ResponseEntity.ok(detalles);
-            } else {
-                return ResponseEntity.notFound().build();
-            }
-        } catch (Exception e) {
-            return ResponseEntity.status(500).body(Collections.singletonMap("error", "Error al obtener detalles de la reserva: " + e.getMessage()));
-        }
-    }
+    //*********************************************************************************************
+    //
+    //                                       ChatBot
+    //
+    //*********************************************************************************************
 
     @PostMapping("/api/chatbot")
     @ResponseBody

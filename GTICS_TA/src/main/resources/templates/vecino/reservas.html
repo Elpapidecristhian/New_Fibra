@@ -106,7 +106,6 @@
 														<td th:text="${#dates.format(reserva.getFechaRegistro(), 'dd/MM/yyyy HH:mm:ss')}"></td>
 														<td>
 															<button type="button" class="btn btn-primary" th:onclick="'verDetallesReserva(' + ${reserva.getId()} + ')'">
-
 																<i class="mdi mdi-eye"></i>
 															</button>
 															<button type="button" class="btn btn-danger" data-bs-toggle="modal" th:attr="data-bs-target=${'#modal-cancel-' + reserva.getId()}"
@@ -178,7 +177,7 @@
 															<td th:text="${suscripcion.getPagos().getMedioPago().getNombre()}"></td>
 															<td th:text="${#temporals.format(suscripcion.getFechaRegistro(), 'dd/MM/yyyy HH:mm:ss')}"></td>
 															<td>
-																<button type="button" class="btn btn-primary" data-bs-toggle="modal" th:attr="data-bs-target=${'#modal-' + suscripcion.getId()}">
+																<button type="button" class="btn btn-primary" th:onclick="'verDetallesSuscripcion(' + ${suscripcion.getId()} + ')'">
 																	<i class="mdi mdi-eye"></i>
 																</button>
 																<button type="button" class="btn btn-danger" data-bs-toggle="modal" th:attr="data-bs-target=${'#modal-cancel-' + suscripcion.getId()}"
@@ -259,23 +258,19 @@
 
 	<!-- /.Suscripciones Modal -->
 	<!-- /.content-wrapper -->
-	<div th:each="suscripcion, idx : ${listaSuscripciones}" class="modal center-modal fade" th:id="'modal-' + ${suscripcion.getId()}" tabindex="-1">
-		<div class="modal-dialog">
+	<div class="modal center-modal fade" id="modalDetallesSuscripcion" tabindex="-1">
+		<div class="modal-dialog modal-lg">
 			<div class="modal-content">
 				<div class="modal-header">
-					<h5 th:utext="'Suscripción ' + ${idx.index + 1}" class="modal-title"></h5>
+					<h5 class="modal-title">Detalles de la Suscripción</h5>
 					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 				</div>
-				<div class="modal-body">
-					<p><strong>Espacio: </strong><span th:text="${suscripcion.getEspacio().getNombre()}"></span></p>
-					<p><strong>Fecha de Inicio: </strong><span th:text="${#temporals.format(suscripcion.getFechaInicio(), 'dd/MM/yyyy')}"></span></p>
-					<p><strong>Fecha de Fin: </strong><span th:text="${#temporals.format(suscripcion.getFechaFin(), 'dd/MM/yyyy')}"></span></p>
-					<p><strong>Tipo Suscripción: </strong><span th:text="${suscripcion.getTipoSuscripcion()}"></span></p>
-					<p><strong>Estado: </strong><span th:text="${suscripcion.estado ? 'Activo' : 'Inactivo'}"></span></p>
-					<p><strong>Id Pago: </strong><span th:text="${suscripcion.getPagos().getId()}"></span></p>
-					<p><strong>Monto Pagado: </strong><span th:text="${suscripcion.getPagos().getCantidad()}"></span></p>
-					<p><strong>Medio de Pago: </strong><span th:text="${suscripcion.getPagos().getMedioPago().getNombre()}"></span></p>
-					<p><strong>Fecha de Pago: </strong><span th:text="${#temporals.format(suscripcion.getFechaRegistro())}"></span></p>
+				<div class="modal-body" id="contenidoDetallesSuscripcion">
+					<div class="text-center">
+						<div class="spinner-border" role="status">
+							<span class="visually-hidden">Cargando...</span>
+						</div>
+					</div>
 				</div>
 				<div class="modal-footer modal-footer-uniform">
 					<button type="button" class="btn btn-success" data-bs-dismiss="modal">Cerrar</button>
@@ -711,6 +706,94 @@
 						</div>
 					`;
 				});
+		}
+
+		function verDetallesSuscripcion(suscripcionId) {
+			console.log('Abriendo detalles para suscripcion ID:', suscripcionId);
+
+			// Obtener elementos del DOM
+			const modal = document.getElementById('modalDetallesSuscripcion');
+			const contenido = document.getElementById('contenidoDetallesSuscripcion');
+
+			// Mostrar modal con spinner
+			const modalInstance = new bootstrap.Modal(modal);
+			modalInstance.show();
+
+			contenido.innerHTML = `
+				<div class="text-center">
+					<div class="spinner-border" role="status">
+						<span class="visually-hidden">Cargando...</span>
+					</div>
+				</div>
+			`;
+
+			// Cargar datos de la reserva
+			fetch(`/vecino/reservas/detallesubs/${suscripcionId}`)
+					.then(response => {
+						console.log('Response status:', response.status);
+						if (!response.ok) {
+							throw new Error('Error en la respuesta del servidor');
+						}
+						return response.json();
+					})
+					.then(data => {
+						console.log('Datos recibidos:', data);
+						let contenidoHtml = `
+						<div class="row">
+							<div class="col-md-6">
+								<h6>Información de la Suscripción</h6>
+								<p><strong>Espacio:</strong> ${data.espacio}</p>
+								<p><strong>Tipo:</strong> ${data.tipoSuscripcion}</p>
+								<p><strong>Fecha de Inicio:</strong> ${new Date(data.fechaInicio).toLocaleDateString()}</p>
+								<p><strong>Fecha de Fin:</strong> ${new Date(data.fechaFin).toLocaleDateString()}</p>
+								<p><strong>Fecha de Registro:</strong> ${new Date(data.fechaRegistro).toLocaleString()}</p>
+							</div>
+							<div class="col-md-6">
+								<h6>Información del Pago</h6>
+								<p><strong>Monto:</strong> S/ ${data.montoPagado}</p>
+								<p><strong>Estado:</strong> ${getEstadoBadge(data.estadoPago)}</p>
+								<p><strong>Medio de Pago:</strong> ${data.medioPago}</p>
+								${data.numeroTransaccion ? '<p><strong>Nº Transacción:</strong> ' + data.numeroTransaccion + '</p>' : ''}
+							</div>
+						</div>
+					`;
+
+						// Agregar sección de comprobantes si existen
+						if (data.tieneComprobantes && data.comprobantes) {
+							contenidoHtml += `
+							<hr>
+							<h6>Comprobantes de Pago</h6>
+							<div class="row">
+						`;
+							data.comprobantes.forEach((comprobante, index) => {
+								contenidoHtml += `
+								<div class="col-md-6 mb-3">
+									<div class="card">
+										<div class="card-body text-center">
+											<p class="card-title">📄 Comprobante ${index + 1}</p>
+											<a href="${comprobante.url}" target="_blank" class="btn btn-primary btn-sm">
+												<i class="fas fa-download"></i> Descargar
+											</a>
+											<br>
+											<small class="text-muted">${comprobante.nombre || 'Archivo'}</small>
+										</div>
+									</div>
+								</div>
+							`;
+							});
+							contenidoHtml += `</div>`;
+						}
+
+						contenido.innerHTML = contenidoHtml;
+					})
+					.catch(error => {
+						console.error('Error:', error);
+						contenido.innerHTML = `
+						<div class="alert alert-danger">
+							<strong>Error:</strong> No se pudieron cargar los detalles de la reserva.
+						</div>
+					`;
+					});
 		}
 
 		function getEstadoBadge(estado) {
