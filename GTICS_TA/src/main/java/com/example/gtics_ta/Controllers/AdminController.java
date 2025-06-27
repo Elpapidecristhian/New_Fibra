@@ -611,7 +611,7 @@ public class AdminController {
         } catch (Exception e) {
             System.err.println("Error al guardar servicio: " + e.getMessage());
             e.printStackTrace();
-            return "redirect:/admin/nuevo?error=true";
+            return "redirect:/admin";
         }
         return "redirect:/admin?success=true";
     }

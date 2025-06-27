@@ -66,7 +66,11 @@ INSERT INTO `espaciosdeportivos` (
  'Estadio municipal con césped natural, iluminación profesional y capacidad para 5000 espectadores',
  987654324, 'estadio@sanmiguel.gob.pe',
  '08:00:00', '22:00:00', 1, 200.00, 5000,
- -12.08516404, -77.09591446, 200, 'https://maps.app.goo.gl/ZtmUUgHnHjQqEsaE7');
+ -12.08516404, -77.09591446, 200, 'https://maps.app.goo.gl/ZtmUUgHnHjQqEsaE7'),
+ (7, 'CATO', 'Pontificia Universidad Catolica del Peru', 1, 1,
+ 'Desc corta', 'desc larga', 123456789, 'a@b.c',
+ '08:00:00', '22:00:00', 1, 200.00, 6000,
+ -12.069092078589252, -77.07820583106815, 200, 'https://maps.app.goo.gl/YeMKqvF3RZHBVbBM7');
 
 INSERT INTO piscinas(id_espacio, tipo_piscina, profundidad_min, profundidad_max, is_climatizada, requisitos, num_carril_max) VALUES (1, 'Olímpica', 1.0, 2.5, true, 'Llevar gorro y lentes para piscina', 8);
 INSERT INTO gimnasios(id_espacio, cantidad_maquinas, tipos_maquinas, tiene_sauna, tiene_duchas, costo_semanal, costo_mensual, costo_anual) VALUES (2, 20, 'Yo q se', true, true, 10.0, 20.0, 30.0);
@@ -138,6 +142,14 @@ VALUES
     '22:00:00',             -- hora_salida (10 PM)
     '2025-06-16 03:00:00',  -- fecha_inicio (16/06/2025 a las 3 AM)
     '2025-06-16 22:00:00'   -- fecha_fin (mismo día a las 10 PM)
+),
+(
+	4,
+    7,
+    '08:00:00',
+    '22:00:00',
+    '2025-06-26 03:00:00',
+    '2025-06-30 22:00:00'
 );
 
 -- Crear horario de coordinador para la semana actual
