@@ -66,6 +66,8 @@ public class VecinoController {
     private MediosPagoRepository mediosPagoRepository;
     @Autowired
     private PagosRepository pagosRepository;
+    @Autowired
+    private NotificacionesRepository notificacionesRepository;
 
     @GetMapping(value = {"","/"})
     public String vistaInicial(Model model) {
@@ -165,13 +167,25 @@ public class VecinoController {
     //*********************************************************************************************
 
     @GetMapping("/reservas")
-    public String listarReservas(@RequestParam(value = "nombre", required = false) String nombre, Model model) {
+    public String listarReservas(@RequestParam(value = "nombre", required = false) String nombre, Model model, HttpSession session) {
         List<Reservas> reservas= (nombre == null || nombre.isEmpty()) ?
                 reservasRepository.findAll() :
                 reservasRepository.findByEspacioDeportivo_NombreContainingIgnoreCase(nombre);
         model.addAttribute("listaReservas", reservas);
+
         model.addAttribute("hoy", LocalDate.now());
+
+        // 👇 Cargar notificaciones aquí
+        cargarNotificaciones(model, session);
         return "vecino/reservas";
+    }
+
+    private void cargarNotificaciones(Model model, HttpSession session) {
+        Usuario usuario = (Usuario) session.getAttribute("usuario");
+        if (usuario != null) {
+            List<Notificaciones> notificaciones = notificacionesRepository.findByUsuarioOrderByFechaCreacionDesc(usuario);
+            model.addAttribute("notificaciones", notificaciones);
+        }
     }
 
     @PostMapping("/cancelarreserva")
@@ -304,6 +318,17 @@ public class VecinoController {
 
             horarioReservadoRepository.save(horarioReservado);
             reservasRepository.save(reserva);
+            String titulo = "Reserva Exitosa";
+            String mensaje = "Reserva del espacio deportivo \"" + reserva.getEspacioDeportivo().getNombre() + "\" para el día " + reserva.getFechaReserva().toString();
+
+            Notificaciones notificacion = new Notificaciones(
+                    reserva.getUsuario(),
+                    Notificaciones.TipoNotificacion.RECORDATORIO_RESERVA,
+                    titulo,
+                    mensaje,
+                    reserva
+            );
+            notificacionesRepository.save(notificacion);
 
             // Enviar email de confirmación
             enviarEmailConfirmacion(reserva);
@@ -561,7 +586,6 @@ public class VecinoController {
                 cookie.setPath("/"); // visible para todo el sitio
                 response.addCookie(cookie);
             }
-
             return ResponseEntity.ok(json);
 
         } catch (Exception e) {

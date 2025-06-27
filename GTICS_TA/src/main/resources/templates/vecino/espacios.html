@@ -1,217 +1,217 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-	<meta charset="utf-8">
-	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<meta name="description" content="">
-	<meta name="author" content="">
-	<link rel="icon" href="/images/san_miguel_logo.ico">
-	<title>Espacios Deportivos</title>
+	<!DOCTYPE html>
+	<html lang="es">
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<meta name="description" content="">
+		<meta name="author" content="">
+		<link rel="icon" href="/images/san_miguel_logo.ico">
+		<title>Espacios Deportivos</title>
 
-	<!-- Vendors Style-->
-	<link rel="stylesheet" href="/css/vendors_css.css">
-	<!-- Style-->
-	<link rel="stylesheet" href="/css/style.css">
-	<link rel="stylesheet" href="/css/skin_color.css">
-</head>
+		<!-- Vendors Style-->
+		<link rel="stylesheet" href="/css/vendors_css.css">
+		<!-- Style-->
+		<link rel="stylesheet" href="/css/style.css">
+		<link rel="stylesheet" href="/css/skin_color.css">
+	</head>
 
-<body class="hold-transition light-skin sidebar-mini theme-success fixed">
-<div class="wrapper">
-	<div id="loader"></div>
-	<header class="main-header">
-		<div class="d-flex align-items-center logo-box justify-content-start">
-			<!-- Logo -->
-			<a href="/static/assets/vendor_components/jquery-validation-1.17.0/demo/requirejs/index.html" class="logo">
-				<!-- logo-->
-				<div class="logo-mini w-50">
-					<span class="light-logo"><img src="/images/san_miguel_logo.png" alt="logo"></span>
-					<span class="dark-logo"><img src="/images/san_miguel_logo.png" alt="logo"></span>
-				</div>
-				<div class="logo-lg">
-					<span class="light-logo"><img src="/images/san_miguel.png" alt="logo"></span>
-					<span class="dark-logo"><img src="/images/san_miguel.png" alt="logo"></span>
-				</div>
-			</a>
-		</div>
-		<!-- Header Navbar -->
-		<nav class="navbar navbar-static-top">
-			<!-- Sidebar toggle button-->
-			<div class="app-menu">
-				<ul class="header-megamenu nav">
-					<li class="btn-group nav-item">
-						<a href="#" class="waves-effect waves-light nav-link push-btn btn-primary-light" data-toggle="push-menu" role="button">
-							<i data-feather="align-left"></i>
-						</a>
-					</li>
-					<li class="btn-group d-lg-inline-flex d-none">
-						<div class="app-menu">
-							<div class="search-bx mx-5">
-								<form th:action="@{/vecino/espacios}" method="get">
-									<div class="input-group">
-										<input type="search" class="form-control" th:value="${nombreSeleccionado}" placeholder="Buscar" aria-label="Search" aria-describedby="button-addon2" name="nombre">
-										<input type="hidden" th:value="${tipoSeleccionado}" name="tipo">
-										<input type="hidden" th:value="${fechaSeleccionada}" name="fecha">
-										<div class="input-group-append">
-											<button class="btn" type="submit" id="button-addon3"><i data-feather="search"></i></button>
+	<body class="hold-transition light-skin sidebar-mini theme-success fixed">
+	<div class="wrapper">
+		<div id="loader"></div>
+		<header class="main-header">
+			<div class="d-flex align-items-center logo-box justify-content-start">
+				<!-- Logo -->
+				<a href="/static/assets/vendor_components/jquery-validation-1.17.0/demo/requirejs/index.html" class="logo">
+					<!-- logo-->
+					<div class="logo-mini w-50">
+						<span class="light-logo"><img src="/images/san_miguel_logo.png" alt="logo"></span>
+						<span class="dark-logo"><img src="/images/san_miguel_logo.png" alt="logo"></span>
+					</div>
+					<div class="logo-lg">
+						<span class="light-logo"><img src="/images/san_miguel.png" alt="logo"></span>
+						<span class="dark-logo"><img src="/images/san_miguel.png" alt="logo"></span>
+					</div>
+				</a>
+			</div>
+			<!-- Header Navbar -->
+			<nav class="navbar navbar-static-top">
+				<!-- Sidebar toggle button-->
+				<div class="app-menu">
+					<ul class="header-megamenu nav">
+						<li class="btn-group nav-item">
+							<a href="#" class="waves-effect waves-light nav-link push-btn btn-primary-light" data-toggle="push-menu" role="button">
+								<i data-feather="align-left"></i>
+							</a>
+						</li>
+						<li class="btn-group d-lg-inline-flex d-none">
+							<div class="app-menu">
+								<div class="search-bx mx-5">
+									<form th:action="@{/vecino/espacios}" method="get">
+										<div class="input-group">
+											<input type="search" class="form-control" th:value="${nombreSeleccionado}" placeholder="Buscar" aria-label="Search" aria-describedby="button-addon2" name="nombre">
+											<input type="hidden" th:value="${tipoSeleccionado}" name="tipo">
+											<input type="hidden" th:value="${fechaSeleccionada}" name="fecha">
+											<div class="input-group-append">
+												<button class="btn" type="submit" id="button-addon3"><i data-feather="search"></i></button>
+											</div>
 										</div>
+									</form>
+								</div>
+							</div>
+						</li>
+					</ul>
+				</div>
+
+				<div th:replace="fragments :: navbarFragment"></div>
+			</nav>
+		</header>
+		<aside th:replace="fragments :: sidebarFragment"></aside>
+
+
+		<!-- Content Wrapper -->
+		<div class="content-wrapper">
+			<div class="container-full">
+				<section class="content">
+
+					<!-- Filtro de búsqueda y fecha -->
+					<form th:action="@{/vecino/espacios}" method="get">
+						<div class="card">
+							<div class="card-header">
+								<h4 class="card-title">Espacios Deportivos</h4>
+
+								<label class="form-label" for="date-filter">Fecha</label>
+								<input type="date" th:attr="min=${minDate}" class="form-control" id="date-filter" th:value="${fechaSeleccionada}" name="fecha">
+								<input type="hidden" th:value="${nombreSeleccionado}" name="nombre">
+
+								<label class="form-label" for="type-filter">Filtros</label>
+								<select class="form-select" id="type-filter" name="tipo">
+									<option th:selected="${tipoSeleccionado==null}" disabled>Seleccione</option>
+									<option th:selected="${tipoSeleccionado==2}" value="2">Canchas de Fútbol</option>
+									<option th:selected="${tipoSeleccionado==1}" value="1">Piscinas</option>
+									<option th:selected="${tipoSeleccionado==3}" value="3">Pistas de Atletismo</option>
+									<option th:selected="${tipoSeleccionado==4}" value="4">Estadios</option>
+								</select>
+
+								<div class="help-bt mt-2">
+									<a th:href="@{/vecino}" class="waves-effect waves-light btn btn-primary">Limpiar Filtros</a>
+								</div>
+								<div class="help-bt mt-2">
+									<button type="submit" class="waves-effect waves-light btn btn-success">Aplicar Filtros</button>
+								</div>
+							</div>
+						</div>
+					</form>
+
+					<!-- Mostrar los espacios deportivos -->
+					<div class="row">
+						<div class="col-md-12 col-lg-4" th:each="espacio : ${espacios}">
+							<div>
+								<div class="card mb-4">
+									<div class="img-wrapper">
+										<img th:if="${primerasFotos[espacio.id] != null}"
+											 th:src="@{|image/${primerasFotos[espacio.id]}|}"
+											 onerror="this.onerror=null;this.src='https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRzzuCP3cOsY_IqKeLxrY-KQOCiUabgxyZqHw&s';"
+											 class="card-img-top img-cropped" />
+										<img th:unless="${primerasFotos[espacio.id] != null}"
+											 src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRzzuCP3cOsY_IqKeLxrY-KQOCiUabgxyZqHw&s"
+											 alt="Imagen de espacio deportivo"
+											 class="card-img-top img-cropped" />"
 									</div>
-								</form>
-							</div>
-						</div>
-					</li>
-				</ul>
-			</div>
+									<div class="card-body">
+										<h4 class="card-title" th:text="${espacio.getNombre()}">Nombre espacio</h4>
+										<p class="card-text" th:text="${espacio.getDescripcionCorta()}">Descripción corta...</p>
+									</div>
 
-			<div th:replace="fragments :: navbarFragment"></div>
-		</nav>
-	</header>
-	<aside th:replace="fragments :: sidebarFragment"></aside>
-
-
-	<!-- Content Wrapper -->
-	<div class="content-wrapper">
-		<div class="container-full">
-			<section class="content">
-
-				<!-- Filtro de búsqueda y fecha -->
-				<form th:action="@{/vecino/espacios}" method="get">
-					<div class="card">
-						<div class="card-header">
-							<h4 class="card-title">Espacios Deportivos</h4>
-
-							<label class="form-label" for="date-filter">Fecha</label>
-							<input type="date" th:attr="min=${minDate}" class="form-control" id="date-filter" th:value="${fechaSeleccionada}" name="fecha">
-							<input type="hidden" th:value="${nombreSeleccionado}" name="nombre">
-
-							<label class="form-label" for="type-filter">Filtros</label>
-							<select class="form-select" id="type-filter" name="tipo">
-								<option th:selected="${tipoSeleccionado==null}" disabled>Seleccione</option>
-								<option th:selected="${tipoSeleccionado==2}" value="2">Canchas de Fútbol</option>
-								<option th:selected="${tipoSeleccionado==1}" value="1">Piscinas</option>
-								<option th:selected="${tipoSeleccionado==3}" value="3">Pistas de Atletismo</option>
-								<option th:selected="${tipoSeleccionado==4}" value="4">Estadios</option>
-							</select>
-
-							<div class="help-bt mt-2">
-								<a th:href="@{/vecino}" class="waves-effect waves-light btn btn-primary">Limpiar Filtros</a>
-							</div>
-							<div class="help-bt mt-2">
-								<button type="submit" class="waves-effect waves-light btn btn-success">Aplicar Filtros</button>
+									<div class="card-footer justify-content-between d-flex">
+										<a th:href="@{/vecino/detalles(idEspacio=${espacio.id}, fecha=${fechaSeleccionada})}" class="btn btn-primary">Detalles</a>
+										<a th:href="@{/vecino/reservar(idEspacio=${espacio.id}, fecha=${fechaSeleccionada})}" class="btn btn-info">Reservar</a>
+									</div>
+								</div>
 							</div>
 						</div>
 					</div>
+
+
+				</section>
+			</div>
+		</div>
+	</div>
+
+	<div id="chat-box-body">
+		<div id="chat-circle" class="waves-effect waves-circle btn btn-circle btn-lg btn-warning l-h-70">
+			<div id="chat-overlay"></div>
+			<span class="icon-Group-chat fs-30"><span class="path1"></span><span class="path2"></span></span>
+		</div>
+
+		<div class="chat-box">
+			<div class="chat-box-header p-15 d-flex justify-content-between align-items-center">
+				<div class="text-center flex-grow-1">
+					<div class="text-dark fs-18">San Miguelito</div>
+					<div>
+						<span class="badge badge-sm badge-dot badge-primary"></span>
+						<span class="text-muted fs-12">En línea</span>
+					</div>
+				</div>
+				<div class="chat-box-toggle">
+					<button id="chat-box-toggle" class="waves-effect waves-circle btn btn-circle btn-danger-light h-40 w-40 rounded-circle l-h-45" type="button">
+						<span class="icon-Close fs-22"><span class="path1"></span><span class="path2"></span></span>
+					</button>
+				</div>
+			</div>
+			<div class="chat-box-body">
+				<div class="chat-box-overlay">
+				</div>
+				<div class="chat-logs">
+					<div class="chat-msg user">
+						<div class="d-flex align-items-center">
+								<span class="msg-avatar">
+									<img src="/images/avatar/chatbot.png" class="avatar avatar-lg">
+								</span>
+							<div class="mx-10">
+								<a href="#" class="text-dark hover-primary fw-bold">San Miguelito</a>
+								<p class="text-muted fs-12 mb-0">Ahora</p>
+							</div>
+						</div>
+						<div class="cm-msg-text">
+							¡Hola! Soy San miguelito, puedo responder cualquier duda que tengas o ayudarte en el proceso de la reserva de un espacio.
+						</div>
+					</div>
+
+					<div class="chat-msg user">
+						<div class="d-flex align-items-center">
+								<span class="msg-avatar">
+									<img src="/images/avatar/chatbot.png" class="avatar avatar-lg">
+								</span>
+
+						</div>
+
+					</div>
+				</div><!--chat-log -->
+			</div>
+			<div class="chat-input">
+				<form>
+					<input type="text" id="chat-input" placeholder="Envía un mensaje..."/>
+					<button type="submit" class="chat-submit" id="chat-submit">
+						<span class="icon-Send fs-22"></span>
+					</button>
 				</form>
-
-				<!-- Mostrar los espacios deportivos -->
-				<div class="row">
-					<div class="col-md-12 col-lg-4" th:each="espacio : ${espacios}">
-						<div>
-							<div class="card mb-4">
-								<div class="img-wrapper">
-									<img th:if="${primerasFotos[espacio.id] != null}"
-										 th:src="@{|image/${primerasFotos[espacio.id]}|}"
-										 onerror="this.onerror=null;this.src='https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRzzuCP3cOsY_IqKeLxrY-KQOCiUabgxyZqHw&s';"
-										 class="card-img-top img-cropped" />
-									<img th:unless="${primerasFotos[espacio.id] != null}"
-										 src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRzzuCP3cOsY_IqKeLxrY-KQOCiUabgxyZqHw&s"
-										 alt="Imagen de espacio deportivo"
-										 class="card-img-top img-cropped" />"
-								</div>
-								<div class="card-body">
-									<h4 class="card-title" th:text="${espacio.getNombre()}">Nombre espacio</h4>
-									<p class="card-text" th:text="${espacio.getDescripcionCorta()}">Descripción corta...</p>
-								</div>
-
-								<div class="card-footer justify-content-between d-flex">
-									<a th:href="@{/vecino/detalles(idEspacio=${espacio.id}, fecha=${fechaSeleccionada})}" class="btn btn-primary">Detalles</a>
-									<a th:href="@{/vecino/reservar(idEspacio=${espacio.id}, fecha=${fechaSeleccionada})}" class="btn btn-info">Reservar</a>
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
-
-
-			</section>
-		</div>
-	</div>
-</div>
-
-<div id="chat-box-body">
-	<div id="chat-circle" class="waves-effect waves-circle btn btn-circle btn-lg btn-warning l-h-70">
-		<div id="chat-overlay"></div>
-		<span class="icon-Group-chat fs-30"><span class="path1"></span><span class="path2"></span></span>
-	</div>
-
-	<div class="chat-box">
-		<div class="chat-box-header p-15 d-flex justify-content-between align-items-center">
-			<div class="text-center flex-grow-1">
-				<div class="text-dark fs-18">San Miguelito</div>
-				<div>
-					<span class="badge badge-sm badge-dot badge-primary"></span>
-					<span class="text-muted fs-12">En línea</span>
-				</div>
-			</div>
-			<div class="chat-box-toggle">
-				<button id="chat-box-toggle" class="waves-effect waves-circle btn btn-circle btn-danger-light h-40 w-40 rounded-circle l-h-45" type="button">
-					<span class="icon-Close fs-22"><span class="path1"></span><span class="path2"></span></span>
-				</button>
 			</div>
 		</div>
-		<div class="chat-box-body">
-			<div class="chat-box-overlay">
-			</div>
-			<div class="chat-logs">
-				<div class="chat-msg user">
-					<div class="d-flex align-items-center">
-                            <span class="msg-avatar">
-                                <img src="/images/avatar/chatbot.png" class="avatar avatar-lg">
-                            </span>
-						<div class="mx-10">
-							<a href="#" class="text-dark hover-primary fw-bold">San Miguelito</a>
-							<p class="text-muted fs-12 mb-0">Ahora</p>
-						</div>
-					</div>
-					<div class="cm-msg-text">
-						¡Hola! Soy San miguelito, puedo responder cualquier duda que tengas o ayudarte en el proceso de la reserva de un espacio.
-					</div>
-				</div>
-
-				<div class="chat-msg user">
-					<div class="d-flex align-items-center">
-                            <span class="msg-avatar">
-                                <img src="/images/avatar/chatbot.png" class="avatar avatar-lg">
-                            </span>
-
-					</div>
-
-				</div>
-			</div><!--chat-log -->
-		</div>
-		<div class="chat-input">
-			<form>
-				<input type="text" id="chat-input" placeholder="Envía un mensaje..."/>
-				<button type="submit" class="chat-submit" id="chat-submit">
-					<span class="icon-Send fs-22"></span>
-				</button>
-			</form>
-		</div>
 	</div>
-</div>
-<footer class="main-footer">
-	&copy; <script>document.write(new Date().getFullYear())</script> <a href="https://munisanmiguel.gob.pe/">Municipalidad de San Miguel</a>. Todos los derechos reservados.
-</footer>
+	<footer class="main-footer">
+		&copy; <script>document.write(new Date().getFullYear())</script> <a href="https://munisanmiguel.gob.pe/">Municipalidad de San Miguel</a>. Todos los derechos reservados.
+	</footer>
 
-<!-- Vendor JS -->
-<script src="/js/vendors.min.js"></script>
-<script src="/js/pages/chat-popup.js"></script>
-<script src="/assets/icons/feather-icons/feather.min.js"></script>
-<script src="/assets/vendor_components/Magnific-Popup-master/dist/jquery.magnific-popup.min.js"></script>
-<script src="/assets/vendor_components/Magnific-Popup-master/dist/jquery.magnific-popup-init.js"></script>
+	<!-- Vendor JS -->
+	<script src="/js/vendors.min.js"></script>
+	<script src="/js/pages/chat-popup.js"></script>
+	<script src="/assets/icons/feather-icons/feather.min.js"></script>
+	<script src="/assets/vendor_components/Magnific-Popup-master/dist/jquery.magnific-popup.min.js"></script>
+	<script src="/assets/vendor_components/Magnific-Popup-master/dist/jquery.magnific-popup-init.js"></script>
 
-<!-- Rhythm Admin App -->
-<script src="/js/template.js"></script>
+	<!-- Rhythm Admin App -->
+	<script src="/js/template.js"></script>
 
-</body>
-</html>
+	</body>
+	</html>
