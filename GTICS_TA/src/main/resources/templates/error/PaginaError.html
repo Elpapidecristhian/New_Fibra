@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Error | Municipalidad de San Miguel</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        /* Fondo con imagen desenfocada */
+        .background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('/images/auth-bg/background.png');
+            background-size: cover;
+            background-position: center;
+            filter: blur(5px);
+            opacity: 0.3;
+            z-index: -1;
+        }
+
+        .container {
+            position: relative;
+            max-width: 600px;
+            margin: auto;
+            padding: 2.5rem;
+            background-color: rgba(255, 255, 255, 0.95);
+            border-radius: 16px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        h1 {
+            font-size: 3rem;
+            color: #c0392b;
+            margin-bottom: 1rem;
+        }
+
+        p {
+            font-size: 1.1rem;
+            margin: 0.8rem 0;
+        }
+
+        a {
+            display: inline-block;
+            margin-top: 1.5rem;
+            padding: 0.8rem 2rem;
+            background-color: #0066cc;
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+            border-radius: 8px;
+            transition: background-color 0.3s ease;
+        }
+
+        a:hover {
+            background-color: #004f9e;
+        }
+
+        img {
+            max-width: 120px;
+            margin-top: 1.5rem;
+        }
+    </style>
+</head>
+<body>
+<!-- Imagen de fondo desenfocada -->
+<div class="background"></div>
+
+<div class="container">
+    <h1>¡Error!</h1>
+    <p>Sentimos mucho las molestias.</p>
+    <a href="javascript:history.back()" title="Volver a la página anterior">Volver</a>
+    <br>
+    <img src="/images/LogoSanMiguel.png" alt="Municipalidad de San Miguel">
+</div>
+</body>
+</html>
