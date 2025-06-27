@@ -134,6 +134,34 @@
             color: #495057;
             margin: 0;
         }
+
+        /*Para el pop up*/
+        .btn-confirmar {
+            background-color: #1DBFC1 !important; /* color del botón aceptar */
+            color: white !important;
+            border: none !important;
+            padding: 8px 20px;
+            border-radius: 5px;
+            font-weight: 600;
+            margin-right: 10px;
+        }
+        .btn-confirmar:hover {
+            background-color: #17a2b8 !important; /* un azul un poco más oscuro para hover */
+        }
+
+        .btn-cancelar {
+            background-color: #EE3158 !important; /* color del botón cancelar */
+            color: white !important;
+            border: none !important;
+            padding: 8px 20px;
+            border-radius: 5px;
+            font-weight: 600;
+        }
+
+        .btn-cancelar:hover {
+            background-color: #f11b47 !important; /* un gris más oscuro para hover */
+        }
+
     </style>
 
 </head>
@@ -348,7 +376,7 @@
     <div class="modal fade" id="modalDetallesPago" tabindex="-1" aria-labelledby="modalDetallesPagoLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg modal-dialog-centered">
             <div class="modal-content">
-                <div class="modal-header bg-info text-white">
+                <div class="modal-header bg-info text-white justify-content-center">
                     <h5 class="modal-title" id="modalDetallesPagoLabel">Detalles del Pago</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                 </div>
@@ -410,6 +438,8 @@
 
 <!-- DataTables JS -->
 <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<!-- Diseño de los alerts -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <!-- Inicialización de DataTables -->
 
@@ -417,14 +447,11 @@
     // Variable global para almacenar la instancia de DataTable
     let tablaReservas;
 
-    // Funcionalidad de filtros por tipo de espacio
-    $(document).ready(function() {
-        // Colapsar sidebar por defecto en la página de reservas
+    $(document).ready(function () {
         if (!$('body').hasClass('sidebar-collapse')) {
             $('body').addClass('sidebar-collapse');
         }
 
-        // Inicializar DataTable primero
         tablaReservas = $('#tablaReservas').DataTable({
             pageLength: 10,
             lengthChange: false,
@@ -443,60 +470,51 @@
             },
             dom: '<"d-flex justify-content-between align-items-center mb-3"<"table-title">f>rt<"d-flex justify-content-between align-items-center mt-3"ip><"clear">',
             columnDefs: [
-                { orderable: false, targets: [8] } // Deshabilitar ordenamiento en columna de acciones
+                { orderable: false, targets: [8] }
             ]
         });
 
-        // Función de filtro personalizada para DataTables
-        $.fn.dataTable.ext.search.push(
-            function(settings, data, dataIndex) {
-                // Solo aplicar a nuestra tabla
-                if (settings.nTable.id !== 'tablaReservas') {
-                    return true;
-                }
-
-                // Obtener el tipo seleccionado
-                const tipoSeleccionado = $('.filter-btn.active').data('tipo');
-
-                // Si es "all", mostrar todas las filas
-                if (tipoSeleccionado === 'all') {
-                    return true;
-                }
-
-                // Obtener el tipo de la fila actual
-                const row = tablaReservas.row(dataIndex).node();
-                const tipoFila = $(row).data('tipo');
-
-                // Retornar true si coincide con el filtro
-                return tipoFila == tipoSeleccionado;
+        $.fn.dataTable.ext.search.push(function (settings, data, dataIndex) {
+            if (settings.nTable.id !== 'tablaReservas') {
+                return true;
             }
-        );
 
-        // Manejar clicks en botones de filtro
-        $('.filter-btn').on('click', function() {
-            // Actualizar estado visual de botones
+            const tipoSeleccionado = $('.filter-btn.active').data('tipo');
+
+            if (tipoSeleccionado === 'all') {
+                return true;
+            }
+
+            const row = tablaReservas.row(dataIndex).node();
+            const tipoFila = $(row).data('tipo');
+            return tipoFila == tipoSeleccionado;
+        });
+
+        $('.filter-btn').on('click', function () {
             $('.filter-btn').removeClass('active');
             $(this).addClass('active');
-
-            // Redibujar la tabla para aplicar el filtro
             tablaReservas.draw();
         });
     });
 
-    // Función para ver detalles del pago
     function verDetallesPago(pagoId) {
         if (!pagoId) {
-            alert('No hay información de pago disponible');
+            Swal.fire({
+                icon: 'warning',
+                title: 'Sin información',
+                text: 'No hay información de pago disponible.',
+                background: '#0d6efd',
+                color: '#fff'
+            });
             return;
         }
 
-        // Llamada AJAX para obtener los detalles del pago
         $.ajax({
             url: '/admin/reservas/detalles-pago/' + pagoId,
             type: 'GET',
-            success: function(data) {
+            success: function (data) {
                 let estadoBadge = '';
-                switch(data.estadoPago) {
+                switch (data.estadoPago) {
                     case 'PENDIENTE':
                         estadoBadge = '<span class="badge bg-warning">Pendiente</span>';
                         break;
@@ -511,24 +529,23 @@
                 }
 
                 let contenido = `
-                    <div class="row">
-                        <div class="col-md-6">
-                            <h6>Información del Pago</h6>
-                            <p><strong>ID de Pago:</strong> ${data.id}</p>
-                            <p><strong>Cantidad:</strong> S/ ${data.cantidad}</p>
-                            <p><strong>Estado:</strong> ${estadoBadge}</p>
-                            <p><strong>Fecha:</strong> ${new Date(data.fechaPago).toLocaleString()}</p>
-                            <p><strong>Método:</strong> ${data.medioPago}</p>
-                            ${data.numeroTransaccion ? '<p><strong>Nº Transacción:</strong> ' + data.numeroTransaccion + '</p>' : ''}
-                `;
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>Información del Pago</h6>
+                        <p><strong>Cantidad:</strong> S/ ${data.cantidad}</p>
+                        <p><strong>Estado:</strong> ${estadoBadge}</p>
+                        <p><strong>Fecha de registro:</strong> ${new Date(data.fechaPago).toLocaleString()}</p>
+                        <p><strong>Método:</strong> ${data.medioPago}</p>
+                        ${data.numeroTransaccion ? '<p><strong>Nº Transacción:</strong> ' + data.numeroTransaccion + '</p>' : ''}
+            `;
 
                 if (data.verificadoPor) {
                     contenido += `
-                        <hr>
-                        <h6>Información de Verificación</h6>
-                        <p><strong>Verificado por:</strong> ${data.verificadoPor}</p>
-                        <p><strong>Fecha verificación:</strong> ${new Date(data.fechaVerificacion).toLocaleString()}</p>
-                    `;
+                    <hr>
+                    <h6>Información de Verificación</h6>
+                    <p><strong>Verificado por:</strong> ${data.verificadoPor}</p>
+                    <p><strong>Fecha verificación:</strong> ${new Date(data.fechaVerificacion).toLocaleString()}</p>
+                `;
                 }
 
                 if (data.observacionesAdmin) {
@@ -539,25 +556,25 @@
 
                 if (data.tipoPago === 'MANUAL') {
                     contenido += `
-                        <h6>Datos de Transferencia</h6>
-                        ${data.datosCuenta ? '<pre>' + data.datosCuenta + '</pre>' : '<p>No hay datos de cuenta disponibles</p>'}
-                        <hr>
-                        <h6>Comprobante</h6>
-                    `;
+                    <h6>Datos de Transferencia</h6>
+                    ${data.datosCuenta ? '<pre>' + data.datosCuenta + '</pre>' : '<p>No hay datos de cuenta disponibles</p>'}
+                    <hr>
+                    <h6>Comprobante</h6>
+                `;
 
                     if (data.tieneComprobantes && data.comprobantes) {
                         contenido += `<div class="text-center">`;
                         data.comprobantes.forEach((comprobante, index) => {
                             contenido += `
-                                <div class="mb-2">
-                                    <p class="text-info mb-1">📄 Comprobante ${index + 1}</p>
-                                    <a href="${comprobante.url}" target="_blank" class="btn btn-sm btn-outline-primary">
-                                        <i class="fas fa-eye"></i> Ver Comprobante
-                                    </a>
-                                    <br>
-                                    <small class="text-muted">${comprobante.nombre || 'Archivo'}</small>
-                                </div>
-                            `;
+                            <div class="mb-2">
+                                <p class="text-info mb-1">📄 Comprobante ${index + 1}</p>
+                                <a href="${comprobante.url}" target="_blank" class="btn btn-sm btn-outline-primary">
+                                    <i class="fas fa-eye"></i> Ver Comprobante
+                                </a>
+                                <br>
+                                <small class="text-muted">${comprobante.nombre || 'Archivo'}</small>
+                            </div>
+                        `;
                         });
                         contenido += `</div>`;
                     } else {
@@ -565,10 +582,10 @@
                     }
                 } else {
                     contenido += `
-                        <h6>Pago con Tarjeta</h6>
-                        <p class="text-success">✅ Pago procesado automáticamente</p>
-                        <small class="text-muted">Los pagos con tarjeta se procesan automáticamente a través de la pasarela de pagos.</small>
-                    `;
+                    <h6>Pago con Tarjeta</h6>
+                    <p class="text-success">✅ Pago procesado automáticamente</p>
+                    <small class="text-muted">Los pagos con tarjeta se procesan automáticamente a través de la pasarela de pagos.</small>
+                `;
                 }
 
                 contenido += '</div></div>';
@@ -576,46 +593,94 @@
                 $('#detallesPagoContent').html(contenido);
                 $('#modalDetallesPago').modal('show');
             },
-            error: function(xhr, status, error) {
-                alert('Error al cargar los detalles del pago: ' + (xhr.responseText || error));
+            error: function (xhr, status, error) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error al cargar detalles',
+                    text: xhr.responseText || error,
+                    background: '#dc3545',
+                    color: '#fff'
+                });
             }
         });
     }
 
-    // Función para aprobar pago
     function aprobarPago(pagoId) {
         if (!pagoId) {
-            alert('ID de pago no válido');
+            Swal.fire({
+                icon: 'error',
+                title: 'ID no válido',
+                text: 'ID de pago no válido.',
+                background: '#dc3545',
+                color: '#fff'
+            });
             return;
         }
 
-        if (confirm('¿Está seguro de que desea aprobar este pago?')) {
-            $.ajax({
-                url: '/admin/reservas/aprobar-pago/' + pagoId,
-                type: 'POST',
-                beforeSend: function(xhr) {
-                    // Agregar token CSRF
-                    var token = $("meta[name='_csrf']").attr("content");
-                    var header = $("meta[name='_csrf_header']").attr("content");
-                    if (token && header) {
-                        xhr.setRequestHeader(header, token);
+        Swal.fire({
+            title: '¿Aprobar reserva?',
+            text: '¿Está seguro de que desea aprobar este pago y proceder con la reserva?',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: 'Sí, aprobar',
+            cancelButtonText: 'Cancelar',
+            background: 'rgba(50,70,211,0.85)',
+            color: '#fff',
+
+            // Clases CSS para los botones (confirmar y cancela)
+            customClass: {
+                confirmButton: 'btn-confirmar',
+                cancelButton: 'btn-cancelar'
+            },
+
+            buttonsStyling: false
+
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.ajax({
+                    url: '/admin/reservas/aprobar-pago/' + pagoId,
+                    type: 'POST',
+                    beforeSend: function (xhr) {
+                        var token = $("meta[name='_csrf']").attr("content");
+                        var header = $("meta[name='_csrf_header']").attr("content");
+                        if (token && header) {
+                            xhr.setRequestHeader(header, token);
+                        }
+                    },
+                    success: function (response) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Reserva aprobada',
+                            text: 'El pago fue aprobado exitosamente.',
+                            background: '#3246D3',
+                            color: '#fff'
+                        }).then(() => {
+                            location.reload();
+                        });
+                    },
+                    error: function (xhr, status, error) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error al aprobar',
+                            text: xhr.responseText || error,
+                            background: '#dc3545',
+                            color: '#fff'
+                        });
                     }
-                },
-                success: function(response) {
-                    alert('Pago aprobado exitosamente');
-                    location.reload(); // Recargar la página para ver los cambios
-                },
-                error: function(xhr, status, error) {
-                    alert('Error al aprobar el pago: ' + (xhr.responseText || error));
-                }
-            });
-        }
+                });
+            }
+        });
     }
 
-    // Función para rechazar pago
     function rechazarPago(pagoId) {
         if (!pagoId) {
-            alert('ID de pago no válido');
+            Swal.fire({
+                icon: 'error',
+                title: 'ID no válido',
+                text: 'ID de pago no válido.',
+                background: '#dc3545',
+                color: '#fff'
+            });
             return;
         }
 
@@ -625,8 +690,7 @@
         $('#modalRechazarPago').modal('show');
     }
 
-    // Manejar envío del formulario de rechazo
-    $('#formRechazarPago').on('submit', function(e) {
+    $('#formRechazarPago').on('submit', function (e) {
         e.preventDefault();
 
         const pagoId = $('#rechazarPagoId').val();
@@ -641,24 +705,39 @@
             url: '/admin/reservas/rechazar-pago/' + pagoId,
             type: 'POST',
             data: { motivo: motivo },
-            beforeSend: function(xhr) {
-                // Agregar token CSRF
+            beforeSend: function (xhr) {
                 var token = $("meta[name='_csrf']").attr("content");
                 var header = $("meta[name='_csrf_header']").attr("content");
                 if (token && header) {
                     xhr.setRequestHeader(header, token);
                 }
             },
-            success: function(response) {
-                alert('Pago rechazado exitosamente');
-                $('#modalRechazarPago').modal('hide');
-                location.reload(); // Recargar la página para ver los cambios
+            success: function (response) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Pago rechazado',
+                    text: 'Pago rechazado exitosamente.',
+                    background: '#3246D3',
+                    color: '#fff'
+                }).then(() => {
+                    $('#modalRechazarPago').modal('hide');
+                    location.reload();
+                });
             },
-            error: function(xhr, status, error) {
-                $('#rechazarPagoError').text('Error al rechazar el pago: ' + (xhr.responseText || error)).removeClass('d-none');
+            error: function (xhr, status, error) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error al rechazar',
+                    text: xhr.responseText || error,
+                    background: '#dc3545',
+                    color: '#fff'
+                });
             }
         });
     });
+
+    feather.replace();
+
 </script>
 
 
