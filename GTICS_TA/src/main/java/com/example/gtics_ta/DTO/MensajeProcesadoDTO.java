@@ -25,6 +25,8 @@ public class MensajeProcesadoDTO {
     private BigDecimal costo;
     private Integer aforo;
     private List<String> mediosPago;
+    private String detalleEspecifico;
+    private String detalle; // 👈 Agrega esto
 
     private String respuestaGenerada;
 }

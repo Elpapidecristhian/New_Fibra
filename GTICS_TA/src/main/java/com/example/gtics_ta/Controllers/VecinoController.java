@@ -7,6 +7,8 @@ import com.example.gtics_ta.Repository.*;
 import com.example.gtics_ta.Services.OpenAiService;
 import com.example.gtics_ta.Services.MailService;
 import com.example.gtics_ta.Services.ImageService;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -521,9 +523,13 @@ public class VecinoController {
         }
     }
 
+
+
     @PostMapping("/api/chatbot")
     @ResponseBody
-    public ResponseEntity<Map<String, String>> preguntar(@RequestBody Map<String, String> body) {
+    public ResponseEntity<Map<String, String>> preguntar(@RequestBody Map<String, String> body,
+                                                         @CookieValue(value = "espacioDetectado", required = false) String espacioCookie,
+                                                         HttpServletResponse response) {
         String pregunta = body.get("pregunta");
         Map<String, String> json = new HashMap<>();
 
@@ -535,15 +541,36 @@ public class VecinoController {
         try {
             ChatMessageDTO dto = new ChatMessageDTO();
             dto.setMensajeUsuario(pregunta);
+
+            // Si el espacio no está en la pregunta, intenta usar el de la cookie
+            String espacioDetectado = openAiService.detectarEspacio(pregunta);
+            if (espacioDetectado == null && espacioCookie != null) {
+                dto.setEspacioDetectado(espacioCookie);
+            } else {
+                dto.setEspacioDetectado(espacioDetectado);
+            }
+
+            // Generar respuesta
             String respuesta = openAiService.generarRespuesta(dto);
             json.put("respuestaBot", respuesta);
+
+            // Si se detectó un nuevo espacio, guardarlo como cookie por 30 min
+            if (dto.getEspacioDetectado() != null) {
+                Cookie cookie = new Cookie("espacioDetectado", dto.getEspacioDetectado());
+                cookie.setMaxAge(30 * 60); // 30 minutos
+                cookie.setPath("/"); // visible para todo el sitio
+                response.addCookie(cookie);
+            }
+
             return ResponseEntity.ok(json);
+
         } catch (Exception e) {
             e.printStackTrace();
             json.put("respuestaBot", "Error al procesar la pregunta.");
             return ResponseEntity.status(500).body(json);
         }
     }
+
 
 
 
