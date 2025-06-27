@@ -310,6 +310,7 @@ public class VecinoController {
     @PostMapping("/cancelarreserva")
     public String cancelarReserva(@RequestParam("id") Integer id, RedirectAttributes attr) {
         Optional<Reservas> optReserva = reservasRepository.findById(id);
+        LocalDate hoy = LocalDate.now();
         if (optReserva.isPresent()) {
             Reservas reserva = optReserva.get();
             LocalDate fechaReserva = reserva.getFechaReserva();
