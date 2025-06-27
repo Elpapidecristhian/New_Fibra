@@ -1,6 +1,7 @@
 package com.example.gtics_ta.Repository;
 
 import com.example.gtics_ta.DTO.ResumenDTO;
+import com.example.gtics_ta.Entity.Pagos;
 import com.example.gtics_ta.Entity.Reservas;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -99,4 +100,9 @@ public interface ReservasRepository extends JpaRepository<Reservas, Integer> {
     List<Object[]> distribucionReservasPorHora();
     @Query("SELECT r FROM Reservas r WHERE r.espacioDeportivo.id = :id")
     List<Reservas> findByEspacioDeportivoId(@Param("id") Integer id);
+
+    @Query("SELECT r.pago FROM Reservas r WHERE r.usuario.id = :usuarioId AND r.pago IS NOT NULL")
+    List<Pagos> findPagosByUsuarioId(@Param("usuarioId") Integer usuarioId);
+    List<Reservas> findByUsuario_IdAndEstadoReserva(Integer usuarioId, Reservas.EstadoReserva estado);
+
 }

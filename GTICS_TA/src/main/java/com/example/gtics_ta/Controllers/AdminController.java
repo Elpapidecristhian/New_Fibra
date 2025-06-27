@@ -123,6 +123,7 @@ public class AdminController {
         model.addAttribute("totalReservas", reservas.size());
         model.addAttribute("listaEspacios", espacios);
         model.addAttribute("listaReservas", reservas);
+// 👉 Añadir notificaciones del usuario en sesión
 
         return "admin/dashboard";
     }

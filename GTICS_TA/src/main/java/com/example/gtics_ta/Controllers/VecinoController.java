@@ -7,6 +7,8 @@ import com.example.gtics_ta.Repository.*;
 import com.example.gtics_ta.Services.OpenAiService;
 import com.example.gtics_ta.Services.MailService;
 import com.example.gtics_ta.Services.ImageService;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -69,6 +71,8 @@ public class VecinoController {
     private MediosPagoRepository mediosPagoRepository;
     @Autowired
     private PagosRepository pagosRepository;
+    @Autowired
+    private NotificacionesRepository notificacionesRepository;
 
     @GetMapping(value = {"","/"})
     public String vistaInicial(Model model) {
@@ -179,6 +183,9 @@ public class VecinoController {
         model.addAttribute("listaReservas", reservas);
         model.addAttribute("listaSuscripciones", suscripciones);
         model.addAttribute("hoy", LocalDate.now());
+
+        // 👇 Cargar notificaciones aquí
+        cargarNotificaciones(model, session);
         return "vecino/reservas";
     }
 
@@ -190,7 +197,6 @@ public class VecinoController {
             if (optReserva.isPresent()) {
                 Reservas reserva = optReserva.get();
                 Map<String, Object> detalles = new HashMap<>();
-
                 // Información de la reserva
                 detalles.put("id", reserva.getId());
                 detalles.put("espacio", reserva.getEspacioDeportivo().getNombre());
@@ -293,12 +299,19 @@ public class VecinoController {
         }
     }
 
+    private void cargarNotificaciones(Model model, HttpSession session) {
+        Usuario usuario = (Usuario) session.getAttribute("usuario");
+        if (usuario != null) {
+            List<Notificaciones> notificaciones = notificacionesRepository.findByUsuarioOrderByFechaCreacionDesc(usuario);
+            model.addAttribute("notificaciones", notificaciones);
+        }
+    }
+
     @PostMapping("/cancelarreserva")
     public String cancelarReserva(@RequestParam("id") Integer id, RedirectAttributes attr) {
         Optional<Reservas> optReserva = reservasRepository.findById(id);
         if (optReserva.isPresent()) {
             Reservas reserva = optReserva.get();
-            LocalDate hoy = LocalDate.now();
             LocalDate fechaReserva = reserva.getFechaReserva();
             if (fechaReserva.isAfter(hoy)) {
                 Optional<HorarioReservado> optHorarioReservado =
@@ -453,6 +466,17 @@ public class VecinoController {
 
             horarioReservadoRepository.save(horarioReservado);
             reservasRepository.save(reserva);
+            String titulo = "Reserva Exitosa";
+            String mensaje = "Reserva del espacio deportivo \"" + reserva.getEspacioDeportivo().getNombre() + "\" para el día " + reserva.getFechaReserva().toString();
+
+            Notificaciones notificacion = new Notificaciones(
+                    reserva.getUsuario(),
+                    Notificaciones.TipoNotificacion.RECORDATORIO_RESERVA,
+                    titulo,
+                    mensaje,
+                    reserva
+            );
+            notificacionesRepository.save(notificacion);
 
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("d 'de' MMMM 'de' yyyy", new Locale("es", "ES"));
             LocalDateTime fechaReserva = reserva.getFechaRegistro().toLocalDateTime();
@@ -730,9 +754,13 @@ public class VecinoController {
     //
     //*********************************************************************************************
 
+
+
     @PostMapping("/api/chatbot")
     @ResponseBody
-    public ResponseEntity<Map<String, String>> preguntar(@RequestBody Map<String, String> body) {
+    public ResponseEntity<Map<String, String>> preguntar(@RequestBody Map<String, String> body,
+                                                         @CookieValue(value = "espacioDetectado", required = false) String espacioCookie,
+                                                         HttpServletResponse response) {
         String pregunta = body.get("pregunta");
         Map<String, String> json = new HashMap<>();
 
@@ -744,15 +772,35 @@ public class VecinoController {
         try {
             ChatMessageDTO dto = new ChatMessageDTO();
             dto.setMensajeUsuario(pregunta);
+
+            // Si el espacio no está en la pregunta, intenta usar el de la cookie
+            String espacioDetectado = openAiService.detectarEspacio(pregunta);
+            if (espacioDetectado == null && espacioCookie != null) {
+                dto.setEspacioDetectado(espacioCookie);
+            } else {
+                dto.setEspacioDetectado(espacioDetectado);
+            }
+
+            // Generar respuesta
             String respuesta = openAiService.generarRespuesta(dto);
             json.put("respuestaBot", respuesta);
+
+            // Si se detectó un nuevo espacio, guardarlo como cookie por 30 min
+            if (dto.getEspacioDetectado() != null) {
+                Cookie cookie = new Cookie("espacioDetectado", dto.getEspacioDetectado());
+                cookie.setMaxAge(30 * 60); // 30 minutos
+                cookie.setPath("/"); // visible para todo el sitio
+                response.addCookie(cookie);
+            }
             return ResponseEntity.ok(json);
+
         } catch (Exception e) {
             e.printStackTrace();
             json.put("respuestaBot", "Error al procesar la pregunta.");
             return ResponseEntity.status(500).body(json);
         }
     }
+
 
 
 
