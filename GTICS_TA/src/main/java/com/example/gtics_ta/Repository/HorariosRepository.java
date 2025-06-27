@@ -21,4 +21,6 @@ public interface HorariosRepository extends JpaRepository<Horarios, Integer> {
                     "WHERE h.id_espacio = ?2 " +
                     "ORDER BY h.id_horarios", nativeQuery = true)
     List<HorariosConsultaDTO> obtenerHorariosConsulta(LocalDate fecha, Integer idEspacio);
+
+
 }

@@ -9,5 +9,5 @@ import lombok.Setter;
 public class ChatMessageDTO {
     private String mensajeUsuario;
     private String respuestaBot;
-
+    private Integer usuarioId;
 }
