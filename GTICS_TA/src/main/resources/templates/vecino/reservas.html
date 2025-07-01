@@ -213,8 +213,8 @@
 		<div class="modal center-modal fade" id="modalDetallesReserva" tabindex="-1">
 			<div class="modal-dialog modal-lg">
 				<div class="modal-content">
-					<div class="modal-header">
-						<h5 class="modal-title">Detalles de la Reserva</h5>
+					<div class="modal-header" style="background-color: #3246d3">
+						<h5 class="modal-title" style="color: white">Detalles de la Reserva</h5>
 						<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 					</div>
 					<div class="modal-body" id="contenidoDetallesReserva">
@@ -235,13 +235,13 @@
 	<div th:each="reserva, idx : ${listaReservas}" class="modal center-modal fade" th:id="'modal-cancel-' + ${reserva.getId()}" tabindex="-1">
 		<div class="modal-dialog">
 			<div class="modal-content">
-				<div class="modal-header">
-					<h5 th:utext="'Cancelar Reserva ' + ${idx.index + 1}" class="modal-title"></h5>
+				<div class="modal-header" style="background-color: #EE3158">
+					<h5 th:utext="'Cancelar Reserva ' + ${idx.index + 1}" class="modal-title" style="color: white"></h5>
 					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 				</div>
 				<div class="modal-body">
 					<p><strong>¿Está seguro que quiere cancelar su reserva?</strong></p>
-					<p><strong>Esta acción es irreversible</strong></p>
+					<p>Esta acción es irreversible</p>
 				</div>
 				<div class="modal-footer modal-footer-uniform">
 					<form th:action="@{/vecino/cancelarreserva}" method="post">
@@ -654,14 +654,14 @@
 					let contenidoHtml = `
 						<div class="row">
 							<div class="col-md-6">
-								<h6>Información de la Reserva</h6>
+								<h6 style="font-size: 15px">Información de Registro</h6>
 								<p><strong>Espacio:</strong> ${data.espacio}</p>
 								<p><strong>Fecha de Reserva:</strong> ${new Date(data.fechaReserva).toLocaleDateString()}</p>
 								<p><strong>Horario:</strong> ${data.horario}</p>
 								<p><strong>Fecha de Registro:</strong> ${new Date(data.fechaRegistro).toLocaleString()}</p>
 							</div>
 							<div class="col-md-6">
-								<h6>Información del Pago</h6>
+								<h6 style="font-size: 15px">Información de Pago</h6>
 								<p><strong>Monto:</strong> S/ ${data.montoPagado}</p>
 								<p><strong>Estado:</strong> ${getEstadoBadge(data.estadoPago)}</p>
 								<p><strong>Medio de Pago:</strong> ${data.medioPago}</p>
