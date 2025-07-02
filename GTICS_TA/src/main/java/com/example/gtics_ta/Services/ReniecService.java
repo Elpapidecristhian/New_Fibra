@@ -9,7 +9,7 @@ import org.springframework.web.client.RestTemplate;
 public class ReniecService {
 
     private final String API_URL = "https://api.apis.net.pe/v2/reniec/dni?numero=";
-    private final String TOKEN = "apis-token-15581.bC6J7sKx6B0vbq5iaUWVMvN5ElvXamOJ";
+    private final String TOKEN = "apis-token-16540.CqXMk9fJF45eupHgmwl5JZp19mfgtjuA";
 
     public ReniecDTO consultaPorDNI(String dni) {
         RestTemplate restTemplate = new RestTemplate();

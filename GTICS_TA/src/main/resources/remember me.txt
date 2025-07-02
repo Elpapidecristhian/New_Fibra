@@ -1,0 +1,1 @@
+security.rememberme.key=clave-super-secreta-para-mi-proyecto

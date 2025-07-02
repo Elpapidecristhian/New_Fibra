@@ -2,6 +2,10 @@ package com.example.gtics_ta.Config;
 
 import com.example.gtics_ta.Repository.UsuarioRepository;
 import jakarta.servlet.http.HttpSession;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.csrf.CsrfTokenRepository;
 import org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository;
 import org.springframework.context.annotation.Bean;
@@ -19,6 +23,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.csrf.CsrfTokenRepository;
 import org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository;
 import org.springframework.security.web.savedrequest.DefaultSavedRequest;
+import org.springframework.stereotype.Service;
 
 import javax.sql.DataSource;
 
@@ -26,11 +31,18 @@ import javax.sql.DataSource;
 @EnableWebSecurity
 public class WebSecurityConfig {
 
-    private final DataSource dataSource;
+    @Lazy
+    @Autowired
+    private UserDetailsService userDetailsService;
+    @Autowired
+    private DataSource dataSource;
 
     public WebSecurityConfig(DataSource dataSource) {
         this.dataSource = dataSource;
     }
+
+    @Value("${security.rememberme.key}")
+    private String rememberMeKey;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http, UsuarioRepository usuarioRepository) throws Exception {
@@ -90,6 +102,12 @@ public class WebSecurityConfig {
                     }
                 })
                 .permitAll()
+        );
+
+        http.rememberMe(remember -> remember
+                .key(rememberMeKey)
+                .tokenValiditySeconds(7 * 24 * 60 * 60)
+                .userDetailsService(userDetailsService)
         );
 
         http.logout(logout -> logout

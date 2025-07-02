@@ -473,6 +473,18 @@
 <!-- Script para habilitar/deshabilitar campos -->
 
 <!-- Vendor JS -->
+<script>
+	const input = document.getElementById('celular');
+
+	input.addEventListener('input', function () {
+		this.value = this.value.replace(/\D/g, '');
+
+		if (this.value.length > 9) {
+			this.value = this.value.slice(0, 9);
+		}
+	});
+</script>
+
 <script th:src="@{/js/vendors.min.js}"></script>
 <script th:src="@{/js/pages/chat-popup.js}"></script>
 <script th:src="@{/assets/icons/feather-icons/feather.min.js}"></script>

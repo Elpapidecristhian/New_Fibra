@@ -101,7 +101,7 @@
 														<td th:text="${reserva.espacioDeportivo.getNombre()}"></td>
 														<td th:text="${#temporals.format(reserva.fechaReserva, 'dd/MM/yyyy')}"></td>
 														<td th:text="${reserva.getHorario().getHoraInicio()} + '-' + ${reserva.getHorario().getHoraFin()}"></td>
-														<td th:text="${reserva.getEstadoReserva()}"></td>
+														<td id="idEstado" th:text="${reserva.getEstadoReserva()}"></td>
 														<td th:text="${reserva.getPago().getMedioPago().getNombre()}"></td>
 														<td th:text="${#dates.format(reserva.getFechaRegistro(), 'dd/MM/yyyy HH:mm:ss')}"></td>
 														<td>
@@ -109,7 +109,7 @@
 																<i class="mdi mdi-eye"></i>
 															</button>
 															<button type="button" class="btn btn-danger" data-bs-toggle="modal" th:attr="data-bs-target=${'#modal-cancel-' + reserva.getId()}"
-																th:disabled="${reserva.getFechaReserva().isBefore(hoy)}">
+																th:disabled="${!reserva.getFechaReserva().isAfter(manana) || reserva.getEstadoReserva()!=reservactiva}">
 																<i class="mdi mdi-cancel"></i>
 															</button>
 														</td>
@@ -180,8 +180,8 @@
 																<button type="button" class="btn btn-primary" th:onclick="'verDetallesSuscripcion(' + ${suscripcion.getId()} + ')'">
 																	<i class="mdi mdi-eye"></i>
 																</button>
-																<button type="button" class="btn btn-danger" data-bs-toggle="modal" th:attr="data-bs-target=${'#modal-cancel-' + suscripcion.getId()}"
-																		th:disabled="${suscripcion.getFechaFin().isBefore(hoy) || !suscripcion.isEstado()}"
+																<button type="button" class="btn btn-danger" data-bs-toggle="modal" th:attr="data-bs-target=${'#modal-cancel-subs-' + suscripcion.getId()}"
+																		th:disabled="${!suscripcion.getFechaFin().isAfter(manana) || !suscripcion.isEstado()}"
 																		>
 																	<i class="mdi mdi-cancel"></i>
 																</button>
@@ -280,7 +280,7 @@
 	</div>
 	<!-- /.modal -->
 	<!-- /.content-wrapper -->
-	<div th:each="suscripcion, idx : ${listaSuscripciones}" class="modal center-modal fade" th:id="'modal-cancel-' + ${suscripcion.getId()}" tabindex="-1">
+	<div th:each="suscripcion, idx : ${listaSuscripciones}" class="modal center-modal fade" th:id="'modal-cancel-subs-' + ${suscripcion.getId()}" tabindex="-1">
 		<div class="modal-dialog">
 			<div class="modal-content">
 				<div class="modal-header">
@@ -808,6 +808,28 @@
 					return '<span class="badge bg-secondary">' + estado + '</span>';
 			}
 		}
+
+		function reemplazarEstadoPorId(idEstado) {
+			const celda = document.getElementById(idEstado);
+			if (!celda) return;
+
+			const texto = celda.textContent.trim();
+
+			switch (texto) {
+				case "ACTIVA":
+					celda.textContent = "Activa";
+					break;
+				case "CANCELADA_USUARIO":
+				case "CANCELADA_ADMIN":
+				case "CANCELADA_MANTENIMIENTO":
+					celda.textContent = "Cancelada";
+					break;
+				case "COMPLETADA":
+					celda.textContent = "Completada";
+					break;
+			}
+		}
+
 	</script>
 
 

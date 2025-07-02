@@ -46,7 +46,7 @@ public class LoginController {
         if(email!= null){
             if(usuarioRepository.existsByCorreo(email)) {
                 String token = UUID.randomUUID().toString();
-                String link = "https://3.89.234.107:8080/login/resetpassword?token=" + token;
+                String link = "http://3.89.234.107:8080/login/resetpassword?token=" + token;
 
                 Usuario usuario = usuarioRepository.findByCorreo(email);
                 Map<String, Object> datos = new HashMap<>();

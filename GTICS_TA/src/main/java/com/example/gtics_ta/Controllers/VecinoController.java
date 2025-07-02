@@ -182,7 +182,8 @@ public class VecinoController {
         List<Suscripciones> suscripciones = suscripcionesRepository.findByUsuarioId(usuario.getId());
         model.addAttribute("listaReservas", reservas);
         model.addAttribute("listaSuscripciones", suscripciones);
-        model.addAttribute("hoy", LocalDate.now());
+        model.addAttribute("manana", LocalDate.now().plusDays(1));
+        model.addAttribute("reservactiva", Reservas.EstadoReserva.ACTIVA);
 
         // 👇 Cargar notificaciones aquí
         cargarNotificaciones(model, session);
@@ -324,12 +325,25 @@ public class VecinoController {
                     reserva.setEstadoReserva(Reservas.EstadoReserva.CANCELADA_USUARIO);
                     reservasRepository.save(reserva);
                     attr.addFlashAttribute("msg", "Reserva cancelada correctamente. Su dinero será reembolsado en un plazo de dos semanas.");
+
+                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("d 'de' MMMM 'de' yyyy", new Locale("es", "ES"));
+                    String fechaReservaString = fechaReserva.format(formatter);
+                    String asunto = "Cancelación de la Reserva";
+                    Map<String, Object> datos = new HashMap<>();
+                    datos.put("nombreEspacio", reserva.getEspacioDeportivo().getNombre());
+                    datos.put("fechaReserva", fechaReservaString);
+                    datos.put("horario", reserva.getHorario().getHoraInicio() + "-" + reserva.getHorario().getHoraFin());
+                    datos.put("medioPago", reserva.getPago().getMedioPago().getNombre());
+                    datos.put("monto", reserva.getEspacioDeportivo().getCostoHorario());
+                    emailService.enviarCorreoConPlantilla(reserva.getUsuario().getCorreo(), asunto, "email/cancelareserva", datos);
                 }
             } else {
                 attr.addFlashAttribute("error", "Solo puede cancelar una reserva con un plazo de antelación de un día.");
+                System.out.println("Solo puede cancelar una reserva con un plazo de antelación de un día.");
             }
         } else {
             attr.addFlashAttribute("error", "No se encontró la reserva.");
+            System.out.println("No se encontró la reserva.");
         }
         return "redirect:/vecino/reservas";
     }
@@ -338,12 +352,26 @@ public class VecinoController {
     public String cancelarSuscripcion(@RequestParam Integer id, RedirectAttributes attr) {
         Optional<Suscripciones> optSub = suscripcionesRepository.findById(id);
         if (optSub.isPresent()){
-            Suscripciones suscripciones = optSub.get();
+            Suscripciones suscripcion = optSub.get();
             LocalDate hoy = LocalDate.now();
-            LocalDate fechaFin = suscripciones.getFechaFin();
-            suscripciones.setEstado(false);
-            suscripcionesRepository.save(suscripciones);
+            LocalDate fechaFin = suscripcion.getFechaFin();
+            suscripcion.setEstado(false);
+            suscripcionesRepository.save(suscripcion);
             attr.addFlashAttribute("msg", "Suscripción cancelada correctamente.");
+
+            String asunto = "Cancelación de Suscripción";
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("d 'de' MMMM 'de' yyyy", new Locale("es", "ES"));
+            LocalDateTime fechaRegistro = suscripcion.getFechaRegistro();
+            String fechaRegistroStr = fechaRegistro.format(formatter);
+            Map<String, Object> datos = new HashMap<>();
+            datos.put("nombreGimnasio", suscripcion.getEspacio().getNombre());
+            datos.put("fechaInicio", suscripcion.getFechaInicio().format(formatter));
+            datos.put("fechaFin", suscripcion.getFechaFin().format(formatter));
+            datos.put("tipoSuscripcion", suscripcion.getTipoSuscripcion());
+            datos.put("fechaPago", fechaRegistroStr);
+            datos.put("medioPago", suscripcion.getPagos().getMedioPago().getNombre());
+            datos.put("costoTotal", suscripcion.getPagos().getCantidad());
+            emailService.enviarCorreoConPlantilla(suscripcion.getUsuario().getCorreo(), asunto, "email/cancelarsuscripcion", datos);
 
         } else {
             attr.addFlashAttribute("error", "No se encontró la suscripción.");
@@ -482,9 +510,8 @@ public class VecinoController {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("d 'de' MMMM 'de' yyyy", new Locale("es", "ES"));
             LocalDateTime fechaReserva = reserva.getFechaRegistro().toLocalDateTime();
             String fechaReservaString = fechaReserva.format(formatter);
-            String asunto = "Confirmación de Reserva #" + reserva.getId();
+            String asunto = "Confirmación de Reserva";
             Map<String, Object> datos = new HashMap<>();
-            datos.put("idReserva", reserva.getId());
             datos.put("nombreEspacio", reserva.getEspacioDeportivo().getNombre());
             datos.put("fechaReserva", fechaReservaString);
             datos.put("horario", reserva.getHorario().getHoraInicio() + "-" + reserva.getHorario().getHoraFin());
@@ -615,12 +642,11 @@ public class VecinoController {
 
         suscripcionesRepository.save(suscripcion);
 
-        String asunto = "Confirmación de Suscripción #" + suscripcion.getId();
+        String asunto = "Confirmación de Suscripción";
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("d 'de' MMMM 'de' yyyy", new Locale("es", "ES"));
         LocalDateTime fechaRegistro = suscripcion.getFechaRegistro();
         String fechaRegistroStr = fechaRegistro.format(formatter);
         Map<String, Object> datos = new HashMap<>();
-        datos.put("idSuscripcion", suscripcion.getId());
         datos.put("nombreGimnasio", suscripcion.getEspacio().getNombre());
         datos.put("fechaInicio", suscripcion.getFechaInicio().format(formatter));
         datos.put("fechaFin", suscripcion.getFechaFin().format(formatter));
@@ -629,7 +655,7 @@ public class VecinoController {
         datos.put("medioPago", pago.getMedioPago().getNombre());
         datos.put("costoTotal", pago.getCantidad());
         emailService.enviarCorreoConPlantilla(suscripcion.getUsuario().getCorreo(), asunto, "email/suscripcion", datos);
-        return "redirect:/vecino/espacios";
+        return "redirect:/vecino/reservas";
     }
 
     //*********************************************************************************************
