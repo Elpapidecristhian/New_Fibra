@@ -12,6 +12,7 @@ public class ServicioDTO {
     private Piscinas piscina;
     private PistasAtletismo pista;
     private Estadios estadios;
+    private Gimnasios gimnasios;
     // Campo auxiliar, solo para el form
     private String direccion;
 }

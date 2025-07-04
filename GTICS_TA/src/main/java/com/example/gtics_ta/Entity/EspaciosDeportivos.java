@@ -1,8 +1,11 @@
 package com.example.gtics_ta.Entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.format.annotation.DateTimeFormat;
+
 import java.math.BigDecimal;
 import java.time.LocalTime;
 
@@ -32,8 +35,10 @@ public class EspaciosDeportivos {
     @Column(name = "maps_url")
     private String mapsUrl;
     @Column(name = "hora_abre")
+    @DateTimeFormat(pattern = "HH:mm")
     private LocalTime horaAbre;
     @Column(name = "hora_cierra")
+    @DateTimeFormat(pattern = "HH:mm")
     private LocalTime horaCierra;
     private Integer aforo;
     private boolean operativo;

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -113,14 +113,11 @@
                                             <td th:text="${servicio.aforo != null ? servicio.aforo : '-'}"></td>
                                             <td th:text="${servicio.horaAbre + ' - ' + servicio.horaCierra}"></td>
                                             <td>
-                                                <button type="button"
+                                                <a type="button"
                                                         class="btn btn-sm btn-warning me-1"
-                                                        title="Editar"
-                                                        data-bs-toggle="modal"
-                                                        data-bs-target="#modalEditar"
-                                                        onclick="cargarDatosModal(this)">
+                                                        th:href="@{/admin/editar(id=${servicio.id})}">
                                                     <i class="mdi mdi-pencil"></i>
-                                                </button>
+                                                </a>
 
                                                 <button type="button"
                                                         class="btn btn-sm btn-info me-1"
@@ -207,63 +204,6 @@
         </div>
     </div>
 
-    <!-- Modal Editar Servicio -->
-    <div class="modal fade" id="modalEditar" tabindex="-1" aria-labelledby="modalEditarLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header bg-primary text-white">
-                    <h5 class="modal-title" id="modalEditarLabel">Editar Servicio</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="formEditarServicio">
-                        <input type="hidden" id="editId" name="id" />
-
-                        <div class="mb-3">
-                            <label for="editTipo" class="form-label">Tipo de Servicio</label>
-                            <input type="text" class="form-control" id="editTipo" name="tipoEspacioNombre" readonly>
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="editNombre" class="form-label">Nombre</label>
-                            <input type="text" class="form-control" id="editNombre" name="nombre">
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="editDireccion" class="form-label">Ubicación</label>
-                            <input type="text" class="form-control" id="editDireccion" name="ubicacion">
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="editCapacidad" class="form-label">Aforo</label>
-                            <input type="number" class="form-control" id="editCapacidad" name="aforo">
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="editContacto" class="form-label">Correo de contacto</label>
-                            <input type="email" class="form-control" id="editContacto" name="correoContacto">
-                        </div>
-
-                        <div class="row">
-                            <div class="col">
-                                <label for="editHoraAbre" class="form-label">Hora de apertura</label>
-                                <input type="time" class="form-control" id="editHoraAbre" name="horaAbre">
-                            </div>
-                            <div class="col">
-                                <label for="editHoraCierra" class="form-label">Hora de cierre</label>
-                                <input type="time" class="form-control" id="editHoraCierra" name="horaCierra">
-                            </div>
-                        </div>
-                    </form>
-
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="button" class="btn btn-primary" onclick="guardarCambios()">Guardar</button>
-                </div>
-            </div>
-        </div>
-    </div>
 
     <!-- Modal Programar Mantenimiento -->
     <div class="modal fade" id="modalMantenimiento" tabindex="-1" aria-labelledby="modalMantenimientoLabel" aria-hidden="true">
@@ -387,25 +327,6 @@
 <!-- Sidebar -->
 
 <script>
-    function cargarDatosModal(boton) {
-        const fila = boton.closest('tr');
-        const celdas = fila.querySelectorAll('td');
-        const id = fila.getAttribute('data-id');
-
-        // Llenar los campos del modal
-        document.getElementById('editId').value = id;
-        document.getElementById('editTipo').value = celdas[0].textContent.trim();
-        document.getElementById('editNombre').value = celdas[1].textContent.trim();
-        document.getElementById('editDireccion').value = celdas[2].textContent.trim();
-        document.getElementById('editCapacidad').value = celdas[3].textContent.trim() === '-' ? '' : celdas[3].textContent.trim();
-
-        // El horario ahora está en la columna 4 (índice 4)
-        const horario = celdas[4].textContent.trim().split("-");
-        document.getElementById('editHoraAbre').value = horario[0].trim();
-        document.getElementById('editHoraCierra').value = horario[1].trim();
-
-        fila.setAttribute('data-editar', 'true');
-    }
 
     // Función para abrir el modal de mantenimiento
     function abrirMantenimiento(boton) {
@@ -521,66 +442,6 @@
         // fetch('/admin/programar-mantenimiento', { ... })
     }
 
-    function guardarCambios() {
-        const id = document.getElementById('editId').value;
-        if (!id) return alert("ID no encontrado");
-
-        const data = {
-            id: parseInt(id),
-            tipoEspacio: {
-                nombre: document.getElementById('editTipo').value.trim()
-            },
-            nombre: document.getElementById('editNombre').value.trim(),
-            ubicacion: document.getElementById('editDireccion').value.trim(),
-            aforo: document.getElementById('editCapacidad').value ? parseInt(document.getElementById('editCapacidad').value.trim()) : null,
-            correoContacto: document.getElementById('editContacto').value.trim(),
-            horaAbre: document.getElementById('editHoraAbre').value,
-            horaCierra: document.getElementById('editHoraCierra').value
-        };
-
-        const token = document.querySelector('meta[name="_csrf"]').getAttribute('content');
-        const header = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
-
-        fetch(`/admin/actualizar/${id}`, {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-                [header]: token
-            },
-            body: JSON.stringify(data)
-        })
-                .then(res => {
-                if (!res.ok) throw new Error("Error al actualizar");
-                return res.text();
-            })
-            .then(() => {
-                const fila = document.querySelector(`tr[data-id="${id}"]`);
-                const tabla = $('#tablaServicios').DataTable(); // Asegúrate de que tu tabla tiene ese ID
-                const row = tabla.row(fila);
-
-                const acciones = fila.querySelector('td:last-child').innerHTML;
-
-                // Reemplazar datos de la fila (sin columna de contacto)
-                row.data([
-                    data.tipoEspacio.nombre,
-                    data.nombre,
-                    data.ubicacion,
-                    data.aforo !== null ? data.aforo : '-',
-                    `${data.horaAbre} - ${data.horaCierra}`,
-                    acciones
-                ]).draw(false);
-
-                const modalElement = document.getElementById('modalEditar');
-                const modalInstance = bootstrap.Modal.getOrCreateInstance(modalElement);
-                modalInstance.hide();
-
-                // 🧹 Forzar limpieza del backdrop si no desaparece
-                document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
-                document.body.classList.remove('modal-open');
-                document.body.style = '';  // Quita estilos extra que pueden quedar
-            })
-            .catch(err => alert(err.message));
-    }
 
 </script>
 

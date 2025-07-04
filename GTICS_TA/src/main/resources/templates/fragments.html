@@ -178,15 +178,17 @@
         </li>
 
         <!-- Usuario -->
-        <li class="nav-item">
-            <div class="d-flex align-items-center">
-                <div class="text-end me-10">
-                    <p class="pt-5 fs-14 mb-0 fw-700 text-primary" th:text="${session.usuario.nombres + ' ' + session.usuario.apellidos}">Nombre</p>
-                    <small class="fs-10 mb-0 text-uppercase text-mute" th:text="${session.usuario.rol.nombre}">Administrador</small>
+        <li class="dropdown user user-menu">
+            <a href="#" class="dropdown-toggle w-auto l-h-12 bg-transparent py-0 no-shadow" data-bs-toggle="dropdown" title="User">
+                <div class="d-flex pt-5">
+                    <div class="text-end me-10">
+                        <p class="pt-5 fs-14 mb-0 fw-700 text-primary" th:text="${session.usuario.nombres + ' ' + session.usuario.apellidos}">Nombre</p>
+                        <small class="fs-10 mb-0 text-uppercase text-mute" th:text="${session.usuario.rol.nombre}">Administrador</small>
+                    </div>
+                    <img th:src="@{|/profileimage/${session.usuario.id}|}" class="avatar rounded-10 bg-primary-light h-40 w-40"
+                         alt="avatar" onerror="this.onerror=null;this.src='/images/avatar/avatar-1.png';"/>
                 </div>
-                <img th:src="@{|/profileimage/${session.usuario.id}|}" class="avatar rounded-10 bg-primary-light h-40 w-40"
-                     alt="avatar" onerror="this.onerror=null;this.src='/images/avatar/avatar-1.png';"/>
-            </div>
+            </a>
         </li>
     </ul>
 </div>
