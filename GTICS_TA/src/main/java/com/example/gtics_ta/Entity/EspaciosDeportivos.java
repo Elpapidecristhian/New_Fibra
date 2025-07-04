@@ -1,6 +1,7 @@
 package com.example.gtics_ta.Entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -24,6 +25,7 @@ public class EspaciosDeportivos {
     private String ubicacion;
     @ManyToOne
     @JoinColumn(name = "id_tipo_espacio")
+    @JsonIgnore
     private TipoEspacio tipoEspacio;
     @Column(name = "descripcion_corta")
     private String descripcionCorta;
@@ -47,6 +49,7 @@ public class EspaciosDeportivos {
     private float costoHorario;
     @ManyToOne
     @JoinColumn(name = "id_lista_fotos")
+    @JsonIgnore
     private ListaFotos listaFotos;
 
     // Campos de geolocalización
@@ -60,8 +63,10 @@ public class EspaciosDeportivos {
     private Integer radioCobertura = 100;
 
     @OneToMany(mappedBy = "espacioDeportivo", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
     List<Reservas> listaReservas;
 
     @OneToMany(mappedBy = "espacio", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
     List<Horarios> listaHorarios;
 }
