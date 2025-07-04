@@ -89,7 +89,7 @@ public class SignUpController {
         accountActivate.setToken(token);
         accountActivateRepository.save(accountActivate);
 
-        String link = "http://3.89.234.107:8080/signup/activarcuenta?token=" + token;
+        String link = "https://sanmigueldeportes.online/signup/activarcuenta?token=" + token;
         Map<String, Object> datos = new HashMap<>();
         datos.put("nombre", usuario.getNombres() + " " + usuario.getApellidos());
         datos.put("urlConfirmacion", link);
