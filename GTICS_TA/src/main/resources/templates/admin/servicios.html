@@ -129,9 +129,8 @@
                                                 <button type="button"
                                                         class="btn btn-sm btn-danger delete-btn"
                                                         title="Eliminar"
-                                                        th:attr="data-id=${servicio.id}"
                                                         data-bs-toggle="modal"
-                                                        data-bs-target="#modalEliminar">
+                                                        th:attr="data-bs-target=${'#modal-cancel-' + servicio.id}">
                                                     <i class="mdi mdi-delete"></i>
                                                 </button>
                                                 <div class="btn-group dropdown">
@@ -185,7 +184,7 @@
     </footer>
 
     <!-- Modal Eliminar único -->
-    <div class="modal fade" id="modalEliminar" tabindex="-1" aria-labelledby="modalEliminarLabel" aria-hidden="true">
+    <div class="modal fade" th:each="servicio, idx : ${listaEspacios}" id="modalEliminar" th:id="'modal-cancel-' + ${servicio.getId()}" tabindex="-1" aria-labelledby="modalEliminarLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header bg-danger text-white">
@@ -193,12 +192,16 @@
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                 </div>
                 <div class="modal-body">
-                    Esta acción eliminará el servicio de forma permanente. ¿Deseas continuar?
+                    Esta acción eliminará el servicio de forma permanente.<br>
+                    ATENCIÓN, ESTA ACCIÓN ELIMINARÁ TODO EL CONTENIDO RELACIONADO A ESTE SERVICIO (RESERVAS, HORARIOS)<br>
+                    ¿Deseas continuar?
                 </div>
                 <div class="modal-footer">
+                    <form th:action="@{/admin/eliminar/}" method="post">
+                    <input type="hidden" th:value="${servicio.id}" name="id">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="button" id="btnConfirmarEliminar" class="btn btn-danger">Eliminar</button>
-
+                    <button type="submit" id="btnConfirmarEliminar" class="btn btn-danger">Eliminar</button>
+                    </form>
                 </div>
             </div>
         </div>
@@ -451,52 +454,6 @@
 <!-- Script de DataTables si no está activado -->
 <!-- jQuery -->
 
-
-<!-- Inicialización de DataTables -->
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
-        let idEliminar = null;
-
-        $('#tablaServicios').on('click', '.delete-btn', function () {
-            const fila = $(this).closest('tr');
-            idEliminar = fila.attr('data-id');
-            console.log("ID seleccionado para eliminar:", idEliminar);
-        });
-
-        const btnEliminar = document.getElementById('btnConfirmarEliminar');
-        if (btnEliminar) {
-            btnEliminar.addEventListener('click', () => {
-                if (!idEliminar) return alert("No se ha seleccionado ningún servicio para eliminar");
-                console.log("Llamando al DELETE con ID:", idEliminar);
-
-                fetch(`/admin/eliminar/${idEliminar}`, {
-                    method: 'DELETE'
-                })
-                    .then(res => {
-                        if (!res.ok) throw new Error("Error al eliminar");
-
-                        const tabla = $('#tablaServicios').DataTable();
-                        tabla.row($(`tr[data-id="${idEliminar}"]`)).remove().draw(false);
-
-                        idEliminar = null;
-                        const modalElement = document.getElementById('modalEliminar');
-                        let modalInstance = bootstrap.Modal.getInstance(modalElement);
-                        if (!modalInstance) {
-                            modalInstance = new bootstrap.Modal(modalElement);
-                        }
-                        modalInstance.hide();
-
-                        document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
-                        document.body.classList.remove('modal-open');
-                        document.body.style = '';
-                    })
-                    .catch(err => alert(err.message));
-            });
-        } else {
-            console.error("❌ No se encontró el botón #btnConfirmarEliminar");
-        }
-    });
-</script>
 
 
 <!-- Vendor JS -->

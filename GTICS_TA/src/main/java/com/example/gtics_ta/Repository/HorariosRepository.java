@@ -7,13 +7,12 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
-import java.util.Date;
 import java.util.List;
 
 @Repository
 public interface HorariosRepository extends JpaRepository<Horarios, Integer> {
 
-    List<Horarios> findByIdEspacio(Integer idEspacio);
+    List<Horarios> findByEspacioId(Integer idEspacio);
 
     @Query(value = "SELECT h.*, IF(hr.id_horario_reservado IS NULL, false, true) AS reservado " +
                     "FROM horarios h " +

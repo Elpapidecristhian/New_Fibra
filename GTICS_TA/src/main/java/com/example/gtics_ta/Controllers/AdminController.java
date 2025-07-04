@@ -21,6 +21,7 @@ import com.itextpdf.layout.element.Table;
 import com.itextpdf.layout.properties.HorizontalAlignment;
 import com.itextpdf.layout.properties.TextAlignment;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.transaction.Transactional;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import com.itextpdf.kernel.colors.DeviceRgb;
@@ -81,6 +82,8 @@ public class AdminController {
     private ImageService imageService;
     @Autowired
     private GimnasiosRepository gimnasiosRepository;
+    @Autowired
+    private PiscinasRepository piscinasRepository;
 
 
     //*********************************************************************************************
@@ -387,42 +390,47 @@ public class AdminController {
         return "redirect:/admin";
     }
 
-
-    @PutMapping("/actualizar/{id}")
-    @ResponseBody
-    public ResponseEntity<String> actualizarServicio(@PathVariable("id") Integer id, @RequestBody EspaciosDeportivos espacioActualizado) {
-        EspaciosDeportivos espacio = espaciosRepository.findById(id).orElse(null);
-        if (espacio == null) {
-            return ResponseEntity.notFound().build();
-        }
-
-        espacio.setNombre(espacioActualizado.getNombre());
-        espacio.setUbicacion(espacioActualizado.getUbicacion());
-        espacio.setCorreoContacto(espacioActualizado.getCorreoContacto());
-        espacio.setAforo(espacioActualizado.getAforo());
-        espacio.setHoraAbre(espacioActualizado.getHoraAbre());
-        espacio.setHoraCierra(espacioActualizado.getHoraCierra());
-
-        if (espacioActualizado.getTipoEspacio() != null && espacioActualizado.getTipoEspacio().getNombre() != null) {
-            Optional<TipoEspacio> opttipo = tipoEspacioRepository.findById(espacioActualizado.getTipoEspacio().getId());
-            if (opttipo.isPresent()) {
-                TipoEspacio tipo = opttipo.get();
-                espacio.setTipoEspacio(tipo);
+    @Transactional
+    @PostMapping("/eliminar/")
+    public String eliminarServicio(@RequestParam("id") int id) {
+        Optional<EspaciosDeportivos> optEspacio = espaciosRepository.findById(id);
+        if (optEspacio.isPresent()) {
+            EspaciosDeportivos espacio = optEspacio.get();
+            switch (espacio.getTipoEspacio().getId()){
+                case 1:
+                    Piscinas piscinas = piscinaRepository.findByIdEspacio(espacio.getId());
+                    piscinasRepository.delete(piscinas);
+                    break;
+                case 2:
+                    CanchasFutbol canchasFutbol = canchasFutbolRepository.findByIdEspacio(espacio.getId());
+                    canchasFutbolRepository.delete(canchasFutbol);
+                    break;
+                case 3:
+                    PistasAtletismo pistasAtletismo = pistasAtletismoRepository.findByIdEspacio(espacio.getId());
+                    pistasAtletismoRepository.delete(pistasAtletismo);
+                    break;
+                case 4:
+                    Estadios estadios = estadiosRepository.findByIdEspacio(espacio.getId());
+                    estadiosRepository.delete(estadios);
+                    break;
+                case 5:
+                    Gimnasios gimnasios = gimnasiosRepository.findByIdEspacios(espacio.getId());
+                    gimnasiosRepository.delete(gimnasios);
+                    break;
             }
+            List<Horarios> listaHorarios = horariosRepository.findByEspacioId(espacio.getId());
+            for(Horarios h : listaHorarios){
+                reservaRepository.deleteAllByHorario(h);
+            }
+            for(Horarios h : listaHorarios){
+                horarioReservadoRepository.deleteAllByHorario(h);
+            }
+            horariosRepository.deleteAll(listaHorarios);
+            espaciosRepository.delete(espacio);
+        } else {
+            return "redirect:/admin";
         }
-
-        espaciosRepository.save(espacio);
-        return ResponseEntity.ok("Actualizado correctamente");
-    }
-
-    @DeleteMapping("/eliminar/{id}")
-    @ResponseBody
-    public ResponseEntity<Void> eliminarServicio(@PathVariable("id") int id) {
-        if (!espaciosRepository.existsById(id)) {
-            return ResponseEntity.notFound().build();
-        }
-        espaciosRepository.deleteById(id);
-        return ResponseEntity.ok().build();
+        return "redirect:/admin";
     }
 
     //*********************************************************************************************

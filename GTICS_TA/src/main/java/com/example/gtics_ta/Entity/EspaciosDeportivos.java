@@ -8,6 +8,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 
 import java.math.BigDecimal;
 import java.time.LocalTime;
+import java.util.List;
 
 @Getter
 @Setter
@@ -57,4 +58,10 @@ public class EspaciosDeportivos {
 
     @Column(name = "radio_cobertura")
     private Integer radioCobertura = 100;
+
+    @OneToMany(mappedBy = "espacioDeportivo", cascade = CascadeType.ALL, orphanRemoval = true)
+    List<Reservas> listaReservas;
+
+    @OneToMany(mappedBy = "espacio", cascade = CascadeType.ALL, orphanRemoval = true)
+    List<Horarios> listaHorarios;
 }

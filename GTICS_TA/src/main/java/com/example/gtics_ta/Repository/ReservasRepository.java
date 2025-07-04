@@ -1,6 +1,7 @@
 package com.example.gtics_ta.Repository;
 
 import com.example.gtics_ta.DTO.ResumenDTO;
+import com.example.gtics_ta.Entity.Horarios;
 import com.example.gtics_ta.Entity.Pagos;
 import com.example.gtics_ta.Entity.Reservas;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -23,6 +24,7 @@ public interface ReservasRepository extends JpaRepository<Reservas, Integer> {
     List<Reservas> findByFechaReserva(LocalDate fechaReserva);
     List<Reservas> findByFechaReservaBetween(LocalDate fechaInicio, LocalDate fechaFin);
     List<Reservas> findByEstadoReserva(Reservas.EstadoReserva estadoReserva);
+
 
     /* Métodos de consulta personalizados */
     @Query("SELECT r FROM Reservas r WHERE r.fechaReserva BETWEEN :fechaInicio AND :fechaFin AND r.estadoReserva = 'ACTIVA' ORDER BY r.fechaReserva, r.horario.horaInicio")
@@ -105,4 +107,5 @@ public interface ReservasRepository extends JpaRepository<Reservas, Integer> {
     List<Pagos> findPagosByUsuarioId(@Param("usuarioId") Integer usuarioId);
     List<Reservas> findByUsuario_IdAndEstadoReserva(Integer usuarioId, Reservas.EstadoReserva estado);
 
+    void deleteAllByHorario(Horarios h);
 }

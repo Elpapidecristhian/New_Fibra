@@ -51,7 +51,7 @@ public class WebSecurityConfig {
                 .requestMatchers("/css/**", "/js/**", "/images/**", "/assets/**", "/front-end/**", "/scss/**", "/static/**").permitAll()
                 // Permitir páginas de error
                 .requestMatchers("/error").permitAll()
-                .requestMatchers("/vecino/api/chatbot").permitAll() // solo usuarios logueados
+                .requestMatchers("/vecino/api/chatbot").permitAll()
                 .requestMatchers("/vecino/**").hasAnyAuthority("Vecino", "Admin")
                 .requestMatchers("/coordinador/**").hasAnyAuthority("Coordinador", "Admin", "SuperAdmin")
                 .requestMatchers("/admin/**").hasAnyAuthority("Admin", "SuperAdmin")

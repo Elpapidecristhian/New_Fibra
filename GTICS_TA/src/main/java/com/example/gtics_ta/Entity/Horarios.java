@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.sql.Time;
+import java.util.List;
 
 @Entity
 @Getter
@@ -17,6 +18,10 @@ public class Horarios {
     private Time horaInicio;
     @Column(name = "hora_fin")
     private Time horaFin;
-    @Column(name = "id_espacio")
-    private int idEspacio;
+    @ManyToOne
+    @JoinColumn(name = "id_espacio")
+    private EspaciosDeportivos espacio;
+
+    @OneToMany(mappedBy = "horario", cascade = CascadeType.ALL, orphanRemoval = true)
+    List<HorarioReservado> listaHorariosReservados;
 }

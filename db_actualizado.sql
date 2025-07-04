@@ -140,7 +140,7 @@ DEFAULT CHARACTER SET = utf8mb3;
 CREATE TABLE IF NOT EXISTS `gtics`.`espaciosdeportivos` (
   `id_espacio` INT NOT NULL AUTO_INCREMENT,
   `nombre` VARCHAR(45) NOT NULL,
-  `ubicacion` VARCHAR(45) NOT NULL,
+  `ubicacion` VARCHAR(150) NOT NULL,
   `id_tipo_espacio` INT NOT NULL,
   `id_lista_fotos` INT NOT NULL,
   `descripcion_corta` VARCHAR(255) NOT NULL,
