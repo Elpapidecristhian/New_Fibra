@@ -102,7 +102,7 @@ public class AdminController {
         List<EspaciosDeportivos> espacios = espaciosRepository.findAll();
         List<Reservas> reservas = reservaRepository.findAll();
 
-        dashboard.setTotalUsuarios(0); // TODO: implementar conteo de usuarios
+        dashboard.setTotalUsuarios(usuarioRepository.count()); // TODO: implementar conteo de usuarios
         dashboard.setTotalUsuariosBaneados(0); // TODO: implementar conteo de usuarios baneados
         dashboard.setCantidadTotalReservas(reservas.size());
         dashboard.setEspaciosDisponibles(espacios.size());
