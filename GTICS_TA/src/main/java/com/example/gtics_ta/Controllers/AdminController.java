@@ -42,6 +42,7 @@ import org.springframework.web.multipart.MultipartFile;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import java.io.IOException;
+import java.io.InputStream;
 import java.math.BigDecimal;
 import java.net.URI;
 import java.sql.Timestamp;
@@ -442,8 +443,8 @@ public class AdminController {
     // LISTAR RESERVAS
     @GetMapping("/reservas")
     public String listarReservas(@RequestParam(value = "nombre", required = false) String nombre,
-                                @RequestParam(value = "tipoEspacio", required = false) Integer tipoEspacio,
-                                Model model) {
+                                 @RequestParam(value = "tipoEspacio", required = false) Integer tipoEspacio,
+                                 Model model) {
         try {
             // Actualizar reservas completadas antes de mostrar la lista
             actualizarReservasCompletadas();
@@ -503,7 +504,7 @@ public class AdminController {
 
                     // Si la reserva estaba cancelada por admin, reactivarla
                     if (reserva.getEstadoReserva() != null &&
-                        reserva.getEstadoReserva().equals(Reservas.EstadoReserva.CANCELADA_ADMIN)) {
+                            reserva.getEstadoReserva().equals(Reservas.EstadoReserva.CANCELADA_ADMIN)) {
 
                         System.out.println("Reactivando reserva ID: " + reserva.getId());
                         reserva.setEstadoReserva(Reservas.EstadoReserva.ACTIVA);
@@ -515,7 +516,7 @@ public class AdminController {
                     }
                     // Si la reserva está activa, mantenerla activa
                     else if (reserva.getEstadoReserva() != null &&
-                             reserva.getEstadoReserva().equals(Reservas.EstadoReserva.ACTIVA)) {
+                            reserva.getEstadoReserva().equals(Reservas.EstadoReserva.ACTIVA)) {
                         System.out.println("Reserva ID " + reserva.getId() + " ya está activa, pago aprobado.");
                     }
                     else {
@@ -536,8 +537,8 @@ public class AdminController {
     @PostMapping("/reservas/rechazar-pago/{id}")
     @ResponseBody
     public ResponseEntity<String> rechazarPago(@PathVariable Integer id,
-                                              @RequestParam String motivo,
-                                              HttpSession session) {
+                                               @RequestParam String motivo,
+                                               HttpSession session) {
         try {
             Optional<Pagos> optPago = pagosRepository.findById(id);
             if (optPago.isPresent()) {
@@ -602,8 +603,8 @@ public class AdminController {
 
                 // Si hay fotos de comprobantes, agregar información
                 if (pago.getListaFotosComprobantes() != null &&
-                    pago.getListaFotosComprobantes().getFotos() != null &&
-                    !pago.getListaFotosComprobantes().getFotos().isEmpty()) {
+                        pago.getListaFotosComprobantes().getFotos() != null &&
+                        !pago.getListaFotosComprobantes().getFotos().isEmpty()) {
                     detalles.put("tieneComprobantes", true);
 
                     // Agregar URLs de las fotos
@@ -634,10 +635,10 @@ public class AdminController {
         try {
             LocalDate hoy = LocalDate.now();
             List<Reservas> reservasActivas = reservaRepository.findAll().stream()
-                .filter(r -> r.getEstadoReserva() == Reservas.EstadoReserva.ACTIVA)
-                .filter(r -> r.getFechaReserva() != null && r.getFechaReserva().isBefore(hoy))
-                .filter(r -> r.getPago() != null && r.getPago().getEstadoPago() == Pagos.EstadoPago.APROBADO)
-                .toList();
+                    .filter(r -> r.getEstadoReserva() == Reservas.EstadoReserva.ACTIVA)
+                    .filter(r -> r.getFechaReserva() != null && r.getFechaReserva().isBefore(hoy))
+                    .filter(r -> r.getPago() != null && r.getPago().getEstadoPago() == Pagos.EstadoPago.APROBADO)
+                    .toList();
 
             for (Reservas reserva : reservasActivas) {
                 reserva.setEstadoReserva(Reservas.EstadoReserva.COMPLETADA);
@@ -688,12 +689,19 @@ public class AdminController {
         Document document = new Document(pdf);
 
         // Logo
-        String imagePath = "src/main/resources/static/images/logo-sanMiguel.png";
-        ImageData imageData = ImageDataFactory.create(imagePath);
-        Image logo = new Image(imageData);
-        logo.setHorizontalAlignment(HorizontalAlignment.CENTER);
-        logo.setWidth(60);
-        document.add(logo);
+        // ✅ Esta versión funciona tanto en local como en la nube
+        InputStream imageStream = getClass().getResourceAsStream("/static/images/logo-sanMiguel.png");
+        if (imageStream != null) {
+            byte[] imageBytes = imageStream.readAllBytes();
+            ImageData imageData = ImageDataFactory.create(imageBytes);
+            Image logo = new Image(imageData);
+            logo.setHorizontalAlignment(HorizontalAlignment.CENTER);
+            logo.setWidth(60);
+            document.add(logo);
+        } else {
+            System.err.println("⚠️ No se pudo cargar el logo desde /static/images/logo-sanMiguel.png");
+        }
+
 
         // Título
         Paragraph titulo = new Paragraph("Reporte de Servicio Deportivo")
@@ -847,4 +855,3 @@ public class AdminController {
     }
 
 }
-
