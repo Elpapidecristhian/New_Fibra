@@ -311,7 +311,7 @@
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
                         <i class="mdi mdi-close me-1"></i>Cancelar
                     </button>
-                    <button type="button" class="btn btn-info" onclick="programarMantenimiento()">
+                    <button type="button" class="btn btn-success" id="btnProgramarMantenimiento" onclick="programarMantenimiento()">
                         <i class="mdi mdi-calendar-check me-1"></i>Programar Mantenimiento
                     </button>
                 </div>
@@ -375,18 +375,8 @@
         };
 
         // Validaciones
-        if (!campos.fecha) {
-            alert('Por favor seleccione la fecha del mantenimiento');
-            return;
-        }
-
-        if (!campos.tipo) {
-            alert('Por favor seleccione el tipo de mantenimiento');
-            return;
-        }
-
-        if (!campos.horaInicio || !campos.horaFin) {
-            alert('Por favor ingrese las horas de inicio y fin');
+        if (!campos.fecha || !campos.tipo || !campos.horaInicio || !campos.horaFin || !campos.responsable || !campos.descripcion) {
+            alert('Por favor complete todos los campos');
             return;
         }
 
@@ -395,17 +385,6 @@
             return;
         }
 
-        if (!campos.responsable) {
-            alert('Por favor ingrese el nombre del responsable');
-            return;
-        }
-
-        if (!campos.descripcion) {
-            alert('Por favor describa el trabajo a realizar');
-            return;
-        }
-
-        // Recopilar todos los datos
         const datosMantenimiento = {
             servicioId: document.getElementById('mantenimientoId').value,
             servicioNombre: document.getElementById('mantenimientoNombre').value,
@@ -421,28 +400,162 @@
             suspenderServicio: document.getElementById('suspenderServicio').checked
         };
 
-        // Por ahora mostrar los datos (después puedes enviar al servidor)
-        console.log('📋 Mantenimiento programado:', datosMantenimiento);
+        const params = new URLSearchParams();
+        params.append('servicioId', datosMantenimiento.servicioId);
+        params.append('fecha', datosMantenimiento.fecha);
+        params.append('tipo', datosMantenimiento.tipo);
+        params.append('horaInicio', datosMantenimiento.horaInicio);
+        params.append('horaFin', datosMantenimiento.horaFin);
+        params.append('responsable', datosMantenimiento.responsable);
+        params.append('descripcion', datosMantenimiento.descripcion);
+        params.append('prioridad', datosMantenimiento.prioridad);
+        params.append('suspenderServicio', datosMantenimiento.suspenderServicio);
 
-        // Mostrar confirmación
-        const tipoTexto = document.getElementById('tipoMantenimiento').selectedOptions[0].textContent;
-        const prioridadTexto = document.getElementById('prioridadMantenimiento').selectedOptions[0].textContent;
+        const btnProgramar = document.getElementById('btnProgramarMantenimiento');
+        const textoOriginal = btnProgramar.textContent;
+        btnProgramar.disabled = true;
+        btnProgramar.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Programando...';
 
-        alert(`✅ Mantenimiento programado exitosamente!\n\n` +
-              `🏢 Servicio: ${datosMantenimiento.servicioNombre}\n` +
-              `📅 Fecha: ${datosMantenimiento.fecha}\n` +
-              `⏰ Horario: ${datosMantenimiento.horaInicio} - ${datosMantenimiento.horaFin}\n` +
-              `🔧 Tipo: ${tipoTexto}\n` +
-              `⚡ Prioridad: ${prioridadTexto}\n` +
-              `👤 Responsable: ${datosMantenimiento.responsable}\n` +
-              `${datosMantenimiento.suspenderServicio ? '⚠️ Servicio suspendido durante mantenimiento' : '✅ Servicio disponible durante mantenimiento'}`);
+        fetch('/admin/programar-mantenimiento', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: params
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const tipoTexto = document.getElementById('tipoMantenimiento').selectedOptions[0].textContent;
+                    const prioridadTexto = document.getElementById('prioridadMantenimiento').selectedOptions[0].textContent;
+                    mostrarConfirmacionMantenimiento(datosMantenimiento, tipoTexto, prioridadTexto, data);
 
-        // Cerrar el modal
-        const modal = bootstrap.Modal.getInstance(document.getElementById('modalMantenimiento'));
-        modal.hide();
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('modalMantenimiento'));
+                    modal.hide();
 
-        // TODO: Aquí puedes agregar la llamada al servidor para guardar el mantenimiento
-        // fetch('/admin/programar-mantenimiento', { ... })
+                    document.getElementById('formMantenimiento').reset();
+                } else {
+                    alert('❌ Error al programar mantenimiento: ' + data.error);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('❌ Error de conexión al programar mantenimiento');
+            })
+            .finally(() => {
+                btnProgramar.disabled = false;
+                btnProgramar.innerHTML = textoOriginal;
+            });
+    }
+
+
+    /**
+     * Muestra confirmación de mantenimiento con formato similar a reservas
+     */
+    function mostrarConfirmacionMantenimiento(datos, tipoTexto, prioridadTexto, response) {
+        // Crear modal de confirmación
+        const modalHtml = `
+            <div class="modal fade" id="modalConfirmacionMantenimiento" tabindex="-1">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header bg-success text-white">
+                            <h5 class="modal-title">
+                                <i class="fas fa-check-circle me-2"></i>
+                                Mantenimiento Programado Exitosamente
+                            </h5>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="card border-0 bg-light">
+                                        <div class="card-body">
+                                            <h6 class="card-title text-primary">
+                                                <i class="fas fa-info-circle me-2"></i>Detalles del Mantenimiento
+                                            </h6>
+                                            <div class="mb-2">
+                                                <strong>🏢 Servicio:</strong> ${datos.servicioNombre}
+                                            </div>
+                                            <div class="mb-2">
+                                                <strong>📅 Fecha:</strong> ${datos.fecha}
+                                            </div>
+                                            <div class="mb-2">
+                                                <strong>⏰ Horario:</strong> ${datos.horaInicio} - ${datos.horaFin}
+                                            </div>
+                                            <div class="mb-2">
+                                                <strong>🔧 Tipo:</strong> ${tipoTexto}
+                                            </div>
+                                            <div class="mb-2">
+                                                <strong>⚡ Prioridad:</strong> ${prioridadTexto}
+                                            </div>
+                                            <div class="mb-2">
+                                                <strong>👤 Responsable:</strong> ${datos.responsable}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="card border-0 bg-light">
+                                        <div class="card-body">
+                                            <h6 class="card-title text-info">
+                                                <i class="fas fa-chart-bar me-2"></i>Resumen de Acciones
+                                            </h6>
+                                            <div class="mb-2">
+                                                <strong>📋 ID Mantenimiento:</strong> #${response.mantenimientoId}
+                                            </div>
+                                            <div class="mb-2">
+                                                <strong>🚫 Reservas Canceladas:</strong> ${response.reservasCanceladas || 0}
+                                            </div>
+                                            <div class="mb-2">
+                                                <strong>📧 Notificaciones:</strong>
+                                                ${response.notificacionesEnviadas ?
+                                                    '<span class="text-success">✅ Enviadas</span>' :
+                                                    '<span class="text-muted">➖ No requeridas</span>'}
+                                            </div>
+                                            <div class="mb-2">
+                                                <strong>🔒 Estado Servicio:</strong>
+                                                ${datos.suspenderServicio ?
+                                                    '<span class="text-warning">⚠️ Suspendido</span>' :
+                                                    '<span class="text-success">✅ Disponible</span>'}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            ${datos.descripcion ? `
+                                <div class="mt-3">
+                                    <div class="card border-0 bg-light">
+                                        <div class="card-body">
+                                            <h6 class="card-title text-secondary">
+                                                <i class="fas fa-file-alt me-2"></i>Descripción
+                                            </h6>
+                                            <p class="mb-0">${datos.descripcion}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            ` : ''}
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-success" data-bs-dismiss="modal">
+                                <i class="fas fa-check me-2"></i>Entendido
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        // Agregar modal al DOM
+        document.body.insertAdjacentHTML('beforeend', modalHtml);
+
+        // Mostrar modal
+        const modal = new bootstrap.Modal(document.getElementById('modalConfirmacionMantenimiento'));
+        modal.show();
+
+        // Limpiar modal del DOM cuando se cierre
+        document.getElementById('modalConfirmacionMantenimiento').addEventListener('hidden.bs.modal', function() {
+            this.remove();
+        });
     }
 
 

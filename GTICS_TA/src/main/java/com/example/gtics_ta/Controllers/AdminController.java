@@ -8,6 +8,7 @@ import com.example.gtics_ta.DTO.ServicioDTO;
 import com.example.gtics_ta.Entity.*;
 import com.example.gtics_ta.Repository.*;
 import com.example.gtics_ta.Services.ImageService;
+import com.example.gtics_ta.Services.MantenimientoService;
 import com.itextpdf.io.image.ImageData;
 import com.itextpdf.io.image.ImageDataFactory;
 import com.itextpdf.kernel.colors.ColorConstants;
@@ -46,6 +47,7 @@ import java.math.BigDecimal;
 import java.net.URI;
 import java.sql.Timestamp;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.*;
 
 @Controller
@@ -76,6 +78,8 @@ public class AdminController {
     private FotosRepository fotosRepository;
     @Autowired
     private HorarioReservadoRepository horarioReservadoRepository;
+    @Autowired
+    private MantenimientoService mantenimientoService;
     @Autowired
     private PagosRepository pagosRepository;
     @Autowired
@@ -844,6 +848,76 @@ public class AdminController {
         // Escribir archivo
         workbook.write(response.getOutputStream());
         workbook.close();
+    }
+
+    // ==================== ENDPOINTS DE MANTENIMIENTO ====================
+
+    /**
+     * Programa un nuevo mantenimiento
+     */
+    @PostMapping("/programar-mantenimiento")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> programarMantenimiento(
+            @RequestParam("servicioId") Integer servicioId,
+            @RequestParam("fecha") String fecha,
+            @RequestParam("tipo") String tipo,
+            @RequestParam("horaInicio") String horaInicio,
+            @RequestParam("horaFin") String horaFin,
+            @RequestParam("responsable") String responsable,
+            @RequestParam("descripcion") String descripcion,
+            @RequestParam("prioridad") String prioridad,
+            @RequestParam(value = "suspenderServicio", defaultValue = "false") boolean suspenderServicio,
+            HttpSession session) {
+
+        Map<String, Object> response = new HashMap<>();
+
+        try {
+            // Obtener usuario de la sesión
+            Usuario admin = (Usuario) session.getAttribute("usuario");
+            if (admin == null) {
+                response.put("success", false);
+                response.put("error", "Sesión expirada");
+                return ResponseEntity.status(401).body(response);
+            }
+
+            // Validar y convertir datos
+            LocalDate fechaMantenimiento = LocalDate.parse(fecha);
+            LocalTime horaInicioTime = LocalTime.parse(horaInicio);
+            LocalTime horaFinTime = LocalTime.parse(horaFin);
+
+            // Validaciones
+            if (fechaMantenimiento.isBefore(LocalDate.now())) {
+                response.put("success", false);
+                response.put("error", "La fecha del mantenimiento no puede ser anterior a hoy");
+                return ResponseEntity.badRequest().body(response);
+            }
+
+            if (horaInicioTime.isAfter(horaFinTime) || horaInicioTime.equals(horaFinTime)) {
+                response.put("success", false);
+                response.put("error", "La hora de fin debe ser posterior a la hora de inicio");
+                return ResponseEntity.badRequest().body(response);
+            }
+
+            // Programar el mantenimiento
+            Mantenimiento mantenimiento = mantenimientoService.programarMantenimiento(
+                servicioId, tipo, fechaMantenimiento, horaInicioTime, horaFinTime,
+                responsable, descripcion, prioridad, suspenderServicio, admin
+            );
+
+            // Respuesta exitosa
+            response.put("success", true);
+            response.put("message", "Mantenimiento programado exitosamente");
+            response.put("mantenimientoId", mantenimiento.getId());
+            response.put("reservasCanceladas", mantenimiento.getReservasCanceladas());
+            response.put("notificacionesEnviadas", mantenimiento.getNotificacionesEnviadas());
+
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("error", "Error al programar mantenimiento: " + e.getMessage());
+            return ResponseEntity.status(500).body(response);
+        }
     }
 
 }
