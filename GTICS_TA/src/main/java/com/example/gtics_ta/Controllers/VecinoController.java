@@ -79,6 +79,21 @@ public class VecinoController {
         return "redirect:/vecino/espacios";
     }
 
+    /**
+     * Método auxiliar para agregar notificaciones al modelo
+     */
+    private void agregarNotificacionesAlModelo(Model model, HttpSession session) {
+        Usuario usuario = (Usuario) session.getAttribute("usuario");
+        if (usuario != null) {
+            List<Notificaciones> notificaciones = notificacionesRepository.findByUsuarioOrderByFechaCreacionDesc(usuario);
+            // Limitar a las últimas 5 notificaciones para el dropdown
+            List<Notificaciones> notificacionesRecientes = notificaciones.stream()
+                    .limit(5)
+                    .toList();
+            model.addAttribute("notificaciones", notificacionesRecientes);
+        }
+    }
+
     //*********************************************************************************************
     //
     //                                    Lista de Espacios
@@ -89,7 +104,8 @@ public class VecinoController {
     public String listaEspacios(@RequestParam(name = "tipo", required = false) Integer id,
                                 @RequestParam(name = "fecha", required = false) String fecha,
                                 @RequestParam(name = "nombre", required = false) String nombre,
-                                Model model
+                                Model model,
+                                HttpSession session
     ) {
         List<EspaciosDeportivos> espacios;
 
@@ -125,6 +141,9 @@ public class VecinoController {
         model.addAttribute("tipoSeleccionado", id);
         model.addAttribute("fechaSeleccionada", fecha);
         model.addAttribute("nombreSeleccionado", nombre);
+
+        // Agregar notificaciones al modelo
+        agregarNotificacionesAlModelo(model, session);
 
         return "vecino/espacios";
     }
@@ -826,6 +845,106 @@ public class VecinoController {
             json.put("respuestaBot", "Error al procesar la pregunta.");
             return ResponseEntity.status(500).body(json);
         }
+    }
+
+    //*********************************************************************************************
+    //
+    //                                    Notificaciones
+    //
+    //*********************************************************************************************
+
+    @GetMapping("/notificaciones")
+    public String mostrarNotificaciones(Model model, HttpSession session) {
+        Usuario usuario = (Usuario) session.getAttribute("usuario");
+        if (usuario == null) {
+            return "redirect:/login";
+        }
+
+        // Obtener todas las notificaciones del usuario
+        List<Notificaciones> notificaciones = notificacionesRepository.findByUsuarioOrderByFechaCreacionDesc(usuario);
+
+        // Contar notificaciones no leídas
+        int noLeidas = notificacionesRepository.countByUsuarioAndLeidaFalse(usuario);
+
+        model.addAttribute("notificaciones", notificaciones);
+        model.addAttribute("noLeidas", noLeidas);
+        model.addAttribute("usuario", usuario);
+
+        return "vecino/notificaciones";
+    }
+
+    @PostMapping("/notificaciones/marcar-leida/{id}")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> marcarNotificacionLeida(@PathVariable Integer id, HttpSession session) {
+        Usuario usuario = (Usuario) session.getAttribute("usuario");
+        Map<String, Object> response = new HashMap<>();
+
+        if (usuario == null) {
+            response.put("success", false);
+            response.put("error", "Sesión expirada");
+            return ResponseEntity.status(401).body(response);
+        }
+
+        try {
+            Optional<Notificaciones> optNotificacion = notificacionesRepository.findById(id);
+            if (optNotificacion.isPresent()) {
+                Notificaciones notificacion = optNotificacion.get();
+
+                // Verificar que la notificación pertenece al usuario
+                if (notificacion.getUsuario().getId() == usuario.getId()) {
+                    notificacion.marcarComoLeida();
+                    notificacionesRepository.save(notificacion);
+
+                    response.put("success", true);
+                    response.put("message", "Notificación marcada como leída");
+                } else {
+                    response.put("success", false);
+                    response.put("error", "No autorizado");
+                }
+            } else {
+                response.put("success", false);
+                response.put("error", "Notificación no encontrada");
+            }
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("error", "Error al marcar notificación: " + e.getMessage());
+        }
+
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/notificaciones/marcar-todas-leidas")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> marcarTodasLeidas(HttpSession session) {
+        Usuario usuario = (Usuario) session.getAttribute("usuario");
+        Map<String, Object> response = new HashMap<>();
+
+        if (usuario == null) {
+            response.put("success", false);
+            response.put("error", "Sesión expirada");
+            return ResponseEntity.status(401).body(response);
+        }
+
+        try {
+            List<Notificaciones> notificacionesNoLeidas = notificacionesRepository.findByUsuarioOrderByFechaCreacionDesc(usuario)
+                .stream()
+                .filter(n -> !n.getLeida())
+                .toList();
+
+            for (Notificaciones notificacion : notificacionesNoLeidas) {
+                notificacion.marcarComoLeida();
+                notificacionesRepository.save(notificacion);
+            }
+
+            response.put("success", true);
+            response.put("message", "Todas las notificaciones marcadas como leídas");
+            response.put("marcadas", notificacionesNoLeidas.size());
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("error", "Error al marcar notificaciones: " + e.getMessage());
+        }
+
+        return ResponseEntity.ok(response);
     }
 
 

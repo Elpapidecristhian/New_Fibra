@@ -21,10 +21,11 @@ import org.springframework.http.HttpHeaders;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.net.URI;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.ZoneId;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/coordinador")
@@ -43,6 +44,9 @@ public class CoordinadorController {
 
     @Autowired
     private AsistenciaService asistenciaService;
+
+    @Autowired
+    private HorariosCoordinadorRepository horariosCoordinadorRepository;
 
     @GetMapping("/perfil")
     public String coordinadorPerfil(@ModelAttribute("usuario") Usuario usuario, HttpSession session, Model model) {
@@ -276,6 +280,103 @@ public class CoordinadorController {
         model.addAttribute("comentarios", misComentarios);
 
         return "coordinador/mis-observaciones";
+    }
+
+    @GetMapping("/horarios")
+    public String verHorarios(HttpSession session, Model model) {
+        Usuario usuario = (Usuario) session.getAttribute("usuario");
+        if (usuario == null) {
+            return "redirect:/login";
+        }
+
+        model.addAttribute("usuario", usuario);
+        return "coordinador/horarios";
+    }
+
+    /**
+     * Obtiene los horarios del coordinador para el calendario
+     */
+    @GetMapping("/mis-horarios")
+    @ResponseBody
+    public ResponseEntity<List<Map<String, Object>>> obtenerMisHorarios(HttpSession session) {
+        try {
+            Usuario coordinador = (Usuario) session.getAttribute("usuario");
+            if (coordinador == null) {
+                return ResponseEntity.status(401).build();
+            }
+
+            List<HorariosCoordinador> horarios = horariosCoordinadorRepository.findByUsuario(coordinador);
+
+            List<Map<String, Object>> eventos = horarios.stream().map(horario -> {
+                try {
+
+                    Map<String, Object> evento = new HashMap<>();
+                    evento.put("id", horario.getId());
+
+                    String espacioNombre = horario.getEspacio() != null ? horario.getEspacio().getNombre() : "null";
+
+                    evento.put("title", espacioNombre);
+
+                    // Conversiones seguras
+                    LocalDate fechaInicio = horario.getFechaInicio().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+                    LocalDate fechaFin = horario.getFechaFin().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+                    LocalTime horaEntrada = horario.getHoraEntrada().toLocalTime();
+                    LocalTime horaSalida = horario.getHoraSalida().toLocalTime();
+
+                    String start = fechaInicio.atTime(horaEntrada).toString();
+                    String end = fechaFin.atTime(horaSalida).toString();
+
+                    evento.put("start", start);
+                    evento.put("end", end);
+                    evento.put("backgroundColor", "#1DBFC1");
+                    evento.put("borderColor", "#1DBFC1");
+                    evento.put("textColor", "#ffffff");
+                    evento.put("allDay", false);
+
+                    evento.put("nombreEspacio", horario.getEspacio().getNombre());
+                    evento.put("tipoEspacio", horario.getEspacio().getTipoEspacio() != null
+                            ? horario.getEspacio().getTipoEspacio().getNombre() : "Sin tipo");
+                    evento.put("ubicacion", horario.getEspacio() != null && horario.getEspacio().getUbicacion() != null
+                            ? horario.getEspacio().getUbicacion() : "No especificada");
+
+                    // Generar URL embebible usando coordenadas si están disponibles
+                    String embedUrl = "";
+                    if (horario.getEspacio().getLatitud() != null && horario.getEspacio().getLongitud() != null) {
+                        // Usar coordenadas para crear URL embebible sin API key (usando modo básico)
+                        String lat = horario.getEspacio().getLatitud().toString();
+                        String lng = horario.getEspacio().getLongitud().toString();
+                        embedUrl = "https://maps.google.com/maps?q=" + lat + "," + lng + "&t=&z=15&ie=UTF8&iwloc=&output=embed";
+                    } else if (horario.getEspacio().getMapsUrl() != null && !horario.getEspacio().getMapsUrl().isEmpty()) {
+                        // Fallback: usar URL original si no hay coordenadas
+                        String mapsUrl = horario.getEspacio().getMapsUrl();
+                        if (mapsUrl.contains("q=")) {
+                            String coords = mapsUrl.substring(mapsUrl.indexOf("q=") + 2);
+                            if (coords.contains("&")) {
+                                coords = coords.substring(0, coords.indexOf("&"));
+                            }
+                            embedUrl = "https://maps.google.com/maps?q=" + coords + "&t=&z=15&ie=UTF8&iwloc=&output=embed";
+                        }
+                    }
+                    evento.put("urlMapa", embedUrl);
+                    evento.put("horaEntrada", horaEntrada.toString());
+                    evento.put("horaSalida", horaSalida.toString());
+                    evento.put("fechaInicio", fechaInicio.toString());
+                    evento.put("fechaFin", fechaFin.toString());
+
+                    return evento;
+
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                    return null;
+                }
+            }).filter(Objects::nonNull).collect(Collectors.toList());
+
+            return ResponseEntity.ok(eventos);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(500).build();
+        }
     }
 
     // ==================== ENDPOINTS DE ASISTENCIA ====================
