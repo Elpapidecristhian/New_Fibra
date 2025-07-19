@@ -29,9 +29,9 @@ public class S3Config {
         // Usar AwsSessionCredentials si hay session token (AWS Academy)
         if (sessionToken != null && !sessionToken.isEmpty()) {
             AwsSessionCredentials awsCredentials = AwsSessionCredentials.create(
-                accessKeyId,
-                secretAccessKey,
-                sessionToken
+                    accessKeyId,
+                    secretAccessKey,
+                    sessionToken
             );
             return S3Client.builder()
                     .region(Region.of(region))

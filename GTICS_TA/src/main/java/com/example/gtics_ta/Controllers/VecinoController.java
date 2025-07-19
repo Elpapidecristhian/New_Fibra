@@ -427,8 +427,8 @@ public class VecinoController {
 
             // Cargar medios de pago activos
             List<MediosPago> mediosPago = mediosPagoRepository.findAll().stream()
-                .filter(MediosPago::getActivo)
-                .toList();
+                    .filter(MediosPago::getActivo)
+                    .toList();
             model.addAttribute("mediosPago", mediosPago);
         } else {
             return "redirect:/vecino/";
@@ -448,15 +448,15 @@ public class VecinoController {
 
     @PostMapping("/guardarreserva")
     public String guardarreserva(@ModelAttribute("reserva") Reservas reserva,
-                                @RequestParam("medioPagoId") int medioPagoId,
-                                @RequestParam(value = "numeroTarjeta", required = false) String numeroTarjeta,
-                                @RequestParam(value = "nombreTarjeta", required = false) String nombreTarjeta,
-                                @RequestParam(value = "fechaExpiracion", required = false) String fechaExpiracion,
-                                @RequestParam(value = "cvv", required = false) String cvv,
-                                @RequestParam(value = "numeroTransaccion", required = false) String numeroTransaccion,
-                                @RequestParam(value = "comprobantes", required = false) MultipartFile[] comprobantes,
-                                HttpServletRequest request,
-                                RedirectAttributes redirectAttributes) {
+                                 @RequestParam("medioPagoId") int medioPagoId,
+                                 @RequestParam(value = "numeroTarjeta", required = false) String numeroTarjeta,
+                                 @RequestParam(value = "nombreTarjeta", required = false) String nombreTarjeta,
+                                 @RequestParam(value = "fechaExpiracion", required = false) String fechaExpiracion,
+                                 @RequestParam(value = "cvv", required = false) String cvv,
+                                 @RequestParam(value = "numeroTransaccion", required = false) String numeroTransaccion,
+                                 @RequestParam(value = "comprobantes", required = false) MultipartFile[] comprobantes,
+                                 HttpServletRequest request,
+                                 RedirectAttributes redirectAttributes) {
         try {
             Timestamp timestamp = new Timestamp(System.currentTimeMillis());
             reserva.setFechaRegistro(timestamp);

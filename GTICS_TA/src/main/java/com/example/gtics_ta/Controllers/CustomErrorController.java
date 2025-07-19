@@ -29,5 +29,3 @@ public class CustomErrorController implements ErrorController {
         return "error/PaginaError"; // fallback genérico si no se detecta el código
     }
 }
-
-
