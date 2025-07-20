@@ -281,6 +281,12 @@
                         </div>
 
                         <div class="mb-3">
+                            <label for="contactoEncargadoMantenimiento" class="form-label"> Contacto responsable <span class="text-danger">*</span></label>
+                            <input type="number" class="form-control" id="contactoEncargadoMantenimiento" name="contactoEncargado"
+                                   placeholder="Número de contacto del responsable del mantenimiento" required>
+                        </div>
+
+                        <div class="mb-3">
                             <label for="descripcionMantenimiento" class="form-label">Descripción del Trabajo <span class="text-danger">*</span></label>
                             <textarea class="form-control" id="descripcionMantenimiento" name="descripcion" rows="3"
                                       placeholder="Describa las actividades de mantenimiento a realizar..." required></textarea>
@@ -349,6 +355,7 @@
         document.getElementById('horaInicioMantenimiento').value = '';
         document.getElementById('horaFinMantenimiento').value = '';
         document.getElementById('responsableMantenimiento').value = '';
+        document.getElementById('contactoEncargadoMantenimiento').value = '';
         document.getElementById('descripcionMantenimiento').value = '';
         document.getElementById('prioridadMantenimiento').value = 'media';
         document.getElementById('suspenderServicio').checked = false;
@@ -371,11 +378,12 @@
             horaInicio: document.getElementById('horaInicioMantenimiento').value,
             horaFin: document.getElementById('horaFinMantenimiento').value,
             responsable: document.getElementById('responsableMantenimiento').value.trim(),
+            contactoEncargado: document.getElementById('contactoEncargadoMantenimiento').value.trim(),
             descripcion: document.getElementById('descripcionMantenimiento').value.trim()
         };
 
         // Validaciones
-        if (!campos.fecha || !campos.tipo || !campos.horaInicio || !campos.horaFin || !campos.responsable || !campos.descripcion) {
+        if (!campos.fecha || !campos.tipo || !campos.horaInicio || !campos.horaFin || !campos.responsable || !campos.contactoEncargado || !campos.descripcion) {
             alert('Por favor complete todos los campos');
             return;
         }
@@ -395,6 +403,7 @@
             horaInicio: campos.horaInicio,
             horaFin: campos.horaFin,
             responsable: campos.responsable,
+            contactoEncargado: campos.contactoEncargado,
             descripcion: campos.descripcion,
             prioridad: document.getElementById('prioridadMantenimiento').value,
             suspenderServicio: document.getElementById('suspenderServicio').checked
@@ -407,6 +416,7 @@
         params.append('horaInicio', datosMantenimiento.horaInicio);
         params.append('horaFin', datosMantenimiento.horaFin);
         params.append('responsable', datosMantenimiento.responsable);
+        params.append('contactoEncargado', datosMantenimiento.contactoEncargado);
         params.append('descripcion', datosMantenimiento.descripcion);
         params.append('prioridad', datosMantenimiento.prioridad);
         params.append('suspenderServicio', datosMantenimiento.suspenderServicio);
@@ -416,14 +426,24 @@
         btnProgramar.disabled = true;
         btnProgramar.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Programando...';
 
+        // Obtener token CSRF
+        const token = document.querySelector("meta[name='_csrf']").getAttribute("content");
+        const header = document.querySelector("meta[name='_csrf_header']").getAttribute("content");
+
         fetch('/admin/programar-mantenimiento', {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/x-www-form-urlencoded'
+                'Content-Type': 'application/x-www-form-urlencoded',
+                [header]: token
             },
             body: params
         })
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
             .then(data => {
                 if (data.success) {
                     const tipoTexto = document.getElementById('tipoMantenimiento').selectedOptions[0].textContent;
@@ -435,12 +455,23 @@
 
                     document.getElementById('formMantenimiento').reset();
                 } else {
-                    alert('❌ Error al programar mantenimiento: ' + data.error);
+                    console.error('Error del servidor:', data.error);
+                    alert('❌ Error al programar mantenimiento: ' + (data.error || 'Error desconocido'));
                 }
             })
             .catch(error => {
-                console.error('Error:', error);
-                alert('❌ Error de conexión al programar mantenimiento');
+                console.error('Error completo:', error);
+                let mensajeError = '❌ Error de conexión al programar mantenimiento';
+
+                if (error.message.includes('403')) {
+                    mensajeError = '❌ Error de autenticación. Por favor, recargue la página e intente nuevamente.';
+                } else if (error.message.includes('500')) {
+                    mensajeError = '❌ Error interno del servidor. Verifique los datos e intente nuevamente.';
+                } else if (error.message.includes('400')) {
+                    mensajeError = '❌ Datos inválidos. Verifique la información ingresada.';
+                }
+
+                alert(mensajeError);
             })
             .finally(() => {
                 btnProgramar.disabled = false;
@@ -460,8 +491,7 @@
                     <div class="modal-content">
                         <div class="modal-header bg-success text-white">
                             <h5 class="modal-title">
-                                <i class="fas fa-check-circle me-2"></i>
-                                Mantenimiento Programado Exitosamente
+                               Mantenimiento Programado Exitosamente
                             </h5>
                             <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                         </div>
@@ -471,7 +501,7 @@
                                     <div class="card border-0 bg-light">
                                         <div class="card-body">
                                             <h6 class="card-title text-primary">
-                                                <i class="fas fa-info-circle me-2"></i>Detalles del Mantenimiento
+                                                <i class="fa-info-circle me-2"></i>Detalles del Mantenimiento
                                             </h6>
                                             <div class="mb-2">
                                                 <strong>🏢 Servicio:</strong> ${datos.servicioNombre}
@@ -491,6 +521,10 @@
                                             <div class="mb-2">
                                                 <strong>👤 Responsable:</strong> ${datos.responsable}
                                             </div>
+                                            <div class="mb-2">
+                                                <strong>📞 Contacto Responsable:</strong> ${datos.contactoEncargado}
+                                            </div>
+
                                         </div>
                                     </div>
                                 </div>
@@ -500,9 +534,7 @@
                                             <h6 class="card-title text-info">
                                                 <i class="fas fa-chart-bar me-2"></i>Resumen de Acciones
                                             </h6>
-                                            <div class="mb-2">
-                                                <strong>📋 ID Mantenimiento:</strong> #${response.mantenimientoId}
-                                            </div>
+
                                             <div class="mb-2">
                                                 <strong>🚫 Reservas Canceladas:</strong> ${response.reservasCanceladas || 0}
                                             </div>
@@ -537,7 +569,7 @@
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-success" data-bs-dismiss="modal">
-                                <i class="fas fa-check me-2"></i>Entendido
+                                <i class="fa-check me-2"></i>Entendido
                             </button>
                         </div>
                     </div>

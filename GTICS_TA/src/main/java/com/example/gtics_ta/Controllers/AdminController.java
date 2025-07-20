@@ -864,6 +864,7 @@ public class AdminController {
             @RequestParam("horaInicio") String horaInicio,
             @RequestParam("horaFin") String horaFin,
             @RequestParam("responsable") String responsable,
+            @RequestParam("contactoEncargado") String contactoEncargado,
             @RequestParam("descripcion") String descripcion,
             @RequestParam("prioridad") String prioridad,
             @RequestParam(value = "suspenderServicio", defaultValue = "false") boolean suspenderServicio,
@@ -872,13 +873,23 @@ public class AdminController {
         Map<String, Object> response = new HashMap<>();
 
         try {
+            System.out.println("=== INICIANDO PROGRAMACIÓN DE MANTENIMIENTO ===");
+            System.out.println("Servicio ID: " + servicioId);
+            System.out.println("Fecha: " + fecha);
+            System.out.println("Tipo: " + tipo);
+            System.out.println("Hora inicio: " + horaInicio);
+            System.out.println("Hora fin: " + horaFin);
+            System.out.println("Suspender servicio: " + suspenderServicio);
+
             // Obtener usuario de la sesión
             Usuario admin = (Usuario) session.getAttribute("usuario");
             if (admin == null) {
+                System.out.println("ERROR: Sesión expirada");
                 response.put("success", false);
                 response.put("error", "Sesión expirada");
                 return ResponseEntity.status(401).body(response);
             }
+            System.out.println("Admin: " + admin.getNombres() + " " + admin.getApellidos());
 
             // Validar y convertir datos
             LocalDate fechaMantenimiento = LocalDate.parse(fecha);
@@ -887,22 +898,30 @@ public class AdminController {
 
             // Validaciones
             if (fechaMantenimiento.isBefore(LocalDate.now())) {
+                System.out.println("ERROR: Fecha anterior a hoy");
                 response.put("success", false);
                 response.put("error", "La fecha del mantenimiento no puede ser anterior a hoy");
                 return ResponseEntity.badRequest().body(response);
             }
 
             if (horaInicioTime.isAfter(horaFinTime) || horaInicioTime.equals(horaFinTime)) {
+                System.out.println("ERROR: Horarios inválidos");
                 response.put("success", false);
                 response.put("error", "La hora de fin debe ser posterior a la hora de inicio");
                 return ResponseEntity.badRequest().body(response);
             }
 
+            System.out.println("Validaciones pasadas, llamando al servicio...");
+
             // Programar el mantenimiento
             Mantenimiento mantenimiento = mantenimientoService.programarMantenimiento(
                 servicioId, tipo, fechaMantenimiento, horaInicioTime, horaFinTime,
-                responsable, descripcion, prioridad, suspenderServicio, admin
+                responsable, contactoEncargado, descripcion, prioridad, suspenderServicio, admin
             );
+
+            System.out.println("Mantenimiento creado con ID: " + mantenimiento.getId());
+            System.out.println("Reservas canceladas: " + mantenimiento.getReservasCanceladas());
+            System.out.println("Notificaciones enviadas: " + mantenimiento.getNotificacionesEnviadas());
 
             // Respuesta exitosa
             response.put("success", true);
@@ -911,9 +930,12 @@ public class AdminController {
             response.put("reservasCanceladas", mantenimiento.getReservasCanceladas());
             response.put("notificacionesEnviadas", mantenimiento.getNotificacionesEnviadas());
 
+            System.out.println("=== MANTENIMIENTO PROGRAMADO EXITOSAMENTE ===");
             return ResponseEntity.ok(response);
 
         } catch (Exception e) {
+            System.out.println("ERROR COMPLETO: " + e.getMessage());
+            e.printStackTrace();
             response.put("success", false);
             response.put("error", "Error al programar mantenimiento: " + e.getMessage());
             return ResponseEntity.status(500).body(response);
