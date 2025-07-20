@@ -66,7 +66,7 @@ public class LoginController {
                 model.addAttribute("msg", "El correo indicado no está registrado");
             }
         }
-            model.addAttribute("msg", "El correo indicado no está registrado");
+        model.addAttribute("msg", "El correo indicado no está registrado");
         return "login/recoverpass";
     }
 

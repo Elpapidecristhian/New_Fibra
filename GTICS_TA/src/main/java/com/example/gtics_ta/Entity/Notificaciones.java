@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 
 @Entity
 @Getter
@@ -97,5 +98,9 @@ public class Notificaciones {
         RECORDATORIO_RESERVA, 
         CAMBIO_HORARIO, 
         PROMOCION
+    }
+    //Metodo para ofmratear la fecha
+    public String getFechaFormateada() {
+        return new SimpleDateFormat("dd/MM/yyyy HH:mm").format(this.fechaCreacion);
     }
 }

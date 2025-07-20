@@ -8,6 +8,7 @@ import com.example.gtics_ta.DTO.ServicioDTO;
 import com.example.gtics_ta.Entity.*;
 import com.example.gtics_ta.Repository.*;
 import com.example.gtics_ta.Services.ImageService;
+import com.example.gtics_ta.Services.MantenimientoService;
 import com.itextpdf.io.image.ImageData;
 import com.itextpdf.io.image.ImageDataFactory;
 import com.itextpdf.kernel.colors.ColorConstants;
@@ -46,6 +47,7 @@ import java.math.BigDecimal;
 import java.net.URI;
 import java.sql.Timestamp;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.*;
 
 @Controller
@@ -77,6 +79,8 @@ public class AdminController {
     @Autowired
     private HorarioReservadoRepository horarioReservadoRepository;
     @Autowired
+    private MantenimientoService mantenimientoService;
+    @Autowired
     private PagosRepository pagosRepository;
     @Autowired
     private ImageService imageService;
@@ -84,6 +88,8 @@ public class AdminController {
     private GimnasiosRepository gimnasiosRepository;
     @Autowired
     private PiscinasRepository piscinasRepository;
+    @Autowired
+    private ComentariosRepository comentariosRepository;
 
 
     //*********************************************************************************************
@@ -108,14 +114,46 @@ public class AdminController {
         dashboard.setEspaciosDisponibles(espacios.size());
 
         // Datos para gráficos (valores por defecto)
-        dashboard.setNombresServiciosTop(List.of("Piscina", "Cancha", "Pista"));
-        dashboard.setCantidadReservasTop(List.of(10L, 8L, 5L));
-        dashboard.setNombresServiciosPorcentaje(List.of("Piscina", "Cancha", "Pista"));
-        dashboard.setCantidadServiciosPorcentaje(List.of(10L, 8L, 5L));
+        // TOP 10 SERVICIOS MÁS RESERVADOS
+        List<Object[]> topServicios = reservaRepository.top10ServiciosMasReservados();
+        List<String> nombresServiciosTop = new ArrayList<>();
+        List<Long> cantidadReservasTop = new ArrayList<>();
+
+        for (Object[] fila : topServicios) {
+            nombresServiciosTop.add((String) fila[0]);
+            cantidadReservasTop.add(((Number) fila[1]).longValue());  // por si viene como Integer
+        }
+        dashboard.setNombresServiciosTop(nombresServiciosTop);
+        dashboard.setCantidadReservasTop(cantidadReservasTop);
+
+        // PORCENTAJE DE RESERVAS POR SERVICIO
+        List<Object[]> porcentajeServicios = reservaRepository.porcentajeReservasPorServicio();
+        List<String> nombresServiciosPorcentaje = new ArrayList<>();
+        List<Long> cantidadServiciosPorcentaje = new ArrayList<>();
+
+        for (Object[] fila : porcentajeServicios) {
+            nombresServiciosPorcentaje.add((String) fila[0]);
+            cantidadServiciosPorcentaje.add(((Number) fila[1]).longValue());
+        }
+        dashboard.setNombresServiciosPorcentaje(nombresServiciosPorcentaje);
+        dashboard.setCantidadServiciosPorcentaje(cantidadServiciosPorcentaje);
+
         dashboard.setHorasReservas(List.of("08:00", "09:00", "10:00", "11:00"));
         dashboard.setCantidadReservasPorHora(List.of(2L, 5L, 8L, 3L));
-        dashboard.setNombresUsuariosTop(List.of("Usuario1", "Usuario2", "Usuario3"));
-        dashboard.setCantidadReservasUsuariosTop(List.of(5L, 3L, 2L));
+        List<Object[]> topUsuarios = reservaRepository.top10UsuariosConMasReservas();
+
+        List<String> nombresUsuarios = new ArrayList<>();
+        List<Long> cantidadReservas = new ArrayList<>();
+
+        for (Object[] fila : topUsuarios) {
+            String nombreCompleto = fila[1] + " " + fila[2]; // nombres + apellidos
+            nombresUsuarios.add(nombreCompleto);
+            cantidadReservas.add((Long) fila[3]);
+        }
+
+        dashboard.setNombresUsuariosTop(nombresUsuarios);
+        dashboard.setCantidadReservasUsuariosTop(cantidadReservas);
+
 
         model.addAttribute("dashboard", dashboard);
         model.addAttribute("totalEspacios", espacios.size());
@@ -844,6 +882,174 @@ public class AdminController {
         // Escribir archivo
         workbook.write(response.getOutputStream());
         workbook.close();
+    }
+
+    // ==================== ENDPOINTS DE MANTENIMIENTO ====================
+
+    /**
+     * Programa un nuevo mantenimiento
+     */
+    @PostMapping("/programar-mantenimiento")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> programarMantenimiento(
+            @RequestParam("servicioId") Integer servicioId,
+            @RequestParam("fecha") String fecha,
+            @RequestParam("tipo") String tipo,
+            @RequestParam("horaInicio") String horaInicio,
+            @RequestParam("horaFin") String horaFin,
+            @RequestParam("responsable") String responsable,
+            @RequestParam("contactoEncargado") String contactoEncargado,
+            @RequestParam("descripcion") String descripcion,
+            @RequestParam("prioridad") String prioridad,
+            @RequestParam(value = "suspenderServicio", defaultValue = "false") boolean suspenderServicio,
+            HttpSession session) {
+
+        Map<String, Object> response = new HashMap<>();
+
+        try {
+            System.out.println("=== INICIANDO PROGRAMACIÓN DE MANTENIMIENTO ===");
+            System.out.println("Servicio ID: " + servicioId);
+            System.out.println("Fecha: " + fecha);
+            System.out.println("Tipo: " + tipo);
+            System.out.println("Hora inicio: " + horaInicio);
+            System.out.println("Hora fin: " + horaFin);
+            System.out.println("Suspender servicio: " + suspenderServicio);
+
+            // Obtener usuario de la sesión
+            Usuario admin = (Usuario) session.getAttribute("usuario");
+            if (admin == null) {
+                System.out.println("ERROR: Sesión expirada");
+                response.put("success", false);
+                response.put("error", "Sesión expirada");
+                return ResponseEntity.status(401).body(response);
+            }
+            System.out.println("Admin: " + admin.getNombres() + " " + admin.getApellidos());
+
+            // Validar y convertir datos
+            LocalDate fechaMantenimiento = LocalDate.parse(fecha);
+            LocalTime horaInicioTime = LocalTime.parse(horaInicio);
+            LocalTime horaFinTime = LocalTime.parse(horaFin);
+
+            // Validaciones
+            if (fechaMantenimiento.isBefore(LocalDate.now())) {
+                System.out.println("ERROR: Fecha anterior a hoy");
+                response.put("success", false);
+                response.put("error", "La fecha del mantenimiento no puede ser anterior a hoy");
+                return ResponseEntity.badRequest().body(response);
+            }
+
+            if (horaInicioTime.isAfter(horaFinTime) || horaInicioTime.equals(horaFinTime)) {
+                System.out.println("ERROR: Horarios inválidos");
+                response.put("success", false);
+                response.put("error", "La hora de fin debe ser posterior a la hora de inicio");
+                return ResponseEntity.badRequest().body(response);
+            }
+
+            System.out.println("Validaciones pasadas, llamando al servicio...");
+
+            // Programar el mantenimiento
+            Mantenimiento mantenimiento = mantenimientoService.programarMantenimiento(
+                servicioId, tipo, fechaMantenimiento, horaInicioTime, horaFinTime,
+                responsable, contactoEncargado, descripcion, prioridad, suspenderServicio, admin
+            );
+
+            System.out.println("Mantenimiento creado con ID: " + mantenimiento.getId());
+            System.out.println("Reservas canceladas: " + mantenimiento.getReservasCanceladas());
+            System.out.println("Notificaciones enviadas: " + mantenimiento.getNotificacionesEnviadas());
+
+            // Respuesta exitosa
+            response.put("success", true);
+            response.put("message", "Mantenimiento programado exitosamente");
+            response.put("mantenimientoId", mantenimiento.getId());
+            response.put("reservasCanceladas", mantenimiento.getReservasCanceladas());
+            response.put("notificacionesEnviadas", mantenimiento.getNotificacionesEnviadas());
+
+            System.out.println("=== MANTENIMIENTO PROGRAMADO EXITOSAMENTE ===");
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            System.out.println("ERROR COMPLETO: " + e.getMessage());
+            e.printStackTrace();
+            response.put("success", false);
+            response.put("error", "Error al programar mantenimiento: " + e.getMessage());
+            return ResponseEntity.status(500).body(response);
+        }
+    }
+
+    //*********************************************************************************************
+    //
+    //                                    Observaciones
+    //
+    //*********************************************************************************************
+
+    /**
+     * Página principal de observaciones de coordinadores
+     */
+    @GetMapping("/observaciones")
+    public String observaciones(Model model, HttpSession session) {
+        // Verificar sesión de admin
+        Usuario admin = (Usuario) session.getAttribute("usuario");
+        if (admin == null) {
+            return "redirect:/login";
+        }
+
+        try {
+            // Obtener todas las observaciones ordenadas por fecha (más recientes primero)
+            List<Comentarios> todasLasObservaciones = comentariosRepository.findAllByOrderByFechaCreacionDesc();
+
+            if (todasLasObservaciones == null) {
+                todasLasObservaciones = new ArrayList<>();
+            }
+
+            // Filtrar solo las observaciones de coordinadores (usuarios con rol COORDINADOR)
+            List<Comentarios> observacionesCoordinadores = todasLasObservaciones.stream()
+                    .filter(comentario -> comentario != null &&
+                       comentario.getUsuario() != null &&
+                            comentario.getUsuario().getRol() != null &&
+                            "COORDINADOR".equalsIgnoreCase(comentario.getUsuario().getRol().getNombre()))
+                    .toList();
+
+
+            model.addAttribute("comentarios", observacionesCoordinadores);
+
+            // Estadísticas adicionales
+            long totalReparaciones = observacionesCoordinadores.stream()
+                .filter(c -> c.getTipoComentario() == Comentarios.TipoComentario.REPARACION)
+                .count();
+
+            long totalObservaciones = observacionesCoordinadores.stream()
+                .filter(c -> c.getTipoComentario() == Comentarios.TipoComentario.COMENTARIO)
+                .count();
+
+            long observacionesAlta = observacionesCoordinadores.stream()
+                .filter(c -> c.getPrioridadUsuario() == Comentarios.PrioridadUsuario.ALTA)
+                .count();
+
+            long observacionesNoRevisadas = observacionesCoordinadores.stream()
+                .filter(c -> !c.getRevisadoPorAdmin())
+                .count();
+
+            model.addAttribute("totalReparaciones", totalReparaciones);
+            model.addAttribute("totalObservaciones", totalObservaciones);
+            model.addAttribute("observacionesAlta", observacionesAlta);
+            model.addAttribute("observacionesNoRevisadas", observacionesNoRevisadas);
+
+            System.out.println("=== OBSERVACIONES CARGADAS ===");
+            System.out.println("Total observaciones de coordinadores: " + observacionesCoordinadores.size());
+            System.out.println("Reparaciones: " + totalReparaciones);
+            System.out.println("Observaciones generales: " + totalObservaciones);
+            System.out.println("Prioridad alta: " + observacionesAlta);
+            System.out.println("No revisadas: " + observacionesNoRevisadas);
+
+            return "admin/observaciones";
+
+        } catch (Exception e) {
+            System.out.println("ERROR al cargar observaciones: " + e.getMessage());
+            e.printStackTrace();
+            model.addAttribute("comentarios", new ArrayList<>());
+            model.addAttribute("error", "Error al cargar las observaciones: " + e.getMessage());
+            return "admin/observaciones";
+        }
     }
 
 }

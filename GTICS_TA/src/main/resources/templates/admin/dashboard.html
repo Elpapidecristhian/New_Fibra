@@ -180,6 +180,7 @@
                                 </div>
                             </div>
                         </div>
+
                     </div>
 
 
@@ -211,7 +212,10 @@
                             </div>
                         </div>
                     </div>
-                </div> <!-- cierre de div.container-full -->
+                </div>
+
+                <!-- cierre de div.container-full -->
+            </section>
         </div>
     </div><!-- cierre de div.content-wrapper -->
 
@@ -242,6 +246,7 @@
     <script th:inline="javascript">
         document.addEventListener("DOMContentLoaded", function () {
 
+            // === Gráfico: Top 10 Servicios Más Reservados ===
             const nombresTop = /*[[${dashboard.nombresServiciosTop}]]*/ [];
             const cantidadesTop = /*[[${dashboard.cantidadReservasTop}]]*/ [];
 
@@ -252,7 +257,7 @@
                 }],
                 chart: {
                     type: 'bar',
-                    height: Math.max(355, cantidadesTop.length * 10) // 45 px por barra
+                    height: Math.max(355, cantidadesTop.length * 10)
                 },
                 plotOptions: {
                     bar: {
@@ -267,6 +272,9 @@
                             fontSize: '13px',
                             fontFamily: 'inherit',
                             cssClass: 'apexcharts-xaxis-label'
+                        },
+                        formatter: function (value) {
+                            return value.length > 15 ? value.substring(0, 15) + '\n' + value.substring(15) : value;
                         }
                     }
                 },
@@ -274,14 +282,17 @@
             });
             topServicesChart.render();
 
+            // === Gráfico: Porcentaje de Servicios Reservados ===
             const nombresPorcentaje = /*[[${dashboard.nombresServiciosPorcentaje}]]*/ [];
             const cantidadesPorcentaje = /*[[${dashboard.cantidadServiciosPorcentaje}]]*/ [];
 
             const porcentajeChart = new ApexCharts(document.querySelector("#chart432"), {
                 series: cantidadesPorcentaje,
+                labels: nombresPorcentaje,
                 chart: {
                     type: 'donut',
-                    height: 350,
+                    height: 380,
+                    width: '100%',
                     toolbar: {
                         show: true,
                         tools: {
@@ -308,11 +319,10 @@
                         }
                     }
                 },
-                labels: nombresPorcentaje,
                 plotOptions: {
                     pie: {
                         donut: {
-                            size: '65%',
+                            size: '60%',
                             labels: {
                                 show: true,
                                 total: {
@@ -327,7 +337,9 @@
                     }
                 },
                 legend: {
-                    position: 'right'
+                    position: 'bottom',
+                    fontSize: '14px',
+                    horizontalAlign: 'center'
                 },
                 tooltip: {
                     y: {
@@ -340,84 +352,83 @@
             });
             porcentajeChart.render();
 
-        });
+            // === Gráfico: Top 10 Usuarios con Más Reservas ===
+            const nombresUsuariosTop = /*[[${dashboard.nombresUsuariosTop}]]*/ [];
+            const cantidadUsuariosTop = /*[[${dashboard.cantidadReservasUsuariosTop}]]*/ [];
 
-        // Top 10 Usuarios con más reservas
-        const nombresUsuariosTop = /*[[${dashboard.nombresUsuariosTop}]]*/ [];
-        const cantidadUsuariosTop = /*[[${dashboard.cantidadReservasUsuariosTop}]]*/ [];
-
-        const chartUsuarios = new ApexCharts(document.querySelector("#top_usuarios_reservas"), {
-            series: [{
-                name: 'Reservas',
-                data: cantidadUsuariosTop
-            }],
-            chart: {
-                type: 'bar',
-                height: Math.max(350, cantidadUsuariosTop.length * 40)
-            },
-            plotOptions: {
-                bar: {
-                    horizontal: false,
-                    endingShape: 'rounded'
-                }
-            },
-            xaxis: {
-                categories: nombresUsuariosTop
-            },
-            colors: ['#1a66d5']
-        });
-        chartUsuarios.render();
-
-        // Distribución de reservas por hora
-        const horasReservas = /*[[${dashboard.horasReservas}]]*/ [];
-        const cantidadReservasPorHora = /*[[${dashboard.cantidadReservasPorHora}]]*/ [];
-
-        const chartHoras = new ApexCharts(document.querySelector("#distribucion_horaria_reservas"), {
-            series: [{
-                name: 'Reservas',
-                data: cantidadReservasPorHora
-            }],
-            chart: {
-                type: 'area',
-                height: 350,
-                toolbar: {
-                    show: true,
-                    tools: {
-                        download: true,
-                        selection: false,
-                        zoom: false,
-                        zoomin: false,
-                        zoomout: false,
-                        pan: false,
-                        reset: false,
+            const chartUsuarios = new ApexCharts(document.querySelector("#top_usuarios_reservas"), {
+                series: [{
+                    name: 'Reservas',
+                    data: cantidadUsuariosTop
+                }],
+                chart: {
+                    type: 'bar',
+                    height: Math.max(350, cantidadUsuariosTop.length * 40)
+                },
+                plotOptions: {
+                    bar: {
+                        horizontal: false,
+                        endingShape: 'rounded'
                     }
-                }
-            },
-            fill: {
-                type: 'solid',
-                opacity: 0.4
-            },
-            stroke: {
-                curve: 'smooth',
-                width: 3
-            },
+                },
+                xaxis: {
+                    categories: nombresUsuariosTop,
+                    labels: {
+                        style: {
+                            fontSize: '13px',
+                            fontFamily: 'inherit',
+                            cssClass: 'apexcharts-xaxis-label'
+                        }
+                    }
+                },
+                colors: ['#1a66d5']
+            });
+            chartUsuarios.render();
 
-            plotOptions: {
-                bar: {
-                    columnWidth: '50%',
-                    endingShape: 'rounded'
-                }
-            },
-            xaxis: {
-                categories: horasReservas,
-                title: {
-                    text: 'Hora'
-                }
-            },
-            colors: ['#EF4444']
+            // === Gráfico: Distribución de Reservas por Hora ===
+            const horasReservas = /*[[${dashboard.horasReservas}]]*/ [];
+            const cantidadReservasPorHora = /*[[${dashboard.cantidadReservasPorHora}]]*/ [];
+
+            const chartHoras = new ApexCharts(document.querySelector("#distribucion_horaria_reservas"), {
+                series: [{
+                    name: 'Reservas',
+                    data: cantidadReservasPorHora
+                }],
+                chart: {
+                    type: 'area',
+                    height: 350,
+                    toolbar: {
+                        show: true,
+                        tools: {
+                            download: true,
+                            selection: false,
+                            zoom: false,
+                            zoomin: false,
+                            zoomout: false,
+                            pan: false,
+                            reset: false
+                        }
+                    }
+                },
+                fill: {
+                    type: 'solid',
+                    opacity: 0.4
+                },
+                stroke: {
+                    curve: 'smooth',
+                    width: 3
+                },
+                xaxis: {
+                    categories: horasReservas,
+                    title: {
+                        text: 'Hora'
+                    }
+                },
+                colors: ['#EF4444']
+            });
+            chartHoras.render();
+
         });
-        chartHoras.render();
-
     </script>
 
 
@@ -426,7 +437,8 @@
 
 
 
-<!-- Vendor JS -->
+
+    <!-- Vendor JS -->
 <script src="/js/vendors.min.js"></script>
 <script src="/js/pages/chat-popup.js"></script>
 <script src="/assets/icons/feather-icons/feather.min.js"></script>
@@ -437,6 +449,6 @@
 <!-- Rhythm Admin App -->
 <script src="/js/template.js"></script>
 
-
+</div>
 </body>
 </html>

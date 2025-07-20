@@ -1,6 +1,7 @@
 package com.example.gtics_ta.Repository;
 
 import com.example.gtics_ta.DTO.ResumenDTO;
+import com.example.gtics_ta.Entity.EspaciosDeportivos;
 import com.example.gtics_ta.Entity.Horarios;
 import com.example.gtics_ta.Entity.Pagos;
 import com.example.gtics_ta.Entity.Reservas;
@@ -24,6 +25,7 @@ public interface ReservasRepository extends JpaRepository<Reservas, Integer> {
     List<Reservas> findByFechaReserva(LocalDate fechaReserva);
     List<Reservas> findByFechaReservaBetween(LocalDate fechaInicio, LocalDate fechaFin);
     List<Reservas> findByEstadoReserva(Reservas.EstadoReserva estadoReserva);
+    List<Reservas> findByEspacioDeportivoAndFechaReserva(EspaciosDeportivos espacioDeportivo, LocalDate fechaReserva);
 
 
     /* Métodos de consulta personalizados */
@@ -90,6 +92,7 @@ public interface ReservasRepository extends JpaRepository<Reservas, Integer> {
     @Query("SELECT u.id, u.nombres, u.apellidos, COUNT(r) " +
             "FROM Reservas r " +
             "JOIN r.usuario u " +
+            "WHERE YEAR(r.fechaReserva) = YEAR(CURRENT_DATE) " +
             "GROUP BY u.id, u.nombres, u.apellidos " +
             "ORDER BY COUNT(r) DESC")
     List<Object[]> top10UsuariosConMasReservas();

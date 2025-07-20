@@ -62,4 +62,5 @@ public class Reservas {
     public enum EstadoReserva {
         ACTIVA, CANCELADA_USUARIO, CANCELADA_MANTENIMIENTO, CANCELADA_ADMIN, COMPLETADA
     }
+
 }
