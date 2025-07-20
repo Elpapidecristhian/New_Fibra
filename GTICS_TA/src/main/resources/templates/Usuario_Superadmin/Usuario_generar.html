@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -8,7 +8,7 @@
 	<meta name="author" content="">
 
 
-	<link rel="icon" href="/images/favicon.ico">
+	<link rel="icon" th:href="@{/images/san_miguel_logo.ico}">
 
 	<title>Superadmin - Usuarios</title>
 
@@ -54,88 +54,10 @@
 			<!-- Generar Usuario Button -->
 
 
-			<div class="navbar-custom-menu r-side">
-				<ul class="nav navbar-nav">
-					<li class="btn-group nav-item d-lg-inline-flex d-none">
-						<a href="#" data-provide="fullscreen" class="waves-effect waves-light nav-link full-screen btn-warning-light" title="Full Screen">
-							<i data-feather="maximize"></i>
-						</a>
-					</li>
-					<!-- Notifications -->
-					<li class="dropdown notifications-menu">
-						<ul class="dropdown-menu animated bounceIn">
-
-							<li class="header">
-								<div class="p-20">
-									<div class="flexbox">
-										<div>
-											<h4 class="mb-0 mt-0">Notifications</h4>
-										</div>
-										<div>
-											<a href="#" class="text-danger">Clear All</a>
-										</div>
-									</div>
-								</div>
-							</li>
-
-						</ul>
-					</li>
-
-
-					<!-- User Account-->
-					<li class="dropdown user user-menu">
-						<a href="#" class="waves-effect waves-light dropdown-toggle w-auto l-h-12 bg-transparent py-0 no-shadow" data-bs-toggle="dropdown" title="User">
-							<div class="d-flex pt-5">
-
-							</div>
-						</a>
-
-					</li>
-
-				</ul>
-			</div>
+			<div th:replace="fragments :: navbarSuperAdmin"></div>
 		</nav>
 	</header>
-	<aside class="main-sidebar">
-		<!-- sidebar-->
-		<section class="sidebar position-relative">
-
-			<div class="multinav">
-				<div class="multinav-scroll" style="height: 100%;">
-					<!-- sidebar menu-->
-					<ul class="sidebar-menu" data-widget="tree">
-						<li>
-							<a href="/SuperAdmin">
-								<i data-feather="monitor"></i>
-								<span>Dashboard</span>
-
-							</a>
-						</li>
-						<li>
-							<a href="/SuperAdmin/usuarios-no-baneados">
-								<i data-feather="calendar"></i>
-								<span>Baneos</span>
-							</a>
-						</li>
-						<li >
-							<a href="/SuperAdmin/usuarios-baneados">
-								<i data-feather="users"></i>
-								<span>Usuarios</span>
-
-							</a>
-						</li>
-						<li>
-							<a href="#" class="nav-link" onclick="document.getElementById('logoutForm2').submit(); return false;">
-								<i data-feather="log-out"></i>
-								<span>Cerrar sesión</span>
-							</a>
-							<form id="logoutForm2" th:action="@{/logout}" method="post" style="display: none;"></form>
-						</li>
-					</ul>
-				</div>
-			</div>
-		</section>
-	</aside>
+	<aside th:replace="fragments :: sideBarSuperAdmin"></aside>
 	<!-- Content Wrapper. Contains page content -->
 	<div class="content-wrapper custom-form-container">
 		<div class="container-full">
@@ -156,7 +78,7 @@
 										<div class="col-md-6">
 											<div class="form-group">
 												<label for="nombres">Nombres</label>
-												<input type="text" th:field="*{nombres}" class="form-control" id="nombres" placeholder="Ingrese su nombre" required />
+												<input type="text" th:field="*{nombres}" class="form-control" id="nombres" placeholder="Ingrese su nombre" required th:classappend="${#fields.hasErrors('nombres')?'is-invalid':''}" />
 												<div th:if="${#fields.hasErrors('nombres')}" class="text-danger">
 													<small th:errors="*{nombres}"></small>
 												</div>
@@ -167,7 +89,7 @@
 										<div class="col-md-6">
 											<div class="form-group">
 												<label for="apellidos">Apellidos</label>
-												<input type="text" th:field="*{apellidos}" class="form-control" id="apellidos" placeholder="Ingrese sus apellidos" required />
+												<input type="text" th:field="*{apellidos}" class="form-control" id="apellidos" placeholder="Ingrese sus apellidos" required th:classappend="${#fields.hasErrors('apellidos')?'is-invalid':''}" />
 												<div th:if="${#fields.hasErrors('apellidos')}" class="text-danger">
 													<small th:errors="*{apellidos}"></small>
 												</div>
@@ -180,7 +102,7 @@
 										<div class="col-md-6">
 											<div class="form-group">
 												<label for="dni">DNI</label>
-												<input type="number" th:field="*{dni}" class="form-control" id="dni" placeholder="Ingrese su DNI" required />
+												<input type="text" maxlength="8" th:field="*{dni}" class="form-control" id="dni" placeholder="Ingrese su DNI" required  th:classappend="${#fields.hasErrors('dni')?'is-invalid':''}"/>
 												<div th:if="${#fields.hasErrors('dni')}" class="text-danger">
 													<small th:errors="*{dni}"></small>
 												</div>
@@ -191,7 +113,7 @@
 										<div class="col-md-6">
 											<div class="form-group">
 												<label for="numCelular">Número Telefónico</label>
-												<input type="number" th:field="*{numCelular}" class="form-control" id="numCelular" placeholder="Ingrese su número" required />
+												<input type="text" maxlength="9" th:field="*{numCelular}" class="form-control" id="numCelular" placeholder="Ingrese su número" required th:classappend="${#fields.hasErrors('numCelular')?'is-invalid':''}" />
 												<div th:if="${#fields.hasErrors('numCelular')}" class="text-danger">
 													<small th:errors="*{numCelular}"></small>
 												</div>
@@ -204,7 +126,7 @@
 										<div class="col-md-6">
 											<div class="form-group">
 												<label for="correo">Email</label>
-												<input type="email" th:field="*{correo}" class="form-control" id="correo" placeholder="Ingrese su email" required />
+												<input type="email" th:field="*{correo}" class="form-control" id="correo" placeholder="Ingrese su email" required  th:classappend="${#fields.hasErrors('correo')?'is-invalid':''}"/>
 												<div th:if="${#fields.hasErrors('correo')}" class="text-danger">
 													<small th:errors="*{correo}"></small>
 												</div>
@@ -215,9 +137,33 @@
 										<div class="col-md-6">
 											<div class="form-group">
 												<label for="contrasenia">Contraseña</label>
-												<input type="password" th:field="*{contrasenia}" class="form-control" id="contrasenia" placeholder="Ingrese su contraseña" required />
+												<input type="password" th:field="*{contrasenia}" class="form-control" id="contrasenia" placeholder="Ingrese su contraseña" required th:classappend="${#fields.hasErrors('contrasenia')?'is-invalid':''}" />
 												<div th:if="${#fields.hasErrors('contrasenia')}" class="text-danger">
 													<small th:errors="*{contrasenia}"></small>
+												</div>
+											</div>
+										</div>
+									</div>
+
+									<div class="row">
+										<!-- Cargo (Rol) -->
+										<div class="col-md-6">
+											<div class="form-group">
+												<label for="fechaNacimiento">Fecha de Nacimiento</label>
+												<input type="date" th:attr="max=${hoy}" th:field="*{fechaNacimiento}" class="form-control" id="fechaNacimiento" required th:classappend="${#fields.hasErrors('fechaNacimiento')?'is-invalid':''}">
+												<div th:if="${#fields.hasErrors('fechaNacimiento')}" class="text-danger">
+													<small th:errors="*{rol}"></small>
+												</div>
+											</div>
+										</div>
+
+										<!-- Dirección -->
+										<div class="col-md-6">
+											<div class="form-group">
+												<label for="direccion">Dirección</label>
+												<input type="text" th:field="*{direccion}" class="form-control" id="direccion" placeholder="Ingrese su dirección" required th:classappend="${#fields.hasErrors('direccion')?'is-invalid':''}"/>
+												<div th:if="${#fields.hasErrors('direccion')}" class="text-danger">
+													<small th:errors="*{direccion}"></small>
 												</div>
 											</div>
 										</div>
@@ -234,17 +180,6 @@
 												</select>
 												<div th:if="${#fields.hasErrors('rol')}" class="text-danger">
 													<small th:errors="*{rol}"></small>
-												</div>
-											</div>
-										</div>
-
-										<!-- Dirección -->
-										<div class="col-md-6">
-											<div class="form-group">
-												<label for="direccion">Dirección</label>
-												<input type="text" th:field="*{direccion}" class="form-control" id="direccion" placeholder="Ingrese su dirección" required />
-												<div th:if="${#fields.hasErrors('direccion')}" class="text-danger">
-													<small th:errors="*{direccion}"></small>
 												</div>
 											</div>
 										</div>
@@ -304,6 +239,36 @@
 
 <!-- Rhythm Admin App -->
 <script src="/js/template.js"></script>
+
+<script>
+	document.addEventListener("DOMContentLoaded", function () {
+		const input = document.getElementById("numCelular");
+
+		input.addEventListener("input", function () {
+			// Elimina caracteres no numéricos
+			this.value = this.value.replace(/\D/g, '');
+
+			// Limita a 9 dígitos
+			if (this.value.length > 9) {
+				this.value = this.value.slice(0, 9);
+			}
+		});
+	});
+</script>
+
+<script>
+	document.addEventListener("DOMContentLoaded", function () {
+		const input = document.getElementById("dni");
+
+		input.addEventListener("input", function () {
+			this.value = this.value.replace(/\D/g, '');
+
+			if (this.value.length > 8) {
+				this.value = this.value.slice(0, 8);
+			}
+		});
+	});
+</script>
 
 
 </body>

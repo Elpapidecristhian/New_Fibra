@@ -76,6 +76,47 @@
     </section>
 </aside>
 
+<aside th:fragment="sideBarSuperAdmin" class="main-sidebar">
+    <!-- sidebar-->
+    <section class="sidebar position-relative">
+
+        <div class="multinav">
+            <div class="multinav-scroll" style="height: 100%;">
+                <!-- sidebar menu-->
+                <ul class="sidebar-menu" data-widget="tree">
+                    <li>
+                        <a href="/SuperAdmin">
+                            <i data-feather="monitor"></i>
+                            <span>Dashboard</span>
+
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/SuperAdmin/usuarios-baneados">
+                            <i data-feather="lock"></i>
+                            <span>Baneos</span>
+                        </a>
+                    </li>
+                    <li >
+                        <a href="/SuperAdmin/usuarios-no-baneados">
+                            <i data-feather="users"></i>
+                            <span>Usuarios</span>
+
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="nav-link" onclick="document.getElementById('logoutForm2').submit(); return false;">
+                            <i data-feather="log-out"></i>
+                            <span>Cerrar sesión</span>
+                        </a>
+                        <form id="logoutForm2" th:action="@{/logout}" method="post" style="display: none;"></form>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </section>
+</aside>
+
 <div th:fragment="navbarFragment" class="navbar-custom-menu r-side">
     <ul class="nav navbar-nav">
         <!-- Notifications -->
@@ -193,6 +234,41 @@
     </ul>
 </div>
 
+<div th:fragment="navbarSuperAdmin" class="navbar-custom-menu r-side">
+    <ul class="nav navbar-nav">
+        <!-- Notifications -->
+        <li class="dropdown notifications-menu">
+            <ul class="dropdown-menu animated bounceIn">
+
+                <li class="header">
+                    <div class="p-20">
+                        <div class="flexbox">
+                            <div>
+                                <h4 class="mb-0 mt-0">Notifications</h4>
+                            </div>
+                            <div>
+                                <a href="#" class="text-danger">Clear All</a>
+                            </div>
+                        </div>
+                    </div>
+                </li>
+
+            </ul>
+        </li>
+
+
+        <!-- User Account-->
+        <li class="dropdown user user-menu">
+            <a href="#" class="waves-effect waves-light dropdown-toggle w-auto l-h-12 bg-transparent py-0 no-shadow" data-bs-toggle="dropdown" title="User">
+                <div class="d-flex pt-5">
+
+                </div>
+            </a>
+
+        </li>
+
+    </ul>
+</div>
 
 
 <!-- Fragment para Google Maps -->
