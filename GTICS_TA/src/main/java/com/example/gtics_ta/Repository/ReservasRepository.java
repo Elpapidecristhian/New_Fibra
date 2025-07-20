@@ -92,6 +92,7 @@ public interface ReservasRepository extends JpaRepository<Reservas, Integer> {
     @Query("SELECT u.id, u.nombres, u.apellidos, COUNT(r) " +
             "FROM Reservas r " +
             "JOIN r.usuario u " +
+            "WHERE YEAR(r.fechaReserva) = YEAR(CURRENT_DATE) " +
             "GROUP BY u.id, u.nombres, u.apellidos " +
             "ORDER BY COUNT(r) DESC")
     List<Object[]> top10UsuariosConMasReservas();

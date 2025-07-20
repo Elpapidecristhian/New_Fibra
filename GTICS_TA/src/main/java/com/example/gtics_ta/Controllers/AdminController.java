@@ -112,14 +112,46 @@ public class AdminController {
         dashboard.setEspaciosDisponibles(espacios.size());
 
         // Datos para gráficos (valores por defecto)
-        dashboard.setNombresServiciosTop(List.of("Piscina", "Cancha", "Pista"));
-        dashboard.setCantidadReservasTop(List.of(10L, 8L, 5L));
-        dashboard.setNombresServiciosPorcentaje(List.of("Piscina", "Cancha", "Pista"));
-        dashboard.setCantidadServiciosPorcentaje(List.of(10L, 8L, 5L));
+        // TOP 10 SERVICIOS MÁS RESERVADOS
+        List<Object[]> topServicios = reservaRepository.top10ServiciosMasReservados();
+        List<String> nombresServiciosTop = new ArrayList<>();
+        List<Long> cantidadReservasTop = new ArrayList<>();
+
+        for (Object[] fila : topServicios) {
+            nombresServiciosTop.add((String) fila[0]);
+            cantidadReservasTop.add(((Number) fila[1]).longValue());  // por si viene como Integer
+        }
+        dashboard.setNombresServiciosTop(nombresServiciosTop);
+        dashboard.setCantidadReservasTop(cantidadReservasTop);
+
+        // PORCENTAJE DE RESERVAS POR SERVICIO
+        List<Object[]> porcentajeServicios = reservaRepository.porcentajeReservasPorServicio();
+        List<String> nombresServiciosPorcentaje = new ArrayList<>();
+        List<Long> cantidadServiciosPorcentaje = new ArrayList<>();
+
+        for (Object[] fila : porcentajeServicios) {
+            nombresServiciosPorcentaje.add((String) fila[0]);
+            cantidadServiciosPorcentaje.add(((Number) fila[1]).longValue());
+        }
+        dashboard.setNombresServiciosPorcentaje(nombresServiciosPorcentaje);
+        dashboard.setCantidadServiciosPorcentaje(cantidadServiciosPorcentaje);
+
         dashboard.setHorasReservas(List.of("08:00", "09:00", "10:00", "11:00"));
         dashboard.setCantidadReservasPorHora(List.of(2L, 5L, 8L, 3L));
-        dashboard.setNombresUsuariosTop(List.of("Usuario1", "Usuario2", "Usuario3"));
-        dashboard.setCantidadReservasUsuariosTop(List.of(5L, 3L, 2L));
+        List<Object[]> topUsuarios = reservaRepository.top10UsuariosConMasReservas();
+
+        List<String> nombresUsuarios = new ArrayList<>();
+        List<Long> cantidadReservas = new ArrayList<>();
+
+        for (Object[] fila : topUsuarios) {
+            String nombreCompleto = fila[1] + " " + fila[2]; // nombres + apellidos
+            nombresUsuarios.add(nombreCompleto);
+            cantidadReservas.add((Long) fila[3]);
+        }
+
+        dashboard.setNombresUsuariosTop(nombresUsuarios);
+        dashboard.setCantidadReservasUsuariosTop(cantidadReservas);
+
 
         model.addAttribute("dashboard", dashboard);
         model.addAttribute("totalEspacios", espacios.size());

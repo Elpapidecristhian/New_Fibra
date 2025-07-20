@@ -529,7 +529,7 @@
                                     </div>
                                 </div>
                                 <div class="col-md-6">
-                                    <div class="card border-0 bg-light">
+                                    <div class="card border-0 bg-light mb-3">
                                         <div class="card-body">
                                             <h6 class="card-title text-info">
                                                 <i class="fas fa-chart-bar me-2"></i>Resumen de Acciones
@@ -541,35 +541,33 @@
                                             <div class="mb-2">
                                                 <strong>📧 Notificaciones:</strong>
                                                 ${response.notificacionesEnviadas ?
-                                                    '<span class="text-success">✅ Enviadas</span>' :
-                                                    '<span class="text-muted">➖ No requeridas</span>'}
+                                            '<span class="text-success">✅ Enviadas</span>' :
+                                            '<span class="text-muted">➖ No requeridas</span>'}
                                             </div>
                                             <div class="mb-2">
                                                 <strong>🔒 Estado Servicio:</strong>
                                                 ${datos.suspenderServicio ?
-                                                    '<span class="text-warning">⚠️ Suspendido</span>' :
-                                                    '<span class="text-success">✅ Disponible</span>'}
+                                            '<span class="text-warning">⚠️ Suspendido</span>' :
+                                            '<span class="text-success">✅ Disponible</span>'}
                                             </div>
                                         </div>
                                     </div>
-                                </div>
-                            </div>
-                            ${datos.descripcion ? `
-                                <div class="mt-3">
-                                    <div class="card border-0 bg-light">
-                                        <div class="card-body">
-                                            <h6 class="card-title text-secondary">
-                                                <i class="fas fa-file-alt me-2"></i>Descripción
-                                            </h6>
-                                            <p class="mb-0">${datos.descripcion}</p>
+
+                                    ${datos.descripcion ? `
+                                        <div class="card border-0 bg-light">
+                                            <div class="card-body">
+                                                <h6 class="card-title text-secondary">
+                                                    <i class="fas fa-file-alt me-2"></i>Descripción
+                                                </h6>
+                                                <p class="mb-0">${datos.descripcion}</p>
+                                            </div>
                                         </div>
-                                    </div>
+                                    ` : ''}
                                 </div>
-                            ` : ''}
-                        </div>
+
                         <div class="modal-footer">
                             <button type="button" class="btn btn-success" data-bs-dismiss="modal">
-                                <i class="fa-check me-2"></i>Entendido
+                                Entendido
                             </button>
                         </div>
                     </div>
