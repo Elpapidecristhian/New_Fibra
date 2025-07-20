@@ -102,8 +102,8 @@ public class AdminController {
         List<EspaciosDeportivos> espacios = espaciosRepository.findAll();
         List<Reservas> reservas = reservaRepository.findAll();
 
-        dashboard.setTotalUsuarios(usuarioRepository.count()); // TODO: implementar conteo de usuarios
-        dashboard.setTotalUsuariosBaneados(0); // TODO: implementar conteo de usuarios baneados
+        dashboard.setTotalUsuarios(usuarioRepository.count());
+        dashboard.setTotalUsuariosBaneados(0);
         dashboard.setCantidadTotalReservas(reservas.size());
         dashboard.setEspaciosDisponibles(espacios.size());
 
@@ -288,7 +288,7 @@ public class AdminController {
                                   @RequestParam(value = "latitud", required = false) String latitudStr,
                                   @RequestParam(value = "longitud", required = false) String longitudStr,
                                   @RequestParam(value = "mapsUrl", required = false) String mapsUrl){
-
+        System.out.println("Entra al método Guardar Servicio");
         try {
             // Usar el nuevo servicio de imágenes con S3
             ListaFotos listaFotos = imageService.uploadServiceImages(files);

@@ -321,7 +321,7 @@
                     <!-- Gimnasio -->
                     <div class="col-md-2 col-sm-6 mb-3 d-flex justify-content-center">
                       <button type="button" class="btn btn-outline-secondary btn-lg text-center btn-custom-padding service-type-btn"
-                              data-type="estadio" data-id="5" onclick="seleccionarTipoServicio('gimnasio', 5)">
+                              data-type="gimnasio" data-id="5" onclick="seleccionarTipoServicio('gimnasio', 5)">
                         Gimnasio
                       </button>
                     </div>
@@ -340,6 +340,8 @@
               <input type="hidden" th:field="*{espacio.mapsUrl}" id="mapsUrl">
               <!-- Este input servira para verificar si el usuario modifico la dirección!-->
               <input type="hidden" th:field="*{direccion}" id="direccionHidden">
+              <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+
 
 
               <!-- Campos específicos dinámicos -->
@@ -608,9 +610,6 @@
                 </div>
               </div>
             </section>
-
-
-
           </form>
         </div>
       </div>
@@ -630,9 +629,8 @@
 <script th:src="@{/js/pages/chat-popup.js}"></script>
 <script th:src="@{/assets/icons/feather-icons/feather.min.js}"></script>
 <script th:src="@{/js/template.js}"></script>
-
-<!-- jQuery Steps Plugin -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-steps/1.1.0/jquery.steps.min.js"></script>
+<script src="/assets/vendor_components/jquery-steps-master/build/jquery.steps.js"></script>
+<script src="/assets/vendor_components/jquery-validation-1.17.0/dist/jquery.validate.min.js"></script>
 
 <script>
   // Variables globales para Google Maps
