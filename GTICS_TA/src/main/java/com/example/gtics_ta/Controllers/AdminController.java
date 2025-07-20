@@ -88,6 +88,8 @@ public class AdminController {
     private GimnasiosRepository gimnasiosRepository;
     @Autowired
     private PiscinasRepository piscinasRepository;
+    @Autowired
+    private ComentariosRepository comentariosRepository;
 
 
     //*********************************************************************************************
@@ -971,6 +973,82 @@ public class AdminController {
             response.put("success", false);
             response.put("error", "Error al programar mantenimiento: " + e.getMessage());
             return ResponseEntity.status(500).body(response);
+        }
+    }
+
+    //*********************************************************************************************
+    //
+    //                                    Observaciones
+    //
+    //*********************************************************************************************
+
+    /**
+     * Página principal de observaciones de coordinadores
+     */
+    @GetMapping("/observaciones")
+    public String observaciones(Model model, HttpSession session) {
+        // Verificar sesión de admin
+        Usuario admin = (Usuario) session.getAttribute("usuario");
+        if (admin == null) {
+            return "redirect:/login";
+        }
+
+        try {
+            // Obtener todas las observaciones ordenadas por fecha (más recientes primero)
+            List<Comentarios> todasLasObservaciones = comentariosRepository.findAllByOrderByFechaCreacionDesc();
+
+            if (todasLasObservaciones == null) {
+                todasLasObservaciones = new ArrayList<>();
+            }
+
+            // Filtrar solo las observaciones de coordinadores (usuarios con rol COORDINADOR)
+            List<Comentarios> observacionesCoordinadores = todasLasObservaciones.stream()
+                    .filter(comentario -> comentario != null &&
+                       comentario.getUsuario() != null &&
+                            comentario.getUsuario().getRol() != null &&
+                            "COORDINADOR".equalsIgnoreCase(comentario.getUsuario().getRol().getNombre()))
+                    .toList();
+
+
+            model.addAttribute("comentarios", observacionesCoordinadores);
+
+            // Estadísticas adicionales
+            long totalReparaciones = observacionesCoordinadores.stream()
+                .filter(c -> c.getTipoComentario() == Comentarios.TipoComentario.REPARACION)
+                .count();
+
+            long totalObservaciones = observacionesCoordinadores.stream()
+                .filter(c -> c.getTipoComentario() == Comentarios.TipoComentario.COMENTARIO)
+                .count();
+
+            long observacionesAlta = observacionesCoordinadores.stream()
+                .filter(c -> c.getPrioridadUsuario() == Comentarios.PrioridadUsuario.ALTA)
+                .count();
+
+            long observacionesNoRevisadas = observacionesCoordinadores.stream()
+                .filter(c -> !c.getRevisadoPorAdmin())
+                .count();
+
+            model.addAttribute("totalReparaciones", totalReparaciones);
+            model.addAttribute("totalObservaciones", totalObservaciones);
+            model.addAttribute("observacionesAlta", observacionesAlta);
+            model.addAttribute("observacionesNoRevisadas", observacionesNoRevisadas);
+
+            System.out.println("=== OBSERVACIONES CARGADAS ===");
+            System.out.println("Total observaciones de coordinadores: " + observacionesCoordinadores.size());
+            System.out.println("Reparaciones: " + totalReparaciones);
+            System.out.println("Observaciones generales: " + totalObservaciones);
+            System.out.println("Prioridad alta: " + observacionesAlta);
+            System.out.println("No revisadas: " + observacionesNoRevisadas);
+
+            return "admin/observaciones";
+
+        } catch (Exception e) {
+            System.out.println("ERROR al cargar observaciones: " + e.getMessage());
+            e.printStackTrace();
+            model.addAttribute("comentarios", new ArrayList<>());
+            model.addAttribute("error", "Error al cargar las observaciones: " + e.getMessage());
+            return "admin/observaciones";
         }
     }
 

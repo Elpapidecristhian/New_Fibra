@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="">
+  <meta name="author" content="">
+  <link rel="icon" th:href="@{/images/san_miguel_logo.ico}">
+
+  <title>Admin - Observaciones</title>
+
+  <!-- CSRF Token -->
+  <meta name="_csrf" th:content="${_csrf.token}"/>
+  <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+
+  <!-- Vendors Style-->
+  <link rel="stylesheet" th:href="@{/css/vendors_css.css}">
+
+  <!-- Style-->
+  <link rel="stylesheet" th:href="@{/css/style.css}">
+  <link rel="stylesheet" th:href="@{/css/skin_color.css}">
+  
+  <style>
+    .observacion-card {
+      border-left: 4px solid;
+      margin-bottom: 15px;
+      transition: transform 0.2s;
+    }
+    .observacion-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    .observacion-reparacion {
+      border-left-color: #dc3545;
+    }
+    .observacion-general {
+      border-left-color: #007bff;
+    }
+    .fecha-observacion {
+      font-size: 0.85em;
+      color: #6c757d;
+    }
+    .tipo-badge {
+      font-size: 0.75em;
+      padding: 0.25em 0.5em;
+    }
+    .coordinador-info {
+      background-color: #f8f9fa;
+      border-radius: 0.25rem;
+      padding: 0.5rem;
+      margin-bottom: 0.75rem;
+    }
+    .prioridad-alta {
+      border-left-color: #dc3545 !important;
+      background-color: rgba(220, 53, 69, 0.05);
+    }
+    .prioridad-media {
+      border-left-color: #ffc107 !important;
+      background-color: rgba(255, 193, 7, 0.05);
+    }
+    .prioridad-baja {
+      border-left-color: #28a745 !important;
+      background-color: rgba(40, 167, 69, 0.05);
+    }
+    .filter-btn.active {
+      background-color: #1DBFC1 !important;
+      border-color: #1DBFC1 !important;
+      color: white !important;
+    }
+    .filter-btn {
+      border-color: #1DBFC1;
+      color: #1DBFC1;
+      margin-right: 0.5rem;
+      margin-bottom: 0.5rem;
+    }
+    .filter-btn:hover {
+      background-color: #1DBFC1;
+      border-color: #1DBFC1;
+      color: white;
+    }
+  </style>
+</head>
+
+<body class="hold-transition light-skin sidebar-mini theme-success fixed">
+
+<div class="wrapper">
+  <div id="loader"></div>
+
+  <header class="main-header">
+    <div class="d-flex align-items-center logo-box justify-content-center">
+      <!-- Logo -->
+      <a th:href="@{/admin}" class="logo">
+        <!-- logo-->
+        <div class="logo-mini w-150 text-center">
+          <span class="light-logo"><img th:src="@{/images/logo-sanMiguel.png}" alt="logo"></span>
+        </div>
+      </a>
+    </div>
+    <!-- Header Navbar -->
+    <nav class="navbar navbar-static-top">
+      <!-- Sidebar toggle button-->
+      <div class="app-menu">
+        <ul class="header-megamenu nav">
+          <li class="btn-group nav-item">
+            <a href="#" class="waves-effect waves-light nav-link push-btn btn-primary-light" data-toggle="push-menu" role="button">
+              <i data-feather="align-left"></i>
+            </a>
+          </li>
+        </ul>
+      </div>
+
+      <div th:replace="fragments :: navbarAdmin"></div>
+    </nav>
+  </header>
+
+  <!-- Left side column. contains the logo and sidebar -->
+  <aside th:replace="fragments :: sideBarAdmin"></aside>
+
+  <!-- Content Wrapper. Contains page content -->
+  <div class="content-wrapper">
+    <div class="container-full">
+      <!-- Content Header (Page header) -->
+      <div class="content-header">
+        <div class="d-flex align-items-center">
+          <div class="me-auto">
+            <h4 class="page-title">Observaciones de Coordinadores</h4>
+            <div class="d-inline-block align-items-center">
+              <nav>
+                <ol class="breadcrumb">
+                  <li class="breadcrumb-item"><a href="#"><i class="mdi mdi-home-outline"></i></a></li>
+                  <li class="breadcrumb-item"><a th:href="@{/admin}">Dashboard</a></li>
+                  <li class="breadcrumb-item active" aria-current="page">Observaciones</li>
+                </ol>
+              </nav>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Main content -->
+      <section class="content">
+        <!-- Filtros -->
+        <div class="row mb-3">
+          <div class="col-12">
+            <div class="box">
+              <div class="box-header with-border">
+                <h4 class="box-title">
+                  <i class="fa fa-filter me-2"></i>Filtros
+                </h4>
+              </div>
+              <div class="box-body">
+                <div class="row">
+                  <div class="col-md-6">
+                    <label class="form-label">Filtrar por Prioridad:</label>
+                    <div class="d-flex flex-wrap">
+                      <button type="button" class="btn btn-outline-primary filter-btn active" data-prioridad="all">
+                        Todas
+                      </button>
+                      <button type="button" class="btn btn-outline-danger filter-btn" data-prioridad="ALTA">
+                        🔴 Alta
+                      </button>
+                      <button type="button" class="btn btn-outline-warning filter-btn" data-prioridad="MEDIA">
+                        🟡 Media
+                      </button>
+                      <button type="button" class="btn btn-outline-success filter-btn" data-prioridad="BAJA">
+                        🟢 Baja
+                      </button>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label">Filtrar por Tipo:</label>
+                    <div class="d-flex flex-wrap">
+                      <button type="button" class="btn btn-outline-primary filter-btn-tipo active" data-tipo="all">
+                        Todos
+                      </button>
+                      <button type="button" class="btn btn-outline-danger filter-btn-tipo" data-tipo="REPARACION">
+                        🔧 Reparación
+                      </button>
+                      <button type="button" class="btn btn-outline-info filter-btn-tipo" data-tipo="COMENTARIO">
+                        📝 Observación
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-12">
+            <div class="box">
+              <div class="box-header with-border">
+                <h4 class="box-title">
+                  <i class="fa fa-list me-2"></i>Todas las Observaciones
+                </h4>
+                <div class="box-tools pull-right">
+                  <span class="badge badge-info">Total: <span id="totalObservaciones" th:text="${comentarios != null ? comentarios.size() : 0}">0</span></span>
+                  <span class="badge badge-warning">Filtradas: <span id="observacionesFiltradas">0</span></span>
+                </div>
+              </div>
+              <!-- /.box-header -->
+              <div class="box-body">
+                
+                <!-- Mensaje si no hay observaciones -->
+                <div th:if="${comentarios == null or comentarios.isEmpty()}" class="text-center py-5">
+                  <i class="fa fa-clipboard fa-4x text-muted mb-3"></i>
+                  <h5 class="text-muted">No hay observaciones registradas</h5>
+                  <p class="text-muted">Cuando los coordinadores registren observaciones o reportes de mantenimiento, aparecerán aquí.</p>
+                </div>
+
+                <!-- Lista de observaciones -->
+                <div th:if="${comentarios != null and !comentarios.isEmpty()}" id="listaObservaciones">
+                  <div th:each="comentario : ${comentarios}"
+                       th:class="'card observacion-card observacion-item ' + (${comentario.tipoComentario.name() == 'REPARACION'} ? 'observacion-reparacion' : 'observacion-general')"
+                       th:data-prioridad="${comentario.prioridadUsuario != null ? comentario.prioridadUsuario.name() : 'BAJA'}"
+                       th:data-tipo="${comentario.tipoComentario.name()}">
+                    <div class="card-body">
+                      <!-- Información del coordinador -->
+                      <div class="coordinador-info">
+                        <div class="row">
+                          <div class="col-md-8">
+                            <strong>
+                              <i class="fa fa-user me-1"></i>
+                              Coordinador: <span th:text="${comentario.usuario.nombres + ' ' + comentario.usuario.apellidos}">Nombre Coordinador</span>
+                            </strong>
+                          </div>
+                          <div class="col-md-4 text-end">
+                            <small class="fecha-observacion">
+                              <i class="fa fa-calendar me-1"></i>
+                              <span th:text="${#temporals.format(comentario.fechaCreacion, 'dd/MM/yyyy HH:mm')}">Fecha</span>
+                            </small>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="d-flex justify-content-between align-items-start mb-2">
+                        <div class="flex-grow-1">
+                          <h6 class="card-title mb-1">
+                            <i th:class="${comentario.tipoComentario.name() == 'REPARACION'} ? 'fa fa-wrench text-danger' : 'fa fa-comment text-primary'" class="me-2"></i>
+                            <span th:text="${comentario.espacio.nombre}">Espacio Deportivo</span>
+                          </h6>
+                        </div>
+                        <div class="d-flex gap-2">
+                          <!-- Badge de prioridad -->
+                          <span th:if="${comentario.prioridadUsuario != null and comentario.prioridadUsuario.name() == 'ALTA'}"
+                                class="badge bg-danger tipo-badge">
+                            🔴 Alta
+                          </span>
+                          <span th:if="${comentario.prioridadUsuario != null and comentario.prioridadUsuario.name() == 'MEDIA'}"
+                                class="badge bg-warning tipo-badge">
+                            🟡 Media
+                          </span>
+                          <span th:if="${comentario.prioridadUsuario != null and comentario.prioridadUsuario.name() == 'BAJA'}"
+                                class="badge bg-success tipo-badge">
+                            🟢 Baja
+                          </span>
+                          <span th:if="${comentario.prioridadUsuario == null}"
+                                class="badge bg-success tipo-badge">
+                            🟢 Baja
+                          </span>
+                          <!-- Badge de tipo -->
+                          <span th:if="${comentario.tipoComentario.name() == 'REPARACION'}"
+                                class="badge bg-danger tipo-badge">
+                            🔧 Mantenimiento
+                          </span>
+                          <span th:if="${comentario.tipoComentario.name() == 'COMENTARIO'}"
+                                class="badge bg-primary tipo-badge">
+                            📝 Observación
+                          </span>
+                        </div>
+                      </div>
+                      
+                      <div class="card-text">
+                        <p class="mb-2" th:text="${comentario.contenido}">Contenido de la observación</p>
+
+                        <!-- Mostrar imágenes si existen -->
+                        <div th:if="${comentario.listaFotos != null and comentario.listaFotos.fotos != null and !comentario.listaFotos.fotos.isEmpty()}" class="mb-3">
+                          <h6 class="text-muted mb-2">
+                            <i class="fa fa-image me-1"></i>Imágenes adjuntas:
+                          </h6>
+                          <div class="row">
+                            <div th:each="foto : ${comentario.listaFotos.fotos}" class="col-md-3 col-sm-4 col-6 mb-2">
+                              <div class="position-relative">
+                                <img th:src="${foto.fotoUrl}"
+                                     class="img-thumbnail observacion-imagen"
+                                     style="width: 100%; height: 120px; object-fit: cover; cursor: pointer;"
+                                     th:alt="'Imagen de observación'"
+                                     onclick="mostrarImagenCompleta(this.src)">
+                                <small class="text-muted d-block text-center mt-1"
+                                       th:text="${foto.fotoNombre}">Nombre imagen</small>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div class="row">
+                          <div class="col-md-6">
+                            <small class="text-muted">
+                              <i class="fa fa-map-marker me-1"></i>
+                              Tipo: <span th:text="${comentario.espacio.tipoEspacio.nombre}">Tipo de espacio</span>
+                            </small>
+                          </div>
+                          <div class="col-md-6 text-end">
+                            <small class="text-muted">
+                              <i class="fa fa-envelope me-1"></i>
+                              <span th:text="${comentario.usuario.correo}">correo@coordinador.com</span>
+                            </small>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+              <!-- /.box-body -->
+            </div>
+            <!-- /.box -->
+          </div>
+        </div>
+      </section>
+      <!-- /.content -->
+    </div>
+  </div>
+  <!-- /.content-wrapper -->
+
+  <footer class="main-footer">
+    <div class="pull-right d-none d-sm-inline-block">
+      <ul class="nav nav-primary nav-dotted nav-dot-separated justify-content-center justify-content-md-end">
+        <li class="nav-item">
+          <a class="nav-link" href="javascript:void(0)">Contáctanos</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#">FAQ</a>
+        </li>
+      </ul>
+    </div>
+    &copy; <script>document.write(new Date().getFullYear())</script> <a href="https://www.munisanmiguel.gob.pe/">Municipalidad de San Miguel</a>. Todos los derechos reservados.
+  </footer>
+
+</div>
+
+<!-- Modal para mostrar imagen completa -->
+<div class="modal fade" id="imagenModal" tabindex="-1" aria-labelledby="imagenModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="imagenModalLabel">
+          <i class="fa fa-image me-2"></i>Imagen de observación
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body text-center">
+        <img id="imagenCompleta" src="" class="img-fluid" alt="Imagen completa">
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+          <i class="fa fa-times me-1"></i>Cerrar
+        </button>
+        <a id="descargarImagen" href="" download class="btn btn-primary">
+          <i class="fa fa-download me-1"></i>Descargar
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Vendor JS -->
+<script th:src="@{/js/vendors.min.js}"></script>
+<script th:src="@{/js/pages/chat-popup.js}"></script>
+<script th:src="@{/assets/icons/feather-icons/feather.min.js}"></script>
+
+<!-- Rhythm Admin App -->
+<script th:src="@{/js/template.js}"></script>
+
+<script>
+// Variables globales para filtros
+let filtroActivo = 'all';
+let tipoActivo = 'all';
+
+// Función para mostrar imagen en modal
+function mostrarImagenCompleta(src) {
+    const modal = new bootstrap.Modal(document.getElementById('imagenModal'));
+    const imagenCompleta = document.getElementById('imagenCompleta');
+    const descargarImagen = document.getElementById('descargarImagen');
+
+    imagenCompleta.src = src;
+    descargarImagen.href = src;
+
+    modal.show();
+}
+
+// Función para filtrar observaciones
+function filtrarObservaciones() {
+    const observaciones = document.querySelectorAll('.observacion-item');
+    let observacionesVisibles = 0;
+
+    observaciones.forEach(observacion => {
+        const prioridad = observacion.getAttribute('data-prioridad');
+        const tipo = observacion.getAttribute('data-tipo');
+
+        const cumplePrioridad = filtroActivo === 'all' || prioridad === filtroActivo;
+        const cumpleTipo = tipoActivo === 'all' || tipo === tipoActivo;
+
+        if (cumplePrioridad && cumpleTipo) {
+            observacion.style.display = 'block';
+            observacionesVisibles++;
+        } else {
+            observacion.style.display = 'none';
+        }
+    });
+
+    // Actualizar contador
+    document.getElementById('observacionesFiltradas').textContent = observacionesVisibles;
+}
+
+// Event listeners para filtros de prioridad
+document.addEventListener('DOMContentLoaded', function() {
+    // Filtros de prioridad
+    const filtrosPrioridad = document.querySelectorAll('.filter-btn');
+    filtrosPrioridad.forEach(btn => {
+        btn.addEventListener('click', function() {
+            filtrosPrioridad.forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            filtroActivo = this.getAttribute('data-prioridad');
+            filtrarObservaciones();
+        });
+    });
+
+    // Filtros de tipo
+    const filtrosTipo = document.querySelectorAll('.filter-btn-tipo');
+    filtrosTipo.forEach(btn => {
+        btn.addEventListener('click', function() {
+            filtrosTipo.forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            tipoActivo = this.getAttribute('data-tipo');
+            filtrarObservaciones();
+        });
+    });
+
+    // Agregar efecto hover a las imágenes
+    const imagenes = document.querySelectorAll('.observacion-imagen');
+    imagenes.forEach(img => {
+        img.addEventListener('mouseenter', function() {
+            this.style.transform = 'scale(1.05)';
+            this.style.transition = 'transform 0.2s ease';
+        });
+
+        img.addEventListener('mouseleave', function() {
+            this.style.transform = 'scale(1)';
+        });
+    });
+
+    // Inicializar contador de observaciones filtradas
+    filtrarObservaciones();
+});
+
+// Inicializar feather icons
+feather.replace();
+</script>
+
+</body>
+</html>
