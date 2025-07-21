@@ -12,6 +12,9 @@ import com.example.gtics_ta.Services.MantenimientoService;
 import com.itextpdf.io.image.ImageData;
 import com.itextpdf.io.image.ImageDataFactory;
 import com.itextpdf.kernel.colors.ColorConstants;
+import com.example.gtics_ta.Repository.NotificacionesRepository;
+import com.example.gtics_ta.Entity.Notificaciones;
+
 import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.layout.Document;
@@ -95,6 +98,8 @@ public class AdminController {
     private SuscripcionesRepository suscripcionesRepository;
     @Autowired
     private HorariosCoordinadorRepository horariosCoordinadorRepository;
+    @Autowired
+    NotificacionesRepository notificacionesRepository;
 
 
     //*********************************************************************************************
@@ -1374,5 +1379,16 @@ public class AdminController {
             return ResponseEntity.status(500).body(response);
         }
     }
+
+
+    @ModelAttribute
+    public void agregarNotificacionesAdmin(Model model, HttpSession session) {
+        Usuario usuario = (Usuario) session.getAttribute("usuario");
+        if (usuario != null && usuario.getRol().getNombre().equalsIgnoreCase("ADMINISTRADOR")) {
+            List<Notificaciones> notificaciones = notificacionesRepository.findByUsuarioOrderByFechaCreacionDesc(usuario);
+            model.addAttribute("notificacionesAdmin", notificaciones); // 👈 asegúrate de usar el MISMO nombre que en el fragmento
+        }
+    }
+
 
 }

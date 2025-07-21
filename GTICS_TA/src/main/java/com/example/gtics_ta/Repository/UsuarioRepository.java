@@ -1,4 +1,5 @@
 package com.example.gtics_ta.Repository;
+import com.example.gtics_ta.Entity.Rol;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -25,5 +26,6 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Integer> {
 
     //Buscar por nombre de rol y si está activo
     List<Usuario> findByRol_NombreAndActivo(String nombre, boolean activo);
+    List<Usuario> findByRol(Rol rol);
 
 }

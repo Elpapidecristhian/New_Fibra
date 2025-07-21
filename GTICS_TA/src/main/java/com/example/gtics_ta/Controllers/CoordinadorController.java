@@ -21,7 +21,9 @@ import org.springframework.http.HttpHeaders;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.net.URI;
+import java.sql.Timestamp;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.util.*;
@@ -41,7 +43,11 @@ public class CoordinadorController {
     private EspaciosDeportivosRepository espaciosDeportivosRepository;
     @Autowired
     private ImageService imageService;
+    @Autowired
+    private NotificacionesRepository notificacionesRepository;
 
+    @Autowired
+    private RolRepository rolRepository;
     @Autowired
     private AsistenciaService asistenciaService;
 
@@ -249,6 +255,21 @@ public class CoordinadorController {
             }
 
             comentariosRepository.save(comentario);
+            // Crear notificaciones para todos los administradores
+            Rol rolAdmin = rolRepository.findByNombre("Administrador");
+            if (rolAdmin != null) {
+                List<Usuario> administradores = usuarioRepository.findByRol(rolAdmin);
+                for (Usuario admin : administradores) {
+                    Notificaciones noti = new Notificaciones();
+                    noti.setUsuario(admin);
+                    noti.setTitulo("Nueva Observación"); // ⚠️ Esto es lo que la campanita muestra
+                    noti.setMensaje("El coordinador " + usuario.getNombres() + " registró una observación en el espacio " + comentario.getEspacio().getNombre());
+                    noti.setFechaCreacion(Timestamp.valueOf(LocalDateTime.now()));
+                    noti.setLeida(false); // por si acaso
+                    notificacionesRepository.save(noti);
+                }
+            }
+
 
             // Mensaje de éxito
             String tipoMensaje = tipoComentarioEnum == Comentarios.TipoComentario.REPARACION ? "reporte de reparación" : "observación";
