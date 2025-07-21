@@ -91,6 +91,7 @@ public class AdminController {
     private PiscinasRepository piscinasRepository;
     @Autowired
     private ComentariosRepository comentariosRepository;
+    private SuscripcionesRepository suscripcionesRepository;
     @Autowired
     private HorariosCoordinadorRepository horariosCoordinadorRepository;
 
@@ -466,6 +467,8 @@ public class AdminController {
             for (Horarios h : listaHorarios) {
                 horarioReservadoRepository.deleteAllByHorario(h);
             }
+            List<Suscripciones> listaSuscripciones = suscripcionesRepository.findByEspacioId(espacio.getId());
+            suscripcionesRepository.deleteAll(listaSuscripciones);
             horariosRepository.deleteAll(listaHorarios);
             espaciosRepository.delete(espacio);
         } else {
