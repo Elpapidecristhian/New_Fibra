@@ -46,6 +46,10 @@ public class Notificaciones {
     private Reservas reserva;
 
     @ManyToOne
+    @JoinColumn(name = "id_suscripcion")
+    private Suscripciones suscripcion;
+
+    @ManyToOne
     @JoinColumn(name = "id_mantenimiento")
     private Mantenimiento mantenimiento;
 
@@ -71,6 +75,11 @@ public class Notificaciones {
         this.reserva = reserva;
     }
 
+    public Notificaciones(Usuario usuario, TipoNotificacion tipoNotificacion, String titulo, String mensaje, Suscripciones suscripcion) {
+        this(usuario, tipoNotificacion, titulo, mensaje);
+        this.suscripcion = suscripcion;
+    }
+
     // Constructor con mantenimiento
     public Notificaciones(Usuario usuario, TipoNotificacion tipoNotificacion, String titulo, String mensaje, Mantenimiento mantenimiento) {
         this(usuario, tipoNotificacion, titulo, mensaje);
@@ -94,8 +103,10 @@ public class Notificaciones {
     // Enum para tipo de notificación
     public enum TipoNotificacion {
         CANCELACION_RESERVA,
+        CANCELACION_SUSCRIPCION,
         MANTENIMIENTO_PROGRAMADO,
         RECORDATORIO_RESERVA,
+        RECORDATORIO_SUSCRIPCION,
         CAMBIO_HORARIO,
         PROMOCION
     }

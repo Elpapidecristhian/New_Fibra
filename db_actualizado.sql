@@ -583,17 +583,19 @@ DEFAULT CHARACTER SET = utf8mb3;
 CREATE TABLE IF NOT EXISTS `gtics`.`notificaciones` (
   `id_notificacion` INT NOT NULL AUTO_INCREMENT,
   `id_usuario` INT NOT NULL,
-  `tipo_notificacion` ENUM('CANCELACION_RESERVA', 'MANTENIMIENTO_PROGRAMADO', 'RECORDATORIO_RESERVA', 'CAMBIO_HORARIO', 'PROMOCION') NOT NULL,
+  `tipo_notificacion` ENUM('CANCELACION_RESERVA', 'CANCELACION_SUSCRIPCION', 'MANTENIMIENTO_PROGRAMADO', 'RECORDATORIO_RESERVA', 'RECORDATORIO_SUSCRIPCION', 'CAMBIO_HORARIO', 'PROMOCION') NOT NULL,
   `titulo` VARCHAR(100) NOT NULL,
   `mensaje` TEXT NOT NULL,
   `leida` TINYINT NULL DEFAULT '0',
   `fecha_creacion` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
   `fecha_lectura` TIMESTAMP NULL DEFAULT NULL,
   `id_reserva` INT NULL DEFAULT NULL COMMENT 'Reserva relacionada si aplica',
+  `id_suscripcion` INT NULL DEFAULT NULL,
   `id_mantenimiento` INT NULL DEFAULT NULL COMMENT 'Mantenimiento relacionado si aplica',
   PRIMARY KEY (`id_notificacion`),
   INDEX `fk_notificaciones_usuario_idx` (`id_usuario` ASC) VISIBLE,
   INDEX `fk_notificaciones_reserva_idx` (`id_reserva` ASC) VISIBLE,
+  INDEX `fk_notificaciones_suscripcion_idx` (`id_suscripcion` ASC) VISIBLE,
   INDEX `fk_notificaciones_mantenimiento_idx` (`id_mantenimiento` ASC) VISIBLE,
   INDEX `idx_notificaciones_leida` (`leida` ASC) VISIBLE,
   INDEX `idx_notificaciones_fecha` (`fecha_creacion` ASC) VISIBLE,
@@ -604,6 +606,10 @@ CREATE TABLE IF NOT EXISTS `gtics`.`notificaciones` (
   CONSTRAINT `fk_notificaciones_reserva`
     FOREIGN KEY (`id_reserva`)
     REFERENCES `gtics`.`reservas` (`id_reservas`)
+    ON DELETE SET NULL,
+  CONSTRAINT `fk_notificaciones_suscripcion`
+    FOREIGN KEY (`id_suscripcion`)
+    REFERENCES `gtics`.`suscripciones` (`id_suscripciones`)
     ON DELETE SET NULL,
   CONSTRAINT `fk_notificaciones_usuario`
     FOREIGN KEY (`id_usuario`)

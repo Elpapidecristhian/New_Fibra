@@ -657,6 +657,18 @@ public class VecinoController {
 
         suscripcionesRepository.save(suscripcion);
 
+
+        String titulo = "Sucripción Exitosa";
+        String mensaje = "Suscripción en el espacio deportivo \"" + suscripcion.getEspacio().getNombre() + "\" desde el día " + suscripcion.getFechaInicio().toString() + " hasta el día " + suscripcion.getFechaFin().toString();
+        Notificaciones notificacion = new Notificaciones(
+                suscripcion.getUsuario(),
+                Notificaciones.TipoNotificacion.RECORDATORIO_SUSCRIPCION,
+                titulo,
+                mensaje,
+                suscripcion
+        );
+        notificacionesRepository.save(notificacion);
+
         String asunto = "Confirmación de Suscripción";
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("d 'de' MMMM 'de' yyyy", new Locale("es", "ES"));
         LocalDateTime fechaRegistro = suscripcion.getFechaRegistro();

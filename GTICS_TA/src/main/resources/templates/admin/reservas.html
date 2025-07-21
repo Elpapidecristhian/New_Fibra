@@ -251,6 +251,7 @@
                                         <tbody>
                                         <tr th:each="reserva : ${listaReservas}"
                                             th:attr="data-tipo=${reserva.espacioDeportivo?.tipoEspacio?.id}">
+
                                             <td>
                                                 <div th:if="${reserva.usuario != null}">
                                                     <strong th:text="${reserva.usuario.nombres + ' ' + reserva.usuario.apellidos}"></strong><br>
@@ -266,11 +267,11 @@
                                                 <span th:if="${reserva.espacioDeportivo == null}" class="text-muted">N/A</span>
                                             </td>
                                             <td class="text-center">
-                                                <strong th:text="${reserva.fechaReserva}"></strong>
+                                                <p th:text="${reserva.fechaReserva}"></p>
                                             </td>
                                             <td>
                                                 <div th:if="${reserva.horario != null}" class="d-flex flex-column">
-                                                    <strong th:text="${#dates.format(reserva.horario.horaInicio, 'hh:mm')} + '-' + ${#dates.format(reserva.horario.horaFin, 'hh:mm')}"></strong>
+                                                    <p th:text="${#dates.format(reserva.horario.horaInicio, 'hh:mm')} + '-' + ${#dates.format(reserva.horario.horaFin, 'hh:mm')}"></p>
                                                 </div>
                                                 <small th:if="${reserva.horario == null}" class="text-muted">N/A</small>
                                             </td>
@@ -489,8 +490,44 @@
             ]
         });
 
+        // Variable para almacenar el filtro activo
+        let filtroActivo = 'all';
 
-        function verDetallesPago(pagoId) {
+        // Función de filtro personalizada para DataTables
+        $.fn.dataTable.ext.search.push(function (settings, data, dataIndex) {
+            if (settings.nTable.id !== 'tablaReservas') {
+                return true;
+            }
+
+            if (filtroActivo === 'all') {
+                return true;
+            }
+
+            // Obtener la fila usando la API de DataTables
+            const api = new $.fn.dataTable.Api(settings);
+            const rowNode = api.row(dataIndex).node();
+            const tipoFila = $(rowNode).data('tipo');
+
+            // Convertir a string para comparación segura
+            return String(tipoFila) === String(filtroActivo);
+        });
+
+        // Event handler para los botones de filtro
+        $('.filter-btn').on('click', function () {
+            $('.filter-btn').removeClass('active');
+            $(this).addClass('active');
+
+            // Actualizar el filtro activo
+            filtroActivo = $(this).data('tipo');
+
+            // Forzar redibujado de la tabla
+            if (tablaReservas) {
+                tablaReservas.draw();
+            }
+        });
+    });
+
+    function verDetallesPago(pagoId) {
         if (!pagoId) {
             Swal.fire({
                 icon: 'warning',
@@ -719,62 +756,6 @@
 
 </script>
 
-<script th:inline="javascript">
-
-    let tablaReservas;
-
-    $(document).ready(function () {
-        tablaReservas = $('#tablaReservas').DataTable({
-            pageLength: 10,
-            lengthChange: false,
-            info: true,
-            paging: true,
-            language: {
-                url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json",
-                search: "Buscar:",
-                paginate: {
-                    previous: "Anterior",
-                    next: "Siguiente"
-                },
-                info: "Mostrando _START_ a _END_ de _TOTAL_ registros",
-                infoEmpty: "Mostrando 0 a 0 de 0 registros",
-                infoFiltered: "(filtrado de _MAX_ registros totales)"
-            },
-            dom: '<"d-flex justify-content-between align-items-center mb-3"<"table-title">f>rt<"d-flex justify-content-between align-items-center mt-3"ip><"clear">',
-            columnDefs: [
-                { orderable: false, targets: [7] }
-            ]
-        });
-        // Variable para almacenar el filtro activo
-        let filtroActivo = 'all';
-
-        // Función de filtro personalizada para DataTables
-        $.fn.dataTable.ext.search.push(function (settings, data, dataIndex) {
-            if (settings.nTable.id !== 'tablaReservas') return true;
-
-            if (filtroActivo === 'all') return true;
-
-            const api = new $.fn.dataTable.Api(settings);
-            const rowNode = api.row(dataIndex).node();
-            const tipoFila = $(rowNode).attr('data-tipo');  // ← CAMBIO AQUÍ
-
-            return String(tipoFila) === String(filtroActivo);
-        });
-
-        // Usamos delegación por si los botones son cargados por Thymeleaf
-        $(document).on('click', '.filter-btn', function () {
-            $('.filter-btn').removeClass('active');
-            $(this).addClass('active');
-
-            filtroActivo = $(this).attr('data-tipo'); // ← CAMBIO AQUÍ
-
-            if (tablaReservas) {
-                tablaReservas.draw();
-            }
-        });
-        feather.replace();
-    })
-</script>
 
 
 <script>

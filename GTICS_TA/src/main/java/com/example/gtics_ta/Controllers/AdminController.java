@@ -91,6 +91,7 @@ public class AdminController {
     private PiscinasRepository piscinasRepository;
     @Autowired
     private ComentariosRepository comentariosRepository;
+    @Autowired
     private SuscripcionesRepository suscripcionesRepository;
     @Autowired
     private HorariosCoordinadorRepository horariosCoordinadorRepository;
