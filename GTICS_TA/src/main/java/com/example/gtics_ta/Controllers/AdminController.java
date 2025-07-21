@@ -40,220 +40,153 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import jakarta.servlet.http.HttpSession;
-import jakarta.validation.Valid;
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.net.URI;
-import java.sql.Time;
-import java.sql.Timestamp;
-import java.time.LocalDate;
-import java.time.LocalTime;
-import java.util.*;
+    import jakarta.servlet.http.HttpSession;
+    import jakarta.validation.Valid;
+    import java.io.IOException;
+    import java.io.InputStream;
+    import java.math.BigDecimal;
+    import java.net.URI;
+    import java.sql.Timestamp;
+    import java.time.LocalDate;
+    import java.util.*;
 
-@Controller
-@RequestMapping("/admin")
-public class AdminController {
+    @Controller
+    @RequestMapping("/admin")
+    public class AdminController {
 
-    @Autowired
-    private EspaciosDeportivosRepository espaciosRepository;
-    @Autowired
-    private TipoEspacioRepository tipoEspacioRepository;
-    @Autowired
-    private PiscinasRepository piscinaRepository;
-    @Autowired
-    private CanchasFutbolRepository canchasFutbolRepository;
-    @Autowired
-    private ReservasRepository reservaRepository;
-    @Autowired
-    private UsuarioRepository usuarioRepository;
-    @Autowired
-    private HorariosRepository horariosRepository;
-    @Autowired
-    private EspaciosDeportivosRepository espaciosDeportivosRepository;
-    @Autowired
-    private PistasAtletismoRepository pistasAtletismoRepository;
-    @Autowired
-    private EstadiosRepository estadiosRepository;
-    @Autowired
-    private FotosRepository fotosRepository;
-    @Autowired
-    private HorarioReservadoRepository horarioReservadoRepository;
-    @Autowired
-    private MantenimientoService mantenimientoService;
-    @Autowired
-    private PagosRepository pagosRepository;
-    @Autowired
-    private ImageService imageService;
-    @Autowired
-    private GimnasiosRepository gimnasiosRepository;
-    @Autowired
-    private PiscinasRepository piscinasRepository;
-    @Autowired
-    private ComentariosRepository comentariosRepository;
-    private SuscripcionesRepository suscripcionesRepository;
-    @Autowired
-    private HorariosCoordinadorRepository horariosCoordinadorRepository;
+        @Autowired
+        private EspaciosDeportivosRepository espaciosRepository;
+        @Autowired
+        private TipoEspacioRepository tipoEspacioRepository;
+        @Autowired
+        private PiscinasRepository piscinaRepository;
+        @Autowired
+        private CanchasFutbolRepository canchasFutbolRepository;
+        @Autowired
+        private ReservasRepository reservaRepository;
+        @Autowired
+        private UsuarioRepository usuarioRepository;
+        @Autowired
+        private HorariosRepository horariosRepository;
+        @Autowired
+        private EspaciosDeportivosRepository espaciosDeportivosRepository;
+        @Autowired
+        private PistasAtletismoRepository pistasAtletismoRepository;
+        @Autowired
+        private EstadiosRepository estadiosRepository;
+        @Autowired
+        private FotosRepository fotosRepository;
+        @Autowired
+        private HorarioReservadoRepository horarioReservadoRepository;
+        @Autowired
+        private PagosRepository pagosRepository;
+        @Autowired
+        private ImageService imageService;
+        @Autowired
+        private GimnasiosRepository gimnasiosRepository;
+        @Autowired
+        private PiscinasRepository piscinasRepository;
 
 
-    //*********************************************************************************************
-    //
-    //                                    Dashboard
-    //
-    //*********************************************************************************************
+        //*********************************************************************************************
+        //
+        //                                    Dashboard
+        //
+        //*********************************************************************************************
 
-    // DASHBOARD PRINCIPAL
-    @GetMapping(value = {"", "/"})
-    public String dashboard(Model model) {
-        // Crear objeto AdminDTO con datos básicos
-        AdminDTO dashboard = new AdminDTO();
+        // DASHBOARD PRINCIPAL
+        @GetMapping(value = {"","/"})
+        public String dashboard(Model model) {
+            AdminDTO dto = new AdminDTO();
+    
+            dto.setTotalUsuarios(usuarioRepository.count());
+            dto.setTotalUsuariosBaneados(usuarioRepository.countByActivo(false));
+            dto.setEspaciosDisponibles(espaciosRepository.countByOperativo(true));
+            dto.setCantidadTotalReservas(reservaRepository.contarTotalReservas());
+            dto.setCantidadReservasHoy(reservaRepository.contarReservasHoy());
 
-        // Datos básicos
-        List<EspaciosDeportivos> espacios = espaciosRepository.findAll();
-        List<Reservas> reservas = reservaRepository.findAll();
+            // Top 10 Servicios Más Reservados
+            List<Object[]> topServicios = reservaRepository.top10ServiciosMasReservados();
+            List<String> nombresTop = new ArrayList<>();
+            List<Long> cantidadesTop = new ArrayList<>();
+            for (Object[] fila : topServicios) {
+                nombresTop.add((String) fila[0]);
+                cantidadesTop.add(((Number) fila[1]).longValue());
+            }
+            dto.setNombresServiciosTop(nombresTop);
+            dto.setCantidadReservasTop(cantidadesTop);
 
-        dashboard.setTotalUsuarios(usuarioRepository.count());
-        dashboard.setTotalUsuariosBaneados(0);
-        dashboard.setCantidadTotalReservas(reservas.size());
-        dashboard.setEspaciosDisponibles(espacios.size());
+            // Porcentaje Reservas por Servicio
+            List<Object[]> porcentajes = reservaRepository.porcentajeReservasPorServicio();
+            List<String> nombres = new ArrayList<>();
+            List<Long> cantidades = new ArrayList<>();
+            for (Object[] fila : porcentajes) {
+                nombres.add((String) fila[0]);
+                cantidades.add(((Number) fila[1]).longValue());
+            }
+            dto.setNombresServiciosPorcentaje(nombres);
+            dto.setCantidadServiciosPorcentaje(cantidades);
 
-        // Datos para gráficos (valores por defecto)
-        // TOP 10 SERVICIOS MÁS RESERVADOS
-        List<Object[]> topServicios = reservaRepository.top10ServiciosMasReservados();
-        List<String> nombresServiciosTop = new ArrayList<>();
-        List<Long> cantidadReservasTop = new ArrayList<>();
+            // Top 10 Usuarios con Más Reservas
+            List<Object[]> topUsuarios = reservaRepository.top10UsuariosConMasReservas();
+            List<String> nombresUsuarios = new ArrayList<>();
+            List<Long> cantidadUsuarios = new ArrayList<>();
+            for (Object[] fila : topUsuarios) {
+                String nombre = (String) fila[1];
+                String apellido = (String) fila[2];
+                nombresUsuarios.add(nombre + " " + apellido);
+                cantidadUsuarios.add(((Number) fila[3]).longValue());
+            }
+            dto.setNombresUsuariosTop(nombresUsuarios);
+            dto.setCantidadReservasUsuariosTop(cantidadUsuarios);
 
-        for (Object[] fila : topServicios) {
-            nombresServiciosTop.add((String) fila[0]);
-            cantidadReservasTop.add(((Number) fila[1]).longValue());  // por si viene como Integer
+            // Distribución por Hora
+            List<Object[]> porHora = reservaRepository.distribucionReservasPorHora();
+            List<String> horas = new ArrayList<>();
+            List<Long> cantidadHoras = new ArrayList<>();
+            for (Object[] fila : porHora) {
+                Integer hora = (Integer) fila[0];
+                horas.add(String.format("%02d:00", hora));
+                cantidadHoras.add(((Number) fila[1]).longValue());
+            }
+            dto.setHorasReservas(horas);
+            dto.setCantidadReservasPorHora(cantidadHoras);
+
+            model.addAttribute("dashboard", dto);
+            return "admin/dashboard";
         }
-        dashboard.setNombresServiciosTop(nombresServiciosTop);
-        dashboard.setCantidadReservasTop(cantidadReservasTop);
 
-        // PORCENTAJE DE RESERVAS POR SERVICIO
-        List<Object[]> porcentajeServicios = reservaRepository.porcentajeReservasPorServicio();
-        List<String> nombresServiciosPorcentaje = new ArrayList<>();
-        List<Long> cantidadServiciosPorcentaje = new ArrayList<>();
 
-        for (Object[] fila : porcentajeServicios) {
-            nombresServiciosPorcentaje.add((String) fila[0]);
-            cantidadServiciosPorcentaje.add(((Number) fila[1]).longValue());
-        }
-        dashboard.setNombresServiciosPorcentaje(nombresServiciosPorcentaje);
-        dashboard.setCantidadServiciosPorcentaje(cantidadServiciosPorcentaje);
-
-        dashboard.setHorasReservas(List.of("08:00", "09:00", "10:00", "11:00"));
-        dashboard.setCantidadReservasPorHora(List.of(2L, 5L, 8L, 3L));
-        List<Object[]> topUsuarios = reservaRepository.top10UsuariosConMasReservas();
-
-        List<String> nombresUsuarios = new ArrayList<>();
-        List<Long> cantidadReservas = new ArrayList<>();
-
-        for (Object[] fila : topUsuarios) {
-            String nombreCompleto = fila[1] + " " + fila[2]; // nombres + apellidos
-            nombresUsuarios.add(nombreCompleto);
-            cantidadReservas.add((Long) fila[3]);
+        // DASHBOARD ALTERNATIVO
+        @GetMapping("/dashboard")
+        public String mostrarDashboard(Model model) {
+            return dashboard(model);
         }
 
-        dashboard.setNombresUsuariosTop(nombresUsuarios);
-        dashboard.setCantidadReservasUsuariosTop(cantidadReservas);
+        //*********************************************************************************************
+        //
+        //                                    Servicios
+        //
+        //*********************************************************************************************
 
+        // LISTAR SERVICIOS
+        @GetMapping("/servicios")
+        public String listarServicios(Model model) {
+            List<EspaciosDeportivos> espacios = espaciosRepository.findAll();
+            model.addAttribute("listaEspacios", espacios);
+            return "admin/servicios";
+        }
 
-        model.addAttribute("dashboard", dashboard);
-        model.addAttribute("totalEspacios", espacios.size());
-        model.addAttribute("totalReservas", reservas.size());
-        model.addAttribute("listaEspacios", espacios);
-        model.addAttribute("listaReservas", reservas);
-//      Añadir notificaciones del usuario en sesión
+        // FORMULARIO PARA NUEVO SERVICIO
+        @GetMapping("/nuevo")
+        public String nuevoServicio(@ModelAttribute("servicioDTO") ServicioDTO servicioDTO, Model model) {
+            // Inicializar EspaciosDeportivos
+            EspaciosDeportivos espacio = new EspaciosDeportivos();
 
-        return "admin/dashboard";
-    }
+            // Inicializar TipoEspacio para evitar errores
+            TipoEspacio tipoEspacio = new TipoEspacio();
+            espacio.setTipoEspacio(tipoEspacio);
 
-    // DASHBOARD ALTERNATIVO
-    @GetMapping("/dashboard")
-    public String mostrarDashboard(Model model) {
-        return dashboard(model);
-    }
-
-    //*********************************************************************************************
-    //
-    //                                    Servicios
-    //
-    //*********************************************************************************************
-
-    // LISTAR SERVICIOS
-    @GetMapping("/servicios")
-    public String listarServicios(Model model) {
-        List<EspaciosDeportivos> espacios = espaciosRepository.findAll();
-        model.addAttribute("listaEspacios", espacios);
-        return "admin/servicios";
-    }
-
-    // FORMULARIO PARA NUEVO SERVICIO
-    @GetMapping("/nuevo")
-    public String nuevoServicio(@ModelAttribute("servicioDTO") ServicioDTO servicioDTO, Model model) {
-        // Inicializar EspaciosDeportivos
-        EspaciosDeportivos espacio = new EspaciosDeportivos();
-
-        // Inicializar TipoEspacio para evitar errores
-        TipoEspacio tipoEspacio = new TipoEspacio();
-        espacio.setTipoEspacio(tipoEspacio);
-
-        servicioDTO.setEspacio(espacio);
-
-        // Inicializar Estadios
-        Estadios estadios = new Estadios();
-        estadios.setUsoPermitido("");
-        estadios.setSeguridadDisponible(false);
-        estadios.setSonidoPantallasDisponible(false);
-        estadios.setIluminacionProfesionalDisponible(false);
-        servicioDTO.setEstadios(estadios);
-
-        // Inicializar PistasAtletismo
-        PistasAtletismo pistasAtletismo = new PistasAtletismo();
-        pistasAtletismo.setImplementos("");
-        pistasAtletismo.setLongitud(0.0f);
-        servicioDTO.setPista(pistasAtletismo);
-
-        // Inicializar Piscinas
-        Piscinas piscinas = new Piscinas();
-        piscinas.setRequisitos("");
-        piscinas.setClimatizada(false);
-        piscinas.setProfundidadMin(0.0f);
-        piscinas.setProfundidadMax(0.0f);
-        piscinas.setNumCarrilMax(0);
-        servicioDTO.setPiscina(piscinas);
-
-        // Inicializar CanchasFutbol
-        CanchasFutbol cancha = new CanchasFutbol();
-        cancha.setIluminacionNocturna(false);
-        cancha.setBalonesDisponibles(false);
-        cancha.setAncho(0.0f);
-        cancha.setAlto(0.0f);
-        servicioDTO.setCancha(cancha);
-
-        //Inicializar Gimnasios
-        Gimnasios gimnasio = new Gimnasios();
-        gimnasio.setCantidadMaquinas(0);
-        gimnasio.setTiposMaquinas("");
-        gimnasio.setCostoAnual(0.0f);
-        gimnasio.setCostoMensual(0.0f);
-        gimnasio.setCostoSemanal(0.0f);
-        gimnasio.setTieneDuchas(false);
-        gimnasio.setTieneSauna(false);
-        servicioDTO.setGimnasios(gimnasio);
-
-        model.addAttribute("servicioDTO", servicioDTO);
-        model.addAttribute("tipos", tipoEspacioRepository.findAll());
-        return "admin/agregarservicio_debug";
-    }
-
-    @GetMapping("/editar")
-    public String editarServicio(@ModelAttribute("servicioDTO") ServicioDTO servicioDTO, @RequestParam("id") Integer idEspacio, Model model) {
-        Optional<EspaciosDeportivos> optEspacio = espaciosRepository.findById(idEspacio);
-        if (optEspacio.isPresent()) {
-            EspaciosDeportivos espacio = optEspacio.get();
-            espacio.setHoraAbre(espacio.getHoraAbre().withSecond(0).withNano(0));
             servicioDTO.setEspacio(espacio);
 
             // Inicializar Estadios
@@ -296,598 +229,659 @@ public class AdminController {
             gimnasio.setCostoSemanal(0.0f);
             gimnasio.setTieneDuchas(false);
             gimnasio.setTieneSauna(false);
-
             servicioDTO.setGimnasios(gimnasio);
-            switch (espacio.getTipoEspacio().getId()) {
-                case 1:
-                    servicioDTO.setPiscina(piscinaRepository.findByIdEspacio(espacio.getId()));
-                    break;
-                case 2:
-                    servicioDTO.setCancha(canchasFutbolRepository.findByIdEspacio(espacio.getId()));
-                    break;
-                case 3:
-                    servicioDTO.setPista(pistasAtletismoRepository.findByIdEspacio(espacio.getId()));
-                    break;
-                case 4:
-                    servicioDTO.setEstadios(estadiosRepository.findByIdEspacio(espacio.getId()));
-                    break;
-                case 5:
-                    servicioDTO.setGimnasios(gimnasiosRepository.findByIdEspacios(espacio.getId()));
-                    break;
-                default:
-                    return "redirect:/admin/servicios";
-            }
+
             model.addAttribute("servicioDTO", servicioDTO);
             model.addAttribute("tipos", tipoEspacioRepository.findAll());
-            return "admin/editarservicio";
+            return "admin/agregarservicio_debug";
         }
-        return "redirect:/admin/servicios";
-    }
 
-    @PostMapping("/guardarservicio")
-    public String guardarServicio(@ModelAttribute("servicioDTO") ServicioDTO servicioDTO,
-                                  @RequestParam("archivos") MultipartFile[] files,
-                                  @RequestParam(value = "latitud", required = false) String latitudStr,
-                                  @RequestParam(value = "longitud", required = false) String longitudStr,
-                                  @RequestParam(value = "mapsUrl", required = false) String mapsUrl) {
-        System.out.println("Entra al método Guardar Servicio");
-        try {
-            // Usar el nuevo servicio de imágenes con S3
-            ListaFotos listaFotos = imageService.uploadServiceImages(files);
-            EspaciosDeportivos espaciosDeportivos = servicioDTO.getEspacio();
+        @GetMapping("/editar")
+        public String editarServicio(@ModelAttribute("servicioDTO") ServicioDTO servicioDTO, @RequestParam("id") Integer idEspacio, Model model){
+            Optional<EspaciosDeportivos> optEspacio = espaciosRepository.findById(idEspacio);
+            if (optEspacio.isPresent()) {
+                EspaciosDeportivos espacio = optEspacio.get();
+                espacio.setHoraAbre(espacio.getHoraAbre().withSecond(0).withNano(0));
+                servicioDTO.setEspacio(espacio);
 
-            //Validar si la dirección cambió para forzar geocodificación
-            if (servicioDTO.getDireccion() != null && !servicioDTO.getDireccion().equals(espaciosDeportivos.getUbicacion())) {
-                System.out.println("La dirección ha cambiado. Por favor geocodifica de nuevo.");
-                return "admin/agregarservicio_debug"; // Volver al formulario sin guardar
+                // Inicializar Estadios
+                Estadios estadios = new Estadios();
+                estadios.setUsoPermitido("");
+                estadios.setSeguridadDisponible(false);
+                estadios.setSonidoPantallasDisponible(false);
+                estadios.setIluminacionProfesionalDisponible(false);
+                servicioDTO.setEstadios(estadios);
+
+                // Inicializar PistasAtletismo
+                PistasAtletismo pistasAtletismo = new PistasAtletismo();
+                pistasAtletismo.setImplementos("");
+                pistasAtletismo.setLongitud(0.0f);
+                servicioDTO.setPista(pistasAtletismo);
+
+                // Inicializar Piscinas
+                Piscinas piscinas = new Piscinas();
+                piscinas.setRequisitos("");
+                piscinas.setClimatizada(false);
+                piscinas.setProfundidadMin(0.0f);
+                piscinas.setProfundidadMax(0.0f);
+                piscinas.setNumCarrilMax(0);
+                servicioDTO.setPiscina(piscinas);
+
+                // Inicializar CanchasFutbol
+                CanchasFutbol cancha = new CanchasFutbol();
+                cancha.setIluminacionNocturna(false);
+                cancha.setBalonesDisponibles(false);
+                cancha.setAncho(0.0f);
+                cancha.setAlto(0.0f);
+                servicioDTO.setCancha(cancha);
+
+                //Inicializar Gimnasios
+                Gimnasios gimnasio = new Gimnasios();
+                gimnasio.setCantidadMaquinas(0);
+                gimnasio.setTiposMaquinas("");
+                gimnasio.setCostoAnual(0.0f);
+                gimnasio.setCostoMensual(0.0f);
+                gimnasio.setCostoSemanal(0.0f);
+                gimnasio.setTieneDuchas(false);
+                gimnasio.setTieneSauna(false);
+
+                servicioDTO.setGimnasios(gimnasio);
+                switch (espacio.getTipoEspacio().getId()){
+                    case 1:
+                        servicioDTO.setPiscina(piscinaRepository.findByIdEspacio(espacio.getId()));
+                        break;
+                    case 2:
+                        servicioDTO.setCancha(canchasFutbolRepository.findByIdEspacio(espacio.getId()));
+                        break;
+                    case 3:
+                        servicioDTO.setPista(pistasAtletismoRepository.findByIdEspacio(espacio.getId()));
+                        break;
+                    case 4:
+                        servicioDTO.setEstadios(estadiosRepository.findByIdEspacio(espacio.getId()));
+                        break;
+                    case 5:
+                        servicioDTO.setGimnasios(gimnasiosRepository.findByIdEspacios(espacio.getId()));
+                        break;
+                    default:
+                        return "redirect:/admin/servicios";
+                }
+                model.addAttribute("servicioDTO", servicioDTO);
+                model.addAttribute("tipos", tipoEspacioRepository.findAll());
+                return "admin/editarservicio";
             }
+            return "redirect:/admin/servicios";
+        }
 
-            espaciosDeportivos.setListaFotos(listaFotos);
+        @PostMapping("/guardarservicio")
+        public String guardarServicio(@ModelAttribute("servicioDTO") ServicioDTO servicioDTO,
+                                      @RequestParam("archivos") MultipartFile[] files,
+                                      @RequestParam(value = "latitud", required = false) String latitudStr,
+                                      @RequestParam(value = "longitud", required = false) String longitudStr,
+                                      @RequestParam(value = "mapsUrl", required = false) String mapsUrl){
 
-            // Asegurar que el TipoEspacio esté correctamente configurado
-            if (espaciosDeportivos.getTipoEspacio() != null && espaciosDeportivos.getTipoEspacio().getId() != null) {
-                TipoEspacio tipoEspacio = tipoEspacioRepository.findById(espaciosDeportivos.getTipoEspacio().getId()).orElse(null);
-                espaciosDeportivos.setTipoEspacio(tipoEspacio);
-            }
+            try {
+                // Usar el nuevo servicio de imágenes con S3
+                ListaFotos listaFotos = imageService.uploadServiceImages(files);
+                EspaciosDeportivos espaciosDeportivos = servicioDTO.getEspacio();
 
-            // Procesar coordenadas de geolocalización
-            if (latitudStr != null && !latitudStr.trim().isEmpty() &&
-                    longitudStr != null && !longitudStr.trim().isEmpty()) {
-                try {
-                    BigDecimal latitud = new BigDecimal(latitudStr.trim());
-                    BigDecimal longitud = new BigDecimal(longitudStr.trim());
+                //Validar si la dirección cambió para forzar geocodificación
+                if (servicioDTO.getDireccion() != null && !servicioDTO.getDireccion().equals(espaciosDeportivos.getUbicacion())) {
+                    System.out.println("La dirección ha cambiado. Por favor geocodifica de nuevo.");
+                    return "admin/agregarservicio_debug"; // Volver al formulario sin guardar
+                }
 
-                    // Validar que las coordenadas estén en un rango razonable para Lima
-                    if (latitud.compareTo(new BigDecimal("-12.5")) >= 0 &&
-                            latitud.compareTo(new BigDecimal("-11.5")) <= 0 &&
-                            longitud.compareTo(new BigDecimal("-77.5")) >= 0 &&
-                            longitud.compareTo(new BigDecimal("-76.5")) <= 0) {
+                espaciosDeportivos.setListaFotos(listaFotos);
 
-                        espaciosDeportivos.setLatitud(latitud);
-                        espaciosDeportivos.setLongitud(longitud);
+                // Asegurar que el TipoEspacio esté correctamente configurado
+                if(espaciosDeportivos.getTipoEspacio() != null && espaciosDeportivos.getTipoEspacio().getId() != null) {
+                    TipoEspacio tipoEspacio = tipoEspacioRepository.findById(espaciosDeportivos.getTipoEspacio().getId()).orElse(null);
+                    espaciosDeportivos.setTipoEspacio(tipoEspacio);
+                }
 
-                        // Establecer URL del mapa si se proporciona
-                        if (mapsUrl != null && !mapsUrl.trim().isEmpty()) {
-                            espaciosDeportivos.setMapsUrl(mapsUrl.trim());
+                // Procesar coordenadas de geolocalización
+                if (latitudStr != null && !latitudStr.trim().isEmpty() &&
+                        longitudStr != null && !longitudStr.trim().isEmpty()) {
+                    try {
+                        BigDecimal latitud = new BigDecimal(latitudStr.trim());
+                        BigDecimal longitud = new BigDecimal(longitudStr.trim());
+
+                        // Validar que las coordenadas estén en un rango razonable para Lima
+                        if (latitud.compareTo(new BigDecimal("-12.5")) >= 0 &&
+                                latitud.compareTo(new BigDecimal("-11.5")) <= 0 &&
+                                longitud.compareTo(new BigDecimal("-77.5")) >= 0 &&
+                                longitud.compareTo(new BigDecimal("-76.5")) <= 0) {
+
+                            espaciosDeportivos.setLatitud(latitud);
+                            espaciosDeportivos.setLongitud(longitud);
+
+                            // Establecer URL del mapa si se proporciona
+                            if (mapsUrl != null && !mapsUrl.trim().isEmpty()) {
+                                espaciosDeportivos.setMapsUrl(mapsUrl.trim());
+                            }
+
+                            System.out.println("Coordenadas guardadas - Lat: " + latitud + ", Lng: " + longitud);
+                        } else {
+                            System.out.println("Coordenadas fuera del rango válido para Lima - Lat: " + latitud + ", Lng: " + longitud);
                         }
-
-                        System.out.println("Coordenadas guardadas - Lat: " + latitud + ", Lng: " + longitud);
-                    } else {
-                        System.out.println("Coordenadas fuera del rango válido para Lima - Lat: " + latitud + ", Lng: " + longitud);
-                    }
-                } catch (NumberFormatException e) {
-                    System.err.println("Error al convertir coordenadas: " + e.getMessage());
-                }
-            }
-
-            // Establecer operativo como true por defecto
-            espaciosDeportivos.setOperativo(true);
-
-            // Verificar que el TipoEspacio no sea null antes de acceder a su ID
-            if (espaciosDeportivos.getTipoEspacio() != null && espaciosDeportivos.getTipoEspacio().getId() != null && espaciosDeportivos.getTipoEspacio().getId() == 1) {
-                Piscinas piscina = servicioDTO.getPiscina();
-                espaciosDeportivosRepository.save(espaciosDeportivos);
-                piscina.setIdEspacio(espaciosDeportivos.getId());
-                piscinaRepository.save(piscina);
-                System.out.println("Piscina guardada con ID: " + espaciosDeportivos.getId());
-            } else if (espaciosDeportivos.getTipoEspacio() != null && espaciosDeportivos.getTipoEspacio().getId() != null && espaciosDeportivos.getTipoEspacio().getId() == 2) {
-                CanchasFutbol canchasFutbol = servicioDTO.getCancha();
-                espaciosDeportivosRepository.save(espaciosDeportivos);
-                canchasFutbol.setIdEspacio(espaciosDeportivos.getId());
-                canchasFutbolRepository.save(canchasFutbol);
-                System.out.println("Cancha de fútbol guardada con ID: " + espaciosDeportivos.getId());
-            } else if (espaciosDeportivos.getTipoEspacio() != null && espaciosDeportivos.getTipoEspacio().getId() != null && espaciosDeportivos.getTipoEspacio().getId() == 3) {
-                PistasAtletismo pistasAtletismo = servicioDTO.getPista();
-                espaciosDeportivosRepository.save(espaciosDeportivos);
-                pistasAtletismo.setIdEspacio(espaciosDeportivos.getId());
-                pistasAtletismoRepository.save(pistasAtletismo);
-                System.out.println("Pista de atletismo guardada con ID: " + espaciosDeportivos.getId());
-            } else if (espaciosDeportivos.getTipoEspacio() != null && espaciosDeportivos.getTipoEspacio().getId() != null && espaciosDeportivos.getTipoEspacio().getId() == 4) {
-                Estadios estadios = servicioDTO.getEstadios();
-                espaciosDeportivosRepository.save(espaciosDeportivos);
-                estadios.setIdEspacio(espaciosDeportivos.getId());
-                estadiosRepository.save(estadios);
-                System.out.println("Estadio guardado con ID: " + espaciosDeportivos.getId());
-            } else {
-                // Si no hay tipo específico, solo guardar el espacio deportivo
-                espaciosDeportivosRepository.save(espaciosDeportivos);
-                System.out.println("Espacio deportivo guardado con ID: " + espaciosDeportivos.getId());
-            }
-
-            // Log de información de geolocalización guardada
-            if (espaciosDeportivos.getLatitud() != null && espaciosDeportivos.getLongitud() != null) {
-                System.out.println("Servicio guardado con geolocalización:");
-                System.out.println("- Nombre: " + espaciosDeportivos.getNombre());
-                System.out.println("- Ubicación: " + espaciosDeportivos.getUbicacion());
-                System.out.println("- Latitud: " + espaciosDeportivos.getLatitud());
-                System.out.println("- Longitud: " + espaciosDeportivos.getLongitud());
-                System.out.println("- Maps URL: " + espaciosDeportivos.getMapsUrl());
-            }
-
-        } catch (Exception e) {
-            System.err.println("Error al guardar servicio: " + e.getMessage());
-            e.printStackTrace();
-            return "redirect:/admin";
-        }
-        return "redirect:/admin";
-    }
-
-    @Transactional
-    @PostMapping("/eliminar/")
-    public String eliminarServicio(@RequestParam("id") int id) {
-        Optional<EspaciosDeportivos> optEspacio = espaciosRepository.findById(id);
-        if (optEspacio.isPresent()) {
-            EspaciosDeportivos espacio = optEspacio.get();
-            switch (espacio.getTipoEspacio().getId()) {
-                case 1:
-                    Piscinas piscinas = piscinaRepository.findByIdEspacio(espacio.getId());
-                    piscinasRepository.delete(piscinas);
-                    break;
-                case 2:
-                    CanchasFutbol canchasFutbol = canchasFutbolRepository.findByIdEspacio(espacio.getId());
-                    canchasFutbolRepository.delete(canchasFutbol);
-                    break;
-                case 3:
-                    PistasAtletismo pistasAtletismo = pistasAtletismoRepository.findByIdEspacio(espacio.getId());
-                    pistasAtletismoRepository.delete(pistasAtletismo);
-                    break;
-                case 4:
-                    Estadios estadios = estadiosRepository.findByIdEspacio(espacio.getId());
-                    estadiosRepository.delete(estadios);
-                    break;
-                case 5:
-                    Gimnasios gimnasios = gimnasiosRepository.findByIdEspacios(espacio.getId());
-                    gimnasiosRepository.delete(gimnasios);
-                    break;
-            }
-            List<Horarios> listaHorarios = horariosRepository.findByEspacioId(espacio.getId());
-            for (Horarios h : listaHorarios) {
-                reservaRepository.deleteAllByHorario(h);
-            }
-            for (Horarios h : listaHorarios) {
-                horarioReservadoRepository.deleteAllByHorario(h);
-            }
-            List<Suscripciones> listaSuscripciones = suscripcionesRepository.findByEspacioId(espacio.getId());
-            suscripcionesRepository.deleteAll(listaSuscripciones);
-            horariosRepository.deleteAll(listaHorarios);
-            espaciosRepository.delete(espacio);
-        } else {
-            return "redirect:/admin";
-        }
-        return "redirect:/admin";
-    }
-
-    //*********************************************************************************************
-    //
-    //                                    Reservas
-    //
-    //*********************************************************************************************
-
-    // LISTAR RESERVAS
-    @GetMapping("/reservas")
-    public String listarReservas(@RequestParam(value = "nombre", required = false) String nombre,
-                                 @RequestParam(value = "tipoEspacio", required = false) Integer tipoEspacio,
-                                 Model model) {
-        try {
-            // Actualizar reservas completadas antes de mostrar la lista
-            actualizarReservasCompletadas();
-
-            List<Reservas> reservas;
-
-            // Filtrar por tipo de espacio y nombre si se proporcionan
-            if (tipoEspacio != null && (nombre != null && !nombre.isEmpty())) {
-                reservas = reservaRepository.findByEspacioDeportivo_TipoEspacio_IdAndEspacioDeportivo_NombreContainingIgnoreCase(tipoEspacio, nombre);
-            } else if (tipoEspacio != null) {
-                reservas = reservaRepository.findByEspacioDeportivo_TipoEspacio_Id(tipoEspacio);
-            } else if (nombre != null && !nombre.isEmpty()) {
-                reservas = reservaRepository.findByEspacioDeportivo_NombreContainingIgnoreCase(nombre);
-            } else {
-                reservas = reservaRepository.findAll();
-            }
-
-            model.addAttribute("listaReservas", reservas);
-
-            // Cargar tipos de espacios para los botones de filtro
-            List<TipoEspacio> tiposEspacio = tipoEspacioRepository.findAllByOrderByNombreAsc();
-            model.addAttribute("tiposEspacio", tiposEspacio);
-
-            System.out.println("Número de reservas encontradas: " + reservas.size());
-        } catch (Exception e) {
-            System.err.println("Error al cargar reservas: " + e.getMessage());
-            e.printStackTrace();
-            model.addAttribute("listaReservas", Collections.emptyList());
-            model.addAttribute("tiposEspacio", Collections.emptyList());
-        }
-        return "admin/reservas";
-    }
-
-    // APROBAR PAGO
-    @PostMapping("/reservas/aprobar-pago/{id}")
-    @ResponseBody
-    public ResponseEntity<String> aprobarPago(@PathVariable Integer id, HttpSession session) {
-        try {
-            Optional<Pagos> optPago = pagosRepository.findById(id);
-            if (optPago.isPresent()) {
-                Pagos pago = optPago.get();
-                Usuario admin = (Usuario) session.getAttribute("usuario");
-
-                // Actualizar estado del pago
-                pago.setEstadoPago(Pagos.EstadoPago.APROBADO);
-                pago.setFechaVerificacion(new Timestamp(System.currentTimeMillis()));
-                pago.setVerificadoPor(admin);
-                pago.setObservacionesAdmin(null); // Limpiar observaciones
-
-                pagosRepository.save(pago);
-
-                // Buscar y actualizar la reserva asociada
-                List<Reservas> reservasConPago = reservaRepository.findByPago_Id(id);
-
-                for (Reservas reserva : reservasConPago) {
-                    System.out.println("Procesando reserva ID: " + reserva.getId() + " con estado: " + reserva.getEstadoReserva());
-
-                    // Si la reserva estaba cancelada por admin, reactivarla
-                    if (reserva.getEstadoReserva() != null &&
-                            reserva.getEstadoReserva().equals(Reservas.EstadoReserva.CANCELADA_ADMIN)) {
-
-                        System.out.println("Reactivando reserva ID: " + reserva.getId());
-                        reserva.setEstadoReserva(Reservas.EstadoReserva.ACTIVA);
-                        reserva.setMotivoCancelacion(null); // Limpiar motivo de cancelación
-                        reserva.setFechaCancelacion(null); // Limpiar fecha de cancelación
-                        reserva.setCanceladoPor(null); // Limpiar quien canceló
-                        reservaRepository.save(reserva);
-                        System.out.println("Reserva ID " + reserva.getId() + " reactivada exitosamente");
-                    }
-                    // Si la reserva está activa, mantenerla activa
-                    else if (reserva.getEstadoReserva() != null &&
-                            reserva.getEstadoReserva().equals(Reservas.EstadoReserva.ACTIVA)) {
-                        System.out.println("Reserva ID " + reserva.getId() + " ya está activa, pago aprobado.");
-                    } else {
-                        System.out.println("Estado de reserva no reconocido: " + reserva.getEstadoReserva());
+                    } catch (NumberFormatException e) {
+                        System.err.println("Error al convertir coordenadas: " + e.getMessage());
                     }
                 }
 
-                return ResponseEntity.ok("Pago aprobado y reserva reactivada exitosamente");
-            } else {
-                return ResponseEntity.badRequest().body("Pago no encontrado");
-            }
-        } catch (Exception e) {
-            return ResponseEntity.status(500).body("Error al aprobar el pago: " + e.getMessage());
-        }
-    }
+                // Establecer operativo como true por defecto
+                espaciosDeportivos.setOperativo(true);
 
-    // RECHAZAR PAGO
-    @PostMapping("/reservas/rechazar-pago/{id}")
-    @ResponseBody
-    public ResponseEntity<String> rechazarPago(@PathVariable Integer id,
-                                               @RequestParam String motivo,
-                                               HttpSession session) {
-        try {
-            Optional<Pagos> optPago = pagosRepository.findById(id);
-            if (optPago.isPresent()) {
-                Pagos pago = optPago.get();
-                Usuario admin = (Usuario) session.getAttribute("usuario");
-
-                // Actualizar estado del pago
-                pago.setEstadoPago(Pagos.EstadoPago.RECHAZADO);
-                pago.setFechaVerificacion(new Timestamp(System.currentTimeMillis()));
-                pago.setVerificadoPor(admin);
-                pago.setObservacionesAdmin(motivo);
-
-                pagosRepository.save(pago);
-
-                // Buscar y cancelar la reserva asociada
-                List<Reservas> reservasConPago = reservaRepository.findByPago_Id(id);
-
-                for (Reservas reserva : reservasConPago) {
-                    reserva.setEstadoReserva(Reservas.EstadoReserva.CANCELADA_ADMIN);
-                    reserva.setMotivoCancelacion("Pago rechazado: " + motivo);
-                    reserva.setFechaCancelacion(new Timestamp(System.currentTimeMillis()));
-                    reserva.setCanceladoPor(admin);
-                    reservaRepository.save(reserva);
-                }
-
-                return ResponseEntity.ok("Pago rechazado y reserva cancelada exitosamente");
-            } else {
-                return ResponseEntity.badRequest().body("Pago no encontrado");
-            }
-        } catch (Exception e) {
-            return ResponseEntity.status(500).body("Error al rechazar el pago: " + e.getMessage());
-        }
-    }
-
-    // OBTENER DETALLES DE PAGO
-    @GetMapping("/reservas/detalles-pago/{id}")
-    @ResponseBody
-    public ResponseEntity<Map<String, Object>> obtenerDetallesPago(@PathVariable Integer id) {
-        try {
-            Optional<Pagos> optPago = pagosRepository.findById(id);
-            if (optPago.isPresent()) {
-                Pagos pago = optPago.get();
-                Map<String, Object> detalles = new HashMap<>();
-
-                detalles.put("id", pago.getId());
-                detalles.put("cantidad", pago.getCantidad());
-                detalles.put("estadoPago", pago.getEstadoPago().name());
-                detalles.put("fechaPago", pago.getFechaPago());
-                detalles.put("numeroTransaccion", pago.getNumeroTransaccion());
-                detalles.put("observacionesAdmin", pago.getObservacionesAdmin());
-
-                if (pago.getMedioPago() != null) {
-                    detalles.put("medioPago", pago.getMedioPago().getNombre());
-                    detalles.put("tipoPago", pago.getMedioPago().getTipoPago().name());
-                    detalles.put("datosCuenta", pago.getMedioPago().getDatosCuenta());
-                }
-
-                if (pago.getVerificadoPor() != null) {
-                    detalles.put("verificadoPor", pago.getVerificadoPor().getNombres() + " " + pago.getVerificadoPor().getApellidos());
-                    detalles.put("fechaVerificacion", pago.getFechaVerificacion());
-                }
-
-                // Si hay fotos de comprobantes, agregar información
-                if (pago.getListaFotosComprobantes() != null &&
-                        pago.getListaFotosComprobantes().getFotos() != null &&
-                        !pago.getListaFotosComprobantes().getFotos().isEmpty()) {
-                    detalles.put("tieneComprobantes", true);
-
-                    // Agregar URLs de las fotos
-                    List<Map<String, String>> comprobantes = new ArrayList<>();
-                    for (Fotos foto : pago.getListaFotosComprobantes().getFotos()) {
-                        Map<String, String> comprobante = new HashMap<>();
-                        comprobante.put("url", foto.getFotoUrl());
-                        comprobante.put("nombre", foto.getFotoNombre());
-                        comprobantes.add(comprobante);
-                    }
-                    detalles.put("comprobantes", comprobantes);
+                // Verificar que el TipoEspacio no sea null antes de acceder a su ID
+                if(espaciosDeportivos.getTipoEspacio() != null && espaciosDeportivos.getTipoEspacio().getId() != null && espaciosDeportivos.getTipoEspacio().getId() == 1){
+                    Piscinas piscina = servicioDTO.getPiscina();
+                    espaciosDeportivosRepository.save(espaciosDeportivos);
+                    piscina.setIdEspacio(espaciosDeportivos.getId());
+                    piscinaRepository.save(piscina);
+                    System.out.println("Piscina guardada con ID: " + espaciosDeportivos.getId());
+                } else if (espaciosDeportivos.getTipoEspacio() != null && espaciosDeportivos.getTipoEspacio().getId() != null && espaciosDeportivos.getTipoEspacio().getId() == 2) {
+                    CanchasFutbol canchasFutbol = servicioDTO.getCancha();
+                    espaciosDeportivosRepository.save(espaciosDeportivos);
+                    canchasFutbol.setIdEspacio(espaciosDeportivos.getId());
+                    canchasFutbolRepository.save(canchasFutbol);
+                    System.out.println("Cancha de fútbol guardada con ID: " + espaciosDeportivos.getId());
+                } else if (espaciosDeportivos.getTipoEspacio() != null && espaciosDeportivos.getTipoEspacio().getId() != null && espaciosDeportivos.getTipoEspacio().getId() == 3) {
+                    PistasAtletismo pistasAtletismo = servicioDTO.getPista();
+                    espaciosDeportivosRepository.save(espaciosDeportivos);
+                    pistasAtletismo.setIdEspacio(espaciosDeportivos.getId());
+                    pistasAtletismoRepository.save(pistasAtletismo);
+                    System.out.println("Pista de atletismo guardada con ID: " + espaciosDeportivos.getId());
+                } else if (espaciosDeportivos.getTipoEspacio() != null && espaciosDeportivos.getTipoEspacio().getId() != null && espaciosDeportivos.getTipoEspacio().getId() == 4) {
+                    Estadios estadios = servicioDTO.getEstadios();
+                    espaciosDeportivosRepository.save(espaciosDeportivos);
+                    estadios.setIdEspacio(espaciosDeportivos.getId());
+                    estadiosRepository.save(estadios);
+                    System.out.println("Estadio guardado con ID: " + espaciosDeportivos.getId());
                 } else {
-                    detalles.put("tieneComprobantes", false);
+                    // Si no hay tipo específico, solo guardar el espacio deportivo
+                    espaciosDeportivosRepository.save(espaciosDeportivos);
+                    System.out.println("Espacio deportivo guardado con ID: " + espaciosDeportivos.getId());
                 }
 
-                return ResponseEntity.ok(detalles);
+                // Log de información de geolocalización guardada
+                if (espaciosDeportivos.getLatitud() != null && espaciosDeportivos.getLongitud() != null) {
+                    System.out.println("Servicio guardado con geolocalización:");
+                    System.out.println("- Nombre: " + espaciosDeportivos.getNombre());
+                    System.out.println("- Ubicación: " + espaciosDeportivos.getUbicacion());
+                    System.out.println("- Latitud: " + espaciosDeportivos.getLatitud());
+                    System.out.println("- Longitud: " + espaciosDeportivos.getLongitud());
+                    System.out.println("- Maps URL: " + espaciosDeportivos.getMapsUrl());
+                }
+
+            } catch (Exception e) {
+                System.err.println("Error al guardar servicio: " + e.getMessage());
+                e.printStackTrace();
+                return "redirect:/admin";
+            }
+            return "redirect:/admin";
+        }
+
+        @Transactional
+        @PostMapping("/eliminar/")
+        public String eliminarServicio(@RequestParam("id") int id) {
+            Optional<EspaciosDeportivos> optEspacio = espaciosRepository.findById(id);
+            if (optEspacio.isPresent()) {
+                EspaciosDeportivos espacio = optEspacio.get();
+                switch (espacio.getTipoEspacio().getId()){
+                    case 1:
+                        Piscinas piscinas = piscinaRepository.findByIdEspacio(espacio.getId());
+                        piscinasRepository.delete(piscinas);
+                        break;
+                    case 2:
+                        CanchasFutbol canchasFutbol = canchasFutbolRepository.findByIdEspacio(espacio.getId());
+                        canchasFutbolRepository.delete(canchasFutbol);
+                        break;
+                    case 3:
+                        PistasAtletismo pistasAtletismo = pistasAtletismoRepository.findByIdEspacio(espacio.getId());
+                        pistasAtletismoRepository.delete(pistasAtletismo);
+                        break;
+                    case 4:
+                        Estadios estadios = estadiosRepository.findByIdEspacio(espacio.getId());
+                        estadiosRepository.delete(estadios);
+                        break;
+                    case 5:
+                        Gimnasios gimnasios = gimnasiosRepository.findByIdEspacios(espacio.getId());
+                        gimnasiosRepository.delete(gimnasios);
+                        break;
+                }
+                List<Horarios> listaHorarios = horariosRepository.findByEspacioId(espacio.getId());
+                for(Horarios h : listaHorarios){
+                    reservaRepository.deleteAllByHorario(h);
+                }
+                for(Horarios h : listaHorarios){
+                    horarioReservadoRepository.deleteAllByHorario(h);
+                }
+                horariosRepository.deleteAll(listaHorarios);
+                espaciosRepository.delete(espacio);
             } else {
-                return ResponseEntity.notFound().build();
+                return "redirect:/admin";
             }
-        } catch (Exception e) {
-            return ResponseEntity.status(500).body(Collections.singletonMap("error", "Error al obtener detalles del pago: " + e.getMessage()));
-        }
-    }
-
-
-    // Metodo para actualizar reservas completadas
-    private void actualizarReservasCompletadas() {
-        try {
-            LocalDate hoy = LocalDate.now();
-            List<Reservas> reservasActivas = reservaRepository.findAll().stream()
-                    .filter(r -> r.getEstadoReserva() == Reservas.EstadoReserva.ACTIVA)
-                    .filter(r -> r.getFechaReserva() != null && r.getFechaReserva().isBefore(hoy))
-                    .filter(r -> r.getPago() != null && r.getPago().getEstadoPago() == Pagos.EstadoPago.APROBADO)
-                    .toList();
-
-            for (Reservas reserva : reservasActivas) {
-                reserva.setEstadoReserva(Reservas.EstadoReserva.COMPLETADA);
-                reservaRepository.save(reserva);
-                System.out.println("Reserva ID " + reserva.getId() + " marcada como COMPLETADA");
-            }
-
-            if (!reservasActivas.isEmpty()) {
-                System.out.println("Se actualizaron " + reservasActivas.size() + " reservas a estado COMPLETADA");
-            }
-        } catch (Exception e) {
-            System.err.println("Error al actualizar reservas completadas: " + e.getMessage());
-        }
-    }
-
-    //*********************************************************************************************
-    //
-    //                                     Reportes
-    //
-    //*********************************************************************************************
-
-    //reportes
-    @GetMapping("/servicios/exportar-reporte-pdf")
-    public void exportarReportePdf(@RequestParam("id") int idEspacio, HttpServletResponse response) throws Exception {
-        EspaciosDeportivos espacio = espaciosRepository.findById(idEspacio).orElse(null);
-        if (espacio == null) {
-            response.sendError(HttpServletResponse.SC_NOT_FOUND, "Espacio no encontrado");
-            return;
+            return "redirect:/admin";
         }
 
-        String nombreServicio = espacio.getNombre();
+        //*********************************************************************************************
+        //
+        //                                    Reservas
+        //
+        //*********************************************************************************************
 
-        // Obtener imagen
-        byte[] imagen = null;
-        if (espacio.getListaFotos() != null) {
-            List<Fotos> fotos = fotosRepository.findByListaFotosId(espacio.getListaFotos().getId());
-            if (!fotos.isEmpty()) {
-                imagen = fotos.get(0).getFoto();
+        // LISTAR RESERVAS
+        @GetMapping("/reservas")
+        public String listarReservas(@RequestParam(value = "nombre", required = false) String nombre,
+                                     @RequestParam(value = "tipoEspacio", required = false) Integer tipoEspacio,
+                                     Model model) {
+            try {
+                // Actualizar reservas completadas antes de mostrar la lista
+                actualizarReservasCompletadas();
+
+                List<Reservas> reservas;
+
+                // Filtrar por tipo de espacio y nombre si se proporcionan
+                if (tipoEspacio != null && (nombre != null && !nombre.isEmpty())) {
+                    reservas = reservaRepository.findByEspacioDeportivo_TipoEspacio_IdAndEspacioDeportivo_NombreContainingIgnoreCase(tipoEspacio, nombre);
+                } else if (tipoEspacio != null) {
+                    reservas = reservaRepository.findByEspacioDeportivo_TipoEspacio_Id(tipoEspacio);
+                } else if (nombre != null && !nombre.isEmpty()) {
+                    reservas = reservaRepository.findByEspacioDeportivo_NombreContainingIgnoreCase(nombre);
+                } else {
+                    reservas = reservaRepository.findAll();
+                }
+
+                model.addAttribute("listaReservas", reservas);
+
+                // Cargar tipos de espacios para los botones de filtro
+                List<TipoEspacio> tiposEspacio = tipoEspacioRepository.findAllByOrderByNombreAsc();
+                model.addAttribute("tiposEspacio", tiposEspacio);
+
+                System.out.println("Número de reservas encontradas: " + reservas.size());
+            } catch (Exception e) {
+                System.err.println("Error al cargar reservas: " + e.getMessage());
+                e.printStackTrace();
+                model.addAttribute("listaReservas", Collections.emptyList());
+                model.addAttribute("tiposEspacio", Collections.emptyList());
+            }
+            return "admin/reservas";
+        }
+
+        // APROBAR PAGO
+        @PostMapping("/reservas/aprobar-pago/{id}")
+        @ResponseBody
+        public ResponseEntity<String> aprobarPago(@PathVariable Integer id, HttpSession session) {
+            try {
+                Optional<Pagos> optPago = pagosRepository.findById(id);
+                if (optPago.isPresent()) {
+                    Pagos pago = optPago.get();
+                    Usuario admin = (Usuario) session.getAttribute("usuario");
+
+                    // Actualizar estado del pago
+                    pago.setEstadoPago(Pagos.EstadoPago.APROBADO);
+                    pago.setFechaVerificacion(new Timestamp(System.currentTimeMillis()));
+                    pago.setVerificadoPor(admin);
+                    pago.setObservacionesAdmin(null); // Limpiar observaciones
+
+                    pagosRepository.save(pago);
+
+                    // Buscar y actualizar la reserva asociada
+                    List<Reservas> reservasConPago = reservaRepository.findByPago_Id(id);
+
+                    for (Reservas reserva : reservasConPago) {
+                        System.out.println("Procesando reserva ID: " + reserva.getId() + " con estado: " + reserva.getEstadoReserva());
+
+                        // Si la reserva estaba cancelada por admin, reactivarla
+                        if (reserva.getEstadoReserva() != null &&
+                                reserva.getEstadoReserva().equals(Reservas.EstadoReserva.CANCELADA_ADMIN)) {
+
+                            System.out.println("Reactivando reserva ID: " + reserva.getId());
+                            reserva.setEstadoReserva(Reservas.EstadoReserva.ACTIVA);
+                            reserva.setMotivoCancelacion(null); // Limpiar motivo de cancelación
+                            reserva.setFechaCancelacion(null); // Limpiar fecha de cancelación
+                            reserva.setCanceladoPor(null); // Limpiar quien canceló
+                            reservaRepository.save(reserva);
+                            System.out.println("Reserva ID " + reserva.getId() + " reactivada exitosamente");
+                        }
+                        // Si la reserva está activa, mantenerla activa
+                        else if (reserva.getEstadoReserva() != null &&
+                                reserva.getEstadoReserva().equals(Reservas.EstadoReserva.ACTIVA)) {
+                            System.out.println("Reserva ID " + reserva.getId() + " ya está activa, pago aprobado.");
+                        }
+                        else {
+                            System.out.println("Estado de reserva no reconocido: " + reserva.getEstadoReserva());
+                        }
+                    }
+
+                    return ResponseEntity.ok("Pago aprobado y reserva reactivada exitosamente");
+                } else {
+                    return ResponseEntity.badRequest().body("Pago no encontrado");
+                }
+            } catch (Exception e) {
+                return ResponseEntity.status(500).body("Error al aprobar el pago: " + e.getMessage());
             }
         }
 
-        // Configurar PDF
-        response.setContentType("application/pdf");
-        response.setHeader("Content-Disposition", "attachment; filename=reporte_servicio_" + idEspacio + ".pdf");
+        // RECHAZAR PAGO
+        @PostMapping("/reservas/rechazar-pago/{id}")
+        @ResponseBody
+        public ResponseEntity<String> rechazarPago(@PathVariable Integer id,
+                                                   @RequestParam String motivo,
+                                                   HttpSession session) {
+            try {
+                Optional<Pagos> optPago = pagosRepository.findById(id);
+                if (optPago.isPresent()) {
+                    Pagos pago = optPago.get();
+                    Usuario admin = (Usuario) session.getAttribute("usuario");
 
-        PdfWriter writer = new PdfWriter(response.getOutputStream());
-        PdfDocument pdf = new PdfDocument(writer);
-        Document document = new Document(pdf);
+                    // Actualizar estado del pago
+                    pago.setEstadoPago(Pagos.EstadoPago.RECHAZADO);
+                    pago.setFechaVerificacion(new Timestamp(System.currentTimeMillis()));
+                    pago.setVerificadoPor(admin);
+                    pago.setObservacionesAdmin(motivo);
 
-        // Logo
-        String imagePath = "src/main/resources/static/images/logo-sanMiguel.png";
-        ImageData imageData = ImageDataFactory.create(imagePath);
-        Image logo = new Image(imageData);
-        logo.setHorizontalAlignment(HorizontalAlignment.CENTER);
-        logo.setWidth(60);
-        document.add(logo);
+                    pagosRepository.save(pago);
 
-        // Título
-        Paragraph titulo = new Paragraph("Reporte de Servicio Deportivo")
-                .setTextAlignment(TextAlignment.CENTER)
-                .setBold()
-                .setFontSize(16);
-        document.add(titulo);
+                    // Buscar y cancelar la reserva asociada
+                    List<Reservas> reservasConPago = reservaRepository.findByPago_Id(id);
 
-        Paragraph subtitulo = new Paragraph(nombreServicio)
-                .setTextAlignment(TextAlignment.CENTER)
-                .setFontSize(13);
-        document.add(subtitulo);
+                    for (Reservas reserva : reservasConPago) {
+                        reserva.setEstadoReserva(Reservas.EstadoReserva.CANCELADA_ADMIN);
+                        reserva.setMotivoCancelacion("Pago rechazado: " + motivo);
+                        reserva.setFechaCancelacion(new Timestamp(System.currentTimeMillis()));
+                        reserva.setCanceladoPor(admin);
+                        reservaRepository.save(reserva);
+                    }
 
-        // Imagen del espacio
-        if (imagen != null) {
-            Image img = new Image(ImageDataFactory.create(imagen))
-                    .scaleToFit(200, 200)
-                    .setHorizontalAlignment(HorizontalAlignment.CENTER);
-            document.add(img);
+                    return ResponseEntity.ok("Pago rechazado y reserva cancelada exitosamente");
+                } else {
+                    return ResponseEntity.badRequest().body("Pago no encontrado");
+                }
+            } catch (Exception e) {
+                return ResponseEntity.status(500).body("Error al rechazar el pago: " + e.getMessage());
+            }
+        }
+
+        // OBTENER DETALLES DE PAGO
+        @GetMapping("/reservas/detalles-pago/{id}")
+        @ResponseBody
+        public ResponseEntity<Map<String, Object>> obtenerDetallesPago(@PathVariable Integer id) {
+            try {
+                Optional<Pagos> optPago = pagosRepository.findById(id);
+                if (optPago.isPresent()) {
+                    Pagos pago = optPago.get();
+                    Map<String, Object> detalles = new HashMap<>();
+
+                    detalles.put("id", pago.getId());
+                    detalles.put("cantidad", pago.getCantidad());
+                    detalles.put("estadoPago", pago.getEstadoPago().name());
+                    detalles.put("fechaPago", pago.getFechaPago());
+                    detalles.put("numeroTransaccion", pago.getNumeroTransaccion());
+                    detalles.put("observacionesAdmin", pago.getObservacionesAdmin());
+
+                    if (pago.getMedioPago() != null) {
+                        detalles.put("medioPago", pago.getMedioPago().getNombre());
+                        detalles.put("tipoPago", pago.getMedioPago().getTipoPago().name());
+                        detalles.put("datosCuenta", pago.getMedioPago().getDatosCuenta());
+                    }
+
+                    if (pago.getVerificadoPor() != null) {
+                        detalles.put("verificadoPor", pago.getVerificadoPor().getNombres() + " " + pago.getVerificadoPor().getApellidos());
+                        detalles.put("fechaVerificacion", pago.getFechaVerificacion());
+                    }
+
+                    // Si hay fotos de comprobantes, agregar información
+                    if (pago.getListaFotosComprobantes() != null &&
+                            pago.getListaFotosComprobantes().getFotos() != null &&
+                            !pago.getListaFotosComprobantes().getFotos().isEmpty()) {
+                        detalles.put("tieneComprobantes", true);
+
+                        // Agregar URLs de las fotos
+                        List<Map<String, String>> comprobantes = new ArrayList<>();
+                        for (Fotos foto : pago.getListaFotosComprobantes().getFotos()) {
+                            Map<String, String> comprobante = new HashMap<>();
+                            comprobante.put("url", foto.getFotoUrl());
+                            comprobante.put("nombre", foto.getFotoNombre());
+                            comprobantes.add(comprobante);
+                        }
+                        detalles.put("comprobantes", comprobantes);
+                    } else {
+                        detalles.put("tieneComprobantes", false);
+                    }
+
+                    return ResponseEntity.ok(detalles);
+                } else {
+                    return ResponseEntity.notFound().build();
+                }
+            } catch (Exception e) {
+                return ResponseEntity.status(500).body(Collections.singletonMap("error", "Error al obtener detalles del pago: " + e.getMessage()));
+            }
+        }
+
+
+        // Metodo para actualizar reservas completadas
+        private void actualizarReservasCompletadas() {
+            try {
+                LocalDate hoy = LocalDate.now();
+                List<Reservas> reservasActivas = reservaRepository.findAll().stream()
+                        .filter(r -> r.getEstadoReserva() == Reservas.EstadoReserva.ACTIVA)
+                        .filter(r -> r.getFechaReserva() != null && r.getFechaReserva().isBefore(hoy))
+                        .filter(r -> r.getPago() != null && r.getPago().getEstadoPago() == Pagos.EstadoPago.APROBADO)
+                        .toList();
+
+                for (Reservas reserva : reservasActivas) {
+                    reserva.setEstadoReserva(Reservas.EstadoReserva.COMPLETADA);
+                    reservaRepository.save(reserva);
+                    System.out.println("Reserva ID " + reserva.getId() + " marcada como COMPLETADA");
+                }
+
+                if (!reservasActivas.isEmpty()) {
+                    System.out.println("Se actualizaron " + reservasActivas.size() + " reservas a estado COMPLETADA");
+                }
+            } catch (Exception e) {
+                System.err.println("Error al actualizar reservas completadas: " + e.getMessage());
+            }
+        }
+
+        //*********************************************************************************************
+        //
+        //                                     Reportes
+        //
+        //*********************************************************************************************
+
+        //reportes
+        @GetMapping("/servicios/exportar-reporte-pdf")
+        public void exportarReportePdf(@RequestParam("id") int idEspacio, HttpServletResponse response) throws Exception {
+            EspaciosDeportivos espacio = espaciosRepository.findById(idEspacio).orElse(null);
+            if (espacio == null) {
+                response.sendError(HttpServletResponse.SC_NOT_FOUND, "Espacio no encontrado");
+                return;
+            }
+
+            String nombreServicio = espacio.getNombre();
+
+            // Obtener imagen
+            byte[] imagen = null;
+            if (espacio.getListaFotos() != null) {
+                List<Fotos> fotos = fotosRepository.findByListaFotosId(espacio.getListaFotos().getId());
+                if (!fotos.isEmpty()) {
+                    imagen = fotos.get(0).getFoto();
+                }
+            }
+
+            // Configurar PDF
+            response.setContentType("application/pdf");
+            response.setHeader("Content-Disposition", "attachment; filename=reporte_servicio_" + idEspacio + ".pdf");
+
+            PdfWriter writer = new PdfWriter(response.getOutputStream());
+            PdfDocument pdf = new PdfDocument(writer);
+            Document document = new Document(pdf);
+
+            // Logo
+            // ✅ Esta versión funciona tanto en local como en la nube
+            InputStream imageStream = getClass().getResourceAsStream("/static/images/logo-sanMiguel.png");
+            if (imageStream != null) {
+                byte[] imageBytes = imageStream.readAllBytes();
+                ImageData imageData = ImageDataFactory.create(imageBytes);
+                Image logo = new Image(imageData);
+                logo.setHorizontalAlignment(HorizontalAlignment.CENTER);
+                logo.setWidth(60);
+                document.add(logo);
+            } else {
+                System.err.println("⚠️ No se pudo cargar el logo desde /static/images/logo-sanMiguel.png");
+            }
+
+
+            // Título
+            Paragraph titulo = new Paragraph("Reporte de Servicio Deportivo")
+                    .setTextAlignment(TextAlignment.CENTER)
+                    .setBold()
+                    .setFontSize(16);
+            document.add(titulo);
+
+            Paragraph subtitulo = new Paragraph(nombreServicio)
+                    .setTextAlignment(TextAlignment.CENTER)
+                    .setFontSize(13);
+            document.add(subtitulo);
+
+            // Imagen del espacio
+            if (imagen != null) {
+                Image img = new Image(ImageDataFactory.create(imagen))
+                        .scaleToFit(200, 200)
+                        .setHorizontalAlignment(HorizontalAlignment.CENTER);
+                document.add(img);
+                document.add(new Paragraph("\n"));
+            }
+
+            // Datos del servicio
+            document.add(new Paragraph("Tipo: " + espacio.getTipoEspacio().getNombre()));
+            document.add(new Paragraph("Ubicación: " + espacio.getUbicacion()));
+            document.add(new Paragraph("Horario: " + espacio.getHoraAbre() + " - " + espacio.getHoraCierra()));
+            document.add(new Paragraph("Correo: " + espacio.getCorreoContacto()));
             document.add(new Paragraph("\n"));
-        }
 
-        // Datos del servicio
-        document.add(new Paragraph("Tipo: " + espacio.getTipoEspacio().getNombre()));
-        document.add(new Paragraph("Ubicación: " + espacio.getUbicacion()));
-        document.add(new Paragraph("Horario: " + espacio.getHoraAbre() + " - " + espacio.getHoraCierra()));
-        document.add(new Paragraph("Correo: " + espacio.getCorreoContacto()));
-        document.add(new Paragraph("\n"));
+            // Tabla de reservas
+            List<Reservas> reservas = reservaRepository .findByEspacioDeportivoId(idEspacio);
+            if (!reservas.isEmpty()) {
+                DeviceRgb celesteOscuro = new DeviceRgb(36, 118, 141);
 
-        // Tabla de reservas
-        List<Reservas> reservas = reservaRepository.findByEspacioDeportivoId(idEspacio);
-        if (!reservas.isEmpty()) {
-            DeviceRgb celesteOscuro = new DeviceRgb(36, 118, 141);
+                Table table = new Table(5);
+                table.setWidth(UnitValue.createPercentValue(100)); // ✅ Alternativa válida en iText 7
 
-            Table table = new Table(5);
-            table.setWidth(UnitValue.createPercentValue(100)); // ✅ Alternativa válida en iText 7
+                table.setHorizontalAlignment(HorizontalAlignment.CENTER);
 
-            table.setHorizontalAlignment(HorizontalAlignment.CENTER);
+                // Encabezados
+                table.addHeaderCell(new Cell().add(new Paragraph("Usuario"))
+                        .setBackgroundColor(celesteOscuro)
+                        .setFontColor(ColorConstants.WHITE)  // <- Letras blancas
+                        .setTextAlignment(TextAlignment.CENTER)
+                        .setBold()
+                        .setPadding(5));
 
-            // Encabezados
-            table.addHeaderCell(new Cell().add(new Paragraph("Usuario"))
-                    .setBackgroundColor(celesteOscuro)
-                    .setFontColor(ColorConstants.WHITE)  // <- Letras blancas
-                    .setTextAlignment(TextAlignment.CENTER)
-                    .setBold()
-                    .setPadding(5));
+                table.addHeaderCell(new Cell().add(new Paragraph("Fecha"))
+                        .setBackgroundColor(celesteOscuro)
+                        .setFontColor(ColorConstants.WHITE)
+                        .setTextAlignment(TextAlignment.CENTER)
+                        .setBold()
+                        .setPadding(5));
 
-            table.addHeaderCell(new Cell().add(new Paragraph("Fecha"))
-                    .setBackgroundColor(celesteOscuro)
-                    .setFontColor(ColorConstants.WHITE)
-                    .setTextAlignment(TextAlignment.CENTER)
-                    .setBold()
-                    .setPadding(5));
+                table.addHeaderCell(new Cell().add(new Paragraph("Horario"))
+                        .setBackgroundColor(celesteOscuro)
+                        .setFontColor(ColorConstants.WHITE)
+                        .setTextAlignment(TextAlignment.CENTER)
+                        .setBold()
+                        .setPadding(5));
 
-            table.addHeaderCell(new Cell().add(new Paragraph("Horario"))
-                    .setBackgroundColor(celesteOscuro)
-                    .setFontColor(ColorConstants.WHITE)
-                    .setTextAlignment(TextAlignment.CENTER)
-                    .setBold()
-                    .setPadding(5));
+                table.addHeaderCell(new Cell().add(new Paragraph("Medio Pago"))
+                        .setBackgroundColor(celesteOscuro)
+                        .setFontColor(ColorConstants.WHITE)
+                        .setTextAlignment(TextAlignment.CENTER)
+                        .setBold()
+                        .setPadding(5));
 
-            table.addHeaderCell(new Cell().add(new Paragraph("Medio Pago"))
-                    .setBackgroundColor(celesteOscuro)
-                    .setFontColor(ColorConstants.WHITE)
-                    .setTextAlignment(TextAlignment.CENTER)
-                    .setBold()
-                    .setPadding(5));
+                table.addHeaderCell(new Cell().add(new Paragraph("Monto"))
+                        .setBackgroundColor(celesteOscuro)
+                        .setFontColor(ColorConstants.WHITE)
+                        .setTextAlignment(TextAlignment.CENTER)
+                        .setBold()
+                        .setPadding(5));
 
-            table.addHeaderCell(new Cell().add(new Paragraph("Monto"))
-                    .setBackgroundColor(celesteOscuro)
-                    .setFontColor(ColorConstants.WHITE)
-                    .setTextAlignment(TextAlignment.CENTER)
-                    .setBold()
-                    .setPadding(5));
+                // Filas de datos
+                for (Reservas r : reservas) {
+                    table.addCell(new Cell().add(new Paragraph(r.getUsuario().getNombres() + " " + r.getUsuario().getApellidos())).setTextAlignment(TextAlignment.CENTER).setPadding(4));
+                    table.addCell(new Cell().add(new Paragraph(r.getFechaReserva().toString())).setTextAlignment(TextAlignment.CENTER).setPadding(4));
+                    table.addCell(new Cell().add(new Paragraph(r.getHorario().getHoraInicio() + " - " + r.getHorario().getHoraFin())).setTextAlignment(TextAlignment.CENTER).setPadding(4));
+                    table.addCell(new Cell().add(new Paragraph(r.getPago().getMedioPago().getNombre())).setTextAlignment(TextAlignment.CENTER).setPadding(4));
+                    table.addCell(new Cell().add(new Paragraph("S/ " + r.getPago().getCantidad())).setTextAlignment(TextAlignment.CENTER).setPadding(4));
+                }
 
-            // Filas de datos
-            for (Reservas r : reservas) {
-                table.addCell(new Cell().add(new Paragraph(r.getUsuario().getNombres() + " " + r.getUsuario().getApellidos())).setTextAlignment(TextAlignment.CENTER).setPadding(4));
-                table.addCell(new Cell().add(new Paragraph(r.getFechaReserva().toString())).setTextAlignment(TextAlignment.CENTER).setPadding(4));
-                table.addCell(new Cell().add(new Paragraph(r.getHorario().getHoraInicio() + " - " + r.getHorario().getHoraFin())).setTextAlignment(TextAlignment.CENTER).setPadding(4));
-                table.addCell(new Cell().add(new Paragraph(r.getPago().getMedioPago().getNombre())).setTextAlignment(TextAlignment.CENTER).setPadding(4));
-                table.addCell(new Cell().add(new Paragraph("S/ " + r.getPago().getCantidad())).setTextAlignment(TextAlignment.CENTER).setPadding(4));
+                document.add(new Paragraph("Reservas realizadas:").setBold());
+                document.add(table);
+            } else {
+                document.add(new Paragraph("No se han registrado reservas para este servicio."));
             }
 
-            document.add(new Paragraph("Reservas realizadas:").setBold());
-            document.add(table);
-        } else {
-            document.add(new Paragraph("No se han registrado reservas para este servicio."));
+            document.close();
         }
 
-        document.close();
-    }
+        @GetMapping("/servicios/exportar-reporte-excel")
+        public void exportarReporteExcel(@RequestParam("id") int idEspacio, HttpServletResponse response) throws Exception {
+            EspaciosDeportivos espacio = espaciosRepository.findById(idEspacio).orElse(null);
+            if (espacio == null) {
+                response.sendError(HttpServletResponse.SC_NOT_FOUND, "Espacio no encontrado");
+                return;
+            }
 
-    @GetMapping("/servicios/exportar-reporte-excel")
-    public void exportarReporteExcel(@RequestParam("id") int idEspacio, HttpServletResponse response) throws Exception {
-        EspaciosDeportivos espacio = espaciosRepository.findById(idEspacio).orElse(null);
-        if (espacio == null) {
-            response.sendError(HttpServletResponse.SC_NOT_FOUND, "Espacio no encontrado");
-            return;
+            List<Reservas> reservas = reservaRepository.findByEspacioDeportivoId(idEspacio);
+
+            // Crear workbook y hoja
+            Workbook workbook = new XSSFWorkbook();
+            Sheet sheet = workbook.createSheet("Reservas");
+
+            // Estilo de encabezado
+            CellStyle headerStyle = workbook.createCellStyle();
+            Font font = workbook.createFont();
+            font.setBold(true);
+            font.setColor(IndexedColors.WHITE.getIndex());
+            headerStyle.setFont(font);
+            headerStyle.setFillForegroundColor(IndexedColors.DARK_BLUE.getIndex());
+            headerStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+            headerStyle.setAlignment(org.apache.poi.ss.usermodel.HorizontalAlignment.CENTER);
+
+            // Crear fila de encabezado
+            Row header = sheet.createRow(0);
+            String[] columnas = {"Usuario", "Fecha", "Horario", "Medio Pago", "Monto"};
+
+            for (int i = 0; i < columnas.length; i++) {
+                org.apache.poi.ss.usermodel.Cell cell = header.createCell(i);
+                cell.setCellValue(columnas[i]);
+                cell.setCellStyle(headerStyle);
+            }
+
+            // Filas de contenido
+            int fila = 1;
+            for (Reservas r : reservas) {
+                Row dataRow = sheet.createRow(fila++);
+                dataRow.createCell(0).setCellValue(r.getUsuario().getNombres() + " " + r.getUsuario().getApellidos());
+                dataRow.createCell(1).setCellValue(r.getFechaReserva().toString());
+                dataRow.createCell(2).setCellValue(r.getHorario().getHoraInicio() + " - " + r.getHorario().getHoraFin());
+                dataRow.createCell(3).setCellValue(r.getPago().getMedioPago().getNombre());
+                dataRow.createCell(4).setCellValue("S/ " + r.getPago().getCantidad());
+            }
+
+            // Autoajustar columnas
+            for (int i = 0; i < columnas.length; i++) {
+                sheet.autoSizeColumn(i);
+            }
+
+            // Configurar descarga
+            response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+            response.setHeader("Content-Disposition", "attachment; filename=reporte_servicio_" + idEspacio + ".xlsx");
+
+            // Escribir archivo
+            workbook.write(response.getOutputStream());
+            workbook.close();
         }
-
-        List<Reservas> reservas = reservaRepository.findByEspacioDeportivoId(idEspacio);
-
-        // Crear workbook y hoja
-        Workbook workbook = new XSSFWorkbook();
-        Sheet sheet = workbook.createSheet("Reservas");
-
-        // Estilo de encabezado
-        CellStyle headerStyle = workbook.createCellStyle();
-        Font font = workbook.createFont();
-        font.setBold(true);
-        font.setColor(IndexedColors.WHITE.getIndex());
-        headerStyle.setFont(font);
-        headerStyle.setFillForegroundColor(IndexedColors.DARK_BLUE.getIndex());
-        headerStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
-        headerStyle.setAlignment(org.apache.poi.ss.usermodel.HorizontalAlignment.CENTER);
-
-        // Crear fila de encabezado
-        Row header = sheet.createRow(0);
-        String[] columnas = {"Usuario", "Fecha", "Horario", "Medio Pago", "Monto"};
-
-        for (int i = 0; i < columnas.length; i++) {
-            org.apache.poi.ss.usermodel.Cell cell = header.createCell(i);
-            cell.setCellValue(columnas[i]);
-            cell.setCellStyle(headerStyle);
-        }
-
-        // Filas de contenido
-        int fila = 1;
-        for (Reservas r : reservas) {
-            Row dataRow = sheet.createRow(fila++);
-            dataRow.createCell(0).setCellValue(r.getUsuario().getNombres() + " " + r.getUsuario().getApellidos());
-            dataRow.createCell(1).setCellValue(r.getFechaReserva().toString());
-            dataRow.createCell(2).setCellValue(r.getHorario().getHoraInicio() + " - " + r.getHorario().getHoraFin());
-            dataRow.createCell(3).setCellValue(r.getPago().getMedioPago().getNombre());
-            dataRow.createCell(4).setCellValue("S/ " + r.getPago().getCantidad());
-        }
-
-        // Autoajustar columnas
-        for (int i = 0; i < columnas.length; i++) {
-            sheet.autoSizeColumn(i);
-        }
-
-        // Configurar descarga
-        response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-        response.setHeader("Content-Disposition", "attachment; filename=reporte_servicio_" + idEspacio + ".xlsx");
-
-        // Escribir archivo
-        workbook.write(response.getOutputStream());
-        workbook.close();
-    }
 
     // ==================== ENDPOINTS DE MANTENIMIENTO ====================
 
@@ -1375,3 +1369,4 @@ public class AdminController {
     }
 
 }
+

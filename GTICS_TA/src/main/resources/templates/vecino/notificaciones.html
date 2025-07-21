@@ -162,12 +162,12 @@
     function marcarLeida(id) {
         fetch(`/vecino/notificaciones/marcar-leida/${id}`, {
             method: 'POST',
-            headers: {
+                headers: {
                 'Content-Type': 'application/json',
-                ...getCsrfHeaders()
+            ...getCsrfHeaders()
             }
         })
-            .then(response => response.json())
+    .then(response => response.json())
             .then(data => {
                 if (data.success) {
                     const notificationItem = document.querySelector('[data-id="${id}"]');

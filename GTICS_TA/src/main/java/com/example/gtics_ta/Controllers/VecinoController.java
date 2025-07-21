@@ -104,8 +104,7 @@ public class VecinoController {
     public String listaEspacios(@RequestParam(name = "tipo", required = false) Integer id,
                                 @RequestParam(name = "fecha", required = false) String fecha,
                                 @RequestParam(name = "nombre", required = false) String nombre,
-                                Model model,
-                                HttpSession session
+                                Model model
     ) {
         List<EspaciosDeportivos> espacios;
 
@@ -141,9 +140,6 @@ public class VecinoController {
         model.addAttribute("tipoSeleccionado", id);
         model.addAttribute("fechaSeleccionada", fecha);
         model.addAttribute("nombreSeleccionado", nombre);
-
-        // Agregar notificaciones al modelo
-        agregarNotificacionesAlModelo(model, session);
 
         return "vecino/espacios";
     }
