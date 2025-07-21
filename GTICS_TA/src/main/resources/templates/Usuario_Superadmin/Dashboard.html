@@ -202,7 +202,7 @@
                 toolbar: {
                     show: true,
                     tools: {
-                        download: true,
+                        download: false,
                         selection: false,
                         zoom: false,
                         zoomin: false,
@@ -280,7 +280,7 @@
                 toolbar: {
                     show: true,
                     tools: {
-                        download: true,
+                        download: false,
                         selection: false,
                         zoom: false,
                         zoomin: false,
@@ -358,7 +358,13 @@
             }],
             chart: {
                 type: 'bar',
-                height: Math.max(355, cantidadesTop.length * 10) // 45 px por barra
+                height: Math.max(355, cantidadesTop.length * 10), // 45 px por barra
+                toolbar:{
+                    show:true,
+                    tools:{
+                        download: false
+                    }
+                }
             },
             plotOptions: {
                 bar: {
@@ -391,7 +397,7 @@
                 toolbar: {
                     show: true,
                     tools: {
-                        download: true,
+                        download: false,
                         selection: false,
                         zoom: false,
                         zoomin: false,
