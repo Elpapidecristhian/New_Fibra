@@ -45,6 +45,7 @@ import jakarta.validation.Valid;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.net.URI;
+import java.sql.Time;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -90,6 +91,8 @@ public class AdminController {
     private PiscinasRepository piscinasRepository;
     @Autowired
     private ComentariosRepository comentariosRepository;
+    @Autowired
+    private HorariosCoordinadorRepository horariosCoordinadorRepository;
 
 
     //*********************************************************************************************
@@ -99,7 +102,7 @@ public class AdminController {
     //*********************************************************************************************
 
     // DASHBOARD PRINCIPAL
-    @GetMapping(value = {"","/"})
+    @GetMapping(value = {"", "/"})
     public String dashboard(Model model) {
         // Crear objeto AdminDTO con datos básicos
         AdminDTO dashboard = new AdminDTO();
@@ -245,7 +248,7 @@ public class AdminController {
     }
 
     @GetMapping("/editar")
-    public String editarServicio(@ModelAttribute("servicioDTO") ServicioDTO servicioDTO, @RequestParam("id") Integer idEspacio, Model model){
+    public String editarServicio(@ModelAttribute("servicioDTO") ServicioDTO servicioDTO, @RequestParam("id") Integer idEspacio, Model model) {
         Optional<EspaciosDeportivos> optEspacio = espaciosRepository.findById(idEspacio);
         if (optEspacio.isPresent()) {
             EspaciosDeportivos espacio = optEspacio.get();
@@ -294,7 +297,7 @@ public class AdminController {
             gimnasio.setTieneSauna(false);
 
             servicioDTO.setGimnasios(gimnasio);
-            switch (espacio.getTipoEspacio().getId()){
+            switch (espacio.getTipoEspacio().getId()) {
                 case 1:
                     servicioDTO.setPiscina(piscinaRepository.findByIdEspacio(espacio.getId()));
                     break;
@@ -325,7 +328,7 @@ public class AdminController {
                                   @RequestParam("archivos") MultipartFile[] files,
                                   @RequestParam(value = "latitud", required = false) String latitudStr,
                                   @RequestParam(value = "longitud", required = false) String longitudStr,
-                                  @RequestParam(value = "mapsUrl", required = false) String mapsUrl){
+                                  @RequestParam(value = "mapsUrl", required = false) String mapsUrl) {
         System.out.println("Entra al método Guardar Servicio");
         try {
             // Usar el nuevo servicio de imágenes con S3
@@ -341,7 +344,7 @@ public class AdminController {
             espaciosDeportivos.setListaFotos(listaFotos);
 
             // Asegurar que el TipoEspacio esté correctamente configurado
-            if(espaciosDeportivos.getTipoEspacio() != null && espaciosDeportivos.getTipoEspacio().getId() != null) {
+            if (espaciosDeportivos.getTipoEspacio() != null && espaciosDeportivos.getTipoEspacio().getId() != null) {
                 TipoEspacio tipoEspacio = tipoEspacioRepository.findById(espaciosDeportivos.getTipoEspacio().getId()).orElse(null);
                 espaciosDeportivos.setTipoEspacio(tipoEspacio);
             }
@@ -380,7 +383,7 @@ public class AdminController {
             espaciosDeportivos.setOperativo(true);
 
             // Verificar que el TipoEspacio no sea null antes de acceder a su ID
-            if(espaciosDeportivos.getTipoEspacio() != null && espaciosDeportivos.getTipoEspacio().getId() != null && espaciosDeportivos.getTipoEspacio().getId() == 1){
+            if (espaciosDeportivos.getTipoEspacio() != null && espaciosDeportivos.getTipoEspacio().getId() != null && espaciosDeportivos.getTipoEspacio().getId() == 1) {
                 Piscinas piscina = servicioDTO.getPiscina();
                 espaciosDeportivosRepository.save(espaciosDeportivos);
                 piscina.setIdEspacio(espaciosDeportivos.getId());
@@ -434,7 +437,7 @@ public class AdminController {
         Optional<EspaciosDeportivos> optEspacio = espaciosRepository.findById(id);
         if (optEspacio.isPresent()) {
             EspaciosDeportivos espacio = optEspacio.get();
-            switch (espacio.getTipoEspacio().getId()){
+            switch (espacio.getTipoEspacio().getId()) {
                 case 1:
                     Piscinas piscinas = piscinaRepository.findByIdEspacio(espacio.getId());
                     piscinasRepository.delete(piscinas);
@@ -457,10 +460,10 @@ public class AdminController {
                     break;
             }
             List<Horarios> listaHorarios = horariosRepository.findByEspacioId(espacio.getId());
-            for(Horarios h : listaHorarios){
+            for (Horarios h : listaHorarios) {
                 reservaRepository.deleteAllByHorario(h);
             }
-            for(Horarios h : listaHorarios){
+            for (Horarios h : listaHorarios) {
                 horarioReservadoRepository.deleteAllByHorario(h);
             }
             horariosRepository.deleteAll(listaHorarios);
@@ -480,8 +483,8 @@ public class AdminController {
     // LISTAR RESERVAS
     @GetMapping("/reservas")
     public String listarReservas(@RequestParam(value = "nombre", required = false) String nombre,
-                                @RequestParam(value = "tipoEspacio", required = false) Integer tipoEspacio,
-                                Model model) {
+                                 @RequestParam(value = "tipoEspacio", required = false) Integer tipoEspacio,
+                                 Model model) {
         try {
             // Actualizar reservas completadas antes de mostrar la lista
             actualizarReservasCompletadas();
@@ -541,7 +544,7 @@ public class AdminController {
 
                     // Si la reserva estaba cancelada por admin, reactivarla
                     if (reserva.getEstadoReserva() != null &&
-                        reserva.getEstadoReserva().equals(Reservas.EstadoReserva.CANCELADA_ADMIN)) {
+                            reserva.getEstadoReserva().equals(Reservas.EstadoReserva.CANCELADA_ADMIN)) {
 
                         System.out.println("Reactivando reserva ID: " + reserva.getId());
                         reserva.setEstadoReserva(Reservas.EstadoReserva.ACTIVA);
@@ -553,10 +556,9 @@ public class AdminController {
                     }
                     // Si la reserva está activa, mantenerla activa
                     else if (reserva.getEstadoReserva() != null &&
-                             reserva.getEstadoReserva().equals(Reservas.EstadoReserva.ACTIVA)) {
+                            reserva.getEstadoReserva().equals(Reservas.EstadoReserva.ACTIVA)) {
                         System.out.println("Reserva ID " + reserva.getId() + " ya está activa, pago aprobado.");
-                    }
-                    else {
+                    } else {
                         System.out.println("Estado de reserva no reconocido: " + reserva.getEstadoReserva());
                     }
                 }
@@ -574,8 +576,8 @@ public class AdminController {
     @PostMapping("/reservas/rechazar-pago/{id}")
     @ResponseBody
     public ResponseEntity<String> rechazarPago(@PathVariable Integer id,
-                                              @RequestParam String motivo,
-                                              HttpSession session) {
+                                               @RequestParam String motivo,
+                                               HttpSession session) {
         try {
             Optional<Pagos> optPago = pagosRepository.findById(id);
             if (optPago.isPresent()) {
@@ -640,8 +642,8 @@ public class AdminController {
 
                 // Si hay fotos de comprobantes, agregar información
                 if (pago.getListaFotosComprobantes() != null &&
-                    pago.getListaFotosComprobantes().getFotos() != null &&
-                    !pago.getListaFotosComprobantes().getFotos().isEmpty()) {
+                        pago.getListaFotosComprobantes().getFotos() != null &&
+                        !pago.getListaFotosComprobantes().getFotos().isEmpty()) {
                     detalles.put("tieneComprobantes", true);
 
                     // Agregar URLs de las fotos
@@ -672,10 +674,10 @@ public class AdminController {
         try {
             LocalDate hoy = LocalDate.now();
             List<Reservas> reservasActivas = reservaRepository.findAll().stream()
-                .filter(r -> r.getEstadoReserva() == Reservas.EstadoReserva.ACTIVA)
-                .filter(r -> r.getFechaReserva() != null && r.getFechaReserva().isBefore(hoy))
-                .filter(r -> r.getPago() != null && r.getPago().getEstadoPago() == Pagos.EstadoPago.APROBADO)
-                .toList();
+                    .filter(r -> r.getEstadoReserva() == Reservas.EstadoReserva.ACTIVA)
+                    .filter(r -> r.getFechaReserva() != null && r.getFechaReserva().isBefore(hoy))
+                    .filter(r -> r.getPago() != null && r.getPago().getEstadoPago() == Pagos.EstadoPago.APROBADO)
+                    .toList();
 
             for (Reservas reserva : reservasActivas) {
                 reserva.setEstadoReserva(Reservas.EstadoReserva.COMPLETADA);
@@ -762,7 +764,7 @@ public class AdminController {
         document.add(new Paragraph("\n"));
 
         // Tabla de reservas
-        List<Reservas> reservas = reservaRepository .findByEspacioDeportivoId(idEspacio);
+        List<Reservas> reservas = reservaRepository.findByEspacioDeportivoId(idEspacio);
         if (!reservas.isEmpty()) {
             DeviceRgb celesteOscuro = new DeviceRgb(36, 118, 141);
 
@@ -949,8 +951,8 @@ public class AdminController {
 
             // Programar el mantenimiento
             Mantenimiento mantenimiento = mantenimientoService.programarMantenimiento(
-                servicioId, tipo, fechaMantenimiento, horaInicioTime, horaFinTime,
-                responsable, contactoEncargado, descripcion, prioridad, suspenderServicio, admin
+                    servicioId, tipo, fechaMantenimiento, horaInicioTime, horaFinTime,
+                    responsable, contactoEncargado, descripcion, prioridad, suspenderServicio, admin
             );
 
             System.out.println("Mantenimiento creado con ID: " + mantenimiento.getId());
@@ -1004,7 +1006,7 @@ public class AdminController {
             // Filtrar solo las observaciones de coordinadores (usuarios con rol COORDINADOR)
             List<Comentarios> observacionesCoordinadores = todasLasObservaciones.stream()
                     .filter(comentario -> comentario != null &&
-                       comentario.getUsuario() != null &&
+                            comentario.getUsuario() != null &&
                             comentario.getUsuario().getRol() != null &&
                             "COORDINADOR".equalsIgnoreCase(comentario.getUsuario().getRol().getNombre()))
                     .toList();
@@ -1014,20 +1016,20 @@ public class AdminController {
 
             // Estadísticas adicionales
             long totalReparaciones = observacionesCoordinadores.stream()
-                .filter(c -> c.getTipoComentario() == Comentarios.TipoComentario.REPARACION)
-                .count();
+                    .filter(c -> c.getTipoComentario() == Comentarios.TipoComentario.REPARACION)
+                    .count();
 
             long totalObservaciones = observacionesCoordinadores.stream()
-                .filter(c -> c.getTipoComentario() == Comentarios.TipoComentario.COMENTARIO)
-                .count();
+                    .filter(c -> c.getTipoComentario() == Comentarios.TipoComentario.COMENTARIO)
+                    .count();
 
             long observacionesAlta = observacionesCoordinadores.stream()
-                .filter(c -> c.getPrioridadUsuario() == Comentarios.PrioridadUsuario.ALTA)
-                .count();
+                    .filter(c -> c.getPrioridadUsuario() == Comentarios.PrioridadUsuario.ALTA)
+                    .count();
 
             long observacionesNoRevisadas = observacionesCoordinadores.stream()
-                .filter(c -> !c.getRevisadoPorAdmin())
-                .count();
+                    .filter(c -> !c.getRevisadoPorAdmin())
+                    .count();
 
             model.addAttribute("totalReparaciones", totalReparaciones);
             model.addAttribute("totalObservaciones", totalObservaciones);
@@ -1049,6 +1051,323 @@ public class AdminController {
             model.addAttribute("comentarios", new ArrayList<>());
             model.addAttribute("error", "Error al cargar las observaciones: " + e.getMessage());
             return "admin/observaciones";
+        }
+    }
+
+    //*********************************************************************************************
+    //
+    //                                Asignación de Horarios
+    //
+    //*********************************************************************************************
+
+    /**
+     * Página principal de asignación de horarios a coordinadores
+     */
+    @GetMapping("/asignar-horarios")
+    public String asignarHorarios(Model model, HttpSession session) {
+        // Verificar sesión de admin
+        Usuario admin = (Usuario) session.getAttribute("usuario");
+        if (admin == null) {
+            return "redirect:/login";
+        }
+
+        try {
+            // Obtener lista de coordinadores activos
+            List<Usuario> coordinadores = usuarioRepository.findByRol_NombreAndActivo("COORDINADOR", true);
+            model.addAttribute("coordinadores", coordinadores);
+
+            // Obtener lista de espacios deportivos operativos
+            List<EspaciosDeportivos> espacios = espaciosRepository.findByOperativo(true);
+            model.addAttribute("espacios", espacios);
+
+            System.out.println("=== ASIGNACIÓN DE HORARIOS ===");
+            System.out.println("Coordinadores disponibles: " + coordinadores.size());
+            System.out.println("Espacios disponibles: " + espacios.size());
+
+            return "admin/asignar-horarios";
+
+        } catch (Exception e) {
+            System.out.println("ERROR al cargar página de asignación de horarios: " + e.getMessage());
+            e.printStackTrace();
+            model.addAttribute("error", "Error al cargar la página: " + e.getMessage());
+            return "admin/asignar-horarios";
+        }
+    }
+
+    /**
+     * Verificar conflictos de horarios para un coordinador
+     */
+    @PostMapping("/verificar-conflicto-horario")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> verificarConflictoHorario(
+            @RequestParam("coordinadorId") Integer coordinadorId,
+            @RequestParam("fecha") String fecha,
+            @RequestParam("horaInicio") String horaInicio,
+            @RequestParam("horaFin") String horaFin,
+            HttpSession session) {
+
+        Map<String, Object> response = new HashMap<>();
+
+        try {
+            // Verificar sesión
+            Usuario admin = (Usuario) session.getAttribute("usuario");
+            if (admin == null) {
+                response.put("conflicto", true);
+                response.put("mensaje", "Sesión expirada");
+                return ResponseEntity.status(401).body(response);
+            }
+
+            // Obtener coordinador
+            Optional<Usuario> coordinadorOpt = usuarioRepository.findById(coordinadorId);
+            if (!coordinadorOpt.isPresent()) {
+                response.put("conflicto", true);
+                response.put("mensaje", "Coordinador no encontrado");
+                return ResponseEntity.badRequest().body(response);
+            }
+
+            Usuario coordinador = coordinadorOpt.get();
+
+            // Convertir fecha y horas
+            LocalDate fechaAsignacion = LocalDate.parse(fecha);
+            LocalTime horaInicioTime = LocalTime.parse(horaInicio);
+            LocalTime horaFinTime = LocalTime.parse(horaFin);
+
+            // Validar que la hora de fin sea posterior a la de inicio
+            if (horaInicioTime.isAfter(horaFinTime) || horaInicioTime.equals(horaFinTime)) {
+                response.put("conflicto", true);
+                response.put("mensaje", "La hora de fin debe ser posterior a la hora de inicio");
+                return ResponseEntity.ok(response);
+            }
+
+            // Buscar horarios existentes del coordinador para esa fecha
+            Date fechaJava = java.sql.Date.valueOf(fechaAsignacion);
+            List<HorariosCoordinador> horariosExistentes = horariosCoordinadorRepository.findByUsuarioAndFecha(coordinador, fechaJava);
+
+            // Verificar conflictos de horario
+            for (HorariosCoordinador horarioExistente : horariosExistentes) {
+                LocalTime horaInicioExistente = horarioExistente.getHoraEntrada().toLocalTime();
+                LocalTime horaFinExistente = horarioExistente.getHoraSalida().toLocalTime();
+
+                // Verificar solapamiento
+                boolean hayConflicto = !(horaFinTime.isBefore(horaInicioExistente) ||
+                        horaInicioTime.isAfter(horaFinExistente));
+
+                if (hayConflicto) {
+                    response.put("conflicto", true);
+                    response.put("mensaje", String.format(
+                            "Conflicto con horario existente en %s de %s a %s",
+                            horarioExistente.getEspacio().getNombre(),
+                            horaInicioExistente.toString(),
+                            horaFinExistente.toString()
+                    ));
+                    return ResponseEntity.ok(response);
+                }
+            }
+
+            // No hay conflictos
+            response.put("conflicto", false);
+            response.put("mensaje", "Horario disponible");
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            System.out.println("ERROR verificando conflictos: " + e.getMessage());
+            e.printStackTrace();
+            response.put("conflicto", true);
+            response.put("mensaje", "Error al verificar conflictos: " + e.getMessage());
+            return ResponseEntity.status(500).body(response);
+        }
+    }
+
+    /**
+     * Asignar horario a un coordinador
+     */
+    @PostMapping("/asignar-horario")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> asignarHorario(
+            @RequestParam("coordinadorId") Integer coordinadorId,
+            @RequestParam("espacioId") Integer espacioId,
+            @RequestParam("horaInicio") String horaInicio,
+            @RequestParam("horaFin") String horaFin,
+            @RequestParam("diaSeleccionado") Integer diaSeleccionado,
+            @RequestParam("fechaAsignacion") String fechaAsignacion,
+            @RequestParam(value = "observaciones", required = false) String observaciones,
+            HttpSession session) {
+
+        Map<String, Object> response = new HashMap<>();
+
+        try {
+            System.out.println("=== ASIGNANDO HORARIO ===");
+            System.out.println("Coordinador ID: " + coordinadorId);
+            System.out.println("Espacio ID: " + espacioId);
+            System.out.println("Fecha: " + fechaAsignacion);
+            System.out.println("Hora: " + horaInicio + " - " + horaFin);
+
+            // Verificar sesión
+            Usuario admin = (Usuario) session.getAttribute("usuario");
+            if (admin == null) {
+                response.put("success", false);
+                response.put("error", "Sesión expirada");
+                return ResponseEntity.status(401).body(response);
+            }
+
+            // Obtener coordinador
+            Optional<Usuario> coordinadorOpt = usuarioRepository.findById(coordinadorId);
+            if (!coordinadorOpt.isPresent()) {
+                response.put("success", false);
+                response.put("error", "Coordinador no encontrado");
+                return ResponseEntity.badRequest().body(response);
+            }
+
+            // Obtener espacio deportivo
+            Optional<EspaciosDeportivos> espacioOpt = espaciosRepository.findById(espacioId);
+            if (!espacioOpt.isPresent()) {
+                response.put("success", false);
+                response.put("error", "Espacio deportivo no encontrado");
+                return ResponseEntity.badRequest().body(response);
+            }
+
+            Usuario coordinador = coordinadorOpt.get();
+            EspaciosDeportivos espacio = espacioOpt.get();
+
+            // Convertir fecha y horas
+            LocalDate fechaAsignacionLocal = LocalDate.parse(fechaAsignacion);
+            LocalTime horaInicioTime = LocalTime.parse(horaInicio);
+            LocalTime horaFinTime = LocalTime.parse(horaFin);
+
+            // Validaciones
+            if (horaInicioTime.isAfter(horaFinTime) || horaInicioTime.equals(horaFinTime)) {
+                response.put("success", false);
+                response.put("error", "La hora de fin debe ser posterior a la hora de inicio");
+                return ResponseEntity.badRequest().body(response);
+            }
+
+            // Verificar conflictos una vez más
+            Date fechaJava = java.sql.Date.valueOf(fechaAsignacionLocal);
+            List<HorariosCoordinador> horariosExistentes = horariosCoordinadorRepository.findByUsuarioAndFecha(coordinador, fechaJava);
+
+            for (HorariosCoordinador horarioExistente : horariosExistentes) {
+                LocalTime horaInicioExistente = horarioExistente.getHoraEntrada().toLocalTime();
+                LocalTime horaFinExistente = horarioExistente.getHoraSalida().toLocalTime();
+
+                boolean hayConflicto = !(horaFinTime.isBefore(horaInicioExistente) ||
+                        horaInicioTime.isAfter(horaFinExistente));
+
+                if (hayConflicto) {
+                    response.put("success", false);
+                    response.put("error", "Conflicto con horario existente en " + horarioExistente.getEspacio().getNombre());
+                    return ResponseEntity.badRequest().body(response);
+                }
+            }
+
+            // Crear nuevo horario
+            HorariosCoordinador nuevoHorario = new HorariosCoordinador();
+            nuevoHorario.setUsuario(coordinador);
+            nuevoHorario.setEspacio(espacio);
+            nuevoHorario.setHoraEntrada(Time.valueOf(horaInicioTime));
+            nuevoHorario.setHoraSalida(Time.valueOf(horaFinTime));
+            nuevoHorario.setFechaInicio(fechaJava);
+            nuevoHorario.setFechaFin(fechaJava); // Para horarios de un solo día
+
+            // Guardar en base de datos
+            horariosCoordinadorRepository.save(nuevoHorario);
+
+            System.out.println("Horario asignado exitosamente con ID: " + nuevoHorario.getId());
+
+            response.put("success", true);
+            response.put("message", "Horario asignado exitosamente");
+            response.put("horarioId", nuevoHorario.getId());
+
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            System.out.println("ERROR asignando horario: " + e.getMessage());
+            e.printStackTrace();
+            response.put("success", false);
+            response.put("error", "Error al asignar horario: " + e.getMessage());
+            return ResponseEntity.status(500).body(response);
+        }
+    }
+
+    /**
+     * Obtener horarios de un coordinador para una semana específica o todos los horarios
+     */
+    @GetMapping("/horarios-coordinador")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> obtenerHorariosCoordinador(
+            @RequestParam("coordinadorId") Integer coordinadorId,
+            @RequestParam(value = "fechaInicio", required = false) String fechaInicio,
+            @RequestParam(value = "fechaFin", required = false) String fechaFin,
+            HttpSession session) {
+
+        Map<String, Object> response = new HashMap<>();
+
+        try {
+            // Verificar sesión
+            Usuario admin = (Usuario) session.getAttribute("usuario");
+            if (admin == null) {
+                response.put("success", false);
+                response.put("error", "Sesión expirada");
+                return ResponseEntity.status(401).body(response);
+            }
+
+            // Obtener coordinador
+            Optional<Usuario> coordinadorOpt = usuarioRepository.findById(coordinadorId);
+            if (!coordinadorOpt.isPresent()) {
+                response.put("success", false);
+                response.put("error", "Coordinador no encontrado");
+                return ResponseEntity.badRequest().body(response);
+            }
+
+            Usuario coordinador = coordinadorOpt.get();
+
+            List<HorariosCoordinador> horarios;
+
+            if (fechaInicio == null || fechaFin == null) {
+                horarios = horariosCoordinadorRepository.findByUsuario(coordinador);
+                System.out.println("Obteniendo TODOS los horarios del coordinador: " + coordinador.getNombres());
+            } else {
+                // Convertir fechas
+                LocalDate fechaInicioLocal = LocalDate.parse(fechaInicio);
+                LocalDate fechaFinLocal = LocalDate.parse(fechaFin);
+                Date fechaInicioJava = java.sql.Date.valueOf(fechaInicioLocal);
+                Date fechaFinJava = java.sql.Date.valueOf(fechaFinLocal);
+
+                horarios = horariosCoordinadorRepository.findByUsuarioAndFechaInicioBetween(
+                        coordinador, fechaInicioJava, fechaFinJava);
+
+                System.out.println("=== OBTENIENDO HORARIOS COORDINADOR ===");
+                System.out.println("Coordinador: " + coordinador.getNombres() + " " + coordinador.getApellidos());
+                System.out.println("Rango de fechas: " + fechaInicioJava + " a " + fechaFinJava);
+                System.out.println("Horarios encontrados: " + horarios.size());
+            }
+
+            // Convertir a formato para el calendario
+            List<Map<String, Object>> horariosCalendario = new ArrayList<>();
+            for (HorariosCoordinador horario : horarios) {
+                Map<String, Object> evento = new HashMap<>();
+                evento.put("id", horario.getId());
+                evento.put("espacio", horario.getEspacio().getNombre());
+                evento.put("fechaInicio", horario.getFechaInicio().toString());
+                evento.put("fechaFin", horario.getFechaFin().toString());
+                evento.put("horaInicio", horario.getHoraEntrada().toString());
+                evento.put("horaFin", horario.getHoraSalida().toString());
+                horariosCalendario.add(evento);
+
+                System.out.println("Horario: " + horario.getEspacio().getNombre() +
+                        " - " + horario.getFechaInicio() +
+                        " de " + horario.getHoraEntrada() + " a " + horario.getHoraSalida());
+            }
+
+            response.put("success", true);
+            response.put("horarios", horariosCalendario);
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            System.out.println("ERROR obteniendo horarios: " + e.getMessage());
+            e.printStackTrace();
+            response.put("success", false);
+            response.put("error", "Error al obtener horarios: " + e.getMessage());
+            return ResponseEntity.status(500).body(response);
         }
     }
 

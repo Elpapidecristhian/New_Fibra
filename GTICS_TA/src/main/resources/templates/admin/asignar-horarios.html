@@ -1,0 +1,1058 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="">
+  <meta name="author" content="">
+  <link rel="icon" th:href="@{/images/san_miguel_logo.ico}">
+
+  <title>Admin - Asignar Horarios</title>
+
+  <!-- CSRF Token -->
+  <meta name="_csrf" th:content="${_csrf.token}"/>
+  <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+
+  <!-- Vendors Style-->
+  <link rel="stylesheet" th:href="@{/css/vendors_css.css}">
+
+  <!-- Style-->
+  <link rel="stylesheet" th:href="@{/css/style.css}">
+  <link rel="stylesheet" th:href="@{/css/skin_color.css}">
+  
+  <!-- FullCalendar CSS -->
+  <link href='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.css' rel='stylesheet' />
+  
+  <style>
+    .week-selector {
+      background: #50cdce !important;
+      border-radius: 10px;
+      padding: 20px;
+      color: white;
+      margin-bottom: 20px;
+    }
+    
+    .day-card {
+      border: 2px solid #e9ecef;
+      border-radius: 10px;
+      transition: all 0.3s ease;
+      cursor: pointer;
+      min-height: 120px;
+    }
+    
+    .day-card:hover {
+      border-color: #1DBFC1;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 15px rgba(29, 191, 193, 0.2);
+    }
+    
+    .day-card.selected {
+      border-color: #1DBFC1;
+      background-color: rgba(29, 191, 193, 0.1);
+    }
+
+    .day-card.disabled {
+      opacity: 0.5 !important;
+      cursor: not-allowed !important;
+      pointer-events: none !important;
+      background-color: #f8f9fa !important;
+    }
+
+    .day-card.disabled .day-header {
+      background-color: #e9ecef !important;
+      color: #6c757d !important;
+    }
+    
+    .day-header {
+      background-color: #f8f9fa;
+      padding: 10px;
+      border-radius: 8px 8px 0 0;
+      font-weight: bold;
+      text-align: center;
+    }
+    
+    .day-content {
+      padding: 15px;
+    }
+    
+    .horario-form {
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      padding: 25px;
+      margin-bottom: 20px;
+    }
+    
+    .form-group label {
+      font-weight: 600;
+      color: #495057;
+      margin-bottom: 8px;
+    }
+    
+    .btn-asignar {
+      background: linear-gradient(135deg, #1DBFC1 0%, #17a2b8 100%);
+      border: none;
+      padding: 12px 30px;
+      border-radius: 25px;
+      color: white;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+    
+    .btn-asignar:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(29, 191, 193, 0.4);
+      color: white;
+    }
+    
+    .calendario-container {
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      padding: 20px;
+    }
+    
+    .fc-event {
+      border: none !important;
+      background: linear-gradient(135deg, #1DBFC1 0%, #17a2b8 100%) !important;
+      border-radius: 5px !important;
+    }
+
+    .fc-event.preview-event {
+      background: #7785e1 !important;
+      opacity: 0.8 !important;
+      animation: pulse 2s infinite !important;
+    }
+
+    @keyframes pulse {
+      0% { opacity: 0.8; }
+      50% { opacity: 1; }
+      100% { opacity: 0.8; }
+    }
+    
+    .conflict-warning {
+      background-color: #fff3cd;
+      border: 1px solid #ffeaa7;
+      border-radius: 5px;
+      padding: 10px;
+      margin-top: 10px;
+      color: #856404;
+    }
+    
+    .success-message {
+      background-color: #d4edda;
+      border: 1px solid #c3e6cb;
+      border-radius: 5px;
+      padding: 10px;
+      margin-top: 10px;
+      color: #155724;
+    }
+    
+    .week-navigation {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+    
+    .week-nav-btn {
+      border: none;
+      padding: 6px 10px;
+      font-size: 0.8rem;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    
+    .week-nav-btn:hover {
+      background: lightslategray;
+      transform: scale(1.05);
+    }
+    
+    .current-week {
+      font-size: 20px;
+      font-weight: bold;
+      color: white;
+      min-width: 200px;
+      text-align: center;
+    }
+  </style>
+</head>
+
+<body class="hold-transition light-skin sidebar-mini theme-success fixed">
+
+<div class="wrapper">
+  <div id="loader"></div>
+
+  <header class="main-header">
+    <div class="d-flex align-items-center logo-box justify-content-center">
+      <!-- Logo -->
+      <a th:href="@{/admin}" class="logo">
+        <!-- logo-->
+        <div class="logo-mini w-150 text-center">
+          <span class="light-logo"><img th:src="@{/images/logo-sanMiguel.png}" alt="logo"></span>
+        </div>
+      </a>
+    </div>
+    <!-- Header Navbar -->
+    <nav class="navbar navbar-static-top">
+      <!-- Sidebar toggle button-->
+      <div class="app-menu">
+        <ul class="header-megamenu nav">
+          <li class="btn-group nav-item">
+            <a href="#" class="waves-effect waves-light nav-link push-btn btn-primary-light" data-toggle="push-menu" role="button">
+              <i data-feather="align-left"></i>
+            </a>
+          </li>
+        </ul>
+      </div>
+
+      <div th:replace="fragments :: navbarAdmin"></div>
+    </nav>
+  </header>
+
+  <!-- Left side column. contains the logo and sidebar -->
+  <aside th:replace="fragments :: sideBarAdmin"></aside>
+
+  <!-- Content Wrapper. Contains page content -->
+  <div class="content-wrapper">
+    <div class="container-full">
+      <!-- Content Header (Page header) -->
+      <div class="content-header">
+        <div class="d-flex align-items-center">
+          <div class="me-auto">
+            <h4 class="page-title">Asignación de Horarios a Coordinadores</h4>
+            <div class="d-inline-block align-items-center">
+              <nav>
+                <ol class="breadcrumb">
+                  <li class="breadcrumb-item"><a href="#"><i class="mdi mdi-home-outline"></i></a></li>
+                  <li class="breadcrumb-item"><a th:href="@{/admin}">Dashboard</a></li>
+                  <li class="breadcrumb-item active" aria-current="page">Asignar Horarios</li>
+                </ol>
+              </nav>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Main content -->
+      <section class="content">
+        
+        <!-- Selector de Semana -->
+        <div class="row">
+          <div class="col-12">
+            <div class="week-selector">
+              <h5 class="mb-3">
+                <i class="fa fa-calendar me-2"></i>Seleccionar Semana de Asignación
+              </h5>
+              <div class="week-navigation">
+                <button type="button" class="week-nav-btn" id="prevWeek">
+                  <i class="fa fa-chevron-left"></i> Anterior
+                </button>
+                <div class="current-week" id="currentWeekDisplay">
+                  Semana del 15 al 21 de Enero 2024
+                </div>
+                <button type="button" class="week-nav-btn" id="nextWeek">
+                  Siguiente <i class="fa fa-chevron-right"></i>
+                </button>
+              </div>
+              <input type="hidden" id="selectedWeekStart" />
+              <input type="hidden" id="selectedWeekEnd" />
+            </div>
+          </div>
+        </div>
+
+        <!-- Selector de Días de la Semana -->
+        <div class="row mb-4">
+          <div class="col-12">
+            <h5 class="mb-3">
+              <i class="fa fa-calendar-day me-2"></i>Seleccionar Día para Asignar Horario
+            </h5>
+          </div>
+          <div class="col-md-2 mb-3">
+            <div class="day-card" data-day="0" data-day-name="Domingo">
+              <div class="day-header">Domingo</div>
+              <div class="day-content">
+                <div class="text-center">
+                  <i class="mdi mdi-white-balance-sunny mdi-36px text-warning"></i>
+                  <div class="mt-2" id="date-0">15 Ene</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-2 mb-3">
+            <div class="day-card" data-day="1" data-day-name="Lunes">
+              <div class="day-header">Lunes</div>
+              <div class="day-content">
+                <div class="text-center">
+                  <i class="mdi mdi-calendar mdi-36px text-primary"></i>
+                  <div class="mt-2" id="date-1">16 Ene</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-2 mb-3">
+            <div class="day-card" data-day="2" data-day-name="Martes">
+              <div class="day-header">Martes</div>
+              <div class="day-content">
+                <div class="text-center">
+                  <i class="mdi mdi-calendar mdi-36px text-primary"></i>
+                  <div class="mt-2" id="date-2">17 Ene</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-2 mb-3">
+            <div class="day-card" data-day="3" data-day-name="Miércoles">
+              <div class="day-header">Miércoles</div>
+              <div class="day-content">
+                <div class="text-center">
+                  <i class="mdi mdi-calendar mdi-36px text-primary"></i>
+                  <div class="mt-2" id="date-3">18 Ene</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-2 mb-3">
+            <div class="day-card" data-day="4" data-day-name="Jueves">
+              <div class="day-header">Jueves</div>
+              <div class="day-content">
+                <div class="text-center">
+                  <i class="mdi mdi-calendar mdi-36px text-primary"></i>
+                  <div class="mt-2" id="date-4">19 Ene</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-2 mb-3">
+            <div class="day-card" data-day="5" data-day-name="Viernes">
+              <div class="day-header">Viernes</div>
+              <div class="day-content">
+                <div class="text-center">
+                  <i class="mdi mdi-calendar mdi-36px text-primary"></i>
+                  <div class="mt-2" id="date-5">20 Ene</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Formulario de Asignación -->
+        <div class="row">
+          <div class="col-md-6">
+            <div class="horario-form">
+              <h5 class="mb-4">
+                <i class="fa fa-user-clock me-2"></i>Asignar Horario
+              </h5>
+              
+              <form id="formAsignarHorario">
+                <div class="row">
+                  <div class="col-12 mb-3">
+                    <label for="coordinadorSelect" class="form-label">Coordinador *</label>
+                    <select class="form-select" id="coordinadorSelect" name="coordinadorId" required>
+                      <option value="">Seleccionar coordinador...</option>
+                      <option th:each="coordinador : ${coordinadores}"
+                              th:value="${coordinador.id}"
+                              th:text="${coordinador.nombres + ' ' + coordinador.apellidos}">
+                        Coordinador
+                      </option>
+                    </select>
+                  </div>
+
+                  <div class="col-12 mb-3">
+                    <label for="espacioSelect" class="form-label">Espacio Deportivo *</label>
+                    <select class="form-select" id="espacioSelect" name="espacioId" required disabled>
+                      <option value="">Seleccionar espacio...</option>
+                      <option th:each="espacio : ${espacios}"
+                              th:value="${espacio.id}"
+                              th:text="${espacio.nombre}">
+                        Espacio
+                      </option>
+                    </select>
+                    <small class="text-muted" id="espacioHelp">Seleccione un día primero</small>
+                  </div>
+
+                  <div class="col-md-6 mb-3">
+                    <label for="horaInicio" class="form-label">Hora de Inicio *</label>
+                    <input type="time" class="form-control" id="horaInicio" name="horaInicio" required disabled>
+                    <small class="text-muted" id="horaInicioHelp">Seleccione un día primero</small>
+                  </div>
+
+                  <div class="col-md-6 mb-3">
+                    <label for="horaFin" class="form-label">Hora de Fin *</label>
+                    <input type="time" class="form-control" id="horaFin" name="horaFin" required disabled>
+                    <small class="text-muted" id="horaFinHelp">Seleccione un día primero</small>
+                  </div>
+
+                  <div class="col-12 mb-3">
+                    <label for="observaciones" class="form-label">Observaciones</label>
+                    <textarea class="form-control" id="observaciones" name="observaciones" rows="3"
+                              placeholder="Observaciones adicionales (opcional)" disabled></textarea>
+                    <small class="text-muted" id="observacionesHelp">Seleccione un día primero</small>
+                  </div>
+                </div>
+                
+                <input type="hidden" id="diaSeleccionado" name="diaSeleccionado" />
+                <input type="hidden" id="fechaAsignacion" name="fechaAsignacion" />
+                
+                <div id="conflictWarning" class="conflict-warning" style="display: none;">
+                  <i class="fa fa-exclamation-triangle me-2"></i>
+                  <span id="conflictMessage"></span>
+                </div>
+                
+                <div id="successMessage" class="success-message" style="display: none;">
+                  <i class="fa fa-check-circle me-2"></i>
+                  <span id="successText"></span>
+                </div>
+                
+                <div class="text-end mt-4">
+                  <button type="button" class="btn btn-secondary me-2" id="btnLimpiar">
+                    <i class="fa fa-eraser me-1"></i>Limpiar
+                  </button>
+                  <button type="submit" class="btn btn-asignar" id="btnAsignar" disabled>
+                    <i class="fa fa-save me-1"></i>Asignar Horario
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+          
+          <!-- Calendario Visual -->
+          <div class="col-md-6">
+            <div class="calendario-container">
+              <h5 class="mb-3">
+                <i class="fa fa-calendar-alt me-2"></i>Vista de Horarios del Coordinador
+              </h5>
+              <div id="calendar"></div>
+            </div>
+          </div>
+        </div>
+
+      </section>
+      <!-- /.content -->
+    </div>
+  </div>
+  <!-- /.content-wrapper -->
+
+  <footer class="main-footer">
+    <div class="pull-right d-none d-sm-inline-block">
+      <ul class="nav nav-primary nav-dotted nav-dot-separated justify-content-center justify-content-md-end">
+        <li class="nav-item">
+          <a class="nav-link" href="javascript:void(0)">Contáctanos</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#">FAQ</a>
+        </li>
+      </ul>
+    </div>
+    &copy; <script>document.write(new Date().getFullYear())</script> <a href="https://www.munisanmiguel.gob.pe/">Municipalidad de San Miguel</a>. Todos los derechos reservados.
+  </footer>
+
+</div>
+
+<!-- Vendor JS -->
+<script th:src="@{/js/vendors.min.js}"></script>
+<script th:src="@{/js/pages/chat-popup.js}"></script>
+<script th:src="@{/assets/icons/feather-icons/feather.min.js}"></script>
+
+<!-- FullCalendar JS -->
+<script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js'></script>
+
+<!-- Rhythm Admin App -->
+<script th:src="@{/js/template.js}"></script>
+
+<script>
+// Variables globales
+let currentWeekStart = new Date();
+let calendar;
+let selectedDay = null;
+let coordinadorSeleccionado = null;
+let previewEvent = null; // Para el evento de vista previa
+let originalWeekStart = null; // Para recordar la semana inicial
+
+// Inicializar página
+document.addEventListener('DOMContentLoaded', function() {
+    initializeWeek();
+    initializeCalendar();
+    setupEventListeners();
+
+
+});
+
+// Inicializar semana actual
+function initializeWeek() {
+    const today = new Date();
+    // Obtener el domingo de la semana actual
+    const dayOfWeek = today.getDay();
+    currentWeekStart = new Date(today);
+    currentWeekStart.setDate(today.getDate() - dayOfWeek);
+
+    // Guardar la semana inicial para referencia
+    originalWeekStart = new Date(currentWeekStart);
+
+    updateWeekDisplay();
+    updateDayCards();
+    updateCalendarWeek();
+}
+
+// Actualizar display de la semana
+function updateWeekDisplay() {
+    const weekEnd = new Date(currentWeekStart);
+    weekEnd.setDate(currentWeekStart.getDate() + 6);
+
+    const options = { day: 'numeric', month: 'long', year: 'numeric' };
+    const startStr = currentWeekStart.toLocaleDateString('es-ES', options);
+    const endStr = weekEnd.toLocaleDateString('es-ES', options);
+
+    document.getElementById('currentWeekDisplay').textContent =
+        `Semana del ${startStr} al ${endStr}`;
+
+    // Actualizar campos ocultos
+    document.getElementById('selectedWeekStart').value = formatDate(currentWeekStart);
+    document.getElementById('selectedWeekEnd').value = formatDate(weekEnd);
+
+    // Verificar si es la semana inicial (actual) para deshabilitar botón anterior
+    const prevBtn = document.getElementById('prevWeek');
+    if (originalWeekStart && currentWeekStart.getTime() === originalWeekStart.getTime()) {
+        prevBtn.disabled = true;
+        prevBtn.style.opacity = '0.5';
+        prevBtn.style.cursor = 'not-allowed';
+    } else {
+        prevBtn.disabled = false;
+        prevBtn.style.opacity = '1';
+        prevBtn.style.cursor = 'pointer';
+    }
+}
+
+// Actualizar tarjetas de días
+function updateDayCards() {
+    const dayNames = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes'];
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // Resetear horas para comparación de fechas
+
+    for (let i = 0; i < 6; i++) {
+        const dayDate = new Date(currentWeekStart);
+        dayDate.setDate(currentWeekStart.getDate() + i);
+        dayDate.setHours(0, 0, 0, 0);
+
+        const dateElement = document.getElementById(`date-${i}`);
+        if (dateElement) {
+            const dayStr = dayDate.getDate();
+            // Solo mostrar el día sin el mes
+            dateElement.textContent = `${dayStr}`;
+        }
+
+        // Actualizar data attributes
+        const dayCard = document.querySelector(`[data-day="${i}"]`);
+        if (dayCard) {
+            dayCard.setAttribute('data-date', formatDate(dayDate));
+
+            // Deshabilitar días que ya pasaron
+            if (dayDate < today) {
+                dayCard.classList.add('disabled');
+                dayCard.style.opacity = '0.5';
+                dayCard.style.cursor = 'not-allowed';
+                dayCard.style.pointerEvents = 'none';
+            } else {
+                dayCard.classList.remove('disabled');
+                dayCard.style.opacity = '1';
+                dayCard.style.cursor = 'pointer';
+                dayCard.style.pointerEvents = 'auto';
+            }
+        }
+    }
+}
+
+// Configurar event listeners
+function setupEventListeners() {
+    // Navegación de semana
+    document.getElementById('prevWeek').addEventListener('click', function() {
+        const newWeekStart = new Date(currentWeekStart);
+        newWeekStart.setDate(currentWeekStart.getDate() - 7);
+
+        // No permitir semanas anteriores a la semana inicial
+        if (originalWeekStart && newWeekStart >= originalWeekStart) {
+            currentWeekStart = newWeekStart;
+            updateWeekDisplay();
+            updateDayCards();
+            updateCalendarWeek();
+            clearSelection();
+            clearPreviewEvent(); // Limpiar vista previa al cambiar semana
+        }
+    });
+
+    document.getElementById('nextWeek').addEventListener('click', function() {
+        currentWeekStart.setDate(currentWeekStart.getDate() + 7);
+        updateWeekDisplay();
+        updateDayCards();
+        updateCalendarWeek();
+        clearSelection();
+        clearPreviewEvent(); // Limpiar vista previa al cambiar semana
+    });
+
+    // Selección de días
+    document.querySelectorAll('.day-card').forEach(card => {
+        card.addEventListener('click', function() {
+            selectDay(this);
+        });
+    });
+
+    // Cambio de coordinador
+    document.getElementById('coordinadorSelect').addEventListener('change', function() {
+        coordinadorSeleccionado = this.value;
+        if (coordinadorSeleccionado) {
+            loadCoordinadorHorarios();
+        } else {
+            clearCalendar();
+        }
+        validateForm();
+    });
+
+    // Validación de horarios y vista previa
+    document.getElementById('horaInicio').addEventListener('change', function() {
+        validateHorarios();
+        updatePreviewEvent();
+    });
+    document.getElementById('horaFin').addEventListener('change', function() {
+        validateHorarios();
+        updatePreviewEvent();
+    });
+
+    // Vista previa al cambiar espacio
+    document.getElementById('espacioSelect').addEventListener('change', function() {
+        updatePreviewEvent();
+        validateForm();
+    });
+
+    // Formulario
+    document.getElementById('formAsignarHorario').addEventListener('submit', submitHorario);
+    document.getElementById('btnLimpiar').addEventListener('click', clearForm);
+
+    // Inicializar estado de campos
+    disableFormFields();
+    validateForm();
+}
+
+// Seleccionar día
+function selectDay(dayCard) {
+    // No permitir seleccionar días deshabilitados
+    if (dayCard.classList.contains('disabled')) {
+        return;
+    }
+
+    // Si ya hay un día seleccionado, limpiar el formulario
+    if (selectedDay) {
+        clearFormFields();
+    }
+
+    // Remover selección anterior
+    document.querySelectorAll('.day-card').forEach(card => {
+        card.classList.remove('selected');
+    });
+
+    // Seleccionar nuevo día
+    dayCard.classList.add('selected');
+    selectedDay = dayCard.getAttribute('data-day');
+
+    const selectedDate = dayCard.getAttribute('data-date');
+    document.getElementById('diaSeleccionado').value = selectedDay;
+    document.getElementById('fechaAsignacion').value = selectedDate;
+
+    // Habilitar campos del formulario
+    enableFormFields();
+
+    validateForm();
+    updatePreviewEvent(); // Actualizar vista previa al cambiar día
+
+    // Mostrar día seleccionado
+    const dayName = dayCard.getAttribute('data-day-name');
+    console.log(`Día seleccionado: ${dayName} (${selectedDate})`);
+}
+
+// Validar formulario
+function validateForm() {
+    const coordinador = document.getElementById('coordinadorSelect').value;
+    const espacio = document.getElementById('espacioSelect').value;
+    const horaInicio = document.getElementById('horaInicio').value;
+    const horaFin = document.getElementById('horaFin').value;
+
+    const isValid = coordinador && espacio && horaInicio && horaFin && selectedDay !== null;
+    document.getElementById('btnAsignar').disabled = !isValid;
+}
+
+// Validar horarios
+function validateHorarios() {
+    const horaInicio = document.getElementById('horaInicio').value;
+    const horaFin = document.getElementById('horaFin').value;
+
+    if (horaInicio && horaFin) {
+        if (horaInicio >= horaFin) {
+            showConflictWarning('La hora de fin debe ser posterior a la hora de inicio');
+            return false;
+        } else {
+            hideConflictWarning();
+            // Verificar conflictos con otros horarios
+            if (coordinadorSeleccionado) {
+                checkConflictos();
+            }
+            return true;
+        }
+    }
+    return true;
+}
+
+// Verificar conflictos de horarios
+function checkConflictos() {
+    if (!coordinadorSeleccionado || !selectedDay) return;
+
+    const horaInicio = document.getElementById('horaInicio').value;
+    const horaFin = document.getElementById('horaFin').value;
+    const fechaAsignacion = document.getElementById('fechaAsignacion').value;
+
+    if (!horaInicio || !horaFin || !fechaAsignacion) return;
+
+    // Obtener token CSRF
+    const token = document.querySelector("meta[name='_csrf']").getAttribute("content");
+    const header = document.querySelector("meta[name='_csrf_header']").getAttribute("content");
+
+    fetch('/admin/verificar-conflicto-horario', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            [header]: token
+        },
+        body: new URLSearchParams({
+            coordinadorId: coordinadorSeleccionado,
+            fecha: fechaAsignacion,
+            horaInicio: horaInicio,
+            horaFin: horaFin
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.conflicto) {
+            showConflictWarning(data.mensaje);
+        } else {
+            hideConflictWarning();
+        }
+    })
+    .catch(error => {
+        console.error('Error verificando conflictos:', error);
+    });
+}
+
+// Mostrar advertencia de conflicto
+function showConflictWarning(message) {
+    const warning = document.getElementById('conflictWarning');
+    document.getElementById('conflictMessage').textContent = message;
+    warning.style.display = 'block';
+    document.getElementById('btnAsignar').disabled = true;
+}
+
+// Ocultar advertencia de conflicto
+function hideConflictWarning() {
+    document.getElementById('conflictWarning').style.display = 'none';
+    validateForm();
+}
+
+// Mostrar mensaje de éxito
+function showSuccessMessage(message) {
+    const success = document.getElementById('successMessage');
+    document.getElementById('successText').textContent = message;
+    success.style.display = 'block';
+
+    setTimeout(() => {
+        success.style.display = 'none';
+    }, 5000);
+}
+
+// Enviar formulario
+function submitHorario(e) {
+    e.preventDefault();
+
+    if (!validateHorarios()) {
+        return;
+    }
+
+    const formData = new FormData(e.target);
+
+    // Obtener token CSRF
+    const token = document.querySelector("meta[name='_csrf']").getAttribute("content");
+    const header = document.querySelector("meta[name='_csrf_header']").getAttribute("content");
+
+    fetch('/admin/asignar-horario', {
+        method: 'POST',
+        headers: {
+            [header]: token
+        },
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log('Respuesta de asignación:', data);
+        if (data.success) {
+            showSuccessMessage('Horario asignado exitosamente');
+
+            // Recargar horarios del coordinador antes de limpiar el formulario
+            if (coordinadorSeleccionado) {
+                loadCoordinadorHorarios();
+            }
+
+            // Limpiar solo los campos del formulario, mantener coordinador seleccionado
+            document.getElementById('espacioSelect').value = '';
+            document.getElementById('horaInicio').value = '';
+            document.getElementById('horaFin').value = '';
+            document.getElementById('observaciones').value = '';
+            clearSelection();
+            hideConflictWarning();
+            clearPreviewEvent(); // Limpiar vista previa
+        } else {
+            showConflictWarning(data.error || 'Error al asignar horario');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showConflictWarning('Error de conexión al asignar horario');
+    });
+}
+
+// Limpiar formulario
+function clearForm() {
+    document.getElementById('formAsignarHorario').reset();
+    clearSelection();
+    hideConflictWarning();
+    document.getElementById('successMessage').style.display = 'none';
+    coordinadorSeleccionado = null;
+    disableFormFields(); // Deshabilitar campos al limpiar
+    clearCalendar();
+    clearPreviewEvent();
+}
+
+// Limpiar selección
+function clearSelection() {
+    document.querySelectorAll('.day-card').forEach(card => {
+        card.classList.remove('selected');
+    });
+    selectedDay = null;
+    document.getElementById('diaSeleccionado').value = '';
+    document.getElementById('fechaAsignacion').value = '';
+    clearPreviewEvent(); // Limpiar vista previa al limpiar selección
+    disableFormFields(); // Deshabilitar campos cuando no hay día seleccionado
+    validateForm();
+}
+
+// Habilitar campos del formulario
+function enableFormFields() {
+    document.getElementById('espacioSelect').disabled = false;
+    document.getElementById('horaInicio').disabled = false;
+    document.getElementById('horaFin').disabled = false;
+    document.getElementById('observaciones').disabled = false;
+
+    // Ocultar mensajes de ayuda
+    document.getElementById('espacioHelp').style.display = 'none';
+    document.getElementById('horaInicioHelp').style.display = 'none';
+    document.getElementById('horaFinHelp').style.display = 'none';
+    document.getElementById('observacionesHelp').style.display = 'none';
+}
+
+// Deshabilitar campos del formulario
+function disableFormFields() {
+    document.getElementById('espacioSelect').disabled = true;
+    document.getElementById('horaInicio').disabled = true;
+    document.getElementById('horaFin').disabled = true;
+    document.getElementById('observaciones').disabled = true;
+
+    // Mostrar mensajes de ayuda
+    document.getElementById('espacioHelp').style.display = 'block';
+    document.getElementById('horaInicioHelp').style.display = 'block';
+    document.getElementById('horaFinHelp').style.display = 'block';
+    document.getElementById('observacionesHelp').style.display = 'block';
+}
+
+// Limpiar solo los campos del formulario (no el día seleccionado)
+function clearFormFields() {
+    document.getElementById('espacioSelect').value = '';
+    document.getElementById('horaInicio').value = '';
+    document.getElementById('horaFin').value = '';
+    document.getElementById('observaciones').value = '';
+    clearPreviewEvent();
+    hideConflictWarning();
+}
+
+// Formatear fecha
+function formatDate(date) {
+    return date.toISOString().split('T')[0];
+}
+
+// Inicializar calendario
+function initializeCalendar() {
+    const calendarEl = document.getElementById('calendar');
+
+    calendar = new FullCalendar.Calendar(calendarEl, {
+        initialView: 'timeGridWeek',
+        locale: 'es',
+        headerToolbar: {
+            left: '',
+            center: 'title',
+            right: ''
+        },
+        slotMinTime: '06:00:00',
+        slotMaxTime: '22:00:00',
+        allDaySlot: false,
+        height: 'auto',
+        events: [],
+        eventDisplay: 'block',
+        eventColor: '#1DBFC1',
+        firstDay: 0, // Domingo como primer día
+        hiddenDays: [6], // Ocultar sábado
+        dayHeaderFormat: { weekday: 'short', day: 'numeric' }, // Formato: "dom 20" en vez de "dom 20/7"
+    });
+
+    calendar.render();
+}
+
+// Actualizar semana del calendario
+function updateCalendarWeek() {
+    if (calendar) {
+        calendar.gotoDate(currentWeekStart);
+    }
+}
+
+// Cargar horarios del coordinador
+function loadCoordinadorHorarios() {
+    if (!coordinadorSeleccionado) {
+        clearCalendar();
+        return;
+    }
+
+    // Cargar todos los horarios del coordinador, no solo de la semana actual
+    console.log('Cargando todos los horarios para coordinador:', coordinadorSeleccionado);
+
+    fetch(`/admin/horarios-coordinador?coordinadorId=${coordinadorSeleccionado}`)
+    .then(response => {
+        console.log('Respuesta recibida:', response.status);
+        return response.json();
+    })
+    .then(data => {
+        console.log('Datos recibidos:', data);
+        if (data.success) {
+            updateCalendar(data.horarios);
+        } else {
+            console.error('Error cargando horarios:', data.error);
+            clearCalendar();
+        }
+    })
+    .catch(error => {
+        console.error('Error en fetch:', error);
+        clearCalendar();
+    });
+}
+
+// Actualizar calendario
+function updateCalendar(horarios) {
+    if (!calendar) return;
+
+    // Guardar el evento de vista previa si existe
+    const hasPreview = previewEvent !== null;
+    const previewData = hasPreview ? { ...previewEvent } : null;
+
+    // Limpiar solo eventos que no sean de vista previa
+    const allEvents = calendar.getEvents();
+    allEvents.forEach(event => {
+        if (event.id !== 'preview-event') {
+            event.remove();
+        }
+    });
+
+    console.log('Actualizando calendario con horarios:', horarios);
+
+    horarios.forEach(horario => {
+        console.log('Agregando evento:', horario);
+
+        // Crear evento para el calendario
+        const evento = {
+            title: horario.espacio,
+            start: horario.fechaInicio + 'T' + horario.horaInicio,
+            end: horario.fechaInicio + 'T' + horario.horaFin, // Usar fechaInicio para ambos
+            backgroundColor: '#1DBFC1',
+            borderColor: '#17a2b8',
+            textColor: 'white'
+        };
+
+        console.log('Evento creado:', evento);
+        calendar.addEvent(evento);
+    });
+
+    // Restaurar vista previa si existía
+    if (hasPreview && previewData) {
+        calendar.addEvent(previewData);
+    }
+
+    // Forzar re-render del calendario
+    calendar.render();
+}
+
+// Limpiar calendario
+function clearCalendar() {
+    if (calendar) {
+        calendar.removeAllEvents();
+    }
+    previewEvent = null;
+}
+
+// Actualizar vista previa del evento
+function updatePreviewEvent() {
+    if (!calendar || !coordinadorSeleccionado || !selectedDay) {
+        return;
+    }
+
+    const espacioSelect = document.getElementById('espacioSelect');
+    const horaInicio = document.getElementById('horaInicio').value;
+    const horaFin = document.getElementById('horaFin').value;
+    const fechaAsignacion = document.getElementById('fechaAsignacion').value;
+
+    // Limpiar vista previa anterior
+    clearPreviewEvent();
+
+    // Solo mostrar vista previa si tenemos todos los datos necesarios
+    if (espacioSelect.value && horaInicio && horaFin && fechaAsignacion) {
+        const espacioNombre = espacioSelect.options[espacioSelect.selectedIndex].text;
+
+        // Validar que las horas sean válidas
+        if (horaInicio < horaFin) {
+            // Crear evento de vista previa
+            previewEvent = {
+                id: 'preview-event',
+                title: `${espacioNombre} (Vista Previa)`,
+                start: fechaAsignacion + 'T' + horaInicio,
+                end: fechaAsignacion + 'T' + horaFin,
+                backgroundColor: 'white', // Color amarillo para vista previa
+                textColor: '#3246D3',
+                classNames: ['preview-event']
+            };
+
+            calendar.addEvent(previewEvent);
+            console.log('Vista previa agregada:', previewEvent);
+        }
+    }
+}
+
+// Limpiar evento de vista previa
+function clearPreviewEvent() {
+    if (calendar && previewEvent) {
+        const event = calendar.getEventById('preview-event');
+        if (event) {
+            event.remove();
+        }
+        previewEvent = null;
+    }
+}
+
+// Inicializar feather icons
+feather.replace();
+</script>
+
+</body>
+</html>
