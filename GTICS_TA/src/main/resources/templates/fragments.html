@@ -18,10 +18,18 @@
                             <i data-feather="calendar"></i>
                             <span>Mis Reservas/Suscripciones</span>
                         </a>
+                        </a>
                     </li>
                     <li>
                         <a th:href="@{/vecino}">
                             <i data-feather="grid"></i>
+                            <span>Espacios Deportivos</span>
+                        </a>
+                    </li>
+
+                    <li>
+                        <a th:href="@{/vecino/notificaciones}">
+                            <i data-feather="bell"></i>
                             <span>Espacios Deportivos</span>
                         </a>
                     </li>
@@ -68,13 +76,13 @@
                         </a>
                     </li>
 
+
                     <li>
                         <a th:href="@{/admin/asignar-horarios}">
                             <i data-feather="clock"></i>
                             <span>Asignar Horarios</span>
                         </a>
                     </li>
-
                     <li>
                         <a href="#" class="nav-link" onclick="document.getElementById('logoutForm2').submit(); return false;">
                             <i data-feather="log-out"></i>
@@ -161,7 +169,7 @@
                 <li>
                     <!-- inner menu: contains the actual data -->
                     <ul class="menu sm-scrol">
-                        <li th:if="${#lists.isEmpty(notificaciones)}">
+                        <li th:if="${#lists.isEmpty(notificacionesAdmin)}">
                             <a href="#"><i class="fa fa-info-circle text-muted"></i> No tienes notificaciones</a>
                         </li>
                         <li th:each="notif : ${notificaciones}">
@@ -236,7 +244,7 @@
                         <li th:if="${#lists.isEmpty(notificaciones)}">
                             <a href="#"><i class="fa fa-info-circle text-muted"></i> No tienes notificaciones</a>
                         </li>
-                        <li th:each="notif : ${notificaciones}">
+                        <li th:each="notif : ${notificacionesAdmin}">
                             <a th:href="@{/admin/notificaciones}" th:classappend="${!notif.leido} ? 'fw-bold'">
                                 <i class="fa fa-info-circle text-primary"></i>
                                 <span th:text="${notif.titulo}">Título</span><br/>
@@ -284,7 +292,7 @@
                 </li>
                 <li>
                     <ul class="menu sm-scrol">
-                        <li th:if="${#lists.isEmpty(notificaciones)}">
+                        <li th:if="${#lists.isEmpty(notificacionesAdmin)}">
                             <a href="#"><i class="fa fa-info-circle text-muted"></i> No tienes notificaciones</a>
                         </li>
                         <li th:each="notif : ${notificaciones}">

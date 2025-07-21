@@ -257,7 +257,10 @@
                 }],
                 chart: {
                     type: 'bar',
-                    height: Math.max(355, cantidadesTop.length * 10)
+                    height: Math.max(355, cantidadesTop.length * 10),
+                    toolbar:{
+                        show:false
+                    }
                 },
                 plotOptions: {
                     bar: {
@@ -296,7 +299,7 @@
                     toolbar: {
                         show: true,
                         tools: {
-                            download: true,
+                            download: false,
                             selection: false,
                             zoom: false,
                             zoomin: false,
@@ -363,7 +366,10 @@
                 }],
                 chart: {
                     type: 'bar',
-                    height: Math.max(350, cantidadUsuariosTop.length * 40)
+                    height: Math.max(350, cantidadUsuariosTop.length * 40),
+                    toolbar:{
+                        show:false
+                    }
                 },
                 plotOptions: {
                     bar: {
@@ -400,7 +406,7 @@
                     toolbar: {
                         show: true,
                         tools: {
-                            download: true,
+                            download: false,
                             selection: false,
                             zoom: false,
                             zoomin: false,

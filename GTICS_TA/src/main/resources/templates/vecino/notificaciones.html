@@ -162,15 +162,15 @@
     function marcarLeida(id) {
         fetch(`/vecino/notificaciones/marcar-leida/${id}`, {
             method: 'POST',
-                headers: {
+            headers: {
                 'Content-Type': 'application/json',
-            ...getCsrfHeaders()
+                ...getCsrfHeaders()
             }
         })
-    .then(response => response.json())
+            .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    const notificationItem = document.querySelector('[data-id="${id}"]');
+                    const notificationItem = document.querySelector(`[data-id="${id}"]`);
                     notificationItem.classList.remove('bg-white');
                     notificationItem.classList.add('bg-light');
 
@@ -179,7 +179,7 @@
 
                     const estadoLeido = document.createElement("span");
                     estadoLeido.className = "ms-2 text-success d-inline-flex align-items-center";
-                    estadoLeido.innerHTML = '<i data-feather="eye" class="me-1" style="width: 16px; height: 16px;"></i> Leída"';
+                    estadoLeido.innerHTML = `<i data-feather="eye" class="me-1" style="width: 16px; height: 16px;"></i> Leída`;
 
                     const infoHora = notificationItem.querySelector('.text-secondary');
                     if (infoHora) {
