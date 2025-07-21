@@ -808,8 +808,6 @@ public class VecinoController {
     //
     //*********************************************************************************************
 
-
-
     @PostMapping("/api/chatbot")
     @ResponseBody
     public ResponseEntity<Map<String, String>> preguntar(@RequestBody Map<String, String> body,
@@ -854,6 +852,7 @@ public class VecinoController {
             return ResponseEntity.status(500).body(json);
         }
     }
+
 
     //*********************************************************************************************
     //

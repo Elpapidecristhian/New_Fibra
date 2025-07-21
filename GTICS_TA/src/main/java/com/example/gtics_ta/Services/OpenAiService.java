@@ -20,6 +20,7 @@ import java.net.http.HttpResponse;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -50,8 +51,19 @@ public class OpenAiService {
     @Autowired private PistasAtletismoRepository pistasAtletismoRepository;
 
     public String obtenerHorariosDesdeDto(String nombreEspacio, String fechaStr) {
-        if (nombreEspacio == null || fechaStr == null) {
-            return "Por favor indícame el nombre del espacio y la fecha para mostrar los horarios disponibles.";
+        if (nombreEspacio == null) {
+            String prompt = """
+    Un usuario quiere consultar los horarios disponibles, pero no ha indicado el nombre del espacio deportivo.
+    Redacta una respuesta amable y natural pidiéndole que por favor mencione el nombre del espacio que desea consultar.
+    Puedes sugerirle ejemplos como 'piscina', 'cancha', etc. Usa emojis si deseas.
+    """;
+
+            try {
+                return llamarAGpt(prompt);
+            } catch (Exception e) {
+                e.printStackTrace();
+                return "Ocurrió un error al generar la respuesta. Intenta nuevamente.";
+            }
         }
 
         List<EspaciosDeportivos> espacios = espaciosDeportivosRepository.findByNombreContaining(nombreEspacio);
@@ -61,11 +73,28 @@ public class OpenAiService {
 
         EspaciosDeportivos espacio = espacios.get(0);
         LocalDate fecha;
+        if (fechaStr == null) {
+            String prompt = """
+    Un usuario quiere consultar los horarios de disponibilidad del espacio deportivo "%s", pero no ha indicado la fecha. 
+    Redacta una respuesta amable y natural donde le pidas que indique el día exacto que desea consultar. 
+    Puedes sugerirle usar palabras como "hoy", "mañana" o una fecha específica.
+    Usa emojis si deseas.
+    """.formatted(nombreEspacio);
+
+            try {
+                return llamarAGpt(prompt);
+            } catch (Exception e) {
+                e.printStackTrace();
+                return "Ocurrió un error al procesar tu solicitud. Intenta nuevamente.";
+            }
+        }
+
         try {
             fecha = LocalDate.parse(fechaStr);
         } catch (Exception e) {
-            return "La fecha que proporcionaste no tiene un formato válido. Usa el formato AAAA-MM-DD.";
+            return "La fecha que proporcionaste no tiene un formato válido. Usa el formato AAAA-MM-DD, o intenta con palabras como 'hoy' o 'mañana'.";
         }
+
 
         List<HorariosConsultaDTO> listaHorarios = horariosRepository.obtenerHorariosConsulta(fecha, espacio.getId());
         List<HorariosConsultaDTO> disponibles = listaHorarios.stream()
@@ -515,66 +544,69 @@ Usuario: %s
         }
     }
     public MensajeProcesadoDTO analizarIntencion(String mensajeUsuario) throws Exception {
+        String hoy = LocalDate.now().toString();  // Por ejemplo, "2025-07-21"
+
         String prompt = """
-        Eres un asistente virtual inteligente para el sistema de reservas deportivas de la Municipalidad de San Miguel. Tu función principal es ayudar a los ciudadanos (vecinos) a obtener información y gestionar sus reservas en espacios deportivos.
+    Eres un asistente virtual inteligente para el sistema de reservas deportivas de la Municipalidad de San Miguel.
+    Hoy es %s. Tu función principal es ayudar a los ciudadanos (vecinos) a obtener información y gestionar sus reservas en espacios deportivos.
 
-        Tu tarea ahora es analizar el siguiente mensaje del usuario y responder con un JSON que contenga:
+    Tu tarea ahora es analizar el siguiente mensaje del usuario y responder con un JSON que contenga:
 
-        {
-         "intenciones": [...],      // Ej: ["costo_reserva", "horarios_disponibles"]
-         "espacio": "...",          // Ej: "piscina Diego Ferre"
-         "fecha": "..."             // Ej: "2025-07-15"
-          "detalle": "..."  // ← NUEVO
-                   
-        }
-NUEVO CAMPO: "detalle"
-- Si el usuario pregunta por un atributo o característica específica del espacio (como "requisitos", "aforo", "costo", "duchas", "sauna", etc.), indícalo en el campo "detalle".
-- Si el usuario no pidió nada específico, pon "detalle": null.
-- Este campo se usa solo con la intención "detalles_espacio".
+    {
+     "intenciones": [...],      // Ej: ["costo_reserva", "horarios_disponibles"]
+     "espacio": "...",          // Ej: "piscina Diego Ferre"
+     "fecha": "..."             // Ej: "2025-07-15"
+     "detalle": "..."           // ← NUEVO
+    }
 
-        REQUISITOS:
-        - Si el usuario pregunta por un espacio, intenta identificarlo aunque tenga errores ortográficos leves.
-        - Interpreta expresiones como "mañana", "hoy", "viernes", "el 10 de julio" y conviértelas a formato YYYY-MM-DD.
-        - Si se menciona una fecha anterior a hoy, ignórala y deja "fecha": null.
-        - Si no hay suficiente información para un campo, devuélvelo como null.
-        - Si el mensaje no está relacionado con reservas deportivas, clasifica la intención como "otro".
+    NUEVO CAMPO: "detalle"
+    - Si el usuario pregunta por un atributo o característica específica del espacio (como "requisitos", "aforo", "costo", "duchas", "sauna", etc.), indícalo en el campo "detalle".
+    - Si el usuario no pidió nada específico, pon "detalle": null.
+    - Este campo se usa solo con la intención "detalles_espacio".
 
-        INTENCIONES POSIBLES:
-        - espacios_disponibles
-        - horarios_disponibles
-        - costo_reserva
-        - aforo_espacio
-        - ubicacion_espacio
-        - contacto_espacio
-        - estado_operativo
-        - detalles_espacio
-        - medios_pago
-        - reservas_usuario
-        - pagos_usuario
-        - devoluciones
-        - otro
+    REQUISITOS:
+    - Si el usuario pregunta por un espacio, intenta identificarlo aunque tenga errores ortográficos leves.
+    - Interpreta expresiones como "mañana", "hoy", "viernes", "el 10 de julio" y conviértelas a formato YYYY-MM-DD.
+    - Si se menciona una fecha anterior a hoy, ignórala y deja "fecha": null.
+    - Si no hay suficiente información para un campo, devuélvelo como null.
+    - Si el mensaje no está relacionado con reservas deportivas, clasifica la intención como "otro".
 
-        EJEMPLOS:
-- "¿Cuáles son los requisitos de la piscina?" ⇒ intencion: detalles_espacio, espacio: piscina, detalle: "requisitos"
-- "¿Tiene duchas el gimnasio?" ⇒ intencion: detalles_espacio, espacio: gimnasio, detalle: "duchas"
-- "Dame los detalles de la piscina" ⇒ intencion: detalles_espacio, espacio: piscina, detalle: null
-        - "¿Qué horarios hay el viernes en la piscina?" ⇒ intencion: horarios_disponibles, espacio: piscina, fecha: YYYY-MM-DD
-        - "¿Cuánto cuesta reservar el gimnasio?" ⇒ intencion: costo_reserva, espacio: gimnasio, fecha: null
-        - "¿Qué aforo tiene el gimnasio?" ⇒ intencion: aforo_espacio, espacio: gimnasio, fecha: null
-        - "¿Puedo pagar con Yape?" ⇒ intencion: medios_pago, espacio: null, fecha: null
-        - "Hola, ¿cómo estás?" ⇒ intencion: otro, espacio: null, fecha: null
+    INTENCIONES POSIBLES:
+    - espacios_disponibles
+    - horarios_disponibles
+    - costo_reserva
+    - aforo_espacio
+    - ubicacion_espacio
+    - contacto_espacio
+    - estado_operativo
+    - detalles_espacio
+    - medios_pago
+    - reservas_usuario
+    - pagos_usuario
+    - devoluciones
+    - otro
 
-        IMPORTANTE:
-- Si el usuario pregunta por un detalle específico (por ejemplo: requisitos, duchas, máquinas, sauna, aforo, tipo de superficie, iluminación, etc.), añade en el JSON un campo extra: "detalle": "requisitos", "duchas", etc.
-        - Puedes detectar más de una intención si el usuario pide múltiples cosas.
+    EJEMPLOS:
+    - "¿Cuáles son los requisitos de la piscina?" ⇒ intencion: detalles_espacio, espacio: piscina, detalle: "requisitos"
+    - "¿Tiene duchas el gimnasio?" ⇒ intencion: detalles_espacio, espacio: gimnasio, detalle: "duchas"
+    - "Dame los detalles de la piscina" ⇒ intencion: detalles_espacio, espacio: piscina, detalle: null
+    - "¿Qué horarios hay el viernes en la piscina?" ⇒ intencion: horarios_disponibles, espacio: piscina, fecha: YYYY-MM-DD
+    - "¿Cuánto cuesta reservar el gimnasio?" ⇒ intencion: costo_reserva, espacio: gimnasio, fecha: null
+    - "¿Qué aforo tiene el gimnasio?" ⇒ intencion: aforo_espacio, espacio: gimnasio, fecha: null
+    - "¿Puedo pagar con Yape?" ⇒ intencion: medios_pago, espacio: null, fecha: null
+    - "Hola, ¿cómo estás?" ⇒ intencion: otro, espacio: null, fecha: null
 
-        Mensaje del usuario: "%s"
+    IMPORTANTE:
+    - Si el usuario pregunta por un detalle específico (por ejemplo: requisitos, duchas, máquinas, sauna, aforo, tipo de superficie, iluminación, etc.), añade en el JSON un campo extra: "detalle": "requisitos", "duchas", etc.
+    - Puedes detectar más de una intención si el usuario pide múltiples cosas.
 
-        Responde solo el JSON, sin explicaciones adicionales.
-        """.formatted(mensajeUsuario);
+    Mensaje del usuario: "%s"
+
+    Responde solo el JSON, sin explicaciones adicionales.
+    """.formatted(hoy, mensajeUsuario);
 
         String json = llamarAGpt(prompt);
-// Extraer solo el bloque JSON usando regex
+
         Pattern pattern = Pattern.compile("\\{.*?\\}", Pattern.DOTALL);
         Matcher matcher = pattern.matcher(json);
         if (matcher.find()) {
@@ -584,24 +616,8 @@ NUEVO CAMPO: "detalle"
             throw new RuntimeException("No se encontró un JSON válido en la respuesta: " + json);
         }
     }
-    public ChatMessageDTO procesarMensaje(String mensaje) {
-        ChatMessageDTO dto = new ChatMessageDTO();
-        dto.setMensajeUsuario(mensaje);
 
-        // Aquí agregas lógica para detectar espacio deportivo y fecha
-        // Ejemplo simple, usa regex o keywords:
-        String espacio = detectarEspacio(mensaje);
-        LocalDate fecha = detectarFecha(mensaje);
 
-        dto.setEspacioDetectado(espacio);
-        dto.setFechaDetectada(fecha);
-
-        // También detectar intenciones si quieres
-        List<String> intenciones = detectarIntenciones(mensaje);
-        dto.setIntenciones(intenciones);
-
-        return dto;
-    }
 
     public String detectarEspacio(String mensaje) {
         // Aquí pones la lógica para detectar el espacio deportivo mencionado en el mensaje
@@ -653,5 +669,46 @@ NUEVO CAMPO: "detalle"
         }
         return intenciones;
     }
+
+    public String llamarAGptConHistorial(List<Map<String, String>> historial) throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        ObjectNode requestBody = mapper.createObjectNode();
+        requestBody.put("model", "gpt-4o");
+
+        ArrayNode messages = mapper.createArrayNode();
+        ObjectNode systemMessage = mapper.createObjectNode();
+        systemMessage.put("role", "system");
+        systemMessage.put("content", "Eres un asistente virtual de reservas deportivas de San Miguel. Responde con amabilidad y mantén coherencia según el contexto de la conversación.");
+        messages.add(systemMessage);
+
+        for (Map<String, String> mensaje : historial) {
+            ObjectNode msg = mapper.createObjectNode();
+            msg.put("role", mensaje.get("role"));
+            msg.put("content", mensaje.get("content"));
+            messages.add(msg);
+        }
+
+        requestBody.set("messages", messages);
+        requestBody.put("temperature", 0.5);
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create("https://api.openai.com/v1/chat/completions"))
+                .header("Content-Type", "application/json")
+                .header("Authorization", "Bearer " + apiKey)
+                .POST(HttpRequest.BodyPublishers.ofString(mapper.writeValueAsString(requestBody)))
+                .build();
+
+        HttpClient client = HttpClient.newHttpClient();
+        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+        JsonNode responseJson = mapper.readTree(response.body());
+
+        if (responseJson.has("choices")) {
+            return responseJson.get("choices").get(0).get("message").get("content").asText();
+        } else {
+            return "No pude generar una respuesta. Intenta de nuevo.";
+        }
+    }
+
 
 }
