@@ -9,4 +9,6 @@ import java.util.List;
 @Repository
 public interface SuscripcionesRepository extends JpaRepository<Suscripciones, Integer> {
     List<Suscripciones> findByUsuarioId(Integer id);
+
+    List<Suscripciones> findByEspacioId(Integer id);
 }

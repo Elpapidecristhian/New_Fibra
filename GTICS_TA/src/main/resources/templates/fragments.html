@@ -61,7 +61,19 @@
                         </a>
                     </li>
 
+                    <li>
+                        <a th:href="@{/admin/observaciones}">
+                            <i data-feather="file-text"></i>
+                            <span>Observaciones</span>
+                        </a>
+                    </li>
 
+                    <li>
+                        <a th:href="@{/admin/asignar-horarios}">
+                            <i data-feather="clock"></i>
+                            <span>Asignar Horarios</span>
+                        </a>
+                    </li>
 
                     <li>
                         <a href="#" class="nav-link" onclick="document.getElementById('logoutForm2').submit(); return false;">
@@ -70,6 +82,57 @@
                         </a>
                         <form id="logoutForm2" th:action="@{/logout}" method="post" style="display: none;"></form>
                     </li>
+                </ul>
+            </div>
+        </div>
+    </section>
+</aside>
+
+<aside th:fragment="sideBarCoordinador" class="main-sidebar">
+    <!-- sidebar-->
+    <section class="sidebar position-relative">
+        <div class="multinav">
+            <div class="multinav-scroll" style="height: 100%;">
+                <!-- sidebar menu-->
+                <ul class="sidebar-menu" data-widget="tree">
+                    <li>
+                        <a th:href="@{/coordinador/perfil(id=3)}">
+                            <i data-feather="user"></i>
+                            <span>Perfil</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a th:href="@{/coordinador/principal}">
+                            <i data-feather="clock"></i>
+                            <span>Marcar asistencia</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a th:href="@{/coordinador/mis-observaciones}">
+                            <i data-feather="file-text"></i>
+                            <span>Mis Observaciones</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a th:href="@{/coordinador/horarios}">
+                            <i data-feather="calendar"></i>
+                            <span>Horarios</span>
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="#"
+                           class="nav-link"
+                           onclick="event.preventDefault(); document.getElementById('logoutFormCoordinador').submit();">
+                            <i data-feather="log-out"></i>
+                            <span>Cerrar sesión</span>
+                        </a>
+
+                        <!-- Formulario oculto para logout -->
+                        <form id="logoutFormCoordinador" th:action="@{/logout}" method="post" style="display: none;"></form>
+                    </li>
+
+
                 </ul>
             </div>
         </div>
@@ -110,6 +173,17 @@
                         </li>
 
                     </ul>
+                </li>
+                <li class="footer">
+                    <div class="p-10">
+                        <div class="flexbox">
+                            <div class="text-center w-p100">
+                                <a th:href="@{/vecino/notificaciones}" class="btn btn-primary btn-sm">
+                                    <i class="fa fa-eye me-2"></i>Ver todas las notificaciones
+                                </a>
+                            </div>
+                        </div>
+                    </div>
                 </li>
             </ul>
         </li>
@@ -184,6 +258,57 @@
                     <div class="text-end me-10">
                         <p class="pt-5 fs-14 mb-0 fw-700 text-primary" th:text="${session.usuario.nombres + ' ' + session.usuario.apellidos}">Nombre</p>
                         <small class="fs-10 mb-0 text-uppercase text-mute" th:text="${session.usuario.rol.nombre}">Administrador</small>
+                    </div>
+                    <img th:src="@{|/profileimage/${session.usuario.id}|}" class="avatar rounded-10 bg-primary-light h-40 w-40"
+                         alt="avatar" onerror="this.onerror=null;this.src='/images/avatar/avatar-1.png';"/>
+                </div>
+            </a>
+        </li>
+    </ul>
+</div>
+
+<div th:fragment="navbarCoordinador" class="navbar-custom-menu r-side">
+    <ul class="nav navbar-nav">
+        <!-- Notificaciones -->
+        <li class="dropdown notifications-menu">
+            <a href="#" class="waves-effect waves-light dropdown-toggle btn-info-light" data-bs-toggle="dropdown" title="Notificaciones">
+                <i data-feather="bell"></i>
+            </a>
+            <ul class="dropdown-menu animated bounceIn">
+                <li class="header">
+                    <div class="p-20">
+                        <div class="flexbox">
+                            <div><h4 class="mb-0 mt-0">Notificaciones</h4></div>
+                        </div>
+                    </div>
+                </li>
+                <li>
+                    <ul class="menu sm-scrol">
+                        <li th:if="${#lists.isEmpty(notificaciones)}">
+                            <a href="#"><i class="fa fa-info-circle text-muted"></i> No tienes notificaciones</a>
+                        </li>
+                        <li th:each="notif : ${notificaciones}">
+                            <a th:href="@{/admin/notificaciones}" th:classappend="${!notif.leido} ? 'fw-bold'">
+                                <i class="fa fa-info-circle text-primary"></i>
+                                <span th:text="${notif.titulo}">Título</span><br/>
+                                <small th:text="${#temporals.format(notif.fechaCreacion, 'dd/MM/yyyy HH:mm')}">Fecha</small>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+                <li class="footer">
+                    <a th:href="@{/coordinador/notificaciones}">Ver todas</a>
+                </li>
+            </ul>
+        </li>
+
+        <!-- Usuario -->
+        <li class="dropdown user user-menu">
+            <a href="#" class="dropdown-toggle w-auto l-h-12 bg-transparent py-0 no-shadow" data-bs-toggle="dropdown" title="User">
+                <div class="d-flex pt-5">
+                    <div class="text-end me-10">
+                        <p class="pt-5 fs-14 mb-0 fw-700 text-primary" th:text="${session.usuario.nombres + ' ' + session.usuario.apellidos}">Nombre</p>
+                        <small class="fs-10 mb-0 text-uppercase text-mute" th:text="${session.usuario.rol.nombre}">Coordinador</small>
                     </div>
                     <img th:src="@{|/profileimage/${session.usuario.id}|}" class="avatar rounded-10 bg-primary-light h-40 w-40"
                          alt="avatar" onerror="this.onerror=null;this.src='/images/avatar/avatar-1.png';"/>

@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="">
+  <meta name="author" content="">
+  <link rel="icon" th:href="@{/images/logo-solo.png}">
+
+  <title>Horarios del Coordinador</title>
+
+  <!-- Vendors Style-->
+  <link rel="stylesheet" th:href="@{/css/vendors_css.css}"/>
+
+  <!-- Style-->
+  <link rel="stylesheet" th:href="@{/css/style.css}"/>
+  <link rel="stylesheet" th:href="@{/css/skin_color.css}"/>
+
+  <!-- FullCalendar CSS -->
+  <link rel="stylesheet" th:href="@{/assets/vendor_components/fullcalendar/fullcalendar.min.css}"/>
+
+  <style>
+    /* Ocultar el número de hora delante del evento */
+    .fc-time {
+      display: none !important;
+    }
+  </style>
+
+</head>
+
+<body class="hold-transition light-skin sidebar-mini theme-success fixed">
+
+<div class="wrapper">
+  <div id="loader"></div>
+
+  <header class="main-header">
+    <div class="d-flex align-items-center logo-box justify-content-center">
+      <!-- Logo -->
+      <a th:href="@{/coordinador/principal}" class="logo">
+        <!-- logo-->
+        <div class="logo-mini w-150 text-center">
+          <span class="light-logo"><img th:src="@{/images/logo-sanMiguel.png}" alt="logo"/></span>
+        </div>
+      </a>
+    </div>
+    <!-- Header Navbar -->
+    <nav class="navbar navbar-static-top">
+      <!-- Sidebar toggle button-->
+      <div class="app-menu">
+        <ul class="header-megamenu nav">
+          <li class="btn-group nav-item">
+            <a href="#" class="waves-effect waves-light nav-link push-btn btn-primary-light" data-toggle="push-menu" role="button">
+              <i data-feather="align-left"></i>
+            </a>
+          </li>
+        </ul>
+      </div>
+
+      <div th:replace="fragments :: navbarCoordinador"></div>
+    </nav>
+  </header>
+
+  <!-- Left side column. contains the logo and sidebar -->
+  <aside th:replace="fragments :: sideBarCoordinador"></aside>
+
+  <!-- Content Wrapper. Contains page content -->
+  <div class="content-wrapper">
+    <div class="container-full">
+      <!-- Content Header (Page header) -->
+      <div class="content-header">
+        <div class="d-flex align-items-center">
+          <div class="me-auto">
+            <h4 class="page-title">Mis Horarios Laborales</h4>
+            <div class="d-inline-block align-items-center">
+              <nav>
+                <ol class="breadcrumb">
+                  <li class="breadcrumb-item"><a href="#"><i class="mdi mdi-home-outline"></i></a></li>
+                  <li class="breadcrumb-item" aria-current="page">Coordinador</li>
+                  <li class="breadcrumb-item active" aria-current="page">Horarios</li>
+                </ol>
+              </nav>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Main content -->
+      <section class="content">
+        <div class="row">
+          <div class="col-12">
+            <div class="box">
+              <div class="box-header with-border">
+                <h4 class="box-title">Calendario de Horarios Asignados</h4>
+                <p class="box-subtitle">Visualiza tus horarios de trabajo asignados. Haz clic en cualquier evento para ver más detalles.</p>
+              </div>
+              <div class="box-body">
+                <div id="calendar"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+      <!-- /.content -->
+    </div>
+
+  </div>
+  <!-- /.content-wrapper -->
+
+  <!-- Modal para mostrar detalles del horario -->
+  <div class="modal fade" id="horarioModal" tabindex="-1" role="dialog" aria-labelledby="horarioModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header" style="background-color: #1DBFC1">
+          <h5 class="modal-title" id="horarioModalLabel" style="color: white">Detalles del Horario</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <!-- Fila: Nombre del Espacio y Tipo de Espacio -->
+          <div class="row">
+            <div class="col-md-6">
+              <h6><i class="fa fa-tag text-danger"></i> Nombre del Espacio:</h6>
+              <p id="modalNombreEspacio" class="mb-3"></p>
+            </div>
+            <div class="col-md-6">
+              <h6><i class="fa fa-futbol-o text-warning"></i> Tipo de Espacio:</h6>
+              <p id="modalTipoEspacio" class="mb-3"></p>
+            </div>
+          </div>
+
+          <!-- Fila: Horario y Período -->
+          <div class="row">
+            <div class="col-md-6">
+              <h6><i class="fa fa-clock-o text-success"></i> Horario:</h6>
+              <p id="modalHorario" class="mb-3"></p>
+            </div>
+            <div class="col-md-6">
+              <h6><i class="fa fa-calendar text-info"></i> Período:</h6>
+              <p id="modalPeriodo" class="mb-3"></p>
+            </div>
+          </div>
+
+          <!-- Fila: Ubicación -->
+          <div class="row">
+            <div class="col-12">
+              <h6><i class="fa fa-map-marker text-primary"></i> Ubicación:</h6>
+              <p id="modalUbicacion" class="mb-3"></p>
+            </div>
+          </div>
+
+          <!-- Fila: Mapa embebido -->
+          <div class="row">
+            <div class="col-12">
+              <h6><i class="fa fa-map text-danger"></i> Mapa del Complejo:</h6>
+              <div id="contenedorMapa" class="mb-3" style="width: 100%; height: 200px; border-radius: 10px; overflow: hidden; display: none;">
+                <iframe id="iframeMapa"
+                        width="100%"
+                        height="100%"
+                        style="border:0;"
+                        allowfullscreen
+                        loading="lazy"
+                        referrerpolicy="no-referrer-when-downgrade">
+                </iframe>
+              </div>
+              <div id="mensajeNoMapa" class="mb-3 text-center text-muted" style="display: none;">
+                <i class="fa fa-map-o fa-2x"></i>
+                <p class="mt-2">No hay mapa disponible para este espacio</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+  </div>
+
+  <!-- Formulario oculto para logout -->
+  <form id="logoutForm" th:action="@{/logout}" method="post" style="display: none;">
+    <input type="hidden" name="_csrf" th:value="${_csrf.token}"/>
+  </form>
+
+
+</div>
+<!-- ./wrapper -->
+
+<!-- Vendor JS -->
+<script th:src="@{/js/vendors.min.js}"></script>
+<script th:src="@{/js/pages/chat-popup.js}"></script>
+<script th:src="@{/assets/icons/feather-icons/feather.min.js}"></script>
+
+<!-- Bootstrap JS (si no está en vendors.min.js) -->
+<script th:src="@{/assets/vendor_components/bootstrap/dist/js/bootstrap.bundle.min.js}"></script>
+
+<!-- FullCalendar -->
+<script th:src="@{/assets/vendor_components/moment/moment.js}"></script>
+<script th:src="@{/assets/vendor_components/fullcalendar/fullcalendar.min.js}"></script>
+<script th:src="@{/assets/vendor_components/fullcalendar/locale/es.js}"></script>
+
+<!-- Rhythm Admin App -->
+<script th:src="@{/js/template.js}"></script>
+
+<script>
+$(document).ready(function() {
+    // Asegurar que los botones del modal funcionen con múltiples métodos
+    $('[data-dismiss="modal"]').on('click', function(e) {
+        e.preventDefault();
+        $('#horarioModal').modal('hide');
+    });
+
+    // También manejar con JavaScript nativo
+    document.addEventListener('click', function(e) {
+        if (e.target.matches('[data-dismiss="modal"]') || e.target.closest('[data-dismiss="modal"]')) {
+            e.preventDefault();
+            $('#horarioModal').modal('hide');
+        }
+    });
+
+    // Limpiar iframe cuando se cierre el modal
+    $('#horarioModal').on('hidden.bs.modal', function() {
+        $('#iframeMapa').attr('src', '');
+    });
+
+    // Configurar FullCalendar
+    $('#calendar').fullCalendar({
+        locale: 'es',
+        header: {
+            left: 'prev,next today',
+            center: 'title',
+            right: 'month,agendaWeek,agendaDay'
+        },
+        defaultView: 'month',
+        editable: false,
+        eventLimit: true,
+        height: 'auto',
+        events: function(start, end, timezone, callback) {
+            // Cargar eventos desde el servidor
+            $.ajax({
+                url: '/coordinador/mis-horarios',
+                type: 'GET',
+                success: function(data) {
+                  //AQUI
+                    console.log("Eventos recibidos:", data);
+                    callback(data);
+                },
+                error: function() {
+                    alert('Error al cargar los horarios');
+                }
+            });
+        },
+        eventClick: function(calEvent, jsEvent, view) {
+            console.log('Evento clickeado:', calEvent);
+
+            // Mostrar modal con detalles del horario
+            $('#modalNombreEspacio').text(calEvent.nombreEspacio);
+            $('#modalTipoEspacio').text(calEvent.tipoEspacio);
+            $('#modalUbicacion').text(calEvent.ubicacion);
+            $('#modalHorario').text(calEvent.horaEntrada + ' - ' + calEvent.horaSalida);
+
+            // Formatear fechas
+            var fechaInicio = moment(calEvent.fechaInicio).format('DD/MM/YYYY');
+            var fechaFin = moment(calEvent.fechaFin).format('DD/MM/YYYY');
+
+            if (fechaInicio === fechaFin) {
+                $('#modalPeriodo').text(fechaInicio);
+            } else {
+                $('#modalPeriodo').text(fechaInicio + ' - ' + fechaFin);
+            }
+
+            // Actualizar el iframe del mapa con validación
+            var iframeMapa = $('#iframeMapa');
+            var contenedorMapa = $('#contenedorMapa');
+            var mensajeNoMapa = $('#mensajeNoMapa');
+
+            if (calEvent.urlMapa && calEvent.urlMapa.trim() !== '') {
+                // Limpiar src anterior
+                iframeMapa.attr('src', '');
+
+                // Agregar manejo de errores
+                iframeMapa.off('load error').on('load', function() {
+                    console.log('Mapa cargado correctamente');
+                }).on('error', function() {
+                    console.log('Error al cargar el mapa');
+                    contenedorMapa.hide();
+                    mensajeNoMapa.show();
+                });
+
+                // Establecer nueva URL
+                setTimeout(function() {
+                    iframeMapa.attr('src', calEvent.urlMapa);
+                }, 100);
+
+                contenedorMapa.show();
+                mensajeNoMapa.hide();
+            } else {
+                iframeMapa.attr('src', '');
+                contenedorMapa.hide();
+                mensajeNoMapa.show();
+            }
+
+            $('#horarioModal').modal('show');
+        }
+    });
+});
+</script>
+</div>
+</body>
+</html>

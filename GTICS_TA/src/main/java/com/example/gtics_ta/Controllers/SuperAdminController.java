@@ -5,6 +5,7 @@ import com.example.gtics_ta.Entity.Rol;
 import com.example.gtics_ta.Repository.EspaciosDeportivosRepository;
 import com.example.gtics_ta.Repository.ReservasRepository;
 import com.example.gtics_ta.Repository.RolRepository;
+import com.example.gtics_ta.Services.MailService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -16,12 +17,10 @@ import com.example.gtics_ta.Repository.UsuarioRepository;
 import com.example.gtics_ta.Entity.Usuario;
 
 import javax.naming.Binding;
+import java.time.LocalDate;
 import java.time.Month;
 import java.time.format.TextStyle;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Controller
@@ -42,6 +41,8 @@ public class SuperAdminController {
 
     @Autowired
     private ReservasRepository reservasRepository;
+    @Autowired
+    private MailService emailService;
 
     @GetMapping(value = {"","/"})
     public String Dashboard(Model model) {
@@ -153,7 +154,7 @@ public class SuperAdminController {
         List<Rol> rolesFiltrados = rolRepository.findAll().stream()
                 .filter(r -> r.getIdRol() == 3 || r.getIdRol() == 4)
                 .collect(Collectors.toList());
-
+        model.addAttribute("hoy", LocalDate.now());
         model.addAttribute("roles", rolesFiltrados);
 
         return "Usuario_Superadmin/Usuario_generar"; // Nombre de tu archivo HTML Thymeleaf
@@ -176,7 +177,16 @@ public class SuperAdminController {
         Rol rol = rolRepository.findById(rolId)
                 .orElseThrow(() -> new IllegalArgumentException("Rol inválido"));
         usuario.setRol(rol);
+
+        String contrasenia = usuario.getContrasenia();
+        String nombresApellidos = usuario.getNombres() + " " + usuario.getApellidos();
         usuarioRepository.save(usuario);
+
+        Map<String, Object> datos = new HashMap<>();
+        datos.put("contrasenia", contrasenia);
+        datos.put("nombresApellidos", nombresApellidos);
+
+        emailService.enviarCorreoConPlantilla(usuario.getCorreo(), "Bienvenido a la Plataforma", "email/welcome", datos);
 
         return "redirect:/SuperAdmin/usuarios-no-baneados";
     }

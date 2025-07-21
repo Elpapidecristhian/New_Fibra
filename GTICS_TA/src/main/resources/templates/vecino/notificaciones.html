@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notificaciones - Municipalidad de San Miguel</title>
+    <link rel="stylesheet" th:href="@{/css/vendors_css.css}">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" th:href="@{/css/skin_color.css}">
+    <!-- CSRF Token -->
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+
+</head>
+<body class="hold-transition light-skin sidebar-mini theme-success fixed">
+<div class="wrapper">
+    <div id="loader"></div>
+
+    <!-- Cabecera -->
+    <header class="main-header">
+        <div class="d-flex align-items-center logo-box justify-content-center">
+            <a href="#" class="logo">
+                <div class="logo-mini w-150 text-center">
+                    <span class="light-logo"><img th:src="@{/images/logo-sanMiguel.png}" alt="logo"></span>
+                </div>
+            </a>
+        </div>
+        <nav class="navbar navbar-static-top">
+            <div class="app-menu">
+                <ul class="header-megamenu nav">
+                    <li class="btn-group nav-item">
+                        <a href="#" class="waves-effect waves-light nav-link push-btn btn-primary-light" data-bs-toggle="push-menu" role="button">
+                            <i data-feather="align-left"></i>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            <div th:replace="fragments :: navbarFragment"></div>
+        </nav>
+    </header>
+
+    <!-- Sidebar -->
+    <aside th:replace="fragments :: sidebarFragment"></aside>
+
+    <!-- Contenido -->
+    <div class="content-wrapper">
+        <div class="container-full">
+            <div class="content-header">
+                <div class="d-flex align-items-center">
+                    <div class="me-auto">
+                        <h4 class="page-title">Mis Notificaciones</h4>
+                        <p class="text-muted mb-0">Gestiona tus notificaciones y mantente informado</p>
+                    </div>
+                    <div th:if="${noLeidas > 0}">
+                        <button class="btn btn-outline-primary" onclick="marcarTodasLeidas()">
+                            <i data-feather="check-square" class="me-1"></i> Marcar todas como leídas
+                        </button>
+
+                    </div>
+                </div>
+            </div>
+
+            <section class="content">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="box bg-primary text-white">
+                            <div class="box-body text-center">
+                                <i data-feather="bell" class="fa-2x mb-2"></i>          <!-- Total -->
+                                <h4 th:text="${#lists.size(notificaciones)}">0</h4>
+                                <small>Total Notificaciones</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="box bg-warning text-dark">
+                            <div class="box-body text-center">
+                                <i data-feather="mail" class="fa-2x mb-2"></i>
+                                <h4 th:text="${noLeidas}">0</h4>
+                                <small>No Leídas</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="box bg-success text-white">
+                            <div class="box-body text-center">
+                                <i data-feather="check-circle" class="fa-2x mb-2"></i>
+                                <h4 th:text="${#lists.size(notificaciones) - noLeidas}">0</h4>
+                                <small>Leídas</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="box">
+                    <div class="box-body p-0">
+                        <div th:if="${#lists.isEmpty(notificaciones)}" class="text-center p-5">
+                            <i class="fas fa-bell-slash fa-3x text-muted"></i>
+                            <h5>No tienes notificaciones</h5>
+                            <p>Cuando recibas notificaciones aparecerán aquí</p>
+                        </div>
+                        <div th:if="${!#lists.isEmpty(notificaciones)}">
+                            <ul class="list-group">
+                                <li th:each="notificacion : ${notificaciones}"
+                                    class="notification-item list-group-item d-flex justify-content-between align-items-start"
+
+                                    th:classappend="${notificacion.leida} ? 'bg-light' : 'bg-white'"
+                                    th:data-id="${notificacion.id}">
+                                    <div class="ms-2 me-auto">
+                                        <div class="fw-bold" th:text="${notificacion.titulo}"></div>
+                                        <small th:text="${notificacion.mensaje}" class="text-muted"></small><br>
+                                        <small class="text-secondary">
+                                            <i class="fas fa-clock me-1"></i><span th:text="${notificacion.fechaFormateada}"></span>
+                                            <span th:if="${notificacion.leida}" class="ms-2 text-success d-inline-flex align-items-center">
+  <i data-feather="eye" class="me-1" style="width: 16px; height: 16px;"></i> Leída
+</span>
+
+                                        </small>
+                                    </div>
+                                    <div class="ms-3">
+                                        <button th:if="${!notificacion.leida}"
+                                                class="btn btn-sm btn-outline-success"
+                                                th:onclick="'confirmarMarcadoLeido(' + ${notificacion.id} + ')'">
+                                            <i data-feather="check-circle" class="me-1"></i> Marcar como leída
+                                        </button>
+
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <footer class="main-footer">
+        &copy; <script>document.write(new Date().getFullYear())</script> <a href="https://munisanmiguel.gob.pe/">Municipalidad de San Miguel</a>. Todos los derechos reservados.
+    </footer>
+</div>
+
+<!-- Feather icons -->
+<script th:src="@{/assets/icons/feather-icons/feather.min.js}"></script>
+
+<!-- Bootstrap 4.6 compatible con data-toggle="dropdown" -->
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.7.0/dist/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- Otros scripts (vienen después para evitar conflictos) -->
+<script th:src="@{/js/vendors.min.js}"></script>
+<script th:src="@{/js/template.js}"></script>
+
+<!-- SweetAlert2 -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+    function getCsrfHeaders() {
+        const token = document.querySelector('meta[name="_csrf"]').getAttribute('content');
+        const header = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
+        return { [header]: token };
+    }
+
+    function marcarLeida(id) {
+        fetch(`/vecino/notificaciones/marcar-leida/${id}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                ...getCsrfHeaders()
+            }
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const notificationItem = document.querySelector('[data-id="${id}"]');
+                    notificationItem.classList.remove('bg-white');
+                    notificationItem.classList.add('bg-light');
+
+                    const button = notificationItem.querySelector('button');
+                    if (button) button.remove();
+
+                    const estadoLeido = document.createElement("span");
+                    estadoLeido.className = "ms-2 text-success d-inline-flex align-items-center";
+                    estadoLeido.innerHTML = '<i data-feather="eye" class="me-1" style="width: 16px; height: 16px;"></i> Leída"';
+
+                    const infoHora = notificationItem.querySelector('.text-secondary');
+                    if (infoHora) {
+                        infoHora.appendChild(estadoLeido);
+                    }
+
+                    if (typeof feather !== 'undefined') feather.replace();
+                    actualizarContador();
+                } else {
+                    alert('Error al marcar notificación: ' + data.error);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error de conexión');
+            });
+    }
+
+    function confirmarMarcadoLeido(id) {
+        Swal.fire({
+            title: '¿Marcar como leída?',
+            text: 'Esta notificación será marcada como leída.',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: 'Sí, marcar',
+            cancelButtonText: 'Cancelar',
+            background: 'rgba(50,70,211,0.85)',
+            color: '#fff',
+            customClass: {
+                confirmButton: 'btn btn-primary',
+                cancelButton: 'btn btn-outline-light'
+            },
+            buttonsStyling: false
+        }).then((result) => {
+            if (result.isConfirmed) {
+                marcarLeida(id);
+            }
+        });
+    }
+
+    function marcarTodasLeidas() {
+        Swal.fire({
+            title: '¿Marcar todas como leídas?',
+            text: 'Se marcarán todas las notificaciones como leídas.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Sí, marcar todas',
+            cancelButtonText: 'Cancelar',
+            background: 'rgba(50,70,211,0.85)',
+            color: '#fff',
+            customClass: {
+                confirmButton: 'btn btn-primary',
+                cancelButton: 'btn btn-outline-light'
+            },
+            buttonsStyling: false
+        }).then((result) => {
+            if (result.isConfirmed) {
+                fetch('/vecino/notificaciones/marcar-todas-leidas', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        ...getCsrfHeaders()
+                    }
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            location.reload();
+                        } else {
+                            alert('Error al marcar notificaciones: ' + data.error);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('Error de conexión');
+                    });
+            }
+        });
+    }
+
+    function actualizarContador() {
+        const noLeidas = document.querySelectorAll('.notification-item.unread').length;
+        const badge = document.querySelector('.navbar .badge');
+        const contadorNoLeidas = document.querySelector('.bg-warning h4');
+        const contadorLeidas = document.querySelector('.bg-success h4');
+
+        if (badge) {
+            if (noLeidas > 0) {
+                badge.textContent = noLeidas;
+            } else {
+                badge.remove();
+            }
+        }
+
+        if (contadorNoLeidas) {
+            contadorNoLeidas.textContent = noLeidas;
+        }
+
+        if (contadorLeidas) {
+            const totalNotificaciones = document.querySelectorAll('.notification-item').length;
+            contadorLeidas.textContent = totalNotificaciones - noLeidas;
+        }
+    }
+</script>
+
+
+</body>
+</html>

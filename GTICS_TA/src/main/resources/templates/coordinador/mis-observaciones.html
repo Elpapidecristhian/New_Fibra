@@ -75,70 +75,12 @@
         </ul>
       </div>
 
-      <div class="navbar-custom-menu r-side">
-        <ul class="nav navbar-nav">
-          <!-- User Account-->
-          <li>
-            <a class="waves-effect waves-light dropdown-toggle w-auto l-h-12 bg-transparent py-0 no-shadow" data-bs-toggle="dropdown" title="User">
-              <div class="d-flex pt-5">
-                <div class="text-end me-10">
-                  <p class="pt-5 fs-14 mb-0 fw-700 text-primary" th:text="${session.usuario.nombres+ ' ' + session.usuario.apellidos}" ></p>
-                  <small class="fs-10 mb-0 text-uppercase text-mute" th:text="${session.usuario.rol.nombre}"></small>
-                </div>
-                <img th:src="@{|/coordinador/profileimage/${session.usuario.getId()}?t=${#dates.format(#dates.createNow(), 'yyyyMMddHHmmss')}|}" class="avatar rounded-10 bg-primary-light h-40 w-40" alt=""
-                     onerror="this.onerror=null;this.src='/images/avatar/avatar-1.png';" />
-              </div>
-            </a>
-          </li>
-        </ul>
-      </div>
+      <div th:replace="fragments :: navbarCoordinador"></div>
     </nav>
   </header>
 
   <!-- Left side column. contains the logo and sidebar -->
-  <aside class="main-sidebar">
-    <!-- sidebar-->
-    <section class="sidebar position-relative">
-      <div class="multinav">
-        <div class="multinav-scroll" style="height: 100%;">
-          <!-- sidebar menu-->
-          <ul class="sidebar-menu" data-widget="tree">
-            <li>
-              <a th:href="@{/coordinador/perfil(id=3)}">
-                <i data-feather="user"></i>
-                <span>Perfil</span>
-              </a>
-            </li>
-            <li>
-              <a th:href="@{/coordinador/principal}">
-                <i data-feather="clock"></i>
-                <span>Marcar asistencia</span>
-              </a>
-            </li>
-            <li class="active">
-              <a th:href="@{/coordinador/mis-observaciones}">
-                <i data-feather="file-text"></i>
-                <span>Mis Observaciones</span>
-              </a>
-            </li>
-            <li>
-              <a href="#" class="nav-link" onclick="document.getElementById('logoutForm').submit(); return false;">
-                <i data-feather="log-out"></i>
-                <span>Cerrar sesión</span>
-              </a>
-              <form id="logoutForm" th:action="@{/logout}" method="post" style="display: none;"></form>
-            </li>
-          </ul>
-
-          <div class="sidebar-widgets">
-            <div class="copyright text-center m-25">
-              <p><strong class="d-block">Municipalidad de San Miguel</strong> © <script>document.write(new Date().getFullYear())</script> All Rights Reserved</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-  </aside>
+  <aside th:replace="fragments :: sideBarCoordinador"></aside>
 
   <!-- Content Wrapper. Contains page content -->
   <div class="content-wrapper">

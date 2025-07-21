@@ -22,4 +22,6 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Integer> {
 
     // Buscar usuarios por rol
     List<Usuario> findByRol_IdRol(Integer idRol);
+    List<Usuario> findByRol_NombreAndActivo(String rol, boolean activo);
+
 }

@@ -61,7 +61,8 @@ public class WebSecurityConfig {
                 .anyRequest().authenticated()
         );
         http.csrf(csrf -> csrf
-                .ignoringRequestMatchers("/vecino/api/chatbot")
+                .ignoringRequestMatchers("/vecino/api/chatbot","/vecino/guardarreserva","/coordinador/**", "/admin/**")
+                .csrfTokenRepository(csrfTokenRepository())
         );
         http.formLogin(form -> form
                 .loginPage("/login")
@@ -120,13 +121,7 @@ public class WebSecurityConfig {
 
         // Configurar manejo de excepciones
         http.exceptionHandling(exceptions -> exceptions
-                .accessDeniedPage("/login?error=access-denied")
-        );
-
-        // Configurar CSRF para formularios multipart
-        http.csrf(csrf -> csrf
-                .csrfTokenRepository(csrfTokenRepository())
-                .ignoringRequestMatchers("/vecino/guardarreserva","/coordinador/**")
+                .accessDeniedPage("/error403")
         );
 
         return http.build();
