@@ -1,68 +1,68 @@
 <!DOCTYPE html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head>
-  <meta charset="utf-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="">
-  <meta name="author" content="">
-  <link rel="icon" href="/images/san_miguel_logo.ico">
-  <link rel="icon" th:href="@{/images/san_miguel_logo.ico}">
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="/images/san_miguel_logo.ico">
+    <link rel="icon" th:href="@{/images/san_miguel_logo.ico}">
 
-  <title>Admin - Dashboard</title>
+    <title>Admin - Dashboard</title>
 
-  <!-- Vendors Style-->
-  <link rel="stylesheet" href="/css/vendors_css.css">
-  <link rel="stylesheet" th:href="@{/css/vendors_css.css}">
+    <!-- Vendors Style-->
+    <link rel="stylesheet" href="/css/vendors_css.css">
+    <link rel="stylesheet" th:href="@{/css/vendors_css.css}">
 
-  <!-- Style-->
-  <link rel="stylesheet" href="/css/style.css">
-  <link rel="stylesheet" href="/css/skin_color.css">
-  <link rel="stylesheet" th:href="@{/css/style.css}">
-  <link rel="stylesheet" th:href="@{/css/skin_color.css}">
+    <!-- Style-->
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/skin_color.css">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" th:href="@{/css/skin_color.css}">
 
-  <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
-
-
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
 
 
-  <style>
-    .box-equal-height .box-body {
-      flex-grow: 1;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-    }
-
-    .box-equal-height {
-      min-height: 390px; /* Ajusta según la altura total que necesites */
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-    }
-
-    #patient_overview, #recent_trend {
-      height: 220px !important;
-    }
-
-    #patient_overview {
-      flex: 1;
-      min-width: 200px;
-    }
-
-    .reporte-detalles {
-      flex: 1;
-      margin-left: 20px;
-    }
-
-    .notification-scroll {
-      max-height: 280px; /* Ajusta según altura de tus otras tarjetas */
-      overflow-y: auto;
-    }
 
 
-  </style>
+    <style>
+        .box-equal-height .box-body {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .box-equal-height {
+            min-height: 390px; /* Ajusta según la altura total que necesites */
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        #patient_overview, #recent_trend {
+            height: 220px !important;
+        }
+
+        #patient_overview {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .reporte-detalles {
+            flex: 1;
+            margin-left: 20px;
+        }
+
+        .notification-scroll {
+            max-height: 280px; /* Ajusta según altura de tus otras tarjetas */
+            overflow-y: auto;
+        }
+
+
+    </style>
 
 
 
@@ -71,38 +71,38 @@
 <body class="hold-transition light-skin sidebar-mini theme-success fixed">
 
 <div class="wrapper">
-  <div id="loader"></div>
+    <div id="loader"></div>
 
-  <header class="main-header">
+    <header class="main-header">
 
-    <div class="d-flex align-items-center logo-box justify-content-center">
-      <!-- Logo -->
-      <a th:href="@{/admin}" class="logo">
-        <!-- logo-->
-        <div class="logo-mini w-150 text-center">
-          <span class="light-logo"><img th:src="@{/images/logo-sanMiguel.png}" alt="logo"></span>
-        </div>
-      </a>
-    </div>
-    <!-- Header Navbar -->
-    <nav class="navbar navbar-static-top">
-
-      <!-- Sidebar toggle button-->
-      <div class="app-menu">
-        <ul class="header-megamenu nav">
-          <li class="btn-group nav-item">
-            <a href="#" class="waves-effect waves-light nav-link push-btn btn-primary-light" data-toggle="push-menu" role="button">
-              <i data-feather="align-left"></i>
+        <div class="d-flex align-items-center logo-box justify-content-center">
+            <!-- Logo -->
+            <a th:href="@{/admin}" class="logo">
+                <!-- logo-->
+                <div class="logo-mini w-150 text-center">
+                    <span class="light-logo"><img th:src="@{/images/logo-sanMiguel.png}" alt="logo"></span>
+                </div>
             </a>
-          </li>
+        </div>
+        <!-- Header Navbar -->
+        <nav class="navbar navbar-static-top">
 
-        </ul>
-      </div>
+            <!-- Sidebar toggle button-->
+            <div class="app-menu">
+                <ul class="header-megamenu nav">
+                    <li class="btn-group nav-item">
+                        <a href="#" class="waves-effect waves-light nav-link push-btn btn-primary-light" data-toggle="push-menu" role="button">
+                            <i data-feather="align-left"></i>
+                        </a>
+                    </li>
 
-        <div th:replace="fragments :: navbarAdmin"></div>
+                </ul>
+            </div>
 
-    </nav>
-  </header>
+            <div th:replace="fragments :: navbarAdmin"></div>
+
+        </nav>
+    </header>
 
     <aside th:replace="fragments :: sideBarAdmin"></aside>
 
@@ -180,6 +180,7 @@
                                 </div>
                             </div>
                         </div>
+
                     </div>
 
 
@@ -211,7 +212,10 @@
                             </div>
                         </div>
                     </div>
-                </div> <!-- cierre de div.container-full -->
+                </div>
+
+                <!-- cierre de div.container-full -->
+            </section>
         </div>
     </div><!-- cierre de div.content-wrapper -->
 
@@ -242,6 +246,7 @@
     <script th:inline="javascript">
         document.addEventListener("DOMContentLoaded", function () {
 
+            // === Gráfico: Top 10 Servicios Más Reservados ===
             const nombresTop = /*[[${dashboard.nombresServiciosTop}]]*/ [];
             const cantidadesTop = /*[[${dashboard.cantidadReservasTop}]]*/ [];
 
@@ -252,7 +257,7 @@
                 }],
                 chart: {
                     type: 'bar',
-                    height: Math.max(355, cantidadesTop.length * 10) // 45 px por barra
+                    height: Math.max(355, cantidadesTop.length * 10)
                 },
                 plotOptions: {
                     bar: {
@@ -267,6 +272,9 @@
                             fontSize: '13px',
                             fontFamily: 'inherit',
                             cssClass: 'apexcharts-xaxis-label'
+                        },
+                        formatter: function (value) {
+                            return value.length > 15 ? value.substring(0, 15) + '\n' + value.substring(15) : value;
                         }
                     }
                 },
@@ -274,14 +282,17 @@
             });
             topServicesChart.render();
 
+            // === Gráfico: Porcentaje de Servicios Reservados ===
             const nombresPorcentaje = /*[[${dashboard.nombresServiciosPorcentaje}]]*/ [];
             const cantidadesPorcentaje = /*[[${dashboard.cantidadServiciosPorcentaje}]]*/ [];
 
             const porcentajeChart = new ApexCharts(document.querySelector("#chart432"), {
                 series: cantidadesPorcentaje,
+                labels: nombresPorcentaje,
                 chart: {
                     type: 'donut',
-                    height: 350,
+                    height: 380,
+                    width: '100%',
                     toolbar: {
                         show: true,
                         tools: {
@@ -308,11 +319,10 @@
                         }
                     }
                 },
-                labels: nombresPorcentaje,
                 plotOptions: {
                     pie: {
                         donut: {
-                            size: '65%',
+                            size: '60%',
                             labels: {
                                 show: true,
                                 total: {
@@ -327,7 +337,9 @@
                     }
                 },
                 legend: {
-                    position: 'right'
+                    position: 'bottom',
+                    fontSize: '14px',
+                    horizontalAlign: 'center'
                 },
                 tooltip: {
                     y: {
@@ -340,84 +352,83 @@
             });
             porcentajeChart.render();
 
-        });
+            // === Gráfico: Top 10 Usuarios con Más Reservas ===
+            const nombresUsuariosTop = /*[[${dashboard.nombresUsuariosTop}]]*/ [];
+            const cantidadUsuariosTop = /*[[${dashboard.cantidadReservasUsuariosTop}]]*/ [];
 
-        // Top 10 Usuarios con más reservas
-        const nombresUsuariosTop = /*[[${dashboard.nombresUsuariosTop}]]*/ [];
-        const cantidadUsuariosTop = /*[[${dashboard.cantidadReservasUsuariosTop}]]*/ [];
-
-        const chartUsuarios = new ApexCharts(document.querySelector("#top_usuarios_reservas"), {
-            series: [{
-                name: 'Reservas',
-                data: cantidadUsuariosTop
-            }],
-            chart: {
-                type: 'bar',
-                height: Math.max(350, cantidadUsuariosTop.length * 40)
-            },
-            plotOptions: {
-                bar: {
-                    horizontal: false,
-                    endingShape: 'rounded'
-                }
-            },
-            xaxis: {
-                categories: nombresUsuariosTop
-            },
-            colors: ['#1a66d5']
-        });
-        chartUsuarios.render();
-
-        // Distribución de reservas por hora
-        const horasReservas = /*[[${dashboard.horasReservas}]]*/ [];
-        const cantidadReservasPorHora = /*[[${dashboard.cantidadReservasPorHora}]]*/ [];
-
-        const chartHoras = new ApexCharts(document.querySelector("#distribucion_horaria_reservas"), {
-            series: [{
-                name: 'Reservas',
-                data: cantidadReservasPorHora
-            }],
-            chart: {
-                type: 'area',
-                height: 350,
-                toolbar: {
-                    show: true,
-                    tools: {
-                        download: true,
-                        selection: false,
-                        zoom: false,
-                        zoomin: false,
-                        zoomout: false,
-                        pan: false,
-                        reset: false,
+            const chartUsuarios = new ApexCharts(document.querySelector("#top_usuarios_reservas"), {
+                series: [{
+                    name: 'Reservas',
+                    data: cantidadUsuariosTop
+                }],
+                chart: {
+                    type: 'bar',
+                    height: Math.max(350, cantidadUsuariosTop.length * 40)
+                },
+                plotOptions: {
+                    bar: {
+                        horizontal: false,
+                        endingShape: 'rounded'
                     }
-                }
-            },
-            fill: {
-                type: 'solid',
-                opacity: 0.4
-            },
-            stroke: {
-                curve: 'smooth',
-                width: 3
-            },
+                },
+                xaxis: {
+                    categories: nombresUsuariosTop,
+                    labels: {
+                        style: {
+                            fontSize: '13px',
+                            fontFamily: 'inherit',
+                            cssClass: 'apexcharts-xaxis-label'
+                        }
+                    }
+                },
+                colors: ['#1a66d5']
+            });
+            chartUsuarios.render();
 
-            plotOptions: {
-                bar: {
-                    columnWidth: '50%',
-                    endingShape: 'rounded'
-                }
-            },
-            xaxis: {
-                categories: horasReservas,
-                title: {
-                    text: 'Hora'
-                }
-            },
-            colors: ['#EF4444']
+            // === Gráfico: Distribución de Reservas por Hora ===
+            const horasReservas = /*[[${dashboard.horasReservas}]]*/ [];
+            const cantidadReservasPorHora = /*[[${dashboard.cantidadReservasPorHora}]]*/ [];
+
+            const chartHoras = new ApexCharts(document.querySelector("#distribucion_horaria_reservas"), {
+                series: [{
+                    name: 'Reservas',
+                    data: cantidadReservasPorHora
+                }],
+                chart: {
+                    type: 'area',
+                    height: 350,
+                    toolbar: {
+                        show: true,
+                        tools: {
+                            download: true,
+                            selection: false,
+                            zoom: false,
+                            zoomin: false,
+                            zoomout: false,
+                            pan: false,
+                            reset: false
+                        }
+                    }
+                },
+                fill: {
+                    type: 'solid',
+                    opacity: 0.4
+                },
+                stroke: {
+                    curve: 'smooth',
+                    width: 3
+                },
+                xaxis: {
+                    categories: horasReservas,
+                    title: {
+                        text: 'Hora'
+                    }
+                },
+                colors: ['#EF4444']
+            });
+            chartHoras.render();
+
         });
-        chartHoras.render();
-
     </script>
 
 
@@ -426,17 +437,18 @@
 
 
 
-<!-- Vendor JS -->
-<script src="/js/vendors.min.js"></script>
-<script src="/js/pages/chat-popup.js"></script>
-<script src="/assets/icons/feather-icons/feather.min.js"></script>
 
-<script src="/assets/vendor_components/datatable/datatables.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Vendor JS -->
+    <script src="/js/vendors.min.js"></script>
+    <script src="/js/pages/chat-popup.js"></script>
+    <script src="/assets/icons/feather-icons/feather.min.js"></script>
 
-<!-- Rhythm Admin App -->
-<script src="/js/template.js"></script>
+    <script src="/assets/vendor_components/datatable/datatables.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
+    <!-- Rhythm Admin App -->
+    <script src="/js/template.js"></script>
 
+</div>
 </body>
 </html>
